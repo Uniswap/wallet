@@ -1,0 +1,12 @@
+metro.config.js
+node_modules
+
+# Generated contract types
+src/abis/types
+
+generated*.ts
+__generated__/
+
+storybook-static
+
+coverage
