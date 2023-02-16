@@ -1,0 +1,97 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders a DecimalNumber 1`] = `
+<Text
+  allowFontScaling={true}
+  maxFontSizeMultiplier={1.4}
+  style={
+    Array [
+      Object {
+        "color": "#0D111C",
+        "display": "flex",
+        "fontFamily": "Inter-Medium",
+        "fontSize": 16,
+        "lineHeight": 24,
+      },
+    ]
+  }
+>
+  14,123
+  <Text
+    allowFontScaling={true}
+    maxFontSizeMultiplier={1.4}
+    style={
+      Array [
+        Object {
+          "color": "#888FAB",
+          "display": "flex",
+          "fontFamily": "Inter-Medium",
+          "fontSize": 16,
+          "lineHeight": 24,
+        },
+      ]
+    }
+  >
+    .
+    78
+  </Text>
+</Text>
+`;
+
+exports[`renders a DecimalNumber without a comma separator 1`] = `
+<Text
+  allowFontScaling={true}
+  maxFontSizeMultiplier={1.4}
+  style={
+    Array [
+      Object {
+        "color": "#0D111C",
+        "display": "flex",
+        "fontFamily": "Inter-Medium",
+        "fontSize": 16,
+        "lineHeight": 24,
+      },
+    ]
+  }
+>
+  14
+  <Text
+    allowFontScaling={true}
+    maxFontSizeMultiplier={1.4}
+    style={
+      Array [
+        Object {
+          "color": "#888FAB",
+          "display": "flex",
+          "fontFamily": "Inter-Medium",
+          "fontSize": 16,
+          "lineHeight": 24,
+        },
+      ]
+    }
+  >
+    ,
+    23
+  </Text>
+</Text>
+`;
+
+exports[`renders a DecimalNumber without a decimal part 1`] = `
+<Text
+  allowFontScaling={true}
+  maxFontSizeMultiplier={1.4}
+  style={
+    Array [
+      Object {
+        "color": "#0D111C",
+        "display": "flex",
+        "fontFamily": "Inter-Medium",
+        "fontSize": 16,
+        "lineHeight": 24,
+      },
+    ]
+  }
+>
+  14,123
+</Text>
+`;
