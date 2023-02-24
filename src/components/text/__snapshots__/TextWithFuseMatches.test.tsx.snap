@@ -1,0 +1,412 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders text with few matches 1`] = `
+<View
+  style={
+    Array [
+      Object {
+        "alignItems": "stretch",
+        "display": "flex",
+        "flexDirection": "row",
+        "justifyContent": "flex-start",
+      },
+    ]
+  }
+>
+  <Text
+    allowFontScaling={true}
+    maxFontSizeMultiplier={1.4}
+    style={
+      Array [
+        Object {
+          "color": "#0D111C",
+          "display": "flex",
+          "fontFamily": "Inter-Medium",
+          "fontSize": 16,
+          "lineHeight": 24,
+        },
+      ]
+    }
+  >
+    A
+  </Text>
+  <Text
+    allowFontScaling={true}
+    maxFontSizeMultiplier={1.4}
+    style={
+      Array [
+        Object {
+          "color": "#0D111C",
+          "display": "flex",
+          "fontFamily": "Inter-Medium",
+          "fontSize": 16,
+          "lineHeight": 24,
+        },
+      ]
+    }
+  >
+     
+  </Text>
+  <Text
+    allowFontScaling={true}
+    maxFontSizeMultiplier={1.4}
+    style={
+      Array [
+        Object {
+          "color": "#888FAB",
+          "display": "flex",
+          "fontFamily": "Inter-Medium",
+          "fontSize": 16,
+          "lineHeight": 24,
+        },
+      ]
+    }
+  >
+    t
+  </Text>
+  <Text
+    allowFontScaling={true}
+    maxFontSizeMultiplier={1.4}
+    style={
+      Array [
+        Object {
+          "color": "#888FAB",
+          "display": "flex",
+          "fontFamily": "Inter-Medium",
+          "fontSize": 16,
+          "lineHeight": 24,
+        },
+      ]
+    }
+  >
+    e
+  </Text>
+  <Text
+    allowFontScaling={true}
+    maxFontSizeMultiplier={1.4}
+    style={
+      Array [
+        Object {
+          "color": "#0D111C",
+          "display": "flex",
+          "fontFamily": "Inter-Medium",
+          "fontSize": 16,
+          "lineHeight": 24,
+        },
+      ]
+    }
+  >
+    x
+  </Text>
+  <Text
+    allowFontScaling={true}
+    maxFontSizeMultiplier={1.4}
+    style={
+      Array [
+        Object {
+          "color": "#0D111C",
+          "display": "flex",
+          "fontFamily": "Inter-Medium",
+          "fontSize": 16,
+          "lineHeight": 24,
+        },
+      ]
+    }
+  >
+    t
+  </Text>
+  <Text
+    allowFontScaling={true}
+    maxFontSizeMultiplier={1.4}
+    style={
+      Array [
+        Object {
+          "color": "#0D111C",
+          "display": "flex",
+          "fontFamily": "Inter-Medium",
+          "fontSize": 16,
+          "lineHeight": 24,
+        },
+      ]
+    }
+  >
+     
+  </Text>
+  <Text
+    allowFontScaling={true}
+    maxFontSizeMultiplier={1.4}
+    style={
+      Array [
+        Object {
+          "color": "#0D111C",
+          "display": "flex",
+          "fontFamily": "Inter-Medium",
+          "fontSize": 16,
+          "lineHeight": 24,
+        },
+      ]
+    }
+  >
+    w
+  </Text>
+  <Text
+    allowFontScaling={true}
+    maxFontSizeMultiplier={1.4}
+    style={
+      Array [
+        Object {
+          "color": "#0D111C",
+          "display": "flex",
+          "fontFamily": "Inter-Medium",
+          "fontSize": 16,
+          "lineHeight": 24,
+        },
+      ]
+    }
+  >
+    i
+  </Text>
+  <Text
+    allowFontScaling={true}
+    maxFontSizeMultiplier={1.4}
+    style={
+      Array [
+        Object {
+          "color": "#888FAB",
+          "display": "flex",
+          "fontFamily": "Inter-Medium",
+          "fontSize": 16,
+          "lineHeight": 24,
+        },
+      ]
+    }
+  >
+    t
+  </Text>
+  <Text
+    allowFontScaling={true}
+    maxFontSizeMultiplier={1.4}
+    style={
+      Array [
+        Object {
+          "color": "#888FAB",
+          "display": "flex",
+          "fontFamily": "Inter-Medium",
+          "fontSize": 16,
+          "lineHeight": 24,
+        },
+      ]
+    }
+  >
+    h
+  </Text>
+  <Text
+    allowFontScaling={true}
+    maxFontSizeMultiplier={1.4}
+    style={
+      Array [
+        Object {
+          "color": "#888FAB",
+          "display": "flex",
+          "fontFamily": "Inter-Medium",
+          "fontSize": 16,
+          "lineHeight": 24,
+        },
+      ]
+    }
+  >
+    o
+  </Text>
+  <Text
+    allowFontScaling={true}
+    maxFontSizeMultiplier={1.4}
+    style={
+      Array [
+        Object {
+          "color": "#888FAB",
+          "display": "flex",
+          "fontFamily": "Inter-Medium",
+          "fontSize": 16,
+          "lineHeight": 24,
+        },
+      ]
+    }
+  >
+    u
+  </Text>
+  <Text
+    allowFontScaling={true}
+    maxFontSizeMultiplier={1.4}
+    style={
+      Array [
+        Object {
+          "color": "#888FAB",
+          "display": "flex",
+          "fontFamily": "Inter-Medium",
+          "fontSize": 16,
+          "lineHeight": 24,
+        },
+      ]
+    }
+  >
+    t
+  </Text>
+  <Text
+    allowFontScaling={true}
+    maxFontSizeMultiplier={1.4}
+    style={
+      Array [
+        Object {
+          "color": "#888FAB",
+          "display": "flex",
+          "fontFamily": "Inter-Medium",
+          "fontSize": 16,
+          "lineHeight": 24,
+        },
+      ]
+    }
+  >
+     
+  </Text>
+  <Text
+    allowFontScaling={true}
+    maxFontSizeMultiplier={1.4}
+    style={
+      Array [
+        Object {
+          "color": "#888FAB",
+          "display": "flex",
+          "fontFamily": "Inter-Medium",
+          "fontSize": 16,
+          "lineHeight": 24,
+        },
+      ]
+    }
+  >
+    m
+  </Text>
+  <Text
+    allowFontScaling={true}
+    maxFontSizeMultiplier={1.4}
+    style={
+      Array [
+        Object {
+          "color": "#888FAB",
+          "display": "flex",
+          "fontFamily": "Inter-Medium",
+          "fontSize": 16,
+          "lineHeight": 24,
+        },
+      ]
+    }
+  >
+    a
+  </Text>
+  <Text
+    allowFontScaling={true}
+    maxFontSizeMultiplier={1.4}
+    style={
+      Array [
+        Object {
+          "color": "#888FAB",
+          "display": "flex",
+          "fontFamily": "Inter-Medium",
+          "fontSize": 16,
+          "lineHeight": 24,
+        },
+      ]
+    }
+  >
+    t
+  </Text>
+  <Text
+    allowFontScaling={true}
+    maxFontSizeMultiplier={1.4}
+    style={
+      Array [
+        Object {
+          "color": "#888FAB",
+          "display": "flex",
+          "fontFamily": "Inter-Medium",
+          "fontSize": 16,
+          "lineHeight": 24,
+        },
+      ]
+    }
+  >
+    c
+  </Text>
+  <Text
+    allowFontScaling={true}
+    maxFontSizeMultiplier={1.4}
+    style={
+      Array [
+        Object {
+          "color": "#888FAB",
+          "display": "flex",
+          "fontFamily": "Inter-Medium",
+          "fontSize": 16,
+          "lineHeight": 24,
+        },
+      ]
+    }
+  >
+    h
+  </Text>
+  <Text
+    allowFontScaling={true}
+    maxFontSizeMultiplier={1.4}
+    style={
+      Array [
+        Object {
+          "color": "#888FAB",
+          "display": "flex",
+          "fontFamily": "Inter-Medium",
+          "fontSize": 16,
+          "lineHeight": 24,
+        },
+      ]
+    }
+  >
+    e
+  </Text>
+  <Text
+    allowFontScaling={true}
+    maxFontSizeMultiplier={1.4}
+    style={
+      Array [
+        Object {
+          "color": "#888FAB",
+          "display": "flex",
+          "fontFamily": "Inter-Medium",
+          "fontSize": 16,
+          "lineHeight": 24,
+        },
+      ]
+    }
+  >
+    s
+  </Text>
+</View>
+`;
+
+exports[`renders text without matches 1`] = `
+<Text
+  allowFontScaling={true}
+  maxFontSizeMultiplier={1.4}
+  numberOfLines={1}
+  style={
+    Array [
+      Object {
+        "color": "#0D111C",
+        "display": "flex",
+        "fontFamily": "Inter-Medium",
+        "fontSize": 16,
+        "lineHeight": 24,
+      },
+    ]
+  }
+>
+  A text without matches
+</Text>
+`;
