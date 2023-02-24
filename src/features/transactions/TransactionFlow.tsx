@@ -6,8 +6,8 @@ import { TouchableWithoutFeedback } from 'react-native'
 import { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useAppTheme } from 'src/app/hooks'
+import DollarSign from 'src/assets/icons/dollar.svg'
 import EyeIcon from 'src/assets/icons/eye.svg'
-import SortIcon from 'src/assets/icons/sort.svg'
 import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { AnimatedFlex, Flex } from 'src/components/layout'
 import { Warning, WarningSeverity } from 'src/components/modals/WarningModal/types'
@@ -23,10 +23,10 @@ import { DerivedTransferInfo } from 'src/features/transactions/transfer/hooks'
 import { TransferReview } from 'src/features/transactions/transfer/TransferReview'
 import { TransferStatus } from 'src/features/transactions/transfer/TransferStatus'
 import { TransferTokenForm } from 'src/features/transactions/transfer/TransferTokenForm'
-import { ANIMATE_SPRING_CONFIG } from 'src/features/transactions/utils'
 import { AccountType } from 'src/features/wallet/accounts/types'
 import { useActiveAccountWithThrow } from 'src/features/wallet/hooks'
 import { dimensions } from 'src/styles/sizing'
+import { ANIMATE_SPRING_CONFIG } from './utils'
 
 export enum TransactionStep {
   FORM,
@@ -105,12 +105,20 @@ export function TransactionFlow({
 
   const [showViewOnlyModal, setShowViewOnlyModal] = useState(false)
   const isSwap = isSwapInfo(derivedInfo)
+  const hideInnerContentRouter = showTokenSelector || showRecipientSelector
 
-  const screenXOffset = useSharedValue(showTokenSelector || showRecipientSelector ? 1 : 0)
+  // optimisation for not rendering InnerContent initially,
+  // when modal is opened with recipient or token selector presented
+  const [renderInnerContentRouter, setRenderInnerContentRouter] = useState(!hideInnerContentRouter)
   useEffect(() => {
-    const screenOffset = showTokenSelector || showRecipientSelector ? 1 : 0
+    setRenderInnerContentRouter(renderInnerContentRouter || !hideInnerContentRouter)
+  }, [showTokenSelector, showRecipientSelector, renderInnerContentRouter, hideInnerContentRouter])
+
+  const screenXOffset = useSharedValue(hideInnerContentRouter ? -dimensions.fullWidth : 0)
+  useEffect(() => {
+    const screenOffset = hideInnerContentRouter ? 1 : 0
     screenXOffset.value = withSpring(-(dimensions.fullWidth * screenOffset), ANIMATE_SPRING_CONFIG)
-  }, [screenXOffset, showTokenSelector, showRecipientSelector])
+  }, [screenXOffset, showTokenSelector, showRecipientSelector, hideInnerContentRouter])
 
   const wrapperStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: screenXOffset.value }],
@@ -141,19 +149,19 @@ export function TransactionFlow({
                 {step === TransactionStep.FORM && showUSDToggle ? (
                   <TouchableArea
                     hapticFeedback
-                    bg={isUSDInput ? 'background3' : 'none'}
-                    borderRadius="rounded8"
-                    px="spacing12"
+                    bg={isUSDInput ? 'accentActionSoft' : 'background2'}
+                    borderRadius="rounded16"
+                    px="spacing8"
                     py="spacing4"
                     onPress={(): void => onToggleUSDInput(!isUSDInput)}>
-                    <Flex row alignItems="center" gap="spacing2">
-                      <SortIcon
-                        color={theme.colors.textSecondary}
+                    <Flex row alignItems="center" gap="spacing4">
+                      <DollarSign
+                        color={isUSDInput ? theme.colors.accentAction : theme.colors.textSecondary}
                         height={theme.iconSizes.icon16}
                         width={theme.iconSizes.icon16}
                       />
                       <Text
-                        color={isUSDInput ? 'textSecondary' : 'textSecondary'}
+                        color={isUSDInput ? 'accentAction' : 'textSecondary'}
                         variant="buttonLabelSmall">
                         {t('USD')}
                       </Text>
@@ -162,19 +170,19 @@ export function TransactionFlow({
                 ) : null}
                 {account?.type === AccountType.Readonly ? (
                   <TouchableArea
-                    bg="background3"
-                    borderRadius="rounded8"
+                    bg="background2"
+                    borderRadius="rounded12"
                     justifyContent="center"
                     px="spacing8"
                     py="spacing4"
                     onPress={(): void => setShowViewOnlyModal(true)}>
                     <Flex row alignItems="center" gap="spacing4">
                       <EyeIcon
-                        color={theme.colors.textSecondary}
+                        color={theme.colors.textTertiary}
                         height={theme.iconSizes.icon16}
                         width={theme.iconSizes.icon16}
                       />
-                      <Text color="textSecondary" variant="buttonLabelSmall">
+                      <Text color="textTertiary" variant="buttonLabelSmall">
                         {t('View-only')}
                       </Text>
                     </Flex>
@@ -183,20 +191,22 @@ export function TransactionFlow({
               </Flex>
             </Flex>
           )}
-          <InnerContentRouter
-            approveTxRequest={approveTxRequest}
-            derivedInfo={derivedInfo}
-            dispatch={dispatch}
-            exactValue={exactValue}
-            gasFallbackUsed={gasFallbackUsed}
-            setStep={setStep}
-            showingSelectorScreen={showRecipientSelector || showTokenSelector}
-            step={step}
-            totalGasFee={totalGasFee}
-            txRequest={txRequest}
-            warnings={warnings}
-            onClose={onClose}
-          />
+          {renderInnerContentRouter && (
+            <InnerContentRouter
+              approveTxRequest={approveTxRequest}
+              derivedInfo={derivedInfo}
+              dispatch={dispatch}
+              exactValue={exactValue}
+              gasFallbackUsed={gasFallbackUsed}
+              setStep={setStep}
+              showingSelectorScreen={showRecipientSelector || showTokenSelector}
+              step={step}
+              totalGasFee={totalGasFee}
+              txRequest={txRequest}
+              warnings={warnings}
+              onClose={onClose}
+            />
+          )}
         </Flex>
         {showViewOnlyModal && (
           <WarningModal

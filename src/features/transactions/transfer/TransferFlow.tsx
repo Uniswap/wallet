@@ -14,15 +14,14 @@ import {
   TransactionState,
   transactionStateReducer,
 } from 'src/features/transactions/transactionState/transactionState'
-import { useDerivedTransferInfo } from 'src/features/transactions/transfer/hooks'
-import { useTransferTransactionRequest } from 'src/features/transactions/transfer/useTransferTransactionRequest'
-import { useTransferWarnings } from 'src/features/transactions/transfer/useTransferWarnings'
 import {
-  createOnSelectRecipient,
-  createOnToggleShowRecipientSelector,
-} from 'src/features/transactions/transfer/utils'
+  useDerivedTransferInfo,
+  useOnSelectRecipient,
+  useOnToggleShowRecipientSelector,
+} from 'src/features/transactions/transfer/hooks'
+import { useTransferTransactionRequest } from 'src/features/transactions/transfer/useTransferTransactionRequest'
 import { useTransactionGasWarning } from 'src/features/transactions/useTransactionGasWarning'
-import { useActiveAccountWithThrow } from 'src/features/wallet/hooks'
+import { useTransferWarnings } from './useTransferWarnings'
 
 interface TransferFormProps {
   prefilledState?: TransactionState
@@ -32,15 +31,14 @@ interface TransferFormProps {
 export function TransferFlow({ prefilledState, onClose }: TransferFormProps): JSX.Element {
   const [state, dispatch] = useReducer(transactionStateReducer, prefilledState || emptyState)
   const { t } = useTranslation()
-  const account = useActiveAccountWithThrow()
   const { onSelectCurrency, onHideTokenSelector } = useSwapActionHandlers(dispatch)
-  const onSelectRecipient = createOnSelectRecipient(dispatch)
-  const onToggleShowRecipientSelector = createOnToggleShowRecipientSelector(dispatch)
+  const onSelectRecipient = useOnSelectRecipient(dispatch)
+  const onToggleShowRecipientSelector = useOnToggleShowRecipientSelector(dispatch)
   const derivedTransferInfo = useDerivedTransferInfo(state)
   const { isUSDInput, exactAmountToken, exactAmountUSD } = derivedTransferInfo
   const [step, setStep] = useState<TransactionStep>(TransactionStep.FORM)
   const txRequest = useTransferTransactionRequest(derivedTransferInfo)
-  const warnings = useTransferWarnings(t, account, derivedTransferInfo)
+  const warnings = useTransferWarnings(t, derivedTransferInfo)
   const gasFeeInfo = useTransactionGasFee(
     txRequest,
     GasSpeed.Urgent,

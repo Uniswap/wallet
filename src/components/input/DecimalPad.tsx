@@ -1,5 +1,5 @@
 import { ImpactFeedbackStyle } from 'expo-haptics'
-import React, { useMemo } from 'react'
+import React, { memo, useMemo } from 'react'
 import { TextInputProps } from 'react-native'
 import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { AnimatedBox, Box } from 'src/components/layout'
@@ -29,7 +29,7 @@ interface DecimalPadProps {
   hasCurrencyPrefix?: boolean
 }
 
-export function DecimalPad({
+export function _DecimalPad({
   setValue,
   value = '',
   hideDecimal = false,
@@ -181,6 +181,7 @@ function KeyButton({
     if (action !== KeyAction.Delete) return
 
     setValue('')
+    resetSelection?.(0, 0)
   }
 
   return (
@@ -193,7 +194,7 @@ function KeyButton({
       justifyContent="center"
       padding="spacing16"
       paddingTop={paddingTop}
-      scaleTo={1.75}
+      scaleTo={1.125}
       testID={'decimal-pad-' + label}
       width={index % 3 === 1 ? '50%' : '25%'}
       onLongPress={onLongPress}
@@ -207,3 +208,5 @@ function KeyButton({
     </TouchableArea>
   )
 }
+
+export const DecimalPad = memo(_DecimalPad)

@@ -17,6 +17,8 @@ interface TokenBalanceItemProps {
   isWarmLoading?: boolean
 }
 
+export const TOKEN_BALANCE_ITEM_HEIGHT = 56
+
 export const TokenBalanceItem = memo(
   ({ portfolioBalance, onPressToken, isWarmLoading }: TokenBalanceItemProps) => {
     const { quantity, currencyInfo, relativeChange24 } = portfolioBalance
@@ -34,7 +36,7 @@ export const TokenBalanceItem = memo(
         flexDirection="row"
         hapticStyle={ImpactFeedbackStyle.Light}
         justifyContent="space-between"
-        minHeight={56}
+        minHeight={TOKEN_BALANCE_ITEM_HEIGHT}
         py="spacing8"
         onPress={onPress}>
         <AnimatedFlex
@@ -72,6 +74,7 @@ export const TokenBalanceItem = memo(
               </Text>
               <Text color="textSecondary">
                 <RelativeChange
+                  alignRight
                   change={relativeChange24 ?? undefined}
                   negativeChangeColor={isWarmLoading ? 'textSecondary' : 'accentCritical'}
                   positiveChangeColor={isWarmLoading ? 'textSecondary' : 'accentSuccess'}

@@ -27,9 +27,11 @@ import {
   CurrencyField,
   transactionStateActions,
 } from 'src/features/transactions/transactionState/transactionState'
-import { DerivedTransferInfo } from 'src/features/transactions/transfer/hooks'
+import {
+  DerivedTransferInfo,
+  useOnToggleShowRecipientSelector,
+} from 'src/features/transactions/transfer/hooks'
 import { TransferFormSpeedbumps } from 'src/features/transactions/transfer/TransferFormWarnings'
-import { createOnToggleShowRecipientSelector } from 'src/features/transactions/transfer/utils'
 import { createTransactionId } from 'src/features/transactions/utils'
 import { BlockedAddressWarning } from 'src/features/trm/BlockedAddressWarning'
 import { useIsBlockedActiveAddress } from 'src/features/trm/hooks'
@@ -82,6 +84,7 @@ export function TransferTokenForm({
 
   const inputCurrencyUSDValue = useUSDCValue(currencyAmounts[CurrencyField.INPUT])
 
+  const [currencyFieldFocused, setCurrencyFieldFocused] = useState(true)
   const [showWarningModal, setShowWarningModal] = useState(false)
   const [showSpeedbumpModal, setShowSpeedbumpModal] = useState(false)
   const [transferSpeedbump, setTransferSpeedbump] = useState<TransferSpeedbump>({
@@ -90,7 +93,7 @@ export function TransferTokenForm({
   })
 
   const { onShowTokenSelector, onSetExactAmount, onSetMax } = useSwapActionHandlers(dispatch)
-  const onToggleShowRecipientSelector = createOnToggleShowRecipientSelector(dispatch)
+  const onToggleShowRecipientSelector = useOnToggleShowRecipientSelector(dispatch)
 
   const { isBlocked, isBlockedLoading } = useIsBlockedActiveAddress()
 
@@ -225,17 +228,17 @@ export function TransferTokenForm({
           ) : (
             <Box backgroundColor="background2" borderRadius="rounded20" justifyContent="center">
               <CurrencyInputPanel
-                focus
                 currencyAmount={currencyAmounts[CurrencyField.INPUT]}
                 currencyBalance={currencyBalances[CurrencyField.INPUT]}
                 currencyInfo={currencyInInfo}
+                focus={currencyFieldFocused}
                 isOnScreen={!showingSelectorScreen}
                 isUSDInput={isUSDInput}
-                selection={inputSelection}
                 showSoftInputOnFocus={showNativeKeyboard}
                 usdValue={inputCurrencyUSDValue}
                 value={isUSDInput ? exactAmountUSD : exactAmountToken}
                 warnings={warnings}
+                onPressIn={(): void => setCurrencyFieldFocused(true)}
                 onSelectionChange={
                   showNativeKeyboard
                     ? undefined
@@ -244,7 +247,10 @@ export function TransferTokenForm({
                 onSetExactAmount={(value): void =>
                   onSetExactAmount(CurrencyField.INPUT, value, isUSDInput)
                 }
-                onSetMax={onSetMax}
+                onSetMax={(amount): void => {
+                  onSetMax(amount)
+                  setCurrencyFieldFocused(false)
+                }}
                 onShowTokenSelector={(): void => onShowTokenSelector(CurrencyField.INPUT)}
               />
             </Box>
@@ -344,9 +350,10 @@ export function TransferTokenForm({
               hasCurrencyPrefix={isUSDInput}
               resetSelection={resetSelection}
               selection={inputSelection}
-              setValue={(newValue): void =>
+              setValue={(newValue): void => {
+                if (!currencyFieldFocused) return
                 onSetExactAmount(CurrencyField.INPUT, newValue, isUSDInput)
-              }
+              }}
               value={isUSDInput ? exactAmountUSD : exactAmountToken}
             />
           )}

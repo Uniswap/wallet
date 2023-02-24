@@ -1,9 +1,10 @@
 import { ApolloQueryResult } from '@apollo/client'
+import { isAddress } from 'ethers/lib/utils'
 import React, { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Share } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
-import { useAppTheme } from 'src/app/hooks'
+import { useAppSelector, useAppTheme } from 'src/app/hooks'
 import { AppStackScreenProp, useAppStackNavigation } from 'src/app/navigation/types'
 import ShareIcon from 'src/assets/icons/share.svg'
 import VerifiedIcon from 'src/assets/icons/verified.svg'
@@ -20,10 +21,13 @@ import { CHAIN_INFO } from 'src/constants/chains'
 import { PollingInterval } from 'src/constants/misc'
 import { uniswapUrls } from 'src/constants/urls'
 import { NftItemScreenQuery, useNftItemScreenQuery } from 'src/data/__generated__/types-and-hooks'
-import { useDisplayName } from 'src/features/wallet/hooks'
+import { selectModalState } from 'src/features/modals/modalSlice'
+import { ModalName } from 'src/features/telemetry/constants'
+import { useActiveAccountAddressWithThrow, useDisplayName } from 'src/features/wallet/hooks'
+import { ExploreModalAwareView } from 'src/screens/ModalAwareView'
 import { Screens } from 'src/screens/Screens'
 import { iconSizes, imageSizes } from 'src/styles/sizing'
-import { shortenAddress } from 'src/utils/addresses'
+import { areAddressesEqual, shortenAddress } from 'src/utils/addresses'
 import { fromGraphQLChain } from 'src/utils/chainId'
 import { formatNumber, NumberType } from 'src/utils/format'
 import { ExplorerDataType, getExplorerLink } from 'src/utils/linking'
@@ -36,6 +40,7 @@ export function NFTItemScreen({
 }: AppStackScreenProp<Screens.NFTItem>): JSX.Element {
   const theme = useAppTheme()
   const { t } = useTranslation()
+  const activeAccountAddress = useActiveAccountAddressWithThrow()
 
   const navigation = useAppStackNavigation()
 
@@ -88,33 +93,51 @@ export function NFTItemScreen({
     }
   }, [asset, assetChainId])
 
-  const onPressCollection = useCallback(() => {
+  const onPressCollection = (): void => {
     if (asset && asset.collection?.collectionId && asset.nftContract?.address) {
       navigation.navigate(Screens.NFTCollection, {
         collectionAddress: asset.nftContract?.address,
       })
     }
-  }, [asset, navigation])
+  }
+
+  // Disable navigation to profile if user owns NFT or invalid owner
+  const disableProfileNavigation =
+    areAddressesEqual(owner, activeAccountAddress) || !isAddress(owner)
+
+  const onPressOwner = (): void => {
+    navigation.navigate(Screens.ExternalProfile, { address: owner })
+  }
+
+  const inModal = useAppSelector(selectModalState(ModalName.Explore)).isOpen
 
   return (
-    <>
+    <ExploreModalAwareView>
       <HeaderScrollScreen
         centerElement={
           <Text color="textPrimary" numberOfLines={1} variant="bodyLarge">
             {asset?.name}
           </Text>
         }
+        renderedInModal={inModal}
         rightElement={
-          <TouchableOpacity onPress={onShare}>
-            <ShareIcon
-              color={theme.colors.textSecondary}
-              height={iconSizes.icon24}
-              width={iconSizes.icon24}
-            />
-          </TouchableOpacity>
+          <Box mr="spacing4">
+            <TouchableOpacity onPress={onShare}>
+              <ShareIcon
+                color={theme.colors.textTertiary}
+                height={iconSizes.icon24}
+                width={iconSizes.icon24}
+              />
+            </TouchableOpacity>
+          </Box>
         }>
         <Flex gap="spacing24" mb="spacing48" mt="spacing16" mx="spacing24" pb="spacing48">
-          <Flex gap="spacing24">
+          <Flex
+            gap="spacing24"
+            shadowColor="black"
+            shadowOffset={{ width: 0, height: 16 }}
+            shadowOpacity={0.2}
+            shadowRadius={16}>
             <Flex centered borderRadius="rounded16" overflow="hidden">
               {nftLoading ? (
                 <Box aspectRatio={1} width="100%">
@@ -141,14 +164,16 @@ export function NFTItemScreen({
                 variant="subheadLarge">
                 {asset?.name || '-'}
               </Text>
-              <Text color="textSecondary" variant="subheadSmall">
-                {t('Owned by {{owner}}', { owner: ownerDisplayName?.name })}
-              </Text>
+              <TouchableArea disabled={disableProfileNavigation} onPress={onPressOwner}>
+                <Text color="textSecondary" variant="subheadSmall">
+                  {t('Owned by {{owner}}', { owner: ownerDisplayName?.name })}
+                </Text>
+              </TouchableArea>
             </Flex>
           </Flex>
 
           {/* Collection info */}
-          <TouchableArea disabled={!asset?.collection} onPress={onPressCollection}>
+          <TouchableArea hapticFeedback disabled={!asset?.collection} onPress={onPressCollection}>
             {nftLoading ? (
               <Loader.Box borderRadius="rounded16" height={64} />
             ) : (
@@ -158,7 +183,7 @@ export function NFTItemScreen({
                 backgroundColor="background2"
                 borderRadius="rounded16"
                 gap="spacing8"
-                px="spacing16"
+                px="spacing12"
                 py="spacing12">
                 {nftLoading ? (
                   <Loader.Box height={40} />
@@ -167,18 +192,17 @@ export function NFTItemScreen({
                     {asset?.collection?.image?.url ? (
                       <Box
                         borderRadius="roundedFull"
-                        height={imageSizes.image32}
+                        height={imageSizes.image40}
                         overflow="hidden"
-                        width={imageSizes.image32}>
+                        width={imageSizes.image40}>
                         <NFTViewer squareGridView maxHeight={60} uri={asset.collection.image.url} />
                       </Box>
                     ) : null}
-                    <Box flexShrink={1}>
-                      <Text color="textTertiary" variant="buttonLabelMicro">
-                        {t('Collection')}
-                      </Text>
+                    <Flex grow gap="none">
                       <Flex row alignItems="center" gap="spacing8">
-                        <Box flexShrink={1}>
+                        {/* Width chosen to ensure truncation of collection name on both small
+                        and large screens with sufficient padding */}
+                        <Box flexShrink={1} maxWidth="82%">
                           <Text color="textPrimary" numberOfLines={1} variant="bodyLarge">
                             {asset?.collection?.name || '-'}
                           </Text>
@@ -191,14 +215,8 @@ export function NFTItemScreen({
                           />
                         )}
                       </Flex>
-                    </Box>
-                    {asset?.collection?.markets?.[0]?.floorPrice?.value && (
-                      <Box flexGrow={1}>
-                        <Text
-                          color="textSecondary"
-                          numberOfLines={1}
-                          textAlign="right"
-                          variant="buttonLabelMicro">
+                      {asset?.collection?.markets?.[0]?.floorPrice?.value && (
+                        <Text color="textSecondary" numberOfLines={1} variant="subheadSmall">
                           {t('Floor: {{floorPrice}} ETH', {
                             floorPrice: formatNumber(
                               asset.collection.markets?.[0].floorPrice?.value,
@@ -206,8 +224,8 @@ export function NFTItemScreen({
                             ),
                           })}
                         </Text>
-                      </Box>
-                    )}
+                      )}
+                    </Flex>
                   </Flex>
                 )}
               </Flex>
@@ -241,7 +259,7 @@ export function NFTItemScreen({
             )}
           </Flex>
 
-          <Flex row flexWrap="wrap">
+          <Flex gap="spacing8">
             <AssetMetadata
               header={t('Creator')}
               link={creatorInfo?.link}
@@ -264,7 +282,7 @@ export function NFTItemScreen({
           </Flex>
         </Flex>
       </HeaderScrollScreen>
-    </>
+    </ExploreModalAwareView>
   )
 }
 
@@ -277,26 +295,31 @@ function AssetMetadata({
   value?: string
   link?: string
 }): JSX.Element {
-  const itemWidth = '45%' // works with flexWrap to make 2 columns. It needs to be slightly less than 50% to account for padding on the entire section
-
+  const theme = useAppTheme()
   return (
-    <Flex gap="spacing4" mb="spacing24" width={itemWidth}>
-      <Text color="textTertiary" variant="subheadSmall">
-        {header}
-      </Text>
+    <Flex row alignItems="center" justifyContent="space-between" paddingLeft="spacing2">
+      <Flex row alignItems="center" gap="spacing8" justifyContent="flex-start" maxWidth="40%">
+        <Text color="textPrimary" variant="bodySmall">
+          {header}
+        </Text>
+      </Flex>
       {link && value ? (
         <LinkButton
+          iconColor={theme.colors.textTertiary}
           justifyContent="flex-start"
           label={value}
           mx="none"
           px="none"
-          textVariant="bodyLarge"
+          size={iconSizes.icon16}
+          textVariant="buttonLabelSmall"
           url={link}
         />
       ) : (
-        <Text numberOfLines={1} variant="bodyLarge">
-          {value || '-'}
-        </Text>
+        <Box maxWidth="60%">
+          <Text numberOfLines={1} variant="buttonLabelSmall">
+            {value || '-'}
+          </Text>
+        </Box>
       )}
     </Flex>
   )

@@ -1,18 +1,13 @@
 import React from 'react'
-import { useTranslation } from 'react-i18next'
-import { Share, useColorScheme } from 'react-native'
+import { useColorScheme } from 'react-native'
 import { FadeIn, FadeOut } from 'react-native-reanimated'
 import { useAppTheme } from 'src/app/hooks'
-import ShareIcon from 'src/assets/icons/share.svg'
 import { AddressDisplay } from 'src/components/AddressDisplay'
-import { Button, ButtonEmphasis } from 'src/components/buttons/Button'
-import { CopyTextButton } from 'src/components/buttons/CopyTextButton'
 import { GradientBackground } from 'src/components/gradients/GradientBackground'
 import { UniconThemedGradient } from 'src/components/gradients/UniconThemedGradient'
-import { AnimatedFlex, Flex } from 'src/components/layout'
+import { AnimatedFlex } from 'src/components/layout'
 import { QRCodeDisplay } from 'src/components/QRCodeScanner/QRCode'
 import { useUniconColors } from 'src/components/unicons/utils'
-import { logger } from 'src/utils/logger'
 
 const QR_CODE_SIZE = 220
 const UNICON_SIZE = QR_CODE_SIZE / 4.2
@@ -22,22 +17,9 @@ interface Props {
 }
 
 export function WalletQRCode({ address }: Props): JSX.Element | null {
-  const { t } = useTranslation()
   const theme = useAppTheme()
   const isDarkMode = useColorScheme() === 'dark'
-
   const gradientData = useUniconColors(address)
-
-  const onShare = async (): Promise<void> => {
-    if (!address) return
-    try {
-      await Share.share({
-        message: address,
-      })
-    } catch (e) {
-      logger.error('WalletQRCode', 'onShare', (e as unknown as Error).message)
-    }
-  }
 
   if (!address) return null
 
@@ -49,17 +31,27 @@ export function WalletQRCode({ address }: Props): JSX.Element | null {
           borderRadius="rounded16"
           gradientEndColor={theme.colors.background0}
           gradientStartColor={gradientData.glow}
-          opacity={isDarkMode ? 0.24 : 0.12}
+          opacity={isDarkMode ? 0.24 : 0.2}
         />
       </GradientBackground>
-      <AnimatedFlex centered grow entering={FadeIn} exiting={FadeOut} py="spacing24">
+      <AnimatedFlex
+        centered
+        grow
+        entering={FadeIn}
+        exiting={FadeOut}
+        gap="spacing24"
+        mb="spacing48"
+        py="spacing24">
         <AddressDisplay
+          showCopy
+          showCopyWrapperButton
           address={address}
-          captionVariant="bodySmall"
+          captionVariant="bodyLarge"
           showAccountIcon={false}
           variant="headlineSmall"
         />
         <QRCodeDisplay
+          hideOutline
           address={address}
           backgroundColor="background0"
           containerBackgroundColor="background0"
@@ -69,15 +61,6 @@ export function WalletQRCode({ address }: Props): JSX.Element | null {
           safeAreaSize={UNICON_SIZE + UNICON_SIZE / 2}
           size={QR_CODE_SIZE}
         />
-        <Flex row gap="spacing12">
-          <CopyTextButton copyText={address} />
-          <Button
-            IconName={ShareIcon}
-            emphasis={ButtonEmphasis.Tertiary}
-            label={t`Share`}
-            onPress={onShare}
-          />
-        </Flex>
       </AnimatedFlex>
     </>
   )

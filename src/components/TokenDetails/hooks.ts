@@ -1,11 +1,10 @@
 import { useMemo } from 'react'
-import { useHomeStackNavigation } from 'src/app/navigation/types'
+import { useAppStackNavigation } from 'src/app/navigation/types'
 import { Chain, useTokenDetailsScreenLazyQuery } from 'src/data/__generated__/types-and-hooks'
 import { useMultipleBalances, useSingleBalance } from 'src/features/dataApi/balances'
 import { PortfolioBalance } from 'src/features/dataApi/types'
 import { currencyIdToContractInput } from 'src/features/dataApi/utils'
 import { Screens } from 'src/screens/Screens'
-import { getChecksumAddress } from 'src/utils/addresses'
 import { fromGraphQLChain } from 'src/utils/chainId'
 import {
   buildCurrencyId,
@@ -32,8 +31,7 @@ export function useCrossChainBalances(
           const chainId = fromGraphQLChain(chain)
           if (!chainId || chainId === currentChainId) return null
           if (!address) return buildNativeCurrencyId(chainId)
-          // Use checksummed address for useMultipleBalances to lookup portfolio balances
-          return buildCurrencyId(chainId, getChecksumAddress(address))
+          return buildCurrencyId(chainId, address)
         })
         .filter((b): b is string => !!b),
 
@@ -53,7 +51,7 @@ export function useTokenDetailsNavigation(): {
   navigate: (currencyId: CurrencyId) => void
   navigateWithPop: (currencyId: CurrencyId) => void
 } {
-  const navigation = useHomeStackNavigation()
+  const navigation = useAppStackNavigation()
   const [load] = useTokenDetailsScreenLazyQuery()
 
   const preload = (currencyId: CurrencyId): void => {

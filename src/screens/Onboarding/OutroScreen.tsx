@@ -1,11 +1,12 @@
+import { CompositeScreenProps } from '@react-navigation/core'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import React from 'react'
 import { useAppDispatch } from 'src/app/hooks'
-import { OnboardingStackParamList } from 'src/app/navigation/types'
+import { AppStackParamList, OnboardingStackParamList } from 'src/app/navigation/types'
 import { Screen } from 'src/components/layout/Screen'
 import { ImportType, OnboardingEntryPoint } from 'src/features/onboarding/utils'
 import { sendAnalyticsEvent } from 'src/features/telemetry'
-import { EventName } from 'src/features/telemetry/constants'
+import { MobileEventName } from 'src/features/telemetry/constants'
 import { useTrace } from 'src/features/telemetry/hooks'
 import { useActiveAccount, usePendingAccounts } from 'src/features/wallet/hooks'
 import {
@@ -16,7 +17,10 @@ import { setFinishedOnboarding, setReplaceAccountOptions } from 'src/features/wa
 import { OnboardingCompleteAnimation } from 'src/screens/Onboarding/OnboardingCompleteAnimation/OnboardingCompleteAnimation'
 import { OnboardingScreens, Screens } from 'src/screens/Screens'
 
-type Props = NativeStackScreenProps<OnboardingStackParamList, OnboardingScreens.Outro>
+type Props = CompositeScreenProps<
+  NativeStackScreenProps<OnboardingStackParamList, OnboardingScreens.Outro>,
+  NativeStackScreenProps<AppStackParamList, Screens.Home, undefined>
+>
 
 export function OutroScreen({ navigation, route: { params } }: Props): JSX.Element {
   const dispatch = useAppDispatch()
@@ -28,8 +32,8 @@ export function OutroScreen({ navigation, route: { params } }: Props): JSX.Eleme
   const onPressNext = (): void => {
     sendAnalyticsEvent(
       params?.entryPoint === OnboardingEntryPoint.Sidebar
-        ? EventName.WalletAdded
-        : EventName.OnboardingCompleted,
+        ? MobileEventName.WalletAdded
+        : MobileEventName.OnboardingCompleted,
       {
         wallet_type: params?.importType,
         accounts_imported_count: Object.entries(pendingAccounts).length,

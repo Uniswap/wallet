@@ -8,7 +8,7 @@ exports[`BalanceUpdate renders without error after fetching data 1`] = `
         "alignItems": "flex-end",
         "display": "flex",
         "flexDirection": "column",
-        "flexGrow": 1,
+        "flexShrink": 1,
         "justifyContent": "flex-start",
       },
     ]
@@ -21,10 +21,10 @@ exports[`BalanceUpdate renders without error after fetching data 1`] = `
     style={
       Array [
         Object {
-          "color": "#0D111C",
+          "color": "#0E1524",
           "display": "flex",
           "fontFamily": "Inter-Medium",
-          "fontSize": 16,
+          "fontSize": 17,
           "lineHeight": 24,
         },
       ]
@@ -51,10 +51,10 @@ exports[`BalanceUpdate renders without error after fetching data 1`] = `
     style={
       Array [
         Object {
-          "color": "#505A78",
+          "color": "#5D6785",
           "display": "flex",
           "fontFamily": "Inter-Regular",
-          "fontSize": 14,
+          "fontSize": 15,
           "lineHeight": 20,
         },
       ]
@@ -73,7 +73,7 @@ exports[`BalanceUpdate skips fetching data when passing in the USD value 1`] = `
         "alignItems": "flex-end",
         "display": "flex",
         "flexDirection": "column",
-        "flexGrow": 1,
+        "flexShrink": 1,
         "justifyContent": "flex-start",
       },
     ]
@@ -86,10 +86,10 @@ exports[`BalanceUpdate skips fetching data when passing in the USD value 1`] = `
     style={
       Array [
         Object {
-          "color": "#0D111C",
+          "color": "#0E1524",
           "display": "flex",
           "fontFamily": "Inter-Medium",
-          "fontSize": 16,
+          "fontSize": 17,
           "lineHeight": 24,
         },
       ]
@@ -116,10 +116,10 @@ exports[`BalanceUpdate skips fetching data when passing in the USD value 1`] = `
     style={
       Array [
         Object {
-          "color": "#505A78",
+          "color": "#5D6785",
           "display": "flex",
           "fontFamily": "Inter-Regular",
-          "fontSize": 14,
+          "fontSize": 15,
           "lineHeight": 20,
         },
       ]

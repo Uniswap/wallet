@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import { useAppDispatch, useAppSelector, useAppTheme } from 'src/app/hooks'
 import { BottomSheetModal } from 'src/components/modals/BottomSheetModal'
 import { closeModal, selectModalState } from 'src/features/modals/modalSlice'
@@ -10,13 +10,14 @@ export function TransferTokenModal(): JSX.Element {
   const appDispatch = useAppDispatch()
   const modalState = useAppSelector(selectModalState(ModalName.Send))
 
-  const onClose = (): void => {
+  const onClose = useCallback((): void => {
     appDispatch(closeModal({ name: ModalName.Send }))
-  }
+  }, [appDispatch])
 
   return (
     <BottomSheetModal
       fullScreen
+      hideKeyboardOnDismiss
       backgroundColor={theme.colors.background1}
       name={ModalName.Send}
       onClose={onClose}>

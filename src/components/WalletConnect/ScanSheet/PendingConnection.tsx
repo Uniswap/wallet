@@ -1,7 +1,6 @@
 import { getSdkError } from '@walletconnect/utils'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
-import { Defs, LinearGradient, Rect, Stop, Svg } from 'react-native-svg'
 import { useAppDispatch, useAppTheme } from 'src/app/hooks'
 import Checkmark from 'src/assets/icons/check.svg'
 import X from 'src/assets/icons/x.svg'
@@ -10,19 +9,18 @@ import { Button, ButtonEmphasis } from 'src/components/buttons/Button'
 import { LinkButton } from 'src/components/buttons/LinkButton'
 import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { NetworkLogo } from 'src/components/CurrencyLogo/NetworkLogo'
-import { GradientBackground } from 'src/components/gradients/GradientBackground'
 import { Chevron } from 'src/components/icons/Chevron'
 import { AnimatedFlex, Box, Flex } from 'src/components/layout'
 import { Separator } from 'src/components/layout/Separator'
 import { Text } from 'src/components/Text'
-import { HeaderIcon } from 'src/components/WalletConnect/RequestModal/HeaderIcon'
+import { DappHeaderIcon } from 'src/components/WalletConnect/DappHeaderIcon'
 import { PendingConnectionSwitchAccountModal } from 'src/components/WalletConnect/ScanSheet/PendingConnectionSwitchAccountModal'
 import { PendingConnectionSwitchNetworkModal } from 'src/components/WalletConnect/ScanSheet/PendingConnectionSwitchNetworkModal'
 import { ChainId, CHAIN_INFO } from 'src/constants/chains'
 import { pushNotification } from 'src/features/notifications/notificationSlice'
 import { AppNotificationType } from 'src/features/notifications/types'
 import { sendAnalyticsEvent } from 'src/features/telemetry'
-import { ElementName, EventName } from 'src/features/telemetry/constants'
+import { ElementName, MobileEventName } from 'src/features/telemetry/constants'
 import {
   useActiveAccountAddressWithThrow,
   useActiveAccountWithThrow,
@@ -68,7 +66,7 @@ const SitePermissions = (): JSX.Element => {
         </Box>
         <Box flex={1}>
           <Text color="textPrimary" variant="bodySmall">
-            {t('View your wallet address and ENS name')}
+            {t('View your wallet address')}
           </Text>
         </Box>
       </Flex>
@@ -176,7 +174,7 @@ export const PendingConnection = ({ pendingSession, onClose }: Props): JSX.Eleme
 
   const onPressSettleConnection = useCallback(
     async (approved: boolean) => {
-      sendAnalyticsEvent(EventName.WalletConnectSheetCompleted, {
+      sendAnalyticsEvent(MobileEventName.WalletConnectSheetCompleted, {
         request_type: WCEventType.SessionPending,
         dapp_url: pendingSession.dapp.url,
         dapp_name: pendingSession.dapp.name,
@@ -260,19 +258,8 @@ export const PendingConnection = ({ pendingSession, onClose }: Props): JSX.Eleme
         overflow="hidden"
         px="spacing24"
         py="spacing60">
-        <GradientBackground>
-          <Svg height="100%" width="100%">
-            <Defs>
-              <LinearGradient id="scan-top-fadeout" x1="0" x2="0" y1="0" y2="1">
-                <Stop offset="0" stopColor={theme.colors.background0} stopOpacity="1" />
-                <Stop offset="0.1" stopColor={theme.colors.background0} stopOpacity="0" />
-              </LinearGradient>
-            </Defs>
-            <Rect fill="url(#scan-top-fadeout)" height="100%" width="100%" x="0" y="0" />
-          </Svg>
-        </GradientBackground>
         <Flex alignItems="center" flex={1} gap="spacing16" justifyContent="flex-end">
-          <HeaderIcon dapp={pendingSession.dapp} showChain={false} />
+          <DappHeaderIcon dapp={pendingSession.dapp} showChain={false} />
           <Text textAlign="center" variant="headlineSmall">
             <Trans t={t}>
               <Text fontWeight="bold">
@@ -282,12 +269,15 @@ export const PendingConnection = ({ pendingSession, onClose }: Props): JSX.Eleme
             </Trans>
           </Text>
           <LinkButton
-            backgroundColor="accentActiveSoft"
-            borderRadius="rounded8"
+            backgroundColor="background2"
+            borderRadius="rounded16"
             color={theme.colors.accentActive}
+            iconColor={theme.colors.accentActive}
             label={pendingSession.dapp.url}
             mb="spacing12"
-            p="spacing8"
+            px="spacing8"
+            py="spacing4"
+            size={theme.iconSizes.icon12}
             textVariant="buttonLabelMicro"
             url={pendingSession.dapp.url}
           />

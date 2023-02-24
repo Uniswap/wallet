@@ -1,5 +1,6 @@
 import { useFocusEffect } from '@react-navigation/core'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
+import { useResponsiveProp } from '@shopify/restyle'
 import { TFunction } from 'i18next'
 import React, { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -64,7 +65,7 @@ const options: ImportMethodOption[] = [
     title: (t: TFunction) => t('Add a view-only wallet'),
     blurb: (t: TFunction) => t('Explore the contents of any wallet'),
     icon: (theme: Theme) => (
-      <EyeIcon color={theme.colors.textPrimary} height={20} strokeWidth="1.5" width={20} />
+      <EyeIcon color={theme.colors.textPrimary} height={24} strokeWidth="1.5" width={24} />
     ),
     nav: OnboardingScreens.WatchWallet,
     importType: ImportType.Watch,
@@ -210,6 +211,18 @@ function OptionCard({
   disabled?: boolean
   opacity?: number
 }): JSX.Element {
+  const theme = useAppTheme()
+
+  const titleSize = useResponsiveProp({
+    xs: 'subheadSmall',
+    sm: 'subheadLarge',
+  })
+
+  const verticalPadding = useResponsiveProp({
+    xs: 'spacing16',
+    sm: 'spacing24',
+  })
+
   return (
     <TouchableArea
       backgroundColor="background2"
@@ -220,7 +233,7 @@ function OptionCard({
       name={name}
       opacity={opacity}
       px="spacing16"
-      py="spacing24"
+      py={verticalPadding}
       testID={name}
       onPress={onPress}>
       <Flex row alignContent="center" alignItems="center" gap="spacing16">
@@ -229,15 +242,15 @@ function OptionCard({
           borderColor="accentBranded"
           borderRadius="rounded12"
           borderWidth={1.25}
-          height={40}
+          height={theme.iconSizes.icon40}
           justifyContent="center"
           padding="spacing16"
-          width={40}>
+          width={theme.iconSizes.icon40}>
           {icon}
         </Box>
-        <Flex row alignItems="center" gap="spacing4">
+        <Flex row alignItems="center" gap="spacing4" paddingRight="spacing60">
           <Flex fill alignItems="flex-start" gap="spacing4" justifyContent="space-around">
-            <Text allowFontScaling={false} variant="subheadLarge">
+            <Text allowFontScaling={false} variant={titleSize}>
               {title}
             </Text>
             <Text allowFontScaling={false} color="textSecondary" variant="bodySmall">

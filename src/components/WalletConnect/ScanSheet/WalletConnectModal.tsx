@@ -1,14 +1,13 @@
 import { selectionAsync } from 'expo-haptics'
 import React, { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Alert } from 'react-native'
+import { Alert, useColorScheme } from 'react-native'
 import 'react-native-reanimated'
 import { useAppSelector, useAppTheme } from 'src/app/hooks'
 import { useEagerExternalProfileRootNavigation } from 'src/app/navigation/hooks'
-import Scan from 'src/assets/icons/qr-code.svg'
-import ScanQRIcon from 'src/assets/icons/scan-qr.svg'
+import Scan from 'src/assets/icons/receive.svg'
+import ScanQRIcon from 'src/assets/icons/scan.svg'
 import { TouchableArea } from 'src/components/buttons/TouchableArea'
-import { Chevron } from 'src/components/icons/Chevron'
 import { Flex } from 'src/components/layout'
 import { BackButtonView } from 'src/components/layout/BackButtonView'
 import { BottomSheetModal } from 'src/components/modals/BottomSheetModal'
@@ -20,12 +19,11 @@ import { ConnectedDappsList } from 'src/components/WalletConnect/ConnectedDapps/
 import { PendingConnection } from 'src/components/WalletConnect/ScanSheet/PendingConnection'
 import { getSupportedURI, URIType } from 'src/components/WalletConnect/ScanSheet/util'
 import { ElementName, ModalName } from 'src/features/telemetry/constants'
-import { useDisplayName, useWCTimeoutError } from 'src/features/wallet/hooks'
+import { useWCTimeoutError } from 'src/features/wallet/hooks'
 import { selectActiveAccountAddress } from 'src/features/wallet/selectors'
 import { useWalletConnect } from 'src/features/walletConnect/useWalletConnect'
 import { connectToApp } from 'src/features/walletConnect/WalletConnect'
 import { WalletConnectSession } from 'src/features/walletConnect/walletConnectSlice'
-import { wcWeb3Wallet } from 'src/features/walletConnectV2/saga'
 import { ONE_SECOND_MS } from 'src/utils/time'
 
 const WC_TIMEOUT_DURATION_MS = 10 * ONE_SECOND_MS // timeout after 10 seconds
@@ -43,15 +41,14 @@ export function WalletConnectModal({
 }: Props): JSX.Element | null {
   const { t } = useTranslation()
   const theme = useAppTheme()
+  const isDarkMode = useColorScheme() === 'dark'
   const activeAddress = useAppSelector(selectActiveAccountAddress)
-  const displayName = useDisplayName(activeAddress)
   const { sessions } = useWalletConnect(activeAddress)
   const [currentScreenState, setCurrentScreenState] =
     useState<ScannerModalState>(initialScreenState)
   const { hasScanError, setHasScanError, shouldFreezeCamera, setShouldFreezeCamera } =
     useWCTimeoutError(pendingSession, WC_TIMEOUT_DURATION_MS)
   const { preload, navigate } = useEagerExternalProfileRootNavigation()
-
   const onScanCode = useCallback(
     async (uri: string) => {
       // don't scan any QR codes if there is an error popup open or camera is frozen
@@ -88,11 +85,6 @@ export function WalletConnectModal({
       if (supportedURI.type === URIType.WalletConnectURL) {
         setShouldFreezeCamera(true)
         connectToApp(supportedURI.value)
-      }
-
-      if (supportedURI.type === URIType.WalletConnectV2URL) {
-        setShouldFreezeCamera(true)
-        wcWeb3Wallet.core.pairing.pair({ uri: supportedURI.value })
       }
 
       if (supportedURI.type === URIType.EasterEgg) {
@@ -141,7 +133,7 @@ export function WalletConnectModal({
   return (
     <BottomSheetModal
       fullScreen
-      backgroundColor={theme.colors.background0}
+      backgroundColor={theme.colors.background1}
       name={ModalName.WalletConnectScan}
       onClose={onClose}>
       {pendingSession ? (
@@ -169,39 +161,28 @@ export function WalletConnectModal({
           {currentScreenState === ScannerModalState.WalletQr && (
             <WalletQRCode address={activeAddress} />
           )}
-          <Flex mb="spacing36" mt="spacing16" mx="spacing16">
+          <Flex centered mb="spacing36" mt="spacing16" mx="spacing16">
             <TouchableArea
               hapticFeedback
-              borderColor="backgroundOutline"
-              borderRadius="rounded16"
+              borderColor={isDarkMode ? 'none' : 'backgroundOutline'}
+              borderRadius="roundedFull"
               borderWidth={1}
               name={ElementName.QRCodeModalToggle}
               p="spacing16"
-              style={{ backgroundColor: theme.colors.background2 }}
+              paddingEnd="spacing24"
+              style={{ backgroundColor: theme.colors.backgroundOverlay }}
               onPress={onPressBottomToggle}>
               <Flex row alignItems="center" gap="spacing12">
                 {currentScreenState === ScannerModalState.ScanQr ? (
-                  <Scan color={theme.colors.textSecondary} height={24} width={24} />
+                  <Scan color={theme.colors.textPrimary} height={24} width={24} />
                 ) : (
-                  <ScanQRIcon color={theme.colors.textSecondary} height={24} width={24} />
+                  <ScanQRIcon color={theme.colors.textPrimary} height={24} width={24} />
                 )}
-                <Flex shrink flexGrow={1} gap="none">
-                  <Text color="textPrimary" variant="bodyLarge">
-                    {currentScreenState === ScannerModalState.ScanQr
-                      ? t('Show my QR code')
-                      : t('Scan a QR code')}
-                  </Text>
-                  <Text
-                    adjustsFontSizeToFit
-                    color="textSecondary"
-                    numberOfLines={1}
-                    variant="bodyMicro">
-                    {currentScreenState === ScannerModalState.ScanQr
-                      ? displayName?.name
-                      : t('Connect to an app with WalletConnect')}
-                  </Text>
-                </Flex>
-                <Chevron color={theme.colors.textSecondary} direction="e" height="20" width="15" />
+                <Text color="textPrimary" variant="buttonLabelMedium">
+                  {currentScreenState === ScannerModalState.ScanQr
+                    ? t('Show my QR code')
+                    : t('Scan a QR code')}
+                </Text>
               </Flex>
             </TouchableArea>
           </Flex>

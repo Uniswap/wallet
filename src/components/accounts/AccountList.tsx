@@ -34,7 +34,7 @@ const ViewOnlyHeader = (): JSX.Element => {
   return (
     <Flex row alignItems="center" borderBottomColor="backgroundOutline">
       <Box flex={1} px="spacing24">
-        <Text color="textSecondary" variant="bodySmall">
+        <Text color="textSecondary" variant="subheadSmall">
           {t('View only')}
         </Text>
       </Box>
@@ -116,6 +116,7 @@ export function AccountList({
         style={ListSheet.topGradient}
       />
       <ScrollView
+        bounces={false}
         scrollEnabled={accountsWithPortfolioValue.length >= MIN_ACCOUNTS_TO_ENABLE_SCROLL}
         showsVerticalScrollIndicator={false}>
         {signerAccounts.map(renderAccountCardItem)}

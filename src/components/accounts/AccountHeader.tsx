@@ -1,30 +1,35 @@
-import { ImpactFeedbackStyle, selectionAsync } from 'expo-haptics'
+import { impactAsync, ImpactFeedbackStyle, selectionAsync } from 'expo-haptics'
 import React, { useCallback } from 'react'
 import { useAppDispatch, useAppSelector, useAppTheme } from 'src/app/hooks'
 import { navigate } from 'src/app/navigation/rootNavigation'
-import DoubleChevron from 'src/assets/icons/double-chevron.svg'
 import ScanQRWCIcon from 'src/assets/icons/scan-qr-wc.svg'
 import SettingsIcon from 'src/assets/icons/settings.svg'
 import { AddressDisplay } from 'src/components/AddressDisplay'
 import { TouchableArea } from 'src/components/buttons/TouchableArea'
+import { Chevron } from 'src/components/icons/Chevron'
 import { Flex } from 'src/components/layout'
 import { Box } from 'src/components/layout/Box'
 import { ScannerModalState } from 'src/components/QRCodeScanner/constants'
 import { openModal } from 'src/features/modals/modalSlice'
+import { pushNotification } from 'src/features/notifications/notificationSlice'
+import { AppNotificationType } from 'src/features/notifications/types'
 import { ElementName, ModalName } from 'src/features/telemetry/constants'
 import { selectActiveAccountAddress } from 'src/features/wallet/selectors'
 import { removePendingSession } from 'src/features/walletConnect/walletConnectSlice'
 import { Screens } from 'src/screens/Screens'
 import { iconSizes } from 'src/styles/sizing'
+import { setClipboard } from 'src/utils/clipboard'
 import { isDevBuild } from 'src/utils/version'
+
 function QRScannerIconButton({ onPress }: { onPress: () => void }): JSX.Element {
   const theme = useAppTheme()
 
   return (
     <TouchableArea hapticFeedback name={ElementName.WalletConnectScan} onPress={onPress}>
       <ScanQRWCIcon
-        color={theme.colors.textSecondary}
+        color={theme.colors.textTertiary}
         height={theme.iconSizes.icon24}
+        opacity="0.8"
         strokeWidth={2}
       />
     </TouchableArea>
@@ -52,6 +57,14 @@ export function AccountHeader(): JSX.Element {
     )
   }, [dispatch])
 
+  const onPressCopyAddress = (): void => {
+    if (activeAddress) {
+      impactAsync()
+      setClipboard(activeAddress)
+      dispatch(pushNotification({ type: AppNotificationType.Copied }))
+    }
+  }
+
   return (
     <Box
       alignItems="center"
@@ -69,6 +82,7 @@ export function AccountHeader(): JSX.Element {
         name={ElementName.Manage}
         testID={ElementName.Manage}
         onLongPress={(): void => {
+          onPressCopyAddress()
           if (isDevBuild()) {
             selectionAsync()
             dispatch(openModal({ name: ModalName.Experiments }))
@@ -86,22 +100,24 @@ export function AccountHeader(): JSX.Element {
                 variant="subheadLarge"
               />
             </Flex>
-            <DoubleChevron
-              color={theme.colors.textSecondary}
-              height={iconSizes.icon16}
-              width={iconSizes.icon16}
+            <Chevron
+              color={theme.colors.textTertiary}
+              direction="s"
+              height={iconSizes.icon20}
+              width={iconSizes.icon20}
             />
           </Flex>
         )}
       </TouchableArea>
       <Flex alignItems="center" flexDirection="row" gap="spacing16" justifyContent="flex-end">
         <QRScannerIconButton onPress={onPressScan} />
-        <TouchableArea onPress={onPressSettings}>
+        <TouchableArea hapticFeedback onPress={onPressSettings}>
           <Flex row alignItems="center">
             <SettingsIcon
-              color={theme.colors.textSecondary}
-              height={theme.iconSizes.icon24}
-              width={theme.iconSizes.icon24}
+              color={theme.colors.textTertiary}
+              height={theme.iconSizes.icon28}
+              opacity="0.8"
+              width={theme.iconSizes.icon28}
             />
           </Flex>
         </TouchableArea>

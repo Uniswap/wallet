@@ -4,13 +4,13 @@ import { useTranslation } from 'react-i18next'
 import { useColorScheme } from 'react-native'
 import { useAppTheme } from 'src/app/hooks'
 import AlertTriangle from 'src/assets/icons/alert-triangle.svg'
-import ErrorLoadingIcon from 'src/assets/icons/error-loading.svg'
 import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { Chevron } from 'src/components/icons/Chevron'
 import { Box, BoxProps, Flex } from 'src/components/layout'
 import { Trace } from 'src/components/telemetry/Trace'
 import { Text } from 'src/components/Text'
 import { Theme } from 'src/styles/theme'
+import { opacify } from 'src/utils/colors'
 
 const SHADOW_OFFSET: ShadowProps<Theme>['shadowOffset'] = { width: 4, height: 8 }
 export const SHADOW_OFFSET_SMALL: ShadowProps<Theme>['shadowOffset'] = { width: 0, height: 2 }
@@ -40,15 +40,17 @@ export function Container({
 
 export function Shadow({ children, ...rest }: BoxProps): JSX.Element {
   const isDarkMode = useColorScheme() === 'dark'
+  const theme = useAppTheme()
   return (
     <Box
-      bg={rest?.bg ?? isDarkMode ? 'background2' : 'background1'}
+      // bg={rest?.bg ?? isDarkMode ? 'backgroundOutline' : 'background1'}
       borderRadius="rounded16"
       p="spacing12"
-      shadowColor={isDarkMode ? 'black' : 'brandedAccentSoft'}
+      shadowColor={isDarkMode ? 'black' : 'none'}
       shadowOffset={SHADOW_OFFSET_SMALL}
       shadowOpacity={0.4}
       shadowRadius={6}
+      style={{ backgroundColor: opacify(isDarkMode ? 10 : 100, theme.colors.white) }}
       {...rest}>
       {children}
     </Box>
@@ -166,20 +168,7 @@ type ErrorStateProps = {
 
 function ErrorState(props: ErrorStateProps): JSX.Element {
   const { t } = useTranslation()
-  const theme = useAppTheme()
-  const {
-    title,
-    description = t('Something went wrong'),
-    retryButtonLabel,
-    onRetry,
-    icon = (
-      <ErrorLoadingIcon
-        color={theme.colors.textTertiary}
-        height={theme.imageSizes.image48}
-        width={theme.imageSizes.image48}
-      />
-    ),
-  } = props
+  const { title, description = t('Something went wrong'), retryButtonLabel, onRetry, icon } = props
   return (
     <Flex centered grow gap="spacing24" p="spacing12" width="100%">
       <Flex centered>
