@@ -183,7 +183,7 @@ exports[`AccountDetails renders without error 1`] = `
               "display": "flex",
               "flexGrow": 0,
               "flexShrink": 0,
-              "width": 12,
+              "width": 8,
             },
           ]
         }
@@ -219,10 +219,10 @@ exports[`AccountDetails renders without error 1`] = `
             style={
               Array [
                 Object {
-                  "color": "#0D111C",
+                  "color": "#0E1524",
                   "display": "flex",
                   "fontFamily": "Inter-Medium",
-                  "fontSize": 14,
+                  "fontSize": 15,
                   "lineHeight": 20,
                 },
               ]
@@ -268,10 +268,10 @@ exports[`AccountDetails renders without error 1`] = `
       style={
         Array [
           Object {
-            "color": "#505A78",
+            "color": "#5D6785",
             "display": "flex",
-            "fontFamily": "Inter-Regular",
-            "fontSize": 14,
+            "fontFamily": "Inter-Medium",
+            "fontSize": 15,
             "lineHeight": 20,
           },
         ]
@@ -466,7 +466,7 @@ exports[`AccountDetails renders without error with chevron 1`] = `
               "display": "flex",
               "flexGrow": 0,
               "flexShrink": 0,
-              "width": 12,
+              "width": 8,
             },
           ]
         }
@@ -502,10 +502,10 @@ exports[`AccountDetails renders without error with chevron 1`] = `
             style={
               Array [
                 Object {
-                  "color": "#0D111C",
+                  "color": "#0E1524",
                   "display": "flex",
                   "fontFamily": "Inter-Medium",
-                  "fontSize": 14,
+                  "fontSize": 15,
                   "lineHeight": 20,
                 },
               ]
@@ -551,10 +551,10 @@ exports[`AccountDetails renders without error with chevron 1`] = `
       style={
         Array [
           Object {
-            "color": "#505A78",
+            "color": "#5D6785",
             "display": "flex",
-            "fontFamily": "Inter-Regular",
-            "fontSize": 14,
+            "fontFamily": "Inter-Medium",
+            "fontSize": 15,
             "lineHeight": 20,
           },
         ]
@@ -639,10 +639,10 @@ exports[`AccountDetails renders without error with chevron 1`] = `
                 "strokeLinejoin",
               ]
             }
-            stroke={4283456120}
+            stroke={4284311429}
             strokeLinecap={1}
             strokeLinejoin={1}
-            strokeWidth="2"
+            strokeWidth="3"
           />
         </RNSVGGroup>
       </RNSVGSvgView>

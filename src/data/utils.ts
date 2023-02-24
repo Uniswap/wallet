@@ -1,9 +1,8 @@
 import { ApolloLink, NetworkStatus } from '@apollo/client'
 import { onError } from '@apollo/client/link/error'
 import { sendAnalyticsEvent } from 'src/features/telemetry'
-import { EventName } from 'src/features/telemetry/constants'
+import { MobileEventName } from 'src/features/telemetry/constants'
 import { logger } from 'src/utils/logger'
-import { isDevBuild } from 'src/utils/version'
 
 export function isNonPollingRequestInFlight(networkStatus: NetworkStatus): boolean {
   return (
@@ -68,10 +67,6 @@ export function setupErrorLink(
 }
 
 export function setupPerformanceLink(samplingRate = APOLLO_PERFORMANCE_SAMPLING_RATE): ApolloLink {
-  if (!isDevBuild()) {
-    return ApolloLink.empty()
-  }
-
   return new ApolloLink((operation, forward) => {
     const startTime = Date.now()
 
@@ -81,7 +76,7 @@ export function setupPerformanceLink(samplingRate = APOLLO_PERFORMANCE_SAMPLING_
 
       sample(
         () =>
-          sendAnalyticsEvent(EventName.PerformanceGraphql, {
+          sendAnalyticsEvent(MobileEventName.PerformanceGraphql, {
             dataSize,
             duration,
             operationName: operation.operationName,

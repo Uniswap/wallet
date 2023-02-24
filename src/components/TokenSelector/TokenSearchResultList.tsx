@@ -3,7 +3,6 @@ import React, { memo, useCallback, useEffect, useMemo, useRef } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { ListRenderItemInfo, SectionList } from 'react-native'
 import { useAppSelector, useAppTheme } from 'src/app/hooks'
-import AlertTriangle from 'src/assets/icons/alert-triangle.svg'
 import { Box, Flex, Inset } from 'src/components/layout'
 import { BaseCard } from 'src/components/layout/BaseCard'
 import { Loader } from 'src/components/loading'
@@ -26,7 +25,7 @@ import {
   makeSelectAccountHideSpamTokens,
 } from 'src/features/wallet/selectors'
 import { differenceWith } from 'src/utils/array'
-import { CurrencyId } from 'src/utils/currencyId'
+import { areCurrencyIdsEqual, CurrencyId } from 'src/utils/currencyId'
 import { useDebounce } from 'src/utils/timing'
 
 interface TokenSearchResultListProps {
@@ -41,7 +40,10 @@ const tokenOptionComparator = (
   tokenOption: TokenOption,
   otherTokenOption: TokenOption
 ): boolean => {
-  return tokenOption.currencyInfo.currencyId === otherTokenOption.currencyInfo.currencyId
+  return areCurrencyIdsEqual(
+    tokenOption.currencyInfo.currencyId,
+    otherTokenOption.currencyInfo.currencyId
+  )
 }
 // get items in `currencies` that are not in `without`
 // e.g. difference([B, C, D], [A, B, C]) would return ([D])
@@ -315,14 +317,6 @@ function _TokenSearchResultList({
     return (
       <Box justifyContent="center" pt="spacing60">
         <BaseCard.ErrorState
-          icon={
-            <AlertTriangle
-              color={theme.colors.textTertiary}
-              height={48}
-              strokeWidth={1}
-              width={55}
-            />
-          }
           retryButtonLabel="Retry"
           title={t("Couldn't load search results")}
           onRetry={(): void => refetch?.()}

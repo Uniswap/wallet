@@ -10,8 +10,7 @@ import { useENSAvatar } from 'src/features/ens/api'
 import { pushNotification } from 'src/features/notifications/notificationSlice'
 import { AppNotificationType } from 'src/features/notifications/types'
 import { ElementName } from 'src/features/telemetry/constants'
-import { Account, AccountType } from 'src/features/wallet/accounts/types'
-import { useAccounts, useDisplayName } from 'src/features/wallet/hooks'
+import { useDisplayName } from 'src/features/wallet/hooks'
 import { Theme } from 'src/styles/theme'
 import { sanitizeAddressText, shortenAddress } from 'src/utils/addresses'
 import { setClipboard } from 'src/utils/clipboard'
@@ -23,18 +22,18 @@ type AddressDisplayProps = {
   variant?: keyof Theme['textVariants']
   captionVariant?: keyof Theme['textVariants']
   direction?: 'row' | 'column'
-  subtitleOverrideText?: string
   showCopy?: boolean
+  showCopyWrapperButton?: boolean
   showAccountIcon?: boolean
   contentAlign?: FlexAlignType
   showIconBackground?: boolean
   textAlign?: FlexAlignType
-  disableViewOnlyIcon?: boolean
   horizontalGap?: keyof Theme['spacing']
 }
 
 type CopyButtonWrapperProps = {
   onPress?: () => void
+  backgroundColor?: string
 }
 
 function CopyButtonWrapper({
@@ -62,25 +61,21 @@ export function AddressDisplay({
   variant = 'bodyLarge',
   captionVariant = 'subheadSmall',
   hideAddressInSubtitle,
-  subtitleOverrideText,
   direction = 'row',
   showCopy = false,
+  showCopyWrapperButton = false,
   showAccountIcon = true,
   textAlign,
   contentAlign = 'center', // vertical aligment of all items
   showIconBackground,
-  disableViewOnlyIcon,
   horizontalGap = 'spacing12',
 }: AddressDisplayProps): JSX.Element {
   const dispatch = useAppDispatch()
   const theme = useAppTheme()
   const displayName = useDisplayName(address)
   const { data: avatar } = useENSAvatar(address)
-  const accounts = useAccounts()
 
   const showAddressAsSubtitle = !hideAddressInSubtitle && displayName?.type !== 'address'
-  const account: Account | undefined = accounts[address]
-  const isViewOnly = account?.type === AccountType.Readonly && !disableViewOnlyIcon
 
   const onPressCopyAddress = (): void => {
     if (!address) return
@@ -100,11 +95,10 @@ export function AddressDisplay({
         address={address}
         avatarUri={avatar}
         showBackground={showIconBackground}
-        showViewOnlyBadge={isViewOnly}
         size={size}
       />
     )
-  }, [address, avatar, isViewOnly, showIconBackground, size])
+  }, [address, avatar, showIconBackground, size])
 
   return (
     <Flex alignItems={contentAlign} flexDirection={direction} gap={horizontalGap}>
@@ -126,28 +120,29 @@ export function AddressDisplay({
             )}
           </Flex>
         </CopyButtonWrapper>
-        {/* If subtitle is defined show it, otherwise revert to address logic */}
-        {subtitleOverrideText ? (
-          <Text color="textSecondary" variant={captionVariant}>
-            {subtitleOverrideText}
-          </Text>
-        ) : (
-          showAddressAsSubtitle && (
-            <CopyButtonWrapper onPress={showCopy ? onPressCopyAddress : undefined}>
-              <Flex centered row gap="spacing4">
-                <Text color="textSecondary" variant={captionVariant}>
-                  {sanitizeAddressText(shortenAddress(address))}
-                </Text>
-                {showCopy && (
-                  <CopyIcon
-                    color={theme.colors.textSecondary}
-                    height={captionSize}
-                    width={captionSize}
-                  />
-                )}
-              </Flex>
-            </CopyButtonWrapper>
-          )
+        {showAddressAsSubtitle && (
+          <CopyButtonWrapper onPress={showCopy ? onPressCopyAddress : undefined}>
+            <Flex
+              centered
+              row
+              backgroundColor={showCopyWrapperButton ? 'backgroundOverlay' : 'none'}
+              borderRadius="roundedFull"
+              gap="spacing4"
+              marginTop={showCopyWrapperButton ? 'spacing8' : 'none'}
+              px={showCopyWrapperButton ? 'spacing8' : 'none'}
+              py={showCopyWrapperButton ? 'spacing4' : 'none'}>
+              <Text color="textSecondary" variant={captionVariant}>
+                {sanitizeAddressText(shortenAddress(address))}
+              </Text>
+              {showCopy && (
+                <CopyIcon
+                  color={theme.colors.textSecondary}
+                  height={captionSize}
+                  width={captionSize}
+                />
+              )}
+            </Flex>
+          </CopyButtonWrapper>
         )}
       </Box>
     </Flex>

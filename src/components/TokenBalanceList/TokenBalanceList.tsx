@@ -36,6 +36,7 @@ type TokenBalanceListProps = {
   onPressToken: (currencyId: CurrencyId) => void
   containerProps?: TabContentProps
   scrollHandler?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
+  isExternalProfile?: boolean
 }
 
 const ESTIMATED_TOKEN_ITEM_HEIGHT = 64
@@ -44,7 +45,10 @@ const HIDDEN_TOKENS_ROW = 'HIDDEN_TOKENS_ROW'
 // accept any ref
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const TokenBalanceList = forwardRef<FlashList<any>, TokenBalanceListProps>(
-  ({ owner, empty, onPressToken, containerProps, scrollHandler }, ref) => {
+  (
+    { owner, empty, onPressToken, containerProps, scrollHandler, isExternalProfile = false },
+    ref
+  ) => {
     const { t } = useTranslation()
     const insets = useSafeAreaInsets()
 
@@ -82,10 +86,10 @@ export const TokenBalanceList = forwardRef<FlashList<any>, TokenBalanceListProps
     }, [hasOnlyHiddenTokens, owner])
 
     useEffect(() => {
-      if (!!data && isWarmLoadingStatus(networkStatus)) {
+      if (!!data && isWarmLoadingStatus(networkStatus) && !isExternalProfile) {
         setIsWarmLoading(true)
       }
-    }, [data, networkStatus])
+    }, [data, isExternalProfile, networkStatus])
 
     const listItems: (PortfolioBalance | string)[] = useMemo(() => {
       if (!data) return EMPTY_ARRAY
@@ -107,7 +111,7 @@ export const TokenBalanceList = forwardRef<FlashList<any>, TokenBalanceListProps
     }, [data, hiddenTokensExpanded])
 
     const estimatedContentHeight = dimensions.fullHeight - TAB_BAR_HEIGHT - insets.top
-    const numHiddenTokens = data?.smallBalances?.length ?? 0 + (data?.spamBalances?.length ?? 0)
+    const numHiddenTokens = (data?.smallBalances?.length ?? 0) + (data?.spamBalances?.length ?? 0)
 
     // Note: `PerformanceView` must wrap the entire return statement to properly track interactive states.
     return (
@@ -119,7 +123,7 @@ export const TokenBalanceList = forwardRef<FlashList<any>, TokenBalanceListProps
         }>
         {!data ? (
           isNonPollingRequestInFlight(networkStatus) ? (
-            <Box my="spacing12" style={containerProps?.loadingContainerStyle}>
+            <Box style={containerProps?.loadingContainerStyle}>
               <Loader.Token repeat={4} />
             </Box>
           ) : (
@@ -127,7 +131,7 @@ export const TokenBalanceList = forwardRef<FlashList<any>, TokenBalanceListProps
               flex={1}
               flexGrow={1}
               justifyContent="center"
-              style={containerProps?.loadingContainerStyle}>
+              style={containerProps?.emptyContainerStyle}>
               <BaseCard.ErrorState
                 retryButtonLabel="Retry"
                 title={t("Couldn't load token balances")}
@@ -136,7 +140,7 @@ export const TokenBalanceList = forwardRef<FlashList<any>, TokenBalanceListProps
             </Box>
           )
         ) : listItems.length === 0 ? (
-          <Flex grow style={containerProps?.loadingContainerStyle}>
+          <Flex grow style={containerProps?.emptyContainerStyle}>
             {empty}
           </Flex>
         ) : (

@@ -210,6 +210,26 @@ function BackupOptionButton({
     sm: theme.textVariants.subheadSmall.maxFontSizeMultiplier,
   })
 
+  const iconSizeBox = useResponsiveProp({
+    xs: theme.iconSizes.icon24,
+    sm: theme.iconSizes.icon40,
+  })
+
+  const iconSize = useResponsiveProp({
+    xs: theme.iconSizes.icon12,
+    sm: theme.iconSizes.icon20,
+  })
+
+  const addSpacing = useResponsiveProp({
+    xs: 'spacing8',
+    sm: 'spacing12',
+  })
+
+  const textSize = useResponsiveProp({
+    xs: 'bodySmall',
+    sm: 'bodyLarge',
+  })
+
   return (
     <Flex row alignItems="center" py="spacing16">
       <Flex
@@ -217,22 +237,23 @@ function BackupOptionButton({
         borderColor="accentBranded"
         borderRadius="rounded12"
         borderWidth={1.25}
-        height={32}
+        height={iconSizeBox}
         padding="spacing16"
-        width={32}>
-        <Icon color={theme.colors.textPrimary} height={16} strokeWidth={1.5} width={16} />
+        width={iconSizeBox}>
+        <Icon
+          color={theme.colors.textPrimary}
+          height={iconSize}
+          strokeWidth={1.5}
+          width={iconSize}
+        />
       </Flex>
-      <Text maxFontSizeMultiplier={labelMaxFontSizeMultiplier} variant="subheadSmall">
+      <Text maxFontSizeMultiplier={labelMaxFontSizeMultiplier} variant={textSize}>
         {label}
       </Text>
       <Flex grow alignItems="flex-end">
         {completed ? (
           <Flex row alignItems="center" gap="spacing4">
-            <Check
-              color={theme.colors.accentSuccess}
-              height={theme.iconSizes.icon20}
-              width={theme.iconSizes.icon20}
-            />
+            <Check color={theme.colors.accentSuccess} height={iconSize} width={iconSize} />
             <Text fontWeight="600" variant="bodyMicro">
               {t('Completed')}
             </Text>
@@ -242,7 +263,7 @@ function BackupOptionButton({
             hapticFeedback
             backgroundColor="magentaDark"
             borderRadius="roundedFull"
-            p="spacing12"
+            p={addSpacing}
             testID={name}
             onPress={onPress}>
             <Flex row>

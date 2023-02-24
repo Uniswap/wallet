@@ -90,7 +90,7 @@ export function WCNotification({
 }: {
   notification: WalletConnectNotification
 }): JSX.Element {
-  const { imageUrl, chainId, address, event, hideDelay } = notification
+  const { imageUrl, chainId, address, event, hideDelay, dappName } = notification
   const dispatch = useAppDispatch()
   const validChainId = toSupportedChainId(chainId)
   const title = formWCNotificationTitle(notification)
@@ -106,6 +106,7 @@ export function WCNotification({
     <DappLogoWithTxStatus
       chainId={validChainId}
       dappImageUrl={imageUrl}
+      dappName={dappName}
       event={event}
       size={useSmallDisplay ? iconSizes.icon24 : NOTIFICATION_ICON_SIZE}
     />
@@ -437,7 +438,9 @@ export function UnknownTxNotification({
   notification: TransactionNotificationBase
 }): JSX.Element {
   const { name: ensName } = useENS(chainId, tokenAddress)
-  const currencyInfo = useCurrencyInfo(buildCurrencyId(chainId, tokenAddress ?? ''))
+  const currencyInfo = useCurrencyInfo(
+    tokenAddress ? buildCurrencyId(chainId, tokenAddress) : undefined
+  )
   const title = formUnknownTxTitle(txStatus, tokenAddress, ensName)
   const icon = (
     <LogoWithTxStatus
@@ -495,10 +498,11 @@ export function CopiedNotification({
         <CheckCircle
           color={theme.colors.accentSuccess}
           height={iconSizes.icon24}
+          strokeWidth={1.5}
           width={iconSizes.icon24}
         />
       }
-      title={t('Copied to clipboard')}
+      title={t('Address copied')}
     />
   )
 }

@@ -1,3 +1,6 @@
+/* eslint-disable complexity */
+// TODO: Complexity was increased when tracking numTotalResults for analytics
+// should decrease complexity when possible using subcomponents
 import { default as React, useCallback, useMemo } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { FlatList, ListRenderItemInfo } from 'react-native'
@@ -20,6 +23,12 @@ import { fromGraphQLChain } from 'src/utils/chainId'
 import { buildCurrencyId, buildNativeCurrencyId } from 'src/utils/currencyId'
 
 const MAX_TOKEN_RESULTS_COUNT = 5
+
+export interface SearchContext {
+  query: string
+  position: number
+  suggestionCount: number
+}
 
 export function SearchResultsSection({ searchQuery }: { searchQuery: string }): JSX.Element {
   const { t } = useTranslation()
@@ -69,8 +78,23 @@ export function SearchResultsSection({ searchQuery }: { searchQuery: string }): 
       return tokensMap
     }, {})
 
-    return Object.values(tokenResultsMap).slice(0, MAX_TOKEN_RESULTS_COUNT)
-  }, [tokenResultsData])
+    const results = Object.values(tokenResultsMap)
+      .slice(0, MAX_TOKEN_RESULTS_COUNT)
+      .sort((res1: TokenSearchResult, res2: TokenSearchResult) => {
+        const res1Match = isExactTokenMatch(res1, searchQuery)
+        const res2Match = isExactTokenMatch(res2, searchQuery)
+
+        if (res1Match && !res2Match) {
+          return -1
+        } else if (!res1Match && res2Match) {
+          return 1
+        } else {
+          return 0
+        }
+      })
+
+    return results
+  }, [searchQuery, tokenResultsData])
 
   // Search for matching ENS
   const {
@@ -124,35 +148,81 @@ export function SearchResultsSection({ searchQuery }: { searchQuery: string }): 
   const hasENSResult = ensName && ensAddress
   const hasEOAResult = validAddress && !isSmartContractAddress
 
+  const numTotalResults = tokenResults.length + (hasENSResult || hasEOAResult ? 1 : 0)
+
+  const exactENSMatch = ensName?.toLowerCase() === searchQuery.toLowerCase()
+  const prefixTokenMatch = tokenResults.find((res: TokenSearchResult) =>
+    isPrefixTokenMatch(res, searchQuery)
+  )
+
+  const showWalletSectionFirst = exactENSMatch && !prefixTokenMatch
+
+  const renderTokenItem = ({ item, index }: ListRenderItemInfo<TokenSearchResult>): JSX.Element => (
+    <SearchTokenItem
+      searchContext={{
+        position: showWalletSectionFirst ? index + 2 : index + 1,
+        suggestionCount: numTotalResults,
+        query: searchQuery,
+      }}
+      token={item}
+    />
+  )
+
+  const TokenSection = tokenResults.length > 0 && (
+    <FlatList
+      ListHeaderComponent={
+        <Text color="textSecondary" mb="spacing4" mx="spacing8" variant="subheadSmall">
+          {t('Tokens')}
+        </Text>
+      }
+      data={tokenResults}
+      keyExtractor={tokenKey}
+      listKey="tokens"
+      renderItem={renderTokenItem}
+    />
+  )
+
+  const WalletSection = (hasENSResult || hasEOAResult) && (
+    <AnimatedFlex entering={FadeIn} exiting={FadeOut} gap="none">
+      <Text color="textSecondary" mx="spacing8" variant="subheadSmall">
+        {t('Wallets')}
+      </Text>
+      {hasENSResult ? (
+        <SearchWalletItem
+          searchContext={{
+            query: searchQuery,
+            position: showWalletSectionFirst ? 1 : numTotalResults,
+            suggestionCount: numTotalResults,
+          }}
+          wallet={{ type: SearchResultType.Wallet, address: ensAddress, ensName }}
+        />
+      ) : hasEOAResult ? (
+        <SearchWalletItem
+          searchContext={{
+            query: searchQuery,
+            position: showWalletSectionFirst ? 1 : numTotalResults,
+            suggestionCount: numTotalResults,
+          }}
+          wallet={{ type: SearchResultType.Wallet, address: validAddress }}
+        />
+      ) : null}
+    </AnimatedFlex>
+  )
+
   return (
     <Flex grow gap="spacing8">
-      {tokenResults.length > 0 && (
-        <FlatList
-          ListHeaderComponent={
-            <Text color="textSecondary" mb="spacing4" mx="spacing8" variant="subheadSmall">
-              {t('Tokens')}
-            </Text>
-          }
-          data={tokenResults}
-          keyExtractor={tokenKey}
-          listKey="tokens"
-          renderItem={renderTokenItem}
-        />
+      {showWalletSectionFirst ? (
+        <>
+          {WalletSection}
+          {TokenSection}
+        </>
+      ) : (
+        <>
+          {TokenSection}
+          {WalletSection}
+        </>
       )}
-      {(hasENSResult || hasEOAResult) && (
-        <AnimatedFlex entering={FadeIn} exiting={FadeOut} gap="none">
-          <Text color="textSecondary" mx="spacing8" variant="subheadSmall">
-            {t('Wallets')}
-          </Text>
-          {hasENSResult ? (
-            <SearchWalletItem
-              wallet={{ type: SearchResultType.Wallet, address: ensAddress, ensName }}
-            />
-          ) : hasEOAResult ? (
-            <SearchWalletItem wallet={{ type: SearchResultType.Wallet, address: validAddress }} />
-          ) : null}
-        </AnimatedFlex>
-      )}
+
       {validAddress && (
         <AnimatedFlex entering={FadeIn} exiting={FadeOut} gap="none">
           <Text color="textSecondary" mx="spacing8" variant="subheadSmall">
@@ -187,12 +257,22 @@ const SearchResultsLoader = (): JSX.Element => {
   )
 }
 
-const renderTokenItem = ({ item }: ListRenderItemInfo<TokenSearchResult>): JSX.Element => (
-  <SearchTokenItem token={item} />
-)
-
 const tokenKey = (token: TokenSearchResult): string => {
   return token.address
     ? buildCurrencyId(token.chainId, token.address)
     : buildNativeCurrencyId(token.chainId)
+}
+
+function isExactTokenMatch(searchResult: TokenSearchResult, query: string): boolean {
+  return (
+    searchResult.name.toLowerCase() === query.toLowerCase() ||
+    searchResult.symbol.toLowerCase() === query.toLowerCase()
+  )
+}
+
+function isPrefixTokenMatch(searchResult: TokenSearchResult, query: string): boolean {
+  return (
+    searchResult.name.toLowerCase().startsWith(query.toLowerCase()) ||
+    searchResult.symbol.toLowerCase().startsWith(query.toLowerCase())
+  )
 }

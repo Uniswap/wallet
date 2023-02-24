@@ -2,7 +2,7 @@ import React from 'react'
 import { useAppTheme } from 'src/app/hooks'
 import { LinkButton } from 'src/components/buttons/LinkButton'
 import { Flex } from 'src/components/layout'
-import { HeaderIcon } from 'src/components/WalletConnect/RequestModal/HeaderIcon'
+import { DappHeaderIcon } from 'src/components/WalletConnect/DappHeaderIcon'
 import { HeaderText } from 'src/components/WalletConnect/RequestModal/HeaderText'
 import { useCurrencyInfo } from 'src/features/tokens/useCurrencyInfo'
 import { WalletConnectRequest } from 'src/features/walletConnect/walletConnectSlice'
@@ -26,22 +26,23 @@ export function ClientDetails({
 
   return (
     <Flex centered gap="spacing16">
-      <HeaderIcon dapp={dapp} permitCurrencyInfo={permitCurrencyInfo} />
-      <Flex centered gap="spacing12">
+      <DappHeaderIcon dapp={dapp} permitCurrencyInfo={permitCurrencyInfo} />
+      <Flex centered gap="spacing16">
         <HeaderText
           permitAmount={permitInfo?.amount}
           permitCurrency={permitCurrencyInfo?.currency}
           request={request}
         />
         <LinkButton
-          backgroundColor="accentActiveSoft"
-          borderRadius="rounded8"
+          backgroundColor="background2"
+          borderRadius="rounded16"
           color={theme.colors.accentActive}
-          iconColor={theme.colors.textSecondary}
+          iconColor={theme.colors.accentActive}
           label={dapp.url}
-          mt="spacing8"
+          mb="spacing12"
           px="spacing8"
           py="spacing4"
+          size={theme.iconSizes.icon16}
           textVariant="bodyMicro"
           url={dapp.url}
         />

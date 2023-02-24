@@ -1,5 +1,7 @@
+/* eslint-disable max-lines */
 import { useScrollToTop } from '@react-navigation/native'
 import { FlashList } from '@shopify/flash-list'
+import { impactAsync } from 'expo-haptics'
 import * as SplashScreen from 'expo-splash-screen'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -16,7 +18,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { SvgProps } from 'react-native-svg'
 import { SceneRendererProps, TabBar } from 'react-native-tab-view'
 import { useAppDispatch, useAppTheme } from 'src/app/hooks'
-import DollarIcon from 'src/assets/icons/buy.svg'
+import { NavBar, SWAP_BUTTON_HEIGHT } from 'src/app/navigation/NavBar'
+import { AppStackScreenProp } from 'src/app/navigation/types'
+import BuyIcon from 'src/assets/icons/buy.svg'
 import ReceiveArrow from 'src/assets/icons/receive.svg'
 import SendIcon from 'src/assets/icons/send-action.svg'
 import { AccountHeader } from 'src/components/accounts/AccountHeader'
@@ -26,6 +30,7 @@ import { NftsTab } from 'src/components/home/NftsTab'
 import { TokensTab } from 'src/components/home/TokensTab'
 import { AnimatedBox, Box, Flex } from 'src/components/layout'
 import { SHADOW_OFFSET_SMALL } from 'src/components/layout/BaseCard'
+import { Delay, Delayed } from 'src/components/layout/Delayed'
 import { Screen } from 'src/components/layout/Screen'
 import {
   HeaderConfig,
@@ -43,7 +48,13 @@ import { Text } from 'src/components/Text'
 import { PortfolioBalance } from 'src/features/balances/PortfolioBalance'
 import { useFiatOnRampEnabled } from 'src/features/experiments/hooks'
 import { openModal } from 'src/features/modals/modalSlice'
-import { ElementName, EventName, ModalName, SectionName } from 'src/features/telemetry/constants'
+import { setNotificationStatus } from 'src/features/notifications/notificationSlice'
+import {
+  ElementName,
+  MobileEventName,
+  ModalName,
+  SectionName,
+} from 'src/features/telemetry/constants'
 import { AccountType } from 'src/features/wallet/accounts/types'
 import { useTestAccount } from 'src/features/wallet/accounts/useTestAccount'
 import { useActiveAccountWithThrow } from 'src/features/wallet/hooks'
@@ -53,20 +64,26 @@ import { useTimeout } from 'src/utils/timing'
 
 const CONTENT_HEADER_HEIGHT_ESTIMATE = 270
 
+export enum TabIndex {
+  Tokens = 0,
+  NFTs = 1,
+  Activity = 2,
+}
+
 /**
  * Home Screen hosts both Tokens and NFTs Tab
  * Manages TokensTabs and NftsTab scroll offsets when header is collapsed
  * Borrowed from: https://stormotion.io/blog/how-to-create-collapsing-tab-header-using-react-native/
  */
-export function HomeScreen(): JSX.Element {
-  // imports test account for easy development/testing
-  useTestAccount()
+export function HomeScreen(props?: AppStackScreenProp<Screens.Home>): JSX.Element {
+  useTestAccount() // imports test account for easy development/testing
   const activeAccount = useActiveAccountWithThrow()
   const { t } = useTranslation()
   const theme = useAppTheme()
   const insets = useSafeAreaInsets()
+  const dispatch = useAppDispatch()
 
-  const [tabIndex, setTabIndex] = useState(0)
+  const [tabIndex, setTabIndex] = useState(props?.route?.params?.tab ?? TabIndex.Tokens)
   const routes = useMemo(
     () => [
       { key: SectionName.HomeTokensTab, title: t('Tokens') },
@@ -74,6 +91,15 @@ export function HomeScreen(): JSX.Element {
       { key: SectionName.HomeActivityTab, title: t('Activity') },
     ],
     [t]
+  )
+
+  useEffect(
+    function syncTabIndex() {
+      const newTabIndex = props?.route.params?.tab
+      if (newTabIndex === undefined) return
+      setTabIndex(newTabIndex)
+    },
+    [props?.route.params?.tab]
   )
 
   const [headerHeight, setHeaderHeight] = useState(CONTENT_HEADER_HEIGHT_ESTIMATE)
@@ -113,13 +139,20 @@ export function HomeScreen(): JSX.Element {
   const activityTabScrollRef = useAnimatedRef<FlashList<any>>()
 
   const сurrentScrollValue = useDerivedValue(() => {
-    if (tabIndex === 0) {
+    if (tabIndex === TabIndex.Tokens) {
       return tokensTabScrollValue.value
-    } else if (tabIndex === 1) {
+    } else if (tabIndex === TabIndex.NFTs) {
       return nftsTabScrollValue.value
     }
     return activityTabScrollValue.value
   }, [tabIndex])
+
+  useEffect(() => {
+    // clear the notification indicator if the user is on the activity tab
+    if (tabIndex === 2) {
+      dispatch(setNotificationStatus({ address: activeAccount.address, hasNotifications: false }))
+    }
+  }, [dispatch, activeAccount.address, tabIndex])
 
   // If accounts are switched, we want to scroll to top and show full header
   useEffect(() => {
@@ -147,13 +180,13 @@ export function HomeScreen(): JSX.Element {
   useScrollToTop(
     useRef({
       scrollToTop: () => {
-        if (currentTabIndex.value === 1 && isNftTabsAtTop.value) {
-          setTabIndex(0)
-        } else if (currentTabIndex.value === 1) {
+        if (currentTabIndex.value === TabIndex.NFTs && isNftTabsAtTop.value) {
+          setTabIndex(TabIndex.Tokens)
+        } else if (currentTabIndex.value === TabIndex.NFTs) {
           nftsTabScrollRef.current?.scrollToOffset({ offset: 0, animated: true })
-        } else if (currentTabIndex.value === 2 && isActivityTabAtTop.value) {
-          setTabIndex(1)
-        } else if (currentTabIndex.value === 2) {
+        } else if (currentTabIndex.value === TabIndex.Activity && isActivityTabAtTop.value) {
+          setTabIndex(TabIndex.NFTs)
+        } else if (currentTabIndex.value === TabIndex.Activity) {
           activityTabScrollRef.current?.scrollToOffset({ offset: 0, animated: true })
         } else {
           tokensTabScrollRef.current?.scrollToOffset({ offset: 0, animated: true })
@@ -191,7 +224,7 @@ export function HomeScreen(): JSX.Element {
   const contentHeader = useMemo(() => {
     return (
       <Flex bg="background0" gap="spacing16" pb="spacing16" px="spacing24">
-        <Box pb="spacing4">
+        <Box pb="spacing12">
           <AccountHeader />
         </Box>
         <Box pb="spacing4">
@@ -205,10 +238,10 @@ export function HomeScreen(): JSX.Element {
   const contentContainerStyle = useMemo<StyleProp<ViewStyle>>(
     () => ({
       paddingTop: headerHeight + TAB_BAR_HEIGHT + TAB_STYLES.tabListInner.paddingTop,
-      paddingBottom: insets.bottom,
+      paddingBottom: insets.bottom + SWAP_BUTTON_HEIGHT + theme.spacing.spacing12,
       minHeight: dimensions.fullHeight + headerHeightDiff,
     }),
-    [headerHeight, insets.bottom, headerHeightDiff]
+    [headerHeight, insets.bottom, theme.spacing.spacing12, headerHeightDiff]
   )
 
   const loadingContainerStyle = useMemo<StyleProp<ViewStyle>>(
@@ -219,15 +252,25 @@ export function HomeScreen(): JSX.Element {
     [headerHeight, insets.bottom]
   )
 
+  const emptyContainerStyle = useMemo<StyleProp<ViewStyle>>(
+    () => ({
+      paddingTop: headerHeight - TAB_BAR_HEIGHT - TAB_STYLES.tabListInner.paddingTop,
+      paddingHorizontal: theme.spacing.spacing36,
+      paddingBottom: insets.bottom,
+    }),
+    [headerHeight, insets.bottom, theme.spacing.spacing36]
+  )
+
   const sharedProps = useMemo<TabContentProps>(
     () => ({
       loadingContainerStyle,
+      emptyContainerStyle,
       contentContainerStyle,
       onMomentumScrollEnd: sync,
       onScrollEndDrag: sync,
       scrollEventThrottle: TAB_VIEW_SCROLL_THROTTLE,
     }),
-    [contentContainerStyle, loadingContainerStyle, sync]
+    [contentContainerStyle, emptyContainerStyle, loadingContainerStyle, sync]
   )
 
   const tabBarStyle = useMemo<StyleProp<ViewStyle>>(
@@ -271,6 +314,9 @@ export function HomeScreen(): JSX.Element {
                   },
                 ]}
                 tabStyle={style}
+                onTabPress={(): void => {
+                  impactAsync()
+                }}
               />
             </Box>
           </Animated.View>
@@ -303,21 +349,25 @@ export function HomeScreen(): JSX.Element {
           )
         case SectionName.HomeNFTsTab:
           return (
-            <NftsTab
-              ref={nftsTabScrollRef}
-              containerProps={sharedProps}
-              owner={activeAccount?.address}
-              scrollHandler={nftsTabScrollHandler}
-            />
+            <Delayed waitBeforeShow={Delay.Normal}>
+              <NftsTab
+                ref={nftsTabScrollRef}
+                containerProps={sharedProps}
+                owner={activeAccount?.address}
+                scrollHandler={nftsTabScrollHandler}
+              />
+            </Delayed>
           )
         case SectionName.HomeActivityTab:
           return (
-            <ActivityTab
-              ref={activityTabScrollRef}
-              containerProps={sharedProps}
-              owner={activeAccount?.address}
-              scrollHandler={activityTabScrollHandler}
-            />
+            <Delayed waitBeforeShow={Delay.Normal}>
+              <ActivityTab
+                ref={activityTabScrollRef}
+                containerProps={sharedProps}
+                owner={activeAccount?.address}
+                scrollHandler={activityTabScrollHandler}
+              />
+            </Delayed>
           )
       }
       return null
@@ -352,6 +402,7 @@ export function HomeScreen(): JSX.Element {
           onIndexChange={setTabIndex}
         />
       </View>
+      <NavBar />
       <AnimatedBox
         height={insets.top}
         position="absolute"
@@ -367,22 +418,19 @@ export function HomeScreen(): JSX.Element {
 function QuickActions(): JSX.Element {
   const dispatch = useAppDispatch()
   const activeAccount = useActiveAccountWithThrow()
-
   const { t } = useTranslation()
 
   const onPressBuy = (): void => {
     dispatch(openModal({ name: ModalName.FiatOnRamp }))
   }
-
   const onPressReceive = (): void => {
     dispatch(
       openModal({ name: ModalName.WalletConnectScan, initialState: ScannerModalState.WalletQr })
     )
   }
-
-  const onPressSend = useCallback(() => {
+  const onPressSend = (): void => {
     dispatch(openModal({ name: ModalName.Send }))
-  }, [dispatch])
+  }
 
   // hide fiat onramp banner when active account isn't a signer account.
   const fiatOnRampShown =
@@ -392,8 +440,9 @@ function QuickActions(): JSX.Element {
     <Flex centered row gap="spacing8">
       {fiatOnRampShown ? (
         <ActionButton
-          Icon={DollarIcon}
-          eventName={EventName.FiatOnRampQuickActionButtonPressed}
+          Icon={BuyIcon}
+          eventName={MobileEventName.FiatOnRampQuickActionButtonPressed}
+          flex={3}
           label={t('Buy')}
           name={ElementName.Buy}
           onPress={onPressBuy}
@@ -401,12 +450,14 @@ function QuickActions(): JSX.Element {
       ) : null}
       <ActionButton
         Icon={SendIcon}
+        flex={3}
         label={t('Send')}
         name={ElementName.Send}
         onPress={onPressSend}
       />
       <ActionButton
         Icon={ReceiveArrow}
+        flex={fiatOnRampShown ? 4 : 3} // we need to make more room for Receive button if there are 3 buttons
         label={t('Receive')}
         name={ElementName.Receive}
         onPress={onPressReceive}
@@ -421,24 +472,26 @@ function ActionButton({
   label,
   Icon,
   onPress,
+  flex,
 }: {
-  eventName?: EventName
+  eventName?: MobileEventName
   name: ElementName
   label: string
   Icon: React.FC<SvgProps>
   onPress: () => void
+  flex: number
 }): JSX.Element {
   const theme = useAppTheme()
-
   return (
     <TouchableArea
       hapticFeedback
-      backgroundColor="background2"
-      borderRadius="rounded24"
+      backgroundColor="backgroundActionButton"
+      borderRadius="roundedFull"
       eventName={eventName}
-      flex={1}
+      flex={flex}
       name={name}
-      padding="spacing12"
+      px="spacing12"
+      py="spacing16"
       shadowColor="white"
       shadowOffset={SHADOW_OFFSET_SMALL}
       shadowOpacity={0.1}
@@ -451,7 +504,7 @@ function ActionButton({
           strokeWidth={2}
           width={theme.iconSizes.icon20}
         />
-        <Text color="textPrimary" variant="bodyLarge">
+        <Text color="accentAction" marginLeft="spacing8" variant="buttonLabelMedium">
           {label}
         </Text>
       </Flex>

@@ -1,14 +1,15 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { NativeSyntheticEvent } from 'react-native'
+import { NativeSyntheticEvent, Share } from 'react-native'
 import ContextMenu, { ContextMenuOnPressNativeEvent } from 'react-native-context-menu-view'
-import { useAppTheme } from 'src/app/hooks'
 import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { TripleDot } from 'src/components/icons/TripleDot'
+import { Box } from 'src/components/layout'
 import { Flex } from 'src/components/layout/Flex'
 import { NFTCollectionData } from 'src/features/nfts/collection/NFTCollectionHeader'
-import { Theme } from 'src/styles/theme'
-import { getTwitterLink, openUri } from 'src/utils/linking'
+import { theme as FixedTheme, Theme } from 'src/styles/theme'
+import { getTwitterLink, getUniswapCollectionUrl, openUri } from 'src/utils/linking'
+import { logger } from 'src/utils/logger'
 
 type MenuOption = {
   title: string
@@ -16,20 +17,25 @@ type MenuOption = {
   systemIcon: string
 }
 
+const ICON_SIZE = FixedTheme.iconSizes.icon16
+const ICON_PADDING = FixedTheme.spacing.spacing8
+
 export function NFTCollectionContextMenu({
   data,
+  collectionAddress,
   showButtonOutline = false,
   iconColor = 'textSecondary',
 }: {
   data: NFTCollectionData
+  collectionAddress?: NullUndefined<string>
   showButtonOutline?: boolean
   iconColor?: keyof Theme['colors']
 }): Nullable<JSX.Element> {
   const { t } = useTranslation()
-  const theme = useAppTheme()
 
   const twitterURL = data?.twitterName ? getTwitterLink(data.twitterName) : undefined
   const homepageUrl = data?.homepageUrl
+  const shareURL = getUniswapCollectionUrl(collectionAddress)
 
   const onSocialPress = (): void => {
     if (!twitterURL) return
@@ -40,6 +46,17 @@ export function NFTCollectionContextMenu({
     if (!homepageUrl) return
     openUri(homepageUrl)
   }
+
+  const onSharePress = useCallback(async () => {
+    if (!shareURL) return
+    try {
+      await Share.share({
+        message: shareURL,
+      })
+    } catch (e) {
+      logger.error('NFTCollectionScreen', 'onShare', (e as unknown as Error).message)
+    }
+  }, [shareURL])
 
   const menuActions: {
     title: string
@@ -54,14 +71,22 @@ export function NFTCollectionContextMenu({
       : undefined,
     homepageUrl
       ? {
-          title: t('Collection Website'),
+          title: t('Collection website'),
           action: openExplorerLink,
+        }
+      : undefined,
+    shareURL
+      ? {
+          title: t('Share'),
+          action: onSharePress,
         }
       : undefined,
   ].filter((option): option is MenuOption => !!option)
 
-  // Only display menu if valid options from data response
-  if (!homepageUrl && !twitterURL) return null
+  // Only display menu if valid options from data response, otherwise return empty
+  // element for spacing purposes
+  if (!homepageUrl && !twitterURL)
+    return <Box style={{ padding: ICON_PADDING }} width={ICON_SIZE} />
 
   return (
     <ContextMenu
@@ -74,8 +99,8 @@ export function NFTCollectionContextMenu({
         hapticFeedback
         backgroundColor={showButtonOutline ? 'textOnDimTertiary' : 'none'}
         borderRadius="roundedFull"
-        padding="spacing8">
-        <Flex centered grow height={theme.iconSizes.icon16} width={theme.iconSizes.icon16}>
+        style={{ padding: ICON_PADDING }}>
+        <Flex centered grow height={ICON_SIZE} width={ICON_SIZE}>
           <TripleDot color={iconColor} size={3.5} />
         </Flex>
       </TouchableArea>

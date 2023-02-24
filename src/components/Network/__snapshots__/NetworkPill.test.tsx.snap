@@ -6,14 +6,13 @@ exports[`NetworkPill renders a NetworkPill with border 1`] = `
     Array [
       Object {
         "alignItems": "center",
-        "backgroundColor": "#FFFFFF",
         "borderColor": "transparent",
         "borderRadius": 999999,
         "borderWidth": 1,
         "display": "flex",
         "flexDirection": "row",
         "justifyContent": "center",
-        "paddingHorizontal": 12,
+        "paddingHorizontal": 4,
         "paddingVertical": 8,
       },
       Object {
@@ -76,10 +75,10 @@ exports[`NetworkPill renders a NetworkPill with border 1`] = `
     style={
       Array [
         Object {
-          "color": "#0D111C",
+          "color": "#0E1524",
           "display": "flex",
           "fontFamily": "Inter-Regular",
-          "fontSize": 14,
+          "fontSize": 15,
           "lineHeight": 20,
         },
         Object {
@@ -99,14 +98,13 @@ exports[`NetworkPill renders a NetworkPill without image 1`] = `
     Array [
       Object {
         "alignItems": "center",
-        "backgroundColor": "#FFFFFF",
         "borderColor": "transparent",
         "borderRadius": 999999,
         "borderWidth": 1,
         "display": "flex",
         "flexDirection": "row",
         "justifyContent": "center",
-        "paddingHorizontal": 12,
+        "paddingHorizontal": 4,
         "paddingVertical": 8,
       },
       Object {
@@ -169,10 +167,10 @@ exports[`NetworkPill renders a NetworkPill without image 1`] = `
     style={
       Array [
         Object {
-          "color": "#0D111C",
+          "color": "#0E1524",
           "display": "flex",
           "fontFamily": "Inter-Regular",
-          "fontSize": 14,
+          "fontSize": 15,
           "lineHeight": 20,
         },
         Object {
@@ -192,14 +190,13 @@ exports[`NetworkPill renders an InlineNetworkPill 1`] = `
     Array [
       Object {
         "alignItems": "center",
-        "backgroundColor": "#FFFFFF",
         "borderColor": "transparent",
-        "borderRadius": 4,
+        "borderRadius": 12,
         "borderWidth": 1,
         "display": "flex",
         "flexDirection": "row",
         "justifyContent": "center",
-        "paddingHorizontal": 4,
+        "paddingHorizontal": 8,
         "paddingVertical": 2,
       },
       Object {
@@ -215,11 +212,11 @@ exports[`NetworkPill renders an InlineNetworkPill 1`] = `
     style={
       Array [
         Object {
-          "color": "#0D111C",
+          "color": "#0E1524",
           "display": "flex",
           "fontFamily": "Inter-SemiBold",
           "fontSize": 12,
-          "lineHeight": 16,
+          "lineHeight": 17,
         },
         Object {
           "color": "#209853",

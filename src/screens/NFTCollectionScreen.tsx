@@ -28,6 +28,7 @@ import {
 } from 'src/features/nfts/collection/NFTCollectionHeader'
 import { NFTItem } from 'src/features/nfts/types'
 import { getNFTAssetKey } from 'src/features/nfts/utils'
+import { ExploreModalAwareView } from 'src/screens/ModalAwareView'
 import { Screens } from 'src/screens/Screens'
 import { dimensions } from 'src/styles/sizing'
 import { theme } from 'src/styles/theme'
@@ -48,6 +49,7 @@ const keyExtractor = (item: NFTItem | string, index: number): string =>
 function gqlNFTAssetToNFTItem(data: NftCollectionScreenQuery | undefined): NFTItem[] {
   const items = data?.nftAssets?.edges?.flatMap((item) => item.node)
   if (!items) return EMPTY_ARRAY
+
   return items.map((item): NFTItem => {
     return {
       name: item?.name ?? undefined,
@@ -56,6 +58,10 @@ function gqlNFTAssetToNFTItem(data: NftCollectionScreenQuery | undefined): NFTIt
       imageUrl: item?.image?.url ?? undefined,
       collectionName: item?.collection?.name ?? undefined,
       ownerAddress: item.ownerAddress ?? undefined,
+      imageDimensions:
+        item?.image?.dimensions?.height && item?.image?.dimensions?.width
+          ? { width: item.image.dimensions.width, height: item.image.dimensions.height }
+          : undefined,
     }
   })
 }
@@ -72,7 +78,6 @@ export function NFTCollectionScreen({
   const { data, networkStatus, fetchMore, refetch } = useNftCollectionScreenQuery({
     variables: { contractAddress: collectionAddress, first: ASSET_FETCH_PAGE_SIZE },
     notifyOnNetworkStatusChange: true,
-    returnPartialData: true,
     fetchPolicy: 'cache-and-network',
   })
 
@@ -82,9 +87,9 @@ export function NFTCollectionScreen({
     return gqlNFTAssetToNFTItem(data)
   }, [data])
 
-  // Add additional loading rows to list if we're fetching more on scroll, and account for incomplete rows.
+  // Fill in grid with loading boxes if we have incomplete data and are loading more
   const extraLoadingItemAmount =
-    networkStatus === NetworkStatus.fetchMore
+    networkStatus === NetworkStatus.fetchMore || networkStatus === NetworkStatus.loading
       ? LOADING_BUFFER_AMOUNT + (3 - (collectionItems.length % 3))
       : undefined
 
@@ -113,7 +118,7 @@ export function NFTCollectionScreen({
   })
 
   const onPressItem = (asset: NFTItem): void => {
-    navigation.navigate(Screens.NFTItem, {
+    navigation.push(Screens.NFTItem, {
       owner: asset.ownerAddress ?? '',
       address: asset.contractAddress ?? '',
       tokenId: asset.tokenId ?? '',
@@ -134,6 +139,7 @@ export function NFTCollectionScreen({
       marginRight: middle ? theme.spacing.spacing8 : last ? theme.spacing.spacing16 : 0,
       marginBottom: theme.spacing.spacing8,
     }
+
     return (
       <Box
         aspectRatio={1}
@@ -148,13 +154,17 @@ export function NFTCollectionScreen({
           <TouchableArea
             hapticFeedback
             activeOpacity={1}
+            alignItems="center"
+            flex={1}
             hapticStyle={ImpactFeedbackStyle.Light}
             onPress={(): void => onPressItem(item)}>
             <NFTViewer
               autoplay
+              squareGridView
+              imageDimensions={item.imageDimensions}
+              limitGIFSize={ESTIMATED_ITEM_SIZE}
               placeholderContent={item.name || item.collectionName}
-              squareGridView={true}
-              uri={item.imageUrl ?? ''}
+              uri={item.imageUrl}
             />
           </TouchableArea>
         )}
@@ -193,39 +203,49 @@ export function NFTCollectionScreen({
   }
 
   return (
-    <Screen edges={[]}>
-      <ScrollHeader
-        fullScreen
-        centerElement={
-          collectionData?.name ? <Text variant="bodyLarge">{collectionData.name}</Text> : undefined
-        }
-        listRef={listRef}
-        rightElement={<NFTCollectionContextMenu data={collectionData} />}
-        scrollY={scrollY}
-        showHeaderScrollYDistance={NFT_BANNER_HEIGHT}
-      />
-      <AnimatedFlashList
-        ref={listRef}
-        ListEmptyComponent={
-          gridDataLoading ? null : <BaseCard.EmptyState description={t('No NFTs found')} />
-        }
-        ListHeaderComponent={
-          <NFTCollectionHeader data={collectionData} loading={headerDataLoading} />
-        }
-        data={gridDataWithLoadingElements}
-        estimatedItemSize={ESTIMATED_ITEM_SIZE}
-        estimatedListSize={{
-          width: dimensions.fullWidth,
-          height: dimensions.fullHeight,
-        }}
-        keyExtractor={keyExtractor}
-        numColumns={3}
-        renderItem={renderItem}
-        showsVerticalScrollIndicator={false}
-        onEndReached={onListEndReached}
-        onEndReachedThreshold={PREFETCH_ITEMS_THRESHOLD}
-        onScroll={scrollHandler}
-      />
-    </Screen>
+    <ExploreModalAwareView>
+      <Screen edges={EMPTY_ARRAY}>
+        <ScrollHeader
+          fullScreen
+          centerElement={
+            collectionData?.name ? (
+              <Text variant="bodyLarge">{collectionData.name}</Text>
+            ) : undefined
+          }
+          listRef={listRef}
+          rightElement={
+            <NFTCollectionContextMenu collectionAddress={collectionAddress} data={collectionData} />
+          }
+          scrollY={scrollY}
+          showHeaderScrollYDistance={NFT_BANNER_HEIGHT}
+        />
+        <AnimatedFlashList
+          ref={listRef}
+          ListEmptyComponent={
+            gridDataLoading ? null : <BaseCard.EmptyState description={t('No NFTs found')} />
+          }
+          ListHeaderComponent={
+            <NFTCollectionHeader
+              collectionAddress={collectionAddress}
+              data={collectionData}
+              loading={headerDataLoading}
+            />
+          }
+          data={gridDataWithLoadingElements}
+          estimatedItemSize={ESTIMATED_ITEM_SIZE}
+          estimatedListSize={{
+            width: dimensions.fullWidth,
+            height: dimensions.fullHeight,
+          }}
+          keyExtractor={keyExtractor}
+          numColumns={3}
+          renderItem={renderItem}
+          showsVerticalScrollIndicator={false}
+          onEndReached={onListEndReached}
+          onEndReachedThreshold={PREFETCH_ITEMS_THRESHOLD}
+          onScroll={scrollHandler}
+        />
+      </Screen>
+    </ExploreModalAwareView>
   )
 }

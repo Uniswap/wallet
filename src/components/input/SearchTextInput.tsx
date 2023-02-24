@@ -15,6 +15,8 @@ import { TextInput, TextInputProps } from 'src/components/input/TextInput'
 import { AnimatedBox, AnimatedFlex, Box } from 'src/components/layout'
 import { SHADOW_OFFSET_SMALL } from 'src/components/layout/BaseCard'
 import { Text } from 'src/components/Text'
+import { sendAnalyticsEvent } from 'src/features/telemetry'
+import { MobileEventName } from 'src/features/telemetry/constants'
 import { dimensions } from 'src/styles/sizing'
 import SearchIcon from '../../assets/icons/search.svg'
 
@@ -44,7 +46,7 @@ export const SearchTextInput = forwardRef<NativeTextInput, SearchTextInputProps>
   const { t } = useTranslation()
   const {
     autoFocus,
-    backgroundColor = 'background1',
+    backgroundColor,
     clearIcon,
     disableClearable,
     endAdornment,
@@ -65,9 +67,12 @@ export const SearchTextInput = forwardRef<NativeTextInput, SearchTextInputProps>
     isFocus.value = false
     showClearButton.value = false
     Keyboard.dismiss()
+    sendAnalyticsEvent(MobileEventName.ExploreSearchCancel, { query: value })
     onChangeText?.('')
     onCancel?.()
   }
+
+  const backgroundColorValue = backgroundColor ?? 'background1'
 
   const onCancelLayout = useCallback(
     (event: LayoutChangeEvent) => {
@@ -153,16 +158,23 @@ export const SearchTextInput = forwardRef<NativeTextInput, SearchTextInputProps>
       <AnimatedFlex
         row
         alignItems="center"
-        backgroundColor={backgroundColor}
-        borderRadius="rounded16"
+        backgroundColor={backgroundColorValue}
+        borderRadius="roundedFull"
         flex={1}
         flexGrow={1}
-        gap="none"
+        gap="spacing8"
         minHeight={48}
-        px="spacing12"
+        px="spacing16"
+        py="spacing12"
         style={textInputStyle}
         {...shadowProps}>
-        <SearchIcon color={theme.colors.textTertiary} height={20} width={20} />
+        <Box py="spacing4">
+          <SearchIcon
+            color={isDarkMode ? theme.colors.textSecondary : theme.colors.textTertiary}
+            height={theme.iconSizes.icon20}
+            width={theme.iconSizes.icon20}
+          />
+        </Box>
         <TextInput
           ref={ref}
           autoCapitalize="none"
@@ -175,8 +187,9 @@ export const SearchTextInput = forwardRef<NativeTextInput, SearchTextInputProps>
           fontSize={theme.textVariants.bodyLarge.fontSize}
           maxFontSizeMultiplier={theme.textVariants.bodyLarge.maxFontSizeMultiplier}
           placeholder={placeholder}
-          placeholderTextColor={theme.colors.textTertiary}
-          px="spacing8"
+          placeholderTextColor={isDarkMode ? theme.colors.textSecondary : theme.colors.textTertiary}
+          px="none"
+          py="none"
           returnKeyType="done"
           textContentType="none"
           value={value}

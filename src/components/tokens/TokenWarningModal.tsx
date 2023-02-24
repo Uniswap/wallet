@@ -14,6 +14,7 @@ import { TOKEN_WARNING_HELP_PAGE_URL } from 'src/constants/urls'
 import { SafetyLevel } from 'src/data/__generated__/types-and-hooks'
 import { ElementName, ModalName } from 'src/features/telemetry/constants'
 import { useTokenSafetyLevelColors } from 'src/features/tokens/safetyHooks'
+import { iconSizes } from 'src/styles/sizing'
 import { opacify } from 'src/utils/colors'
 import { currencyIdToAddress, currencyIdToChain } from 'src/utils/currencyId'
 import { ExplorerDataType, getExplorerLink, openUri } from 'src/utils/linking'
@@ -81,12 +82,11 @@ export default function TokenWarningModal({
         <Flex
           centered
           borderRadius="rounded12"
-          borderWidth={1}
           p="spacing12"
           style={{
-            borderColor: opacify(60, theme.colors[warningColor]),
+            backgroundColor: opacify(12, theme.colors[warningColor]),
           }}>
-          <WarningIcon safetyLevel={safetyLevel} width={theme.iconSizes.icon20} />
+          <WarningIcon safetyLevel={safetyLevel} width={theme.iconSizes.icon24} />
         </Flex>
         <Text variant="buttonLabelMedium">{getTokenSafetyHeaderText(safetyLevel, t)}</Text>
         <Flex centered gap="spacing4" width="90%">
@@ -101,7 +101,7 @@ export default function TokenWarningModal({
         </Flex>
         <TouchableArea
           alignItems="center"
-          bg="accentActiveSoft"
+          bg="background2"
           borderRadius="rounded16"
           flexDirection="row"
           mx="spacing48"
@@ -109,14 +109,18 @@ export default function TokenWarningModal({
           py="spacing8"
           onPress={(): Promise<void> => openUri(explorerLink)}>
           <Text
-            color="accentActive"
+            color="textSecondary"
             ellipsizeMode="tail"
             mx="spacing8"
             numberOfLines={1}
             variant="buttonLabelMicro">
             {explorerLink}
           </Text>
-          <ExternalLinkIcon fill={theme.colors.accentActive} height={12} width={12} />
+          <ExternalLinkIcon
+            color={theme.colors.textSecondary}
+            height={iconSizes.icon16}
+            width={iconSizes.icon16}
+          />
         </TouchableArea>
         <Flex centered row mt="spacing16">
           <Button

@@ -16,7 +16,7 @@ interface PortfolioBalanceProps {
 export function PortfolioBalance({ owner }: PortfolioBalanceProps): JSX.Element {
   const { data, loading, networkStatus } = usePortfolioBalanceQuery({
     variables: { owner },
-    pollInterval: PollingInterval.Fast,
+    pollInterval: PollingInterval.Normal,
     notifyOnNetworkStatusChange: true,
     // This is better than using network status to check, because doing it that way we would have to wait
     // for the network status to go back to "ready", which results in the numbers updating, and _then_ the
@@ -37,6 +37,7 @@ export function PortfolioBalance({ owner }: PortfolioBalanceProps): JSX.Element 
 
   const portfolioBalance = data?.portfolios?.[0]
   const portfolioChange = portfolioBalance?.tokensTotalDenominatedValueChange
+  const totalBalance = portfolioBalance?.tokensTotalDenominatedValue?.value
 
   return (
     <WarmLoadingShimmer isWarmLoading={isWarmLoading && !isLoading}>
@@ -47,11 +48,9 @@ export function PortfolioBalance({ owner }: PortfolioBalanceProps): JSX.Element 
           color={isWarmLoading ? 'textSecondary' : undefined}
           fontSize={48}
           fontWeight="600"
+          formattedNumber={formatUSDPrice(totalBalance, NumberType.PortfolioBalance)}
           loading={isLoading}
-          number={formatUSDPrice(
-            portfolioBalance?.tokensTotalDenominatedValue?.value ?? undefined,
-            NumberType.PortfolioBalance
-          )}
+          number={totalBalance}
           numberOfLines={1}
           variant="headlineLarge"
         />

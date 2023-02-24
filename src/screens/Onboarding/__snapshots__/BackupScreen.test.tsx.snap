@@ -68,7 +68,7 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
           style={
             Array [
               Object {
-                "color": "#0D111C",
+                "color": "#0E1524",
                 "display": "flex",
                 "fontFamily": "Inter-Medium",
                 "fontSize": 24,
@@ -99,10 +99,10 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
           style={
             Array [
               Object {
-                "color": "#505A78",
+                "color": "#5D6785",
                 "display": "flex",
                 "fontFamily": "Inter-Regular",
-                "fontSize": 14,
+                "fontSize": 15,
                 "lineHeight": 20,
                 "textAlign": "center",
               },
@@ -186,20 +186,20 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
                       "borderWidth": 1.25,
                       "display": "flex",
                       "flexDirection": "column",
-                      "height": 32,
+                      "height": 40,
                       "justifyContent": "center",
                       "padding": 16,
-                      "width": 32,
+                      "width": 40,
                     },
                   ]
                 }
               >
                 <svg
-                  color="#0D111C"
+                  color="#0E1524"
                   data-file-name="SvgCloud"
-                  height={16}
+                  height={20}
                   strokeWidth={1.5}
-                  width={16}
+                  width={20}
                 />
               </View>
               <View
@@ -221,11 +221,11 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
                 style={
                   Array [
                     Object {
-                      "color": "#0D111C",
+                      "color": "#0E1524",
                       "display": "flex",
                       "fontFamily": "Inter-Medium",
-                      "fontSize": 14,
-                      "lineHeight": 20,
+                      "fontSize": 17,
+                      "lineHeight": 24,
                     },
                   ]
                 }
@@ -310,7 +310,7 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
                             "display": "flex",
                             "fontFamily": "Inter-SemiBold",
                             "fontSize": 12,
-                            "lineHeight": 16,
+                            "lineHeight": 17,
                           },
                         ]
                       }
@@ -359,20 +359,20 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
                       "borderWidth": 1.25,
                       "display": "flex",
                       "flexDirection": "column",
-                      "height": 32,
+                      "height": 40,
                       "justifyContent": "center",
                       "padding": 16,
-                      "width": 32,
+                      "width": 40,
                     },
                   ]
                 }
               >
                 <svg
-                  color="#0D111C"
+                  color="#0E1524"
                   data-file-name="SvgPencil"
-                  height={16}
+                  height={20}
                   strokeWidth={1.5}
-                  width={16}
+                  width={20}
                 />
               </View>
               <View
@@ -394,11 +394,11 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
                 style={
                   Array [
                     Object {
-                      "color": "#0D111C",
+                      "color": "#0E1524",
                       "display": "flex",
                       "fontFamily": "Inter-Medium",
-                      "fontSize": 14,
-                      "lineHeight": 20,
+                      "fontSize": 17,
+                      "lineHeight": 24,
                     },
                   ]
                 }
@@ -483,7 +483,7 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
                             "display": "flex",
                             "fontFamily": "Inter-SemiBold",
                             "fontSize": 12,
-                            "lineHeight": 16,
+                            "lineHeight": 17,
                           },
                         ]
                       }
@@ -559,7 +559,7 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
                 }
               >
                 <svg
-                  color="#505A78"
+                  color="#5D6785"
                   data-file-name="SvgInfoCircle"
                   height={24}
                   width={24}
@@ -584,10 +584,10 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
                 style={
                   Array [
                     Object {
-                      "color": "#0D111C",
+                      "color": "#0E1524",
                       "display": "flex",
                       "fontFamily": "Inter-Medium",
-                      "fontSize": 14,
+                      "fontSize": 15,
                       "lineHeight": 20,
                     },
                   ]
@@ -651,7 +651,7 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
                   "alignItems": "center",
                   "backgroundColor": "#FC72FF",
                   "borderColor": "transparent",
-                  "borderRadius": 12,
+                  "borderRadius": 16,
                   "borderWidth": 1,
                   "display": "flex",
                   "opacity": 0.4,
@@ -664,7 +664,7 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
                   Array [
                     Object {
                       "alignItems": "stretch",
-                      "borderRadius": 12,
+                      "borderRadius": 16,
                       "display": "flex",
                       "flexDirection": "column",
                       "height": "100%",
@@ -704,7 +704,7 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
                             0,
                             -958215,
                             1,
-                            -313648,
+                            -2011415,
                           ]
                         }
                         gradientTransform={null}
@@ -760,7 +760,7 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
                         "color": "#FFFFFF",
                         "display": "flex",
                         "fontFamily": "Inter-SemiBold",
-                        "fontSize": 16,
+                        "fontSize": 17,
                         "lineHeight": 20,
                         "textAlign": "center",
                       },
@@ -847,7 +847,7 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
           style={
             Array [
               Object {
-                "color": "#0D111C",
+                "color": "#0E1524",
                 "display": "flex",
                 "fontFamily": "Inter-Medium",
                 "fontSize": 24,
@@ -878,10 +878,10 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
           style={
             Array [
               Object {
-                "color": "#505A78",
+                "color": "#5D6785",
                 "display": "flex",
                 "fontFamily": "Inter-Regular",
-                "fontSize": 14,
+                "fontSize": 15,
                 "lineHeight": 20,
                 "textAlign": "center",
               },
@@ -965,20 +965,20 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
                       "borderWidth": 1.25,
                       "display": "flex",
                       "flexDirection": "column",
-                      "height": 32,
+                      "height": 40,
                       "justifyContent": "center",
                       "padding": 16,
-                      "width": 32,
+                      "width": 40,
                     },
                   ]
                 }
               >
                 <svg
-                  color="#0D111C"
+                  color="#0E1524"
                   data-file-name="SvgCloud"
-                  height={16}
+                  height={20}
                   strokeWidth={1.5}
-                  width={16}
+                  width={20}
                 />
               </View>
               <View
@@ -1000,11 +1000,11 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
                 style={
                   Array [
                     Object {
-                      "color": "#0D111C",
+                      "color": "#0E1524",
                       "display": "flex",
                       "fontFamily": "Inter-Medium",
-                      "fontSize": 14,
-                      "lineHeight": 20,
+                      "fontSize": 17,
+                      "lineHeight": 24,
                     },
                   ]
                 }
@@ -1074,12 +1074,12 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
                     style={
                       Array [
                         Object {
-                          "color": "#0D111C",
+                          "color": "#0E1524",
                           "display": "flex",
                           "fontFamily": "Inter-Regular",
                           "fontSize": 12,
                           "fontWeight": "600",
-                          "lineHeight": 16,
+                          "lineHeight": 17,
                         },
                       ]
                     }
@@ -1126,20 +1126,20 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
                       "borderWidth": 1.25,
                       "display": "flex",
                       "flexDirection": "column",
-                      "height": 32,
+                      "height": 40,
                       "justifyContent": "center",
                       "padding": 16,
-                      "width": 32,
+                      "width": 40,
                     },
                   ]
                 }
               >
                 <svg
-                  color="#0D111C"
+                  color="#0E1524"
                   data-file-name="SvgPencil"
-                  height={16}
+                  height={20}
                   strokeWidth={1.5}
-                  width={16}
+                  width={20}
                 />
               </View>
               <View
@@ -1161,11 +1161,11 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
                 style={
                   Array [
                     Object {
-                      "color": "#0D111C",
+                      "color": "#0E1524",
                       "display": "flex",
                       "fontFamily": "Inter-Medium",
-                      "fontSize": 14,
-                      "lineHeight": 20,
+                      "fontSize": 17,
+                      "lineHeight": 24,
                     },
                   ]
                 }
@@ -1250,7 +1250,7 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
                             "display": "flex",
                             "fontFamily": "Inter-SemiBold",
                             "fontSize": 12,
-                            "lineHeight": 16,
+                            "lineHeight": 17,
                           },
                         ]
                       }
@@ -1326,7 +1326,7 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
                 }
               >
                 <svg
-                  color="#505A78"
+                  color="#5D6785"
                   data-file-name="SvgInfoCircle"
                   height={24}
                   width={24}
@@ -1351,10 +1351,10 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
                 style={
                   Array [
                     Object {
-                      "color": "#0D111C",
+                      "color": "#0E1524",
                       "display": "flex",
                       "fontFamily": "Inter-Medium",
-                      "fontSize": 14,
+                      "fontSize": 15,
                       "lineHeight": 20,
                     },
                   ]
@@ -1418,7 +1418,7 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
                   "alignItems": "center",
                   "backgroundColor": "#FC72FF",
                   "borderColor": "transparent",
-                  "borderRadius": 12,
+                  "borderRadius": 16,
                   "borderWidth": 1,
                   "display": "flex",
                   "opacity": 1,
@@ -1431,7 +1431,7 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
                   Array [
                     Object {
                       "alignItems": "stretch",
-                      "borderRadius": 12,
+                      "borderRadius": 16,
                       "display": "flex",
                       "flexDirection": "column",
                       "height": "100%",
@@ -1471,7 +1471,7 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
                             0,
                             -958215,
                             1,
-                            -313648,
+                            -2011415,
                           ]
                         }
                         gradientTransform={null}
@@ -1527,7 +1527,7 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
                         "color": "#FFFFFF",
                         "display": "flex",
                         "fontFamily": "Inter-SemiBold",
-                        "fontSize": 16,
+                        "fontSize": 17,
                         "lineHeight": 20,
                         "textAlign": "center",
                       },

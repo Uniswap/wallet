@@ -1,35 +1,6 @@
 """This directive allows results to be deferred during execution"""
 directive @defer on FIELD
 
-"""Directs the schema to enforce authorization on a field"""
-directive @aws_auth(
-  """List of cognito user pool groups which have access on this field"""
-  cognito_groups: [String]
-) on FIELD_DEFINITION
-
-"""
-Tells the service this field/object has access authorized by a Lambda Authorizer.
-"""
-directive @aws_lambda on OBJECT | FIELD_DEFINITION
-
-"""
-Tells the service this field/object has access authorized by sigv4 signing.
-"""
-directive @aws_iam on OBJECT | FIELD_DEFINITION
-
-"""
-Tells the service this field/object has access authorized by an OIDC token.
-"""
-directive @aws_oidc on OBJECT | FIELD_DEFINITION
-
-"""Tells the service which mutation triggers this subscription."""
-directive @aws_subscribe(
-  """
-  List of mutations which will trigger this subscription when they are called.
-  """
-  mutations: [String]
-) on FIELD_DEFINITION
-
 """
 Tells the service this field/object has access authorized by a Cognito User Pools token.
 """
@@ -37,6 +8,17 @@ directive @aws_cognito_user_pools(
   """List of cognito user pool groups which have access on this field"""
   cognito_groups: [String]
 ) on OBJECT | FIELD_DEFINITION
+
+"""
+Tells the service this field/object has access authorized by sigv4 signing.
+"""
+directive @aws_iam on OBJECT | FIELD_DEFINITION
+
+"""Directs the schema to enforce authorization on a field"""
+directive @aws_auth(
+  """List of cognito user pool groups which have access on this field"""
+  cognito_groups: [String]
+) on FIELD_DEFINITION
 
 """
 Tells the service which subscriptions will be published to when this mutation is
@@ -50,9 +32,27 @@ directive @aws_publish(
 ) on FIELD_DEFINITION
 
 """
+Tells the service this field/object has access authorized by a Lambda Authorizer.
+"""
+directive @aws_lambda on OBJECT | FIELD_DEFINITION
+
+"""Tells the service which mutation triggers this subscription."""
+directive @aws_subscribe(
+  """
+  List of mutations which will trigger this subscription when they are called.
+  """
+  mutations: [String]
+) on FIELD_DEFINITION
+
+"""
 Tells the service this field/object has access authorized by an API key.
 """
 directive @aws_api_key on OBJECT | FIELD_DEFINITION
+
+"""
+Tells the service this field/object has access authorized by an OIDC token.
+"""
+directive @aws_oidc on OBJECT | FIELD_DEFINITION
 
 enum ActivityType {
   APPROVE
@@ -120,6 +120,7 @@ enum Chain {
   OPTIMISM
   POLYGON
   CELO
+  UNKNOWN_CHAIN
 }
 
 input ContractInput {
@@ -130,11 +131,6 @@ input ContractInput {
 enum Currency {
   USD
   ETH
-}
-
-enum DatasourceProvider {
-  UNISWAP
-  NXYZ
 }
 
 type Dimensions {
@@ -177,6 +173,46 @@ type Image {
 enum MarketSortableField {
   MARKET_CAP
   VOLUME
+}
+
+type NftActivity {
+  id: ID!
+  address: String!
+  tokenId: String
+  asset: NftAsset
+  type: NftActivityType!
+  marketplace: NftMarketplace
+  fromAddress: String!
+  toAddress: String
+  transactionHash: String
+  price: Amount
+  quantity: Int
+  orderStatus: OrderStatus
+  url: String
+  timestamp: Int!
+}
+
+type NftActivityConnection {
+  pageInfo: PageInfo!
+  edges: [NftActivityEdge!]!
+}
+
+type NftActivityEdge {
+  cursor: String!
+  node: NftActivity!
+}
+
+input NftActivityFilterInput {
+  address: String
+  tokenId: String
+  activityTypes: [NftActivityType!]
+}
+
+enum NftActivityType {
+  LISTING
+  SALE
+  CANCEL_LISTING
+  TRANSFER
 }
 
 type NftApproval {
@@ -527,6 +563,20 @@ input PairInput {
   tokenAmountB: TokenAmountInput!
 }
 
+input PermitDetailsInput {
+  token: String!
+  amount: String!
+  expiration: String!
+  nonce: String!
+}
+
+input PermitInput {
+  signature: String!
+  details: PermitDetailsInput!
+  spender: String!
+  sigDeadline: String!
+}
+
 """  v3 pool parameters as defined by https://github.com/Uniswap/v3-sdk/blob/main/src/entities/pool.ts
 """
 input PoolInput {
@@ -547,7 +597,7 @@ type Portfolio {
 
   """  TODO: (michael.zhang) replace with paginated query"""
   nftBalances: [NftBalance]
-  assetActivities(page: Int, pageSize: Int): [AssetActivity]
+  assetActivities(page: Int, pageSize: Int, includeOffChain: Boolean): [AssetActivity]
 }
 
 type Query {
@@ -556,13 +606,14 @@ type Query {
   tokenProjects(contracts: [ContractInput!]!): [TokenProject]
   searchTokens(searchQuery: String!): [Token]
   searchTokenProjects(searchQuery: String!): [TokenProject]
-  portfolios(ownerAddresses: [String!]!, useAltDataSource: Boolean): [Portfolio]
+  portfolios(ownerAddresses: [String!]!): [Portfolio]
   nftCollectionsById(collectionIds: [String]): [NftCollection]
   topTokens(chain: Chain, page: Int, pageSize: Int, orderBy: TokenSortableField): [Token]
   nftAssets(chain: Chain, address: String!, orderBy: NftAssetSortableField, asc: Boolean, filter: NftAssetsFilterInput, first: Int, last: Int, after: String, before: String): NftAssetConnection
-  nftCollections(filter: NftCollectionsFilterInput, first: Int, last: Int, after: String, before: String): NftCollectionConnection
-  nftBalances(chain: Chain, ownerAddress: String!, filter: NftBalancesFilterInput, first: Int, last: Int, after: String, before: String): NftBalanceConnection
+  nftCollections(chain: Chain, filter: NftCollectionsFilterInput, cursor: String, limit: Int): NftCollectionConnection
+  nftBalances(chain: Chain, ownerAddress: String!, filter: NftBalancesFilterInput, first: Int, last: Int, after: String, before: String, cursor: String, limit: Int): NftBalanceConnection
   nftRoute(chain: Chain, senderAddress: String!, nftTrades: [NftTradeInput!]!, tokenTrades: [TokenTradeInput!]): NftRouteResponse
+  nftActivity(chain: Chain, filter: NftActivityFilterInput, cursor: String, limit: Int): NftActivityConnection
 }
 
 enum SafetyLevel {
@@ -662,12 +713,12 @@ type TokenProjectMarket {
   tokenProject: TokenProject!
   currency: Currency!
   price: Amount
-  volume24h: Amount
-  pricePercentChange24h: Amount
+  volume24h: Amount @deprecated(reason: "Use TokenMarket.volume with duration DAY for Uniswap volume")
+  pricePercentChange24h: Amount @deprecated(reason: "Use pricePercentChange")
   marketCap: Amount
-  fullyDilutedMarketCap: Amount
+  fullyDilutedMarketCap: Amount @deprecated(reason: "Use marketCap")
   priceHistory(duration: HistoryDuration!): [TimestampedAmount]
-  volume(duration: HistoryDuration!): Amount
+  volume(duration: HistoryDuration!): Amount @deprecated(reason: "Use TokenMarket.volume for Uniswap volume")
   pricePercentChange(duration: HistoryDuration!): Amount
   priceHighLow(duration: HistoryDuration!, highLow: HighLow!): Amount
 }
@@ -689,6 +740,7 @@ input TokenTradeInput {
   tokenAmount: TokenAmountInput!
   routes: TokenTradeRoutesInput
   slippageToleranceBasisPoints: Int
+  permit: PermitInput
 }
 
 input TokenTradeRouteInput {

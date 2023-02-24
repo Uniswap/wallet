@@ -12,7 +12,9 @@ import {
 } from 'react-native'
 import Animated from 'react-native-reanimated'
 import { Route } from 'react-native-tab-view/lib/typescript/types'
+import { Flex } from 'src/components/layout/Flex'
 import { Text } from 'src/components/Text'
+import { PendingNotificationBadge } from 'src/features/notifications/PendingNotificationBadge'
 import { theme as FixedTheme } from 'src/styles/theme'
 
 export const TAB_VIEW_SCROLL_THROTTLE = 16
@@ -80,20 +82,26 @@ export type ScrollPair = {
 
 export type TabContentProps = Partial<FlatListProps<unknown>> & {
   loadingContainerStyle: StyleProp<ViewStyle>
+  emptyContainerStyle: StyleProp<ViewStyle>
   estimatedItemSize?: number
 }
 
 export const renderTabLabel = ({
   route,
   focused,
+  isExternalProfile,
 }: {
   route: Route
   focused: boolean
+  isExternalProfile?: boolean
 }): JSX.Element => {
   return (
-    <Text color={focused ? 'textPrimary' : 'textTertiary'} fontSize={18} variant="bodyLarge">
-      {route.title}
-    </Text>
+    <Flex centered flexDirection="row" gap="spacing4">
+      <Text color={focused ? 'textPrimary' : 'textTertiary'} fontSize={18} variant="bodyLarge">
+        {route.title}
+      </Text>
+      {!isExternalProfile && route.title === 'Activity' ? <PendingNotificationBadge /> : null}
+    </Flex>
   )
 }
 

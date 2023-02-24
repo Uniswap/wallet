@@ -6,9 +6,9 @@ import { useAppTheme } from 'src/app/hooks'
 import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { NetworkLogo } from 'src/components/CurrencyLogo/NetworkLogo'
 import { Chevron } from 'src/components/icons/Chevron'
-import { RemoteImage } from 'src/components/images/RemoteImage'
 import { Box, Flex } from 'src/components/layout'
 import { Text } from 'src/components/Text'
+import { DappHeaderIcon } from 'src/components/WalletConnect/DappHeaderIcon'
 import { CHAIN_INFO } from 'src/constants/chains'
 import { ElementName } from 'src/features/telemetry/constants'
 import {
@@ -26,33 +26,26 @@ export function DappConnectionItem({
   onPressChangeNetwork: (session: WalletConnectSessionV1) => void
 }): JSX.Element {
   const theme = useAppTheme()
-  const isDarkMode = useColorScheme() === 'dark'
   const { dapp } = session
 
   return (
     <Flex
-      bg={isDarkMode ? 'background1' : 'background2'}
-      borderRadius="rounded12"
+      bg="background2"
+      borderRadius="rounded16"
       gap="spacing16"
       justifyContent="space-between"
       mb="spacing12"
-      p="spacing16"
+      px="spacing12"
+      py="spacing16"
       width="48%">
       <TouchableArea
         flex={1}
         name={ElementName.WCOpenDapp}
         onPress={(): Promise<void> => openUri(dapp.url)}>
         <Flex centered grow gap="spacing8">
-          {dapp.icon ? (
-            <Flex>
-              <RemoteImage
-                borderRadius={theme.borderRadii.none}
-                height={40}
-                uri={dapp.icon}
-                width={40}
-              />
-            </Flex>
-          ) : null}
+          <Flex fill>
+            <DappHeaderIcon dapp={dapp} showChain={false} />
+          </Flex>
           <Text numberOfLines={2} textAlign="center" variant="buttonLabelMedium">
             {dapp.name || dapp.url}
           </Text>
@@ -103,6 +96,7 @@ function ChangeNetworkButton({
 
   // Only WC v1.0 connections have a current chain_id
   const supportedChainId = toSupportedChainId(session.dapp.chain_id)
+  const isDarkMode = useColorScheme() === 'dark'
 
   return (
     <TouchableArea
@@ -111,9 +105,8 @@ function ChangeNetworkButton({
       <Flex
         row
         shrink
-        borderColor="backgroundOutline"
-        borderRadius="rounded16"
-        borderWidth={1}
+        backgroundColor={isDarkMode ? 'background3' : 'background3'}
+        borderRadius="roundedFull"
         gap="none"
         justifyContent="space-between"
         p="spacing8">
@@ -121,7 +114,11 @@ function ChangeNetworkButton({
           <Flex fill row shrink gap="spacing8">
             <NetworkLogo chainId={supportedChainId} />
             <Flex shrink>
-              <Text color="textSecondary" numberOfLines={1} variant="buttonLabelSmall">
+              <Text
+                color="textSecondary"
+                numberOfLines={1}
+                textAlign="center"
+                variant="buttonLabelSmall">
                 {CHAIN_INFO[supportedChainId].label}
               </Text>
             </Flex>
@@ -131,7 +128,12 @@ function ChangeNetworkButton({
             {t('Unsupported chain')}
           </Text>
         )}
-        <Chevron color={theme.colors.textTertiary} direction="s" height="20" width="20" />
+        <Chevron
+          color={theme.colors.textTertiary}
+          direction="s"
+          height={theme.iconSizes.icon20}
+          width={theme.iconSizes.icon20}
+        />
       </Flex>
     </TouchableArea>
   )

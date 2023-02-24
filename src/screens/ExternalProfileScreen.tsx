@@ -12,8 +12,10 @@ import { Box, Flex } from 'src/components/layout'
 import { Screen } from 'src/components/layout/Screen'
 import { renderTabLabel, TabContentProps, TAB_STYLES } from 'src/components/layout/TabHelpers'
 import TraceTabView from 'src/components/telemetry/TraceTabView'
+import { EMPTY_ARRAY } from 'src/constants/misc'
 import ProfileHeader from 'src/features/externalProfile/ProfileHeader'
 import { SectionName } from 'src/features/telemetry/constants'
+import { ExploreModalAwareView } from 'src/screens/ModalAwareView'
 import { Screens } from 'src/screens/Screens'
 
 type Props = NativeStackScreenProps<AppStackParamList, Screens.ExternalProfile>
@@ -40,6 +42,7 @@ export function ExternalProfileScreen({
     () => ({
       contentContainerStyle: TAB_STYLES.tabListInner,
       loadingContainerStyle: TAB_STYLES.tabListInner,
+      emptyContainerStyle: TAB_STYLES.tabListInner,
     }),
     []
   )
@@ -52,7 +55,7 @@ export function ExternalProfileScreen({
         case SectionName.ProfileNftsTab:
           return <NftsTab containerProps={sharedProps} owner={address} />
         case SectionName.ProfileTokensTab:
-          return <TokensTab containerProps={sharedProps} owner={address} />
+          return <TokensTab isExternalProfile containerProps={sharedProps} owner={address} />
       }
       return null
     },
@@ -67,7 +70,9 @@ export function ExternalProfileScreen({
             {...sceneProps}
             indicatorStyle={TAB_STYLES.activeTabIndicator}
             navigationState={{ index: tabIndex, routes: tabs }}
-            renderLabel={renderTabLabel}
+            renderLabel={({ route, focused }): JSX.Element =>
+              renderTabLabel({ route, focused, isExternalProfile: true })
+            }
             style={[
               TAB_STYLES.tabBar,
               {
@@ -84,18 +89,20 @@ export function ExternalProfileScreen({
   )
 
   return (
-    <Screen edges={[]}>
-      <Flex grow>
-        <ProfileHeader address={address} />
-        <TraceTabView
-          navigationState={{ index: tabIndex, routes: tabs }}
-          renderScene={renderTab}
-          renderTabBar={renderTabBar}
-          screenName={Screens.ExternalProfile}
-          onIndexChange={setIndex}
-        />
-      </Flex>
-    </Screen>
+    <ExploreModalAwareView>
+      <Screen edges={EMPTY_ARRAY}>
+        <Flex grow pb="spacing16">
+          <ProfileHeader address={address} />
+          <TraceTabView
+            navigationState={{ index: tabIndex, routes: tabs }}
+            renderScene={renderTab}
+            renderTabBar={renderTabBar}
+            screenName={Screens.ExternalProfile}
+            onIndexChange={setIndex}
+          />
+        </Flex>
+      </Screen>
+    </ExploreModalAwareView>
   )
 }
 

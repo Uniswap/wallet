@@ -1,6 +1,7 @@
 // TODO(MOB-3867): reduce file length
 /* eslint-disable max-lines */
 import { MaxUint256 } from '@ethersproject/constants'
+import { SwapEventName } from '@uniswap/analytics-events'
 import { PERMIT2_ADDRESS } from '@uniswap/permit2-sdk'
 import { SwapRouter } from '@uniswap/router-sdk'
 import { Currency, CurrencyAmount, Percent, TradeType } from '@uniswap/sdk-core'
@@ -31,7 +32,6 @@ import { AppNotificationType } from 'src/features/notifications/types'
 import { useSimulatedGasLimit } from 'src/features/routing/hooks'
 import { STABLECOIN_AMOUNT_OUT, useUSDCPrice } from 'src/features/routing/useUSDCPrice'
 import { sendAnalyticsEvent } from 'src/features/telemetry'
-import { EventName } from 'src/features/telemetry/constants'
 import { useCurrencyInfo } from 'src/features/tokens/useCurrencyInfo'
 import { PERMITTABLE_TOKENS } from 'src/features/transactions/permit/permittableTokens'
 import { usePermitSignature } from 'src/features/transactions/permit/usePermitSignature'
@@ -78,7 +78,7 @@ export type DerivedSwapInfo<
   currencyBalances: BaseDerivedInfo<TInput>['currencyBalances'] & {
     [CurrencyField.OUTPUT]: NullUndefined<CurrencyAmount<Currency>>
   }
-  focusOnCurrencyField: CurrencyField
+  focusOnCurrencyField: CurrencyField | null
   trade: ReturnType<typeof useTrade>
   wrapType: WrapType
   selectingCurrencyField?: CurrencyField
@@ -315,6 +315,8 @@ export function useSwapActionHandlers(dispatch: React.Dispatch<AnyAction>): {
       dispatch(
         transactionStateActions.updateExactAmountToken({ field: CurrencyField.INPUT, amount })
       )
+      // Unfocus the CurrencyInputField by setting focusOnCurrencyField to null
+      dispatch(transactionStateActions.onFocus(null))
     },
     [dispatch]
   )
@@ -346,7 +348,6 @@ export function useSwapActionHandlers(dispatch: React.Dispatch<AnyAction>): {
     () => dispatch(transactionStateActions.onFocus(CurrencyField.OUTPUT)),
     [dispatch]
   )
-
   return {
     onCreateTxId,
     onFocusInput,
@@ -455,7 +456,7 @@ export function useTokenApprovalInfo(
   const address = useActiveAccountAddressWithThrow()
   const provider = useProvider(chainId)
   const contractManager = useContractManager()
-  const permit2Enabled = useFeatureFlag(FEATURE_FLAGS.SwapPermit2, false)
+  const permit2Enabled = useFeatureFlag(FEATURE_FLAGS.SwapPermit2)
 
   const transactionFetcher = useCallback(() => {
     if (!provider || !currencyInAmount || !currencyInAmount.currency) return
@@ -593,7 +594,7 @@ export function useSwapTransactionRequest(
     currencyAmounts,
   } = derivedSwapInfo
 
-  const permit2Enabled = useFeatureFlag(FEATURE_FLAGS.SwapPermit2, false)
+  const permit2Enabled = useFeatureFlag(FEATURE_FLAGS.SwapPermit2)
   const address = useActiveAccountAddressWithThrow()
 
   const { data: permitInfo, isLoading: permitInfoLoading } = usePermitSignature(
@@ -801,7 +802,7 @@ export function useSwapCallback(
       )
       onSubmit()
 
-      sendAnalyticsEvent(EventName.SwapSubmitButtonPressed, {
+      sendAnalyticsEvent(SwapEventName.SWAP_SUBMITTED_BUTTON_CLICKED, {
         ...getBaseTradeAnalyticsProperties(trade),
         estimated_network_fee_wei: totalGasFee,
         gas_limit: toStringish(swapTxRequest.gasLimit),

@@ -347,6 +347,7 @@ export interface Palette {
   backgroundScrim: string
   backgroundBranded: string
   backgroundOverlay: string
+  backgroundActionButton: string
 
   textPrimary: string
   textSecondary: string
@@ -414,10 +415,11 @@ export const colorsLight: Palette = {
   backgroundOutline: colors.gray150,
   backgroundScrim: opacify(50, colors.gray150),
   backgroundBranded: '#FCF7FF',
-  backgroundOverlay: opacify(75, colors.white),
+  backgroundActionButton: colors.magenta50,
+  backgroundOverlay: opacify(60, colors.white),
 
-  textPrimary: colors.gray900,
-  textSecondary: colors.gray550,
+  textPrimary: colors.gray850,
+  textSecondary: colors.gray500,
   textTertiary: colors.gray350,
 
   accentAction: colors.magentaVibrant,
@@ -479,7 +481,8 @@ export const colorsDark: Palette = {
   backgroundOutline: colors.gray750,
   backgroundScrim: opacify(50, colors.gray750),
   backgroundBranded: '#100D1C',
-  backgroundOverlay: opacify(3, colors.white),
+  backgroundActionButton: opacify(12, colors.magentaVibrant),
+  backgroundOverlay: opacify(10, colors.white),
 
   textPrimary: colors.white,
   textSecondary: colors.gray200,
@@ -495,7 +498,7 @@ export const colorsDark: Palette = {
   // TODO(MOB-3591): accommodate one-off color in cleaner way
   shadowBranded: '#B60ACF',
 
-  accentActionSoft: opacify(24, colors.blue400),
+  accentActionSoft: opacify(24, colors.magentaVibrant),
   accentActiveSoft: opacify(24, colors.blue400),
   accentSuccessSoft: opacify(24, colors.green400),
   accentWarningSoft: opacify(24, colors.gold200),
