@@ -5,7 +5,9 @@ import { ButtonEmphasis, ButtonSize } from 'src/components/buttons/Button'
 import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { getButtonProperties } from 'src/components/buttons/utils'
 import { Flex } from 'src/components/layout'
+import { TracePressEvent } from 'src/components/telemetry/TraceEvent'
 import { Text } from 'src/components/Text'
+import { ElementName } from 'src/features/telemetry/constants'
 import { getContrastPassingTextColor } from 'src/utils/colors'
 
 export function TokenDetailsActionButtons({
@@ -33,24 +35,26 @@ export function TokenDetailsActionButtons({
       pb="spacing16"
       pt="spacing12"
       px="spacing16">
-      <TouchableArea
-        hapticFeedback
-        alignItems="center"
-        borderColor={borderColor}
-        borderRadius={borderRadius}
-        borderWidth={1}
-        disabled={!onPressSwap}
-        flexGrow={1}
-        px={paddingX}
-        py={paddingY}
-        style={{ backgroundColor: tokenColor ?? theme.colors.magentaVibrant }}
-        onPress={onPressSwap}>
-        <Text
-          color={getContrastPassingTextColor(tokenColor ?? theme.colors.magentaVibrant)}
-          variant={textVariant}>
-          {t('Swap')}
-        </Text>
-      </TouchableArea>
+      <TracePressEvent element={ElementName.Swap}>
+        <TouchableArea
+          hapticFeedback
+          alignItems="center"
+          borderColor={borderColor}
+          borderRadius={borderRadius}
+          borderWidth={1}
+          disabled={!onPressSwap}
+          flexGrow={1}
+          px={paddingX}
+          py={paddingY}
+          style={{ backgroundColor: tokenColor ?? theme.colors.magentaVibrant }}
+          onPress={onPressSwap}>
+          <Text
+            color={tokenColor ? getContrastPassingTextColor(tokenColor) : 'textOnBrightPrimary'}
+            variant={textVariant}>
+            {t('Swap')}
+          </Text>
+        </TouchableArea>
+      </TracePressEvent>
     </Flex>
   )
 }
