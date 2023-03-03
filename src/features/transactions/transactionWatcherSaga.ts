@@ -6,7 +6,10 @@ import { getProvider } from 'src/app/walletContext'
 import { ChainId } from 'src/constants/chains'
 import { PollingInterval } from 'src/constants/misc'
 import { fetchFiatOnRampTransaction } from 'src/features/fiatOnRamp/api'
-import { pushNotification } from 'src/features/notifications/notificationSlice'
+import {
+  pushNotification,
+  setNotificationStatus,
+} from 'src/features/notifications/notificationSlice'
 import { AppNotificationType } from 'src/features/notifications/types'
 import { fetchTransactionStatus } from 'src/features/providers/flashbotsProvider'
 import { waitForProvidersInitialized } from 'src/features/providers/providerSaga'
@@ -23,6 +26,7 @@ import {
 } from 'src/features/transactions/slice'
 import {
   FinalizedTransactionDetails,
+  FinalizedTransactionStatus,
   TransactionDetails,
   TransactionId,
   TransactionReceipt,
@@ -178,10 +182,22 @@ export function* watchFiatOnRampTransaction(transaction: TransactionDetails): Ge
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function* watchTransaction(transaction: TransactionDetails): Generator<any> {
-  const { chainId, id, hash } = transaction
+  const { chainId, id, hash, options, from: address } = transaction
 
   logger.debug('transactionWatcherSaga', 'watchTransaction', 'Watching for updates for tx:', hash)
   const provider = yield* call(getProvider, chainId)
+
+  // Check if monitored transaction has been replaced on chain
+  const highestConfirmedNonce = yield* call([provider, provider.getTransactionCount], address)
+  const nonce = options.request.nonce
+  const hasInvalidNonce = !nonce || highestConfirmedNonce > nonce
+
+  // Dont wait for receipt if tx is invalid, it wont get picked up. Only apply to Mainnet
+  // because L2s may confirm before this saga runs causing it to think the tx was invalid
+  if (hasInvalidNonce && chainId === ChainId.Mainnet) {
+    yield* call(finalizeTransaction, transaction, undefined, undefined, hasInvalidNonce)
+    return
+  }
 
   const { receipt, cancel, replace } = yield* race({
     receipt: call(waitForReceipt, hash, provider),
@@ -248,22 +264,24 @@ function* finalizeTransaction(
   statusOverride?:
     | TransactionStatus.Success
     | TransactionStatus.Failed
-    | TransactionStatus.Cancelled
+    | TransactionStatus.Cancelled,
+  hasInvalidNonce?: boolean
 ): Generator<
-  PutEffect<{
-    payload: FinalizedTransactionDetails
-    type: string
-  }>,
+  | PutEffect<{
+      payload: FinalizedTransactionDetails
+      type: string
+    }>
+  | PutEffect<{
+      payload: { address: string; hasNotifications: boolean }
+      type: string
+    }>,
   void,
   unknown
 > {
   const status =
     statusOverride ??
-    (ethersReceipt?.status
-      ? transaction.status === TransactionStatus.Cancelling
-        ? TransactionStatus.Cancelled
-        : TransactionStatus.Success
-      : TransactionStatus.Failed)
+    getUpdatedTransactionStatus(transaction.status, ethersReceipt?.status, hasInvalidNonce)
+
   const receipt: TransactionReceipt | undefined = ethersReceipt
     ? {
         blockHash: ethersReceipt.blockHash,
@@ -281,4 +299,30 @@ function* finalizeTransaction(
       receipt,
     })
   )
+
+  // Flip status to true so we can render Notification badge on home
+  yield* put(setNotificationStatus({ address: transaction.from, hasNotifications: true }))
+}
+
+// Path where we detect a pending/in-progress txn has been replaced or finalized.
+// Based on the current status of the transaction, we determine the new status.
+function getUpdatedTransactionStatus(
+  currentStatus: TransactionStatus,
+  receiptStatus?: number,
+  hasInvalidNonce?: boolean
+): FinalizedTransactionStatus {
+  // Unable to cancel transaction, invalid flag is set based on nonce above.
+  if (hasInvalidNonce && currentStatus === TransactionStatus.Cancelling) {
+    return TransactionStatus.FailedCancel
+  }
+
+  if (!receiptStatus) {
+    return TransactionStatus.Failed
+  }
+
+  if (currentStatus === TransactionStatus.Cancelling) {
+    return TransactionStatus.Cancelled
+  }
+
+  return TransactionStatus.Success
 }

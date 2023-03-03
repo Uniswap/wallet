@@ -17,7 +17,7 @@ import { selectActiveAccountAddress } from 'src/features/wallet/selectors'
 import { theme as FixedTheme } from 'src/styles/theme'
 
 const PENDING_TX_TIME_LIMIT = 60_000 * 5 // 5 mins
-const LOADING_SPINNER_SIZE = FixedTheme.iconSizes.icon16
+const LOADING_SPINNER_SIZE = FixedTheme.iconSizes.icon20
 
 interface Props {
   size?: number
@@ -34,6 +34,8 @@ export function PendingNotificationBadge({
   const hasNotifications = useSelectAddressHasNotifications(activeAccountAddress)
 
   const { preload, navigate } = useEagerActivityNavigation()
+
+  /*************** In-app txn confirmed  **************/
 
   const currentNotification = notifications[0]
   if (currentNotification?.type === AppNotificationType.Transaction) {
@@ -52,6 +54,8 @@ export function PendingNotificationBadge({
 
     return <AlertCircle color={theme.colors.accentWarning} height={size} width={size} />
   }
+
+  /*************** Pending in-app txn  **************/
 
   const pendingTransactionCount = sortedPendingTransactions.length
   const txPendingLongerThanLimit =
@@ -76,7 +80,7 @@ export function PendingNotificationBadge({
           position="absolute"
           width={size}
           zIndex="modal">
-          <Text color="textSecondary" textAlign="center" variant="buttonLabelMicro">
+          <Text color="textSecondary" fontSize={8} textAlign="center" variant="buttonLabelMicro">
             {countToDisplay}
           </Text>
         </Box>
@@ -84,6 +88,11 @@ export function PendingNotificationBadge({
       </TouchableArea>
     )
   }
+
+  /**
+   Has unchecked notification status (triggered by Transaction history updater or transaction watcher saga). 
+   Aka, will flip status to true when any local or remote transaction is confirmed. 
+  **/
 
   if (hasNotifications) {
     return (

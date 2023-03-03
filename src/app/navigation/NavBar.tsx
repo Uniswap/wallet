@@ -1,4 +1,5 @@
 import { ShadowProps, useResponsiveProp } from '@shopify/restyle'
+import { SharedEventName } from '@uniswap/analytics-events'
 import { BlurView } from 'expo-blur'
 import { impactAsync } from 'expo-haptics'
 import React, { memo, useCallback } from 'react'
@@ -23,8 +24,10 @@ import { GradientBackground } from 'src/components/gradients/GradientBackground'
 import { AnimatedBox, AnimatedFlex, Box, Flex } from 'src/components/layout'
 import { Text } from 'src/components/Text'
 import { openModal } from 'src/features/modals/modalSlice'
-import { ModalName } from 'src/features/telemetry/constants'
+import { sendAnalyticsEvent } from 'src/features/telemetry'
+import { ElementName, ModalName } from 'src/features/telemetry/constants'
 import { prepareSwapFormState } from 'src/features/transactions/swap/utils'
+import { Screens } from 'src/screens/Screens'
 import { Theme } from 'src/styles/theme'
 import { CurrencyId } from 'src/utils/currencyId'
 import SearchIcon from '../../assets/icons/search.svg'
@@ -44,6 +47,13 @@ function pulseAnimation(
     withSpring(activeScale, spingAnimationConfig),
     withSpring(1, spingAnimationConfig)
   )
+}
+
+function sendSwapPressAnalyticsEvent(): void {
+  sendAnalyticsEvent(SharedEventName.ELEMENT_CLICKED, {
+    screen: Screens.Home,
+    element: ElementName.Swap,
+  })
 }
 
 export const NavBar = (): JSX.Element => {
@@ -132,6 +142,7 @@ const SwapFAB = memo(({ activeScale = 0.96, inputCurrencyId }: SwapTabBarButtonP
     },
     onEnd: () => {
       runOnJS(onPress)()
+      runOnJS(sendSwapPressAnalyticsEvent)()
     },
   })
 
