@@ -70,6 +70,14 @@ export const WBTC = new Token(
   'Wrapped BTC'
 )
 
+export const SOCKS = new Token(
+  ChainId.Mainnet, 
+  '0x23b608675a2b2fb1890d3abbd85c5775c51691d5',
+  18,
+  'SOCKS',
+  'Unisocks Edition 0'
+)
+
 export const UNI = {
   [ChainId.Mainnet]: new Token(ChainId.Mainnet, UNI_ADDRESS[ChainId.Mainnet], 18, 'UNI', 'Uniswap'),
   [ChainId.Goerli]: new Token(ChainId.Goerli, UNI_ADDRESS[ChainId.Goerli], 18, 'UNI', 'Uniswap'),
