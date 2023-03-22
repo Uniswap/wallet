@@ -7,16 +7,11 @@ import { i18n } from 'src/app/i18n'
 import { getSignerManager } from 'src/app/walletContext'
 import { ChainId } from 'src/constants/chains'
 import { pushNotification } from 'src/features/notifications/notificationSlice'
-import { AppNotificationType } from 'src/features/notifications/types'
+import { AppNotification, AppNotificationType } from 'src/features/notifications/types'
 import { sendTransaction, SendTransactionParams } from 'src/features/transactions/sendTransaction'
 import { TransactionType } from 'src/features/transactions/types'
 import { Account } from 'src/features/wallet/accounts/types'
-import { SignerManager } from 'src/features/wallet/signing/SignerManager'
-import {
-  signMessage,
-  signTransaction,
-  signTypedDataMessage,
-} from 'src/features/wallet/signing/signing'
+import { signMessage, signTypedDataMessage } from 'src/features/wallet/signing/signing'
 import {
   deregisterWcPushNotifications,
   registerWcPushNotifications,
@@ -49,6 +44,7 @@ import {
   removeSession,
   updateSession,
 } from 'src/features/walletConnect/walletConnectSlice'
+import { wcWeb3Wallet } from 'src/features/walletConnectV2/saga'
 import { logger } from 'src/utils/logger'
 import { createSaga } from 'src/utils/saga'
 import { ONE_SECOND_MS } from 'src/utils/time'
@@ -152,8 +148,11 @@ function createWalletConnectChannel(
             rawMessage: req.raw_message,
             message: req.message,
             internalId: req.request_internal_id,
+            sessionId: req.session_id,
             account: req.account,
             dapp: req.dapp,
+            chainId: req.dapp.chain_id,
+            version: '1',
           },
         })
       )
@@ -175,9 +174,12 @@ function createWalletConnectChannel(
               gasPrice: gasPrice ?? undefined,
               nonce: nonce ?? undefined,
             },
+            internalId: req.request_internal_id,
+            sessionId: req.session_id,
             account: req.account,
             dapp: req.dapp,
-            internalId: req.request_internal_id,
+            chainId: req.dapp.chain_id,
+            version: '1',
           },
         })
       )
@@ -191,9 +193,11 @@ function createWalletConnectChannel(
             type: req.type,
             account: req.account,
             dapp: req.dapp,
-            sessionId: req.session_id,
             internalId: req.request_internal_id,
+            sessionId: req.session_id,
+            chainId: req.dapp.chain_id,
             newChainId: req.new_chain_id,
+            version: '1',
           },
         })
       )
@@ -271,33 +275,38 @@ export function* watchWalletConnectEvents(): Generator<
 }
 
 type SignMessageParams = {
+  sessionId: string
   requestInternalId: string
   message: string
   account: Account
   method: EthSignMethod
   dapp: DappInfo
+  chainId: ChainId
+  version: '1' | '2'
 }
 
 type SignTransactionParams = {
+  sessionId: string
   requestInternalId: string
   transaction: providers.TransactionRequest
   account: Account
-  method: EthMethod.EthSignTransaction | EthMethod.EthSendTransaction
+  method: EthMethod.EthSendTransaction
   dapp: DappInfo
+  chainId: ChainId
+  version: '1' | '2'
 }
 
 export function* signWcRequest(params: SignMessageParams | SignTransactionParams): Generator<
-  | CallEffect<void>
-  | CallEffect<string>
-  | CallEffect<SignerManager>
-  | CallEffect<{
-      transactionResponse: providers.TransactionResponse
-    }>
-  | PutEffect<Action<unknown>>,
+  | void
+  | CallEffect<unknown>
+  | PutEffect<{
+      payload: AppNotification
+      type: string
+    }>,
   void,
   unknown
 > {
-  const { requestInternalId, account, method } = params
+  const { sessionId, requestInternalId, account, method, chainId, version } = params
   try {
     const signerManager = yield* call(getSignerManager)
     let signature = ''
@@ -305,8 +314,6 @@ export function* signWcRequest(params: SignMessageParams | SignTransactionParams
       signature = yield* call(signMessage, params.message, account, signerManager)
     } else if (method === EthMethod.SignTypedData || method === EthMethod.SignTypedDataV4) {
       signature = yield* call(signTypedDataMessage, params.message, account, signerManager)
-    } else if (method === EthMethod.EthSignTransaction) {
-      signature = yield* call(signTransaction, params.transaction, account, signerManager)
     } else if (method === EthMethod.EthSendTransaction) {
       const txParams: SendTransactionParams = {
         chainId: params.transaction.chainId || ChainId.Mainnet,
@@ -316,6 +323,7 @@ export function* signWcRequest(params: SignMessageParams | SignTransactionParams
         },
         typeInfo: {
           type: TransactionType.WCConfirm,
+          chainId,
           dapp: params.dapp,
         },
       }
@@ -323,20 +331,43 @@ export function* signWcRequest(params: SignMessageParams | SignTransactionParams
       signature = transactionResponse.hash
     }
 
-    yield* call(sendSignature, requestInternalId, signature)
+    if (version === '1') {
+      yield* call(sendSignature, requestInternalId, signature)
+    } else if (version === '2') {
+      yield* call(wcWeb3Wallet.respondSessionRequest, {
+        topic: sessionId,
+        response: {
+          id: Number(requestInternalId),
+          jsonrpc: '2.0',
+          result: signature,
+        },
+      })
+    }
   } catch (err) {
-    yield* call(rejectRequest, requestInternalId)
+    if (version === '1') {
+      yield* call(rejectRequest, requestInternalId)
+    } else if (version === '2') {
+      yield* call(wcWeb3Wallet.respondSessionRequest, {
+        topic: sessionId,
+        response: {
+          id: Number(requestInternalId),
+          jsonrpc: '2.0',
+          error: { code: 5000, message: `Signing error: ${err}` },
+        },
+      })
+    }
+
     yield* put(
       pushNotification({
         type: AppNotificationType.WalletConnect,
         event: WalletConnectEvent.TransactionFailed,
         dappName: params.dapp.name,
         imageUrl: params.dapp.icon,
-        chainId: params.dapp.chain_id,
+        chainId,
         address: account.address,
       })
     )
-    logger.error('wcSaga', 'signMessage', 'signing error:', err)
+    logger.error('wcSaga', 'signWcRequest', 'signing error:', err)
   }
 }
 

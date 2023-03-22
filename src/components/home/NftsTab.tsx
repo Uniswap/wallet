@@ -1,9 +1,10 @@
 import { NetworkStatus } from '@apollo/client'
 import { FlashList } from '@shopify/flash-list'
 import { ImpactFeedbackStyle } from 'expo-haptics'
-import React, { forwardRef, useCallback } from 'react'
+import React, { forwardRef, useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ListRenderItemInfo, NativeScrollEvent, NativeSyntheticEvent, View } from 'react-native'
+import ContextMenu from 'react-native-context-menu-view'
 import { useAppDispatch, useAppTheme } from 'src/app/hooks'
 import { useAppStackNavigation } from 'src/app/navigation/types'
 import NoNFTsIcon from 'src/assets/icons/empty-state-picture.svg'
@@ -15,11 +16,19 @@ import { Box } from 'src/components/layout/Box'
 import { Flex } from 'src/components/layout/Flex'
 import { TabContentProps } from 'src/components/layout/TabHelpers'
 import { Loader } from 'src/components/loading'
+import { HiddenNftsRowLeft, HiddenNftsRowRight } from 'src/components/NFT/NFTHiddenRow'
 import { ScannerModalState } from 'src/components/QRCodeScanner/constants'
 import { EMPTY_ARRAY } from 'src/constants/misc'
 import { isError, isNonPollingRequestInFlight } from 'src/data/utils'
 import { NftsTabQuery, useNftsTabQuery } from 'src/data/__generated__/types-and-hooks'
 import { openModal } from 'src/features/modals/modalSlice'
+import {
+  EMPTY_NFT_ITEM,
+  HIDDEN_NFTS_ROW_LEFT_ITEM,
+  HIDDEN_NFTS_ROW_RIGHT_ITEM,
+  useGroupNftsByVisibility,
+  useNFTMenu,
+} from 'src/features/nfts/hooks'
 import { NFTItem } from 'src/features/nfts/types'
 import { getNFTAssetKey } from 'src/features/nfts/utils'
 import { ModalName } from 'src/features/telemetry/constants'
@@ -30,6 +39,7 @@ const MAX_NFT_IMAGE_SIZE = 375
 const ESTIMATED_ITEM_SIZE = 251 // heuristic provided by FlashList
 const PREFETCH_ITEMS_THRESHOLD = 0.5
 const LOADING_ITEM = 'loading'
+
 const FOOTER_HEIGHT = 20
 
 type NftsTabProps = {
@@ -66,16 +76,67 @@ function formatNftItems(data: NftsTabQuery | undefined): NFTItem[] {
 }
 
 const keyExtractor = (item: NFTItem | string): string =>
-  typeof item === 'string'
-    ? LOADING_ITEM
-    : getNFTAssetKey(item.contractAddress ?? '', item.tokenId ?? '')
+  typeof item === 'string' ? item : getNFTAssetKey(item.contractAddress ?? '', item.tokenId ?? '')
+
+function NftView({ owner, item }: { owner: Address; item: NFTItem }): JSX.Element {
+  const navigation = useAppStackNavigation()
+  const theme = useAppTheme()
+  const onPressItem = useCallback(() => {
+    // Always ensure push to enforce right push
+    navigation.push(Screens.NFTItem, {
+      owner,
+      address: item.contractAddress ?? '',
+      tokenId: item.tokenId ?? '',
+    })
+  }, [item.contractAddress, item.tokenId, navigation, owner])
+
+  const { menuActions, onContextMenuPress } = useNFTMenu({
+    contractAddress: item.contractAddress,
+    tokenId: item.tokenId,
+    owner,
+  })
+
+  return (
+    <Box flex={1} justifyContent="flex-start" m="spacing4">
+      <ContextMenu
+        actions={menuActions}
+        disabled={menuActions.length === 0}
+        style={{ borderRadius: theme.borderRadii.rounded16 }}
+        onPress={onContextMenuPress}>
+        <TouchableArea
+          hapticFeedback
+          activeOpacity={1}
+          hapticStyle={ImpactFeedbackStyle.Light}
+          onPress={onPressItem}>
+          <Box
+            alignItems="center"
+            aspectRatio={1}
+            backgroundColor="backgroundOutline"
+            borderRadius="rounded12"
+            overflow="hidden"
+            width="100%">
+            <NFTViewer
+              imageDimensions={item.imageDimensions}
+              limitGIFSize={ESTIMATED_ITEM_SIZE}
+              maxHeight={MAX_NFT_IMAGE_SIZE}
+              placeholderContent={item.name || item.collectionName}
+              squareGridView={true}
+              uri={item.imageUrl ?? ''}
+            />
+          </Box>
+        </TouchableArea>
+      </ContextMenu>
+    </Box>
+  )
+}
 
 export const NftsTab = forwardRef<FlashList<unknown>, NftsTabProps>(
   ({ owner, containerProps, scrollHandler }, ref) => {
-    const navigation = useAppStackNavigation()
     const { t } = useTranslation()
     const theme = useAppTheme()
     const dispatch = useAppDispatch()
+
+    const [hiddenNftsExpanded, setHiddenNftsExpanded] = useState(false)
 
     const { data, fetchMore, refetch, networkStatus } = useNftsTabQuery({
       variables: { ownerAddress: owner, first: 30 },
@@ -102,19 +163,6 @@ export const NftsTab = forwardRef<FlashList<unknown>, NftsTabProps>(
       fetchMore,
     ])
 
-    const onPressItem = useCallback(
-      (asset: NFTItem) => {
-        // Always ensure push to enforce right push
-        navigation.push(Screens.NFTItem, {
-          owner,
-          address: asset.contractAddress ?? '',
-          tokenId: asset.tokenId ?? '',
-          collectionName: asset.collectionName ?? '',
-        })
-      },
-      [navigation, owner]
-    )
-
     const onPressScan = (): void => {
       // in case we received a pending session from a previous scan after closing modal
       dispatch(removePendingSession())
@@ -123,39 +171,39 @@ export const NftsTab = forwardRef<FlashList<unknown>, NftsTabProps>(
       )
     }
 
+    const { nfts, numHidden } = useGroupNftsByVisibility(nftDataItems, hiddenNftsExpanded, owner)
+
+    const onHiddenRowPressed = useCallback((): void => {
+      setHiddenNftsExpanded(!hiddenNftsExpanded)
+    }, [hiddenNftsExpanded])
+
+    useEffect(() => {
+      if (numHidden === 0 && hiddenNftsExpanded) {
+        setHiddenNftsExpanded(false)
+      }
+    }, [hiddenNftsExpanded, numHidden])
+
     const renderItem = useCallback(
       ({ item }: ListRenderItemInfo<string | NFTItem>) => {
-        return typeof item === 'string' ? (
-          <Loader.NFT />
-        ) : (
-          <Box flex={1} justifyContent="flex-start" m="spacing4">
-            <TouchableArea
-              hapticFeedback
-              activeOpacity={1}
-              hapticStyle={ImpactFeedbackStyle.Light}
-              onPress={(): void => onPressItem(item)}>
-              <Box
-                alignItems="center"
-                aspectRatio={1}
-                backgroundColor="backgroundOutline"
-                borderRadius="rounded12"
-                // eslint-disable-next-line react-native/no-inline-styles
-                style={{ overflow: 'hidden' }}
-                width="100%">
-                <NFTViewer
-                  imageDimensions={item.imageDimensions}
-                  limitGIFSize={ESTIMATED_ITEM_SIZE}
-                  maxHeight={MAX_NFT_IMAGE_SIZE}
-                  placeholderContent={item.name || item.collectionName}
-                  squareGridView={true}
-                  uri={item.imageUrl ?? ''}
-                />
-              </Box>
-            </TouchableArea>
-          </Box>
-        )
+        if (typeof item !== 'string') {
+          return <NftView item={item} owner={owner} />
+        }
+        switch (item) {
+          case LOADING_ITEM:
+            return <Loader.NFT />
+          case EMPTY_NFT_ITEM:
+            return null
+          case HIDDEN_NFTS_ROW_LEFT_ITEM:
+            return <HiddenNftsRowLeft numHidden={numHidden} />
+          case HIDDEN_NFTS_ROW_RIGHT_ITEM:
+            return (
+              <HiddenNftsRowRight isExpanded={hiddenNftsExpanded} onPress={onHiddenRowPressed} />
+            )
+          default:
+            return null
+        }
       },
-      [onPressItem]
+      [hiddenNftsExpanded, numHidden, onHiddenRowPressed, owner]
     )
 
     /**
@@ -164,9 +212,7 @@ export const NftsTab = forwardRef<FlashList<unknown>, NftsTabProps>(
      * `contentContainerStyle`. Padding is proportional to the number of rows the data items take up.
      */
     const footerPadding =
-      nftDataItems.length < 6
-        ? (ESTIMATED_ITEM_SIZE * (6 - nftDataItems.length)) / 2
-        : FOOTER_HEIGHT
+      nfts.length < 6 ? (ESTIMATED_ITEM_SIZE * (6 - nfts.length)) / 2 : FOOTER_HEIGHT
 
     const onRetry = useCallback(() => refetch(), [refetch])
 
@@ -196,17 +242,21 @@ export const NftsTab = forwardRef<FlashList<unknown>, NftsTabProps>(
       )
     }
 
-    return nftDataItems.length === 0 ? (
-      <Flex centered grow flex={1} style={containerProps?.emptyContainerStyle}>
-        <BaseCard.EmptyState
-          buttonLabel={t('Receive NFTs')}
-          description={t('Transfer NFTs from another wallet to get started.')}
-          icon={<NoNFTsIcon color={theme.colors.textSecondary} />}
-          title={t('No NFTs yet')}
-          onPress={onPressScan}
-        />
-      </Flex>
-    ) : (
+    if (nfts.length === 0) {
+      return (
+        <Flex centered grow flex={1} style={containerProps?.emptyContainerStyle}>
+          <BaseCard.EmptyState
+            buttonLabel={t('Receive NFTs')}
+            description={t('Transfer NFTs from another wallet to get started.')}
+            icon={<NoNFTsIcon color={theme.colors.textSecondary} />}
+            title={t('No NFTs yet')}
+            onPress={onPressScan}
+          />
+        </Flex>
+      )
+    }
+
+    return (
       <Flex grow px="spacing12">
         <AnimatedFlashList
           ref={ref}
@@ -218,7 +268,7 @@ export const NftsTab = forwardRef<FlashList<unknown>, NftsTabProps>(
               <Box height={footerPadding} />
             )
           }
-          data={shouldAddInLoadingItem ? [...nftDataItems, LOADING_ITEM] : nftDataItems}
+          data={shouldAddInLoadingItem ? [...nfts, LOADING_ITEM] : nfts}
           estimatedItemSize={ESTIMATED_ITEM_SIZE}
           keyExtractor={keyExtractor}
           numColumns={2}

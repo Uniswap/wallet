@@ -52,6 +52,7 @@ const rtkQueryErrorLogger: Middleware = () => (next) => (action) => {
 }
 
 const whitelist: Array<ReducerNames> = [
+  'appearanceSettings',
   'biometricSettings',
   'chains',
   'experiments',
@@ -59,9 +60,11 @@ const whitelist: Array<ReducerNames> = [
   'notifications',
   'passwordLockout',
   'searchHistory',
+  'telemetry',
   'tokens',
   'transactions',
   'wallet',
+  'walletConnect',
   ensApi.reducerPath,
   trmApi.reducerPath,
 ]
@@ -70,7 +73,7 @@ export const persistConfig = {
   key: 'root',
   storage: reduxStorage,
   whitelist,
-  version: 33,
+  version: 36,
   migrate: createMigrate(migrations),
 }
 

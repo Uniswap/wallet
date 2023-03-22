@@ -1,6 +1,7 @@
 /* eslint-disable max-lines */
 import { useScrollToTop } from '@react-navigation/native'
 import { FlashList } from '@shopify/flash-list'
+import { useResponsiveProp } from '@shopify/restyle'
 import { impactAsync } from 'expo-haptics'
 import * as SplashScreen from 'expo-splash-screen'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -48,6 +49,7 @@ import { Text } from 'src/components/Text'
 import { PortfolioBalance } from 'src/features/balances/PortfolioBalance'
 import { useFiatOnRampEnabled } from 'src/features/experiments/hooks'
 import { openModal } from 'src/features/modals/modalSlice'
+import { useSelectAddressHasNotifications } from 'src/features/notifications/hooks'
 import { setNotificationStatus } from 'src/features/notifications/notificationSlice'
 import {
   ElementName,
@@ -55,12 +57,14 @@ import {
   ModalName,
   SectionName,
 } from 'src/features/telemetry/constants'
+import { useLastBalancesReporter } from 'src/features/telemetry/hooks'
 import { AccountType } from 'src/features/wallet/accounts/types'
 import { useTestAccount } from 'src/features/wallet/accounts/useTestAccount'
 import { useActiveAccountWithThrow } from 'src/features/wallet/hooks'
 import { Screens } from 'src/screens/Screens'
 import { dimensions } from 'src/styles/sizing'
-import { useTimeout } from 'src/utils/timing'
+import { ONE_SECOND_MS } from 'src/utils/time'
+import { useInterval, useTimeout } from 'src/utils/timing'
 
 const CONTENT_HEADER_HEIGHT_ESTIMATE = 270
 
@@ -82,6 +86,16 @@ export function HomeScreen(props?: AppStackScreenProp<Screens.Home>): JSX.Elemen
   const theme = useAppTheme()
   const insets = useSafeAreaInsets()
   const dispatch = useAppDispatch()
+
+  // Report balances at most every 24 hours, checking every 15 seconds when app is open
+  const lastBalancesReporter = useLastBalancesReporter()
+  useInterval(lastBalancesReporter, ONE_SECOND_MS * 15, true)
+
+  const listBottomPadding =
+    useResponsiveProp({
+      xs: theme.spacing.spacing36,
+      sm: theme.spacing.spacing12,
+    }) ?? 0
 
   const [tabIndex, setTabIndex] = useState(props?.route?.params?.tab ?? TabIndex.Tokens)
   const routes = useMemo(
@@ -147,12 +161,13 @@ export function HomeScreen(props?: AppStackScreenProp<Screens.Home>): JSX.Elemen
     return activityTabScrollValue.value
   }, [tabIndex])
 
+  // clear the notification indicator if the user is on the activity tab
+  const hasNotifications = useSelectAddressHasNotifications(activeAccount.address)
   useEffect(() => {
-    // clear the notification indicator if the user is on the activity tab
-    if (tabIndex === 2) {
+    if (tabIndex === 2 && hasNotifications) {
       dispatch(setNotificationStatus({ address: activeAccount.address, hasNotifications: false }))
     }
-  }, [dispatch, activeAccount.address, tabIndex])
+  }, [dispatch, activeAccount.address, tabIndex, hasNotifications])
 
   // If accounts are switched, we want to scroll to top and show full header
   useEffect(() => {
@@ -238,10 +253,14 @@ export function HomeScreen(props?: AppStackScreenProp<Screens.Home>): JSX.Elemen
   const contentContainerStyle = useMemo<StyleProp<ViewStyle>>(
     () => ({
       paddingTop: headerHeight + TAB_BAR_HEIGHT + TAB_STYLES.tabListInner.paddingTop,
-      paddingBottom: insets.bottom + SWAP_BUTTON_HEIGHT + TAB_STYLES.tabListInner.paddingBottom,
+      paddingBottom:
+        insets.bottom +
+        SWAP_BUTTON_HEIGHT +
+        TAB_STYLES.tabListInner.paddingBottom +
+        listBottomPadding,
       minHeight: dimensions.fullHeight + headerHeightDiff,
     }),
-    [headerHeight, insets.bottom, headerHeightDiff]
+    [headerHeight, insets.bottom, listBottomPadding, headerHeightDiff]
   )
 
   const loadingContainerStyle = useMemo<StyleProp<ViewStyle>>(

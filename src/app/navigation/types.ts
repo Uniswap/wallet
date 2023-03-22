@@ -10,19 +10,17 @@ import { ImportType, OnboardingEntryPoint } from 'src/features/onboarding/utils'
 import { TabIndex } from 'src/screens/HomeScreen'
 import { OnboardingScreens, Screens } from 'src/screens/Screens'
 
-type NFTItem = { owner: Address; address: string; tokenId: string; collectionName: string }
+type NFTItem = { owner: Address; address: string; tokenId: string }
 
 export type ExploreStackParamList = {
   [Screens.Explore]: undefined
   [Screens.ExternalProfile]: {
     address: string
-    walletName?: string
   }
   [Screens.NFTItem]: NFTItem
-  [Screens.NFTCollection]: { collectionAddress: string; collectionName?: string }
+  [Screens.NFTCollection]: { collectionAddress: string }
   [Screens.TokenDetails]: {
     currencyId: string
-    currencyName?: string
   }
 }
 
@@ -39,6 +37,7 @@ export type SettingsStackParamList = {
   [Screens.SettingsChains]: undefined
   [Screens.SettingsTestConfigs]: undefined
   [Screens.SettingsBiometricAuth]: undefined
+  [Screens.SettingsAppearance]: undefined
   [Screens.WebView]: { headerTitle: string; uriLink: string }
   [Screens.Dev]: undefined
   [Screens.SettingsCloudBackupScreen]: { address: Address }
@@ -49,12 +48,10 @@ export type SettingsStackParamList = {
   } // temporary to be able to view onboarding from settings
 }
 
-export type OnboardingStackBaseParams =
-  | {
-      importType?: ImportType
-      entryPoint?: OnboardingEntryPoint
-    }
-  | undefined
+export type OnboardingStackBaseParams = {
+  importType: ImportType
+  entryPoint: OnboardingEntryPoint
+}
 
 export type OnboardingStackParamList = {
   [OnboardingScreens.BackupCloudProcessing]: {
@@ -88,20 +85,18 @@ export type AppStackParamList = {
   [Screens.AccountStack]: NavigatorScreenParams<AccountStackParamList>
   [Screens.Education]: {
     type: EducationContentType
-  }
+  } & OnboardingStackBaseParams
   [Screens.Home]?: { tab?: TabIndex }
   [Screens.SettingsWalletManageConnection]: { address: Address }
   [Screens.OnboardingStack]: NavigatorScreenParams<OnboardingStackParamList>
   [Screens.SettingsStack]: NavigatorScreenParams<SettingsStackParamList>
   [Screens.TokenDetails]: {
     currencyId: string
-    currencyName?: string
   }
   [Screens.NFTItem]: NFTItem
   [Screens.NFTCollection]: { collectionAddress: string }
   [Screens.ExternalProfile]: {
     address: string
-    walletName?: string
   }
   [Screens.WebView]: { headerTitle: string; uriLink: string }
 }

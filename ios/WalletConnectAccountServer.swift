@@ -33,7 +33,7 @@ class WalletConnectServerWrapper {
     self.supportedChainIds = supportedChainIds
     
     self.server.register(handler: WalletConnectSignRequestHandler(eventEmitter: eventEmitter, serverWrapper: self))
-    self.server.register(handler: WalletConnectSignTransactionHandler(eventEmitter: eventEmitter, serverWrapper: self))
+    self.server.register(handler: WalletConnectSendTransactionHandler(eventEmitter: eventEmitter, serverWrapper: self))
     self.server.register(handler: WalletConnectSwitchChainHandler(eventEmitter: eventEmitter, serverWrapper: self, supportedChainIds: supportedChainIds))
   }
   
@@ -256,7 +256,7 @@ extension WalletConnectServerWrapper: ServerDelegate {
         "name": session.dAppInfo.peerMeta.name,
         "url": session.dAppInfo.peerMeta.url.absoluteString,
         "icon": icons.isEmpty ? "" : icons[0].absoluteString,
-        "chain_id": session.walletInfo?.chainId ?? 1,
+        "chain_id": session.dAppInfo.chainId ?? 1,
       ]
     ])
   }

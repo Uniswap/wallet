@@ -1027,10 +1027,11 @@ export type NftsQuery = { __typename?: 'Query', portfolios?: Array<{ __typename?
 export type NftItemScreenQueryVariables = Exact<{
   contractAddress: Scalars['String'];
   filter?: InputMaybe<NftAssetsFilterInput>;
+  activityFilter?: InputMaybe<NftActivityFilterInput>;
 }>;
 
 
-export type NftItemScreenQuery = { __typename?: 'Query', nftAssets?: { __typename?: 'NftAssetConnection', edges: Array<{ __typename?: 'NftAssetEdge', node: { __typename?: 'NftAsset', id: string, description?: string | null, name?: string | null, tokenId: string, collection?: { __typename?: 'NftCollection', id: string, collectionId: string, description?: string | null, isVerified?: boolean | null, name?: string | null, numAssets?: number | null, image?: { __typename?: 'Image', id: string, url: string } | null, markets?: Array<{ __typename?: 'NftCollectionMarket', id: string, owners?: number | null, floorPrice?: { __typename?: 'TimestampedAmount', id: string, value: number } | null, totalVolume?: { __typename?: 'TimestampedAmount', id: string, value: number } | null }> | null, nftContracts?: Array<{ __typename?: 'NftContract', id: string, address: string }> | null } | null, image?: { __typename?: 'Image', id: string, url: string } | null, nftContract?: { __typename?: 'NftContract', id: string, address: string, chain: Chain, standard?: NftStandard | null } | null, creator?: { __typename?: 'NftProfile', id: string, address: string, username?: string | null } | null } }> } | null };
+export type NftItemScreenQuery = { __typename?: 'Query', nftAssets?: { __typename?: 'NftAssetConnection', edges: Array<{ __typename?: 'NftAssetEdge', node: { __typename?: 'NftAsset', id: string, description?: string | null, name?: string | null, tokenId: string, collection?: { __typename?: 'NftCollection', id: string, collectionId: string, description?: string | null, isVerified?: boolean | null, name?: string | null, numAssets?: number | null, image?: { __typename?: 'Image', id: string, url: string } | null, markets?: Array<{ __typename?: 'NftCollectionMarket', id: string, owners?: number | null, floorPrice?: { __typename?: 'TimestampedAmount', id: string, value: number } | null, totalVolume?: { __typename?: 'TimestampedAmount', id: string, value: number } | null }> | null, nftContracts?: Array<{ __typename?: 'NftContract', id: string, address: string }> | null } | null, image?: { __typename?: 'Image', id: string, url: string } | null, nftContract?: { __typename?: 'NftContract', id: string, address: string, chain: Chain, standard?: NftStandard | null } | null, creator?: { __typename?: 'NftProfile', id: string, address: string, username?: string | null } | null, traits?: Array<{ __typename?: 'NftAssetTrait', id: string, name?: string | null, rarity?: number | null, value?: string | null }> | null, listings?: { __typename?: 'NftOrderConnection', edges: Array<{ __typename?: 'NftOrderEdge', node: { __typename?: 'NftOrder', id: string, price: { __typename?: 'Amount', id: string, currency?: Currency | null, value: number } } }> } | null } }> } | null, nftActivity?: { __typename?: 'NftActivityConnection', edges: Array<{ __typename?: 'NftActivityEdge', node: { __typename?: 'NftActivity', id: string, quantity?: number | null, price?: { __typename?: 'Amount', id: string, currency?: Currency | null, value: number } | null } }> } | null };
 
 export type NftCollectionScreenQueryVariables = Exact<{
   contractAddress: Scalars['String'];
@@ -1039,7 +1040,7 @@ export type NftCollectionScreenQueryVariables = Exact<{
 }>;
 
 
-export type NftCollectionScreenQuery = { __typename?: 'Query', nftCollections?: { __typename?: 'NftCollectionConnection', edges: Array<{ __typename?: 'NftCollectionEdge', node: { __typename?: 'NftCollection', id: string, isVerified?: boolean | null, numAssets?: number | null, description?: string | null, homepageUrl?: string | null, twitterName?: string | null, name?: string | null, bannerImage?: { __typename?: 'Image', id: string, url: string } | null, image?: { __typename?: 'Image', id: string, url: string } | null, markets?: Array<{ __typename?: 'NftCollectionMarket', id: string, owners?: number | null, floorPrice?: { __typename?: 'TimestampedAmount', id: string, value: number } | null, volume24h?: { __typename?: 'Amount', id: string, value: number } | null, totalVolume?: { __typename?: 'TimestampedAmount', id: string, value: number } | null }> | null } }> } | null, nftAssets?: { __typename?: 'NftAssetConnection', edges: Array<{ __typename?: 'NftAssetEdge', node: { __typename?: 'NftAsset', ownerAddress?: string | null, id: string, name?: string | null, tokenId: string, nftContract?: { __typename?: 'NftContract', id: string, address: string } | null, collection?: { __typename?: 'NftCollection', id: string, collectionId: string, name?: string | null } | null, image?: { __typename?: 'Image', id: string, url: string, dimensions?: { __typename?: 'Dimensions', id: string, width?: number | null, height?: number | null } | null } | null } }>, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage?: boolean | null, hasPreviousPage?: boolean | null, startCursor?: string | null } } | null };
+export type NftCollectionScreenQuery = { __typename?: 'Query', nftCollections?: { __typename?: 'NftCollectionConnection', edges: Array<{ __typename?: 'NftCollectionEdge', node: { __typename?: 'NftCollection', id: string, isVerified?: boolean | null, numAssets?: number | null, description?: string | null, homepageUrl?: string | null, twitterName?: string | null, name?: string | null, bannerImage?: { __typename?: 'Image', id: string, url: string } | null, image?: { __typename?: 'Image', id: string, url: string } | null, markets?: Array<{ __typename?: 'NftCollectionMarket', id: string, owners?: number | null, floorPrice?: { __typename?: 'TimestampedAmount', id: string, value: number } | null, volume24h?: { __typename?: 'Amount', id: string, value: number } | null, totalVolume?: { __typename?: 'TimestampedAmount', id: string, value: number } | null }> | null } }> } | null, nftAssets?: { __typename?: 'NftAssetConnection', edges: Array<{ __typename?: 'NftAssetEdge', node: { __typename?: 'NftAsset', ownerAddress?: string | null, id: string, name?: string | null, tokenId: string, nftContract?: { __typename?: 'NftContract', id: string, address: string } | null, collection?: { __typename?: 'NftCollection', id: string, collectionId: string, name?: string | null } | null, image?: { __typename?: 'Image', id: string, url: string, dimensions?: { __typename?: 'Dimensions', id: string, width?: number | null, height?: number | null } | null } | null, listings?: { __typename?: 'NftOrderConnection', edges: Array<{ __typename?: 'NftOrderEdge', node: { __typename?: 'NftOrder', id: string, price: { __typename?: 'Amount', id: string, currency?: Currency | null, value: number } } }> } | null } }>, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage?: boolean | null, hasPreviousPage?: boolean | null, startCursor?: string | null } } | null };
 
 export type NftsTabQueryVariables = Exact<{
   ownerAddress: Scalars['String'];
@@ -1439,7 +1440,7 @@ export type NftsQueryHookResult = ReturnType<typeof useNftsQuery>;
 export type NftsLazyQueryHookResult = ReturnType<typeof useNftsLazyQuery>;
 export type NftsQueryResult = Apollo.QueryResult<NftsQuery, NftsQueryVariables>;
 export const NftItemScreenDocument = gql`
-    query NFTItemScreen($contractAddress: String!, $filter: NftAssetsFilterInput) {
+    query NFTItemScreen($contractAddress: String!, $filter: NftAssetsFilterInput, $activityFilter: NftActivityFilterInput) {
   nftAssets(address: $contractAddress, filter: $filter) {
     edges {
       node {
@@ -1490,6 +1491,37 @@ export const NftItemScreenDocument = gql`
           address
           username
         }
+        traits {
+          id
+          name
+          rarity
+          value
+        }
+        listings(first: 1) {
+          edges {
+            node {
+              id
+              price {
+                id
+                currency
+                value
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  nftActivity(filter: $activityFilter) {
+    edges {
+      node {
+        id
+        quantity
+        price {
+          id
+          currency
+          value
+        }
       }
     }
   }
@@ -1510,6 +1542,7 @@ export const NftItemScreenDocument = gql`
  *   variables: {
  *      contractAddress: // value for 'contractAddress'
  *      filter: // value for 'filter'
+ *      activityFilter: // value for 'activityFilter'
  *   },
  * });
  */
@@ -1563,7 +1596,13 @@ export const NftCollectionScreenDocument = gql`
       }
     }
   }
-  nftAssets(address: $contractAddress, first: $first, after: $after) {
+  nftAssets(
+    address: $contractAddress
+    first: $first
+    after: $after
+    orderBy: PRICE
+    asc: true
+  ) {
     edges {
       node {
         ownerAddress
@@ -1586,6 +1625,18 @@ export const NftCollectionScreenDocument = gql`
             id
             width
             height
+          }
+        }
+        listings(first: 1) {
+          edges {
+            node {
+              id
+              price {
+                id
+                currency
+                value
+              }
+            }
           }
         }
       }

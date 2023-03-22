@@ -29,6 +29,11 @@ export type MoonpayTransactionEventProperties = BaseEventProperty &
   Record<string, string>
 
 export type EventProperties = {
+  [MobileEventName.BalancesReport]: {
+    total_balances_usd: number
+    wallets: string[]
+    balances: number[]
+  }
   [MobileEventName.DeepLinkOpened]: {
     url: string
     screen: 'swap' | 'transaction'
@@ -65,8 +70,7 @@ export type EventProperties = {
   [MobileEventName.FiatOnRampBannerPressed]: BaseEventProperty
   [MobileEventName.FiatOnRampWidgetOpened]: BaseEventProperty & { externalTransactionId: string }
   [MobileEventName.OnboardingCompleted]: {
-    // TODO(MOB-3547) Enforce ImportType in all OnboardingScreens
-    wallet_type?: ImportType
+    wallet_type: ImportType
     accounts_imported_count: number
   } & BaseEventProperty
   [MobileEventName.PerformanceReport]: RenderPassReport
@@ -81,7 +85,7 @@ export type EventProperties = {
   } & SwapTradeBaseProperties
   [MobileEventName.TokenDetailsOtherChainButtonPressed]: BaseEventProperty
   [MobileEventName.WalletAdded]: {
-    wallet_type?: ImportType
+    wallet_type: ImportType
     accounts_imported_count: number
   } & BaseEventProperty
   [MobileEventName.WalletConnectSheetCompleted]: {

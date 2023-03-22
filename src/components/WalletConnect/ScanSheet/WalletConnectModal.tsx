@@ -1,7 +1,7 @@
 import { selectionAsync } from 'expo-haptics'
 import React, { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Alert, useColorScheme } from 'react-native'
+import { Alert } from 'react-native'
 import 'react-native-reanimated'
 import { useAppSelector, useAppTheme } from 'src/app/hooks'
 import { useEagerExternalProfileRootNavigation } from 'src/app/navigation/hooks'
@@ -16,39 +16,41 @@ import { QRCodeScanner } from 'src/components/QRCodeScanner/QRCodeScanner'
 import { WalletQRCode } from 'src/components/QRCodeScanner/WalletQRCode'
 import { Text } from 'src/components/Text'
 import { ConnectedDappsList } from 'src/components/WalletConnect/ConnectedDapps/ConnectedDappsList'
-import { PendingConnection } from 'src/components/WalletConnect/ScanSheet/PendingConnection'
 import { getSupportedURI, URIType } from 'src/components/WalletConnect/ScanSheet/util'
+import { useIsDarkMode } from 'src/features/appearance/hooks'
+import { FEATURE_FLAGS } from 'src/features/experiments/constants'
+import { useFeatureFlag } from 'src/features/experiments/hooks'
 import { ElementName, ModalName } from 'src/features/telemetry/constants'
 import { useWCTimeoutError } from 'src/features/wallet/hooks'
 import { selectActiveAccountAddress } from 'src/features/wallet/selectors'
 import { useWalletConnect } from 'src/features/walletConnect/useWalletConnect'
 import { connectToApp } from 'src/features/walletConnect/WalletConnect'
-import { WalletConnectSession } from 'src/features/walletConnect/walletConnectSlice'
+import { wcWeb3Wallet } from 'src/features/walletConnectV2/saga'
 import { ONE_SECOND_MS } from 'src/utils/time'
 
 const WC_TIMEOUT_DURATION_MS = 10 * ONE_SECOND_MS // timeout after 10 seconds
 
 type Props = {
   initialScreenState?: ScannerModalState
-  pendingSession: WalletConnectSession | null
   onClose: () => void
 }
 
 export function WalletConnectModal({
   initialScreenState = ScannerModalState.ScanQr,
-  pendingSession,
   onClose,
 }: Props): JSX.Element | null {
   const { t } = useTranslation()
   const theme = useAppTheme()
-  const isDarkMode = useColorScheme() === 'dark'
+  const isDarkMode = useIsDarkMode()
   const activeAddress = useAppSelector(selectActiveAccountAddress)
   const { sessions } = useWalletConnect(activeAddress)
   const [currentScreenState, setCurrentScreenState] =
     useState<ScannerModalState>(initialScreenState)
   const { hasScanError, setHasScanError, shouldFreezeCamera, setShouldFreezeCamera } =
-    useWCTimeoutError(pendingSession, WC_TIMEOUT_DURATION_MS)
+    useWCTimeoutError(WC_TIMEOUT_DURATION_MS)
   const { preload, navigate } = useEagerExternalProfileRootNavigation()
+  const walletConnectV2Enabled = useFeatureFlag(FEATURE_FLAGS.WalletConnectV2)
+
   const onScanCode = useCallback(
     async (uri: string) => {
       // don't scan any QR codes if there is an error popup open or camera is frozen
@@ -87,6 +89,11 @@ export function WalletConnectModal({
         connectToApp(supportedURI.value)
       }
 
+      if (walletConnectV2Enabled && supportedURI.type === URIType.WalletConnectV2URL) {
+        setShouldFreezeCamera(true)
+        wcWeb3Wallet.core.pairing.pair({ uri: supportedURI.value })
+      }
+
       if (supportedURI.type === URIType.EasterEgg) {
         setShouldFreezeCamera(true)
         Alert.alert('Have you tried full-sending lately?', 'Highly recommend it', [
@@ -108,6 +115,7 @@ export function WalletConnectModal({
       setHasScanError,
       setShouldFreezeCamera,
       shouldFreezeCamera,
+      walletConnectV2Enabled,
       t,
     ]
   )
@@ -136,58 +144,54 @@ export function WalletConnectModal({
       backgroundColor={theme.colors.background1}
       name={ModalName.WalletConnectScan}
       onClose={onClose}>
-      {pendingSession ? (
-        <PendingConnection pendingSession={pendingSession} onClose={onClose} />
-      ) : (
-        <>
-          {currentScreenState === ScannerModalState.ConnectedDapps && (
-            <ConnectedDappsList
-              backButton={
-                <TouchableArea hapticFeedback onPress={onPressShowScanQr}>
-                  <BackButtonView />
-                </TouchableArea>
-              }
-              sessions={sessions}
-            />
-          )}
-          {currentScreenState === ScannerModalState.ScanQr && (
-            <QRCodeScanner
-              numConnections={sessions.length}
-              shouldFreezeCamera={shouldFreezeCamera}
-              onPressConnections={onPressShowConnectedDapps}
-              onScanCode={onScanCode}
-            />
-          )}
-          {currentScreenState === ScannerModalState.WalletQr && (
-            <WalletQRCode address={activeAddress} />
-          )}
-          <Flex centered mb="spacing36" mt="spacing16" mx="spacing16">
-            <TouchableArea
-              hapticFeedback
-              borderColor={isDarkMode ? 'none' : 'backgroundOutline'}
-              borderRadius="roundedFull"
-              borderWidth={1}
-              name={ElementName.QRCodeModalToggle}
-              p="spacing16"
-              paddingEnd="spacing24"
-              style={{ backgroundColor: theme.colors.backgroundOverlay }}
-              onPress={onPressBottomToggle}>
-              <Flex row alignItems="center" gap="spacing12">
-                {currentScreenState === ScannerModalState.ScanQr ? (
-                  <Scan color={theme.colors.textPrimary} height={24} width={24} />
-                ) : (
-                  <ScanQRIcon color={theme.colors.textPrimary} height={24} width={24} />
-                )}
-                <Text color="textPrimary" variant="buttonLabelMedium">
-                  {currentScreenState === ScannerModalState.ScanQr
-                    ? t('Show my QR code')
-                    : t('Scan a QR code')}
-                </Text>
-              </Flex>
-            </TouchableArea>
-          </Flex>
-        </>
-      )}
+      <>
+        {currentScreenState === ScannerModalState.ConnectedDapps && (
+          <ConnectedDappsList
+            backButton={
+              <TouchableArea hapticFeedback onPress={onPressShowScanQr}>
+                <BackButtonView />
+              </TouchableArea>
+            }
+            sessions={sessions}
+          />
+        )}
+        {currentScreenState === ScannerModalState.ScanQr && (
+          <QRCodeScanner
+            numConnections={sessions.length}
+            shouldFreezeCamera={shouldFreezeCamera}
+            onPressConnections={onPressShowConnectedDapps}
+            onScanCode={onScanCode}
+          />
+        )}
+        {currentScreenState === ScannerModalState.WalletQr && (
+          <WalletQRCode address={activeAddress} />
+        )}
+        <Flex centered mb="spacing36" mt="spacing16" mx="spacing16">
+          <TouchableArea
+            hapticFeedback
+            borderColor={isDarkMode ? 'none' : 'backgroundOutline'}
+            borderRadius="roundedFull"
+            borderWidth={1}
+            name={ElementName.QRCodeModalToggle}
+            p="spacing16"
+            paddingEnd="spacing24"
+            style={{ backgroundColor: theme.colors.backgroundOverlay }}
+            onPress={onPressBottomToggle}>
+            <Flex row alignItems="center" gap="spacing12">
+              {currentScreenState === ScannerModalState.ScanQr ? (
+                <Scan color={theme.colors.textPrimary} height={24} width={24} />
+              ) : (
+                <ScanQRIcon color={theme.colors.textPrimary} height={24} width={24} />
+              )}
+              <Text color="textPrimary" variant="buttonLabelMedium">
+                {currentScreenState === ScannerModalState.ScanQr
+                  ? t('Show my QR code')
+                  : t('Scan a QR code')}
+              </Text>
+            </Flex>
+          </TouchableArea>
+        </Flex>
+      </>
     </BottomSheetModal>
   )
 }

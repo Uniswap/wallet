@@ -31,6 +31,9 @@ import {
   v2Schema,
   v31Schema,
   v32Schema,
+  v33Schema,
+  v34Schema,
+  v35Schema,
   v3Schema,
   v4Schema,
   v5Schema,
@@ -55,6 +58,7 @@ import { initialModalState } from 'src/features/modals/modalSlice'
 import { initialNotificationsState } from 'src/features/notifications/notificationSlice'
 import { initialProvidersState } from 'src/features/providers/providerSlice'
 import { ModalName } from 'src/features/telemetry/constants'
+import { initialTelemetryState } from 'src/features/telemetry/slice'
 import { initialTokensState } from 'src/features/tokens/tokensSlice'
 import { initialTransactionsState, TransactionState } from 'src/features/transactions/slice'
 import {
@@ -108,6 +112,7 @@ describe('Redux state migrations', () => {
 
     // Add new slices here!
     const initialState = {
+      appearanceSettings: { selectedAppearanceSettings: 'system' },
       biometricSettings: initialBiometricsSettingsState,
       blocks: { byChainId: {} },
       chains: initialChainsState,
@@ -121,6 +126,7 @@ describe('Redux state migrations', () => {
       providers: initialProvidersState,
       saga: {},
       searchHistory: initialSearchHistoryState,
+      telemetry: initialTelemetryState,
       tokenLists: {},
       tokens: initialTokensState,
       transactions: initialTransactionsState,
@@ -974,5 +980,29 @@ describe('Redux state migrations', () => {
 
     expect(v33.wallet.replaceAccountOptions.isReplacingAccount).toBe(false)
     expect(v33.wallet.replaceAccountOptions.skipToSeedPhrase).toBe(false)
+  })
+
+  it('migrates from v33 to 34', () => {
+    const v33Stub = { ...v33Schema }
+
+    const v34 = migrations[34](v33Stub)
+
+    expect(v34.telemetry.lastBalancesReport).toBe(0)
+  })
+
+  it('migrates from v34 to 35', () => {
+    const v34Stub = { ...v34Schema }
+
+    const v35 = migrations[35](v34Stub)
+
+    expect(v35.appearanceSettings.selectedAppearanceSettings).toBe('system')
+  })
+
+  it('migrates from v35 to 36', () => {
+    const v35Stub = { ...v35Schema }
+
+    const v36 = migrations[36](v35Stub)
+
+    expect(v36.favorites.hiddenNfts).toEqual({})
   })
 })
