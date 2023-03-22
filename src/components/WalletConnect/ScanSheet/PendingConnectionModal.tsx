@@ -1,7 +1,7 @@
 import { getSdkError } from '@walletconnect/utils'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
-import { useAppDispatch, useAppTheme } from 'src/app/hooks'
+import { useAppDispatch, useAppSelector, useAppTheme } from 'src/app/hooks'
 import Checkmark from 'src/assets/icons/check.svg'
 import X from 'src/assets/icons/x.svg'
 import { AccountDetails } from 'src/components/accounts/AccountDetails'
@@ -12,6 +12,7 @@ import { NetworkLogo } from 'src/components/CurrencyLogo/NetworkLogo'
 import { Chevron } from 'src/components/icons/Chevron'
 import { AnimatedFlex, Box, Flex } from 'src/components/layout'
 import { Separator } from 'src/components/layout/Separator'
+import { BottomSheetModal } from 'src/components/modals/BottomSheetModal'
 import { Text } from 'src/components/Text'
 import { DappHeaderIcon } from 'src/components/WalletConnect/DappHeaderIcon'
 import { PendingConnectionSwitchAccountModal } from 'src/components/WalletConnect/ScanSheet/PendingConnectionSwitchAccountModal'
@@ -20,7 +21,7 @@ import { ChainId, CHAIN_INFO } from 'src/constants/chains'
 import { pushNotification } from 'src/features/notifications/notificationSlice'
 import { AppNotificationType } from 'src/features/notifications/types'
 import { sendAnalyticsEvent } from 'src/features/telemetry'
-import { ElementName, MobileEventName } from 'src/features/telemetry/constants'
+import { ElementName, MobileEventName, ModalName } from 'src/features/telemetry/constants'
 import {
   useActiveAccountAddressWithThrow,
   useActiveAccountWithThrow,
@@ -28,8 +29,9 @@ import {
 } from 'src/features/wallet/hooks'
 import { activateAccount } from 'src/features/wallet/walletSlice'
 import { WalletConnectEvent } from 'src/features/walletConnect/saga'
+import { selectDidOpenFromDeepLink } from 'src/features/walletConnect/selectors'
 import { WCEventType, WCRequestOutcome } from 'src/features/walletConnect/types'
-import { settlePendingSession } from 'src/features/walletConnect/WalletConnect'
+import { returnToPreviousApp, settlePendingSession } from 'src/features/walletConnect/WalletConnect'
 import {
   addSession,
   removePendingSession,
@@ -152,12 +154,13 @@ const SwitchAccountRow = ({ activeAddress, setModalState }: SwitchAccountProps):
   )
 }
 
-export const PendingConnection = ({ pendingSession, onClose }: Props): JSX.Element => {
+export const PendingConnectionModal = ({ pendingSession, onClose }: Props): JSX.Element => {
   const { t } = useTranslation()
   const theme = useAppTheme()
   const activeAddress = useActiveAccountAddressWithThrow()
   const dispatch = useAppDispatch()
   const activeAccount = useActiveAccountWithThrow()
+  const didOpenFromDeepLink = useAppSelector(selectDidOpenFromDeepLink)
 
   const [modalState, setModalState] = useState<PendingConnectionModalState>(
     PendingConnectionModalState.Hidden
@@ -186,12 +189,10 @@ export const PendingConnection = ({ pendingSession, onClose }: Props): JSX.Eleme
       // Handle WC 1.0 session request
       if (pendingSession.version === '1') {
         settlePendingSession(selectedChainId, activeAddress, approved)
-        if (approved) {
-          onClose()
-        } else {
-          dispatch(removePendingSession())
+        onClose()
+        if (didOpenFromDeepLink) {
+          returnToPreviousApp()
         }
-
         return
       }
 
@@ -235,8 +236,6 @@ export const PendingConnection = ({ pendingSession, onClose }: Props): JSX.Eleme
             hideDelay: 3 * ONE_SECOND_MS,
           })
         )
-
-        onClose()
       } else {
         wcWeb3Wallet.rejectSession({
           id: Number(pendingSession.id),
@@ -244,12 +243,14 @@ export const PendingConnection = ({ pendingSession, onClose }: Props): JSX.Eleme
         })
         dispatch(removePendingSession())
       }
+
+      onClose()
     },
-    [activeAddress, dispatch, onClose, selectedChainId, pendingSession]
+    [activeAddress, dispatch, onClose, selectedChainId, pendingSession, didOpenFromDeepLink]
   )
 
   return (
-    <>
+    <BottomSheetModal name={ModalName.WCPendingConnection} onClose={onClose}>
       <AnimatedFlex
         backgroundColor="background1"
         borderRadius="rounded12"
@@ -328,6 +329,6 @@ export const PendingConnection = ({ pendingSession, onClose }: Props): JSX.Eleme
           }}
         />
       )}
-    </>
+    </BottomSheetModal>
   )
 }

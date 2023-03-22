@@ -3,16 +3,16 @@ import { ProposalTypes } from '@walletconnect/types'
 import { ChainId } from 'src/constants/chains'
 import {
   DappInfo,
+  DappInfoV1,
   DappInfoV2,
   EthMethod,
   EthSignMethod,
   EthTransaction,
-  EthTransactionMethod,
 } from 'src/features/walletConnect/types'
 
 export type WalletConnectSessionV1 = {
   id: string
-  dapp: DappInfo
+  dapp: DappInfoV1
   version: '1'
 }
 
@@ -31,10 +31,14 @@ interface SessionMapping {
 }
 
 interface BaseRequest {
+  sessionId: string
   internalId: string
   account: string
   dapp: DappInfo
+  chainId: ChainId
+  version: '1' | '2'
 }
+
 export interface SignRequest extends BaseRequest {
   type: EthSignMethod
   message: string | null
@@ -42,22 +46,22 @@ export interface SignRequest extends BaseRequest {
 }
 
 export interface TransactionRequest extends BaseRequest {
-  type: EthTransactionMethod
+  type: EthMethod.EthSendTransaction
   transaction: EthTransaction
 }
 
 export interface SwitchChainRequest extends BaseRequest {
   type: EthMethod.SwitchChain | EthMethod.AddChain
-  sessionId: string
   newChainId: number
+  dapp: DappInfoV1
+  version: '1'
 }
 
 export type WalletConnectRequest = SignRequest | TransactionRequest | SwitchChainRequest
 
 export const isTransactionRequest = (
   request: WalletConnectRequest
-): request is TransactionRequest =>
-  request.type === EthMethod.EthSendTransaction || request.type === EthMethod.EthSignTransaction
+): request is TransactionRequest => request.type === EthMethod.EthSendTransaction
 
 export interface WalletConnectState {
   byAccount: {
@@ -67,6 +71,7 @@ export interface WalletConnectState {
   }
   pendingSession: WalletConnectSession | null
   pendingRequests: WalletConnectRequest[]
+  didOpenFromDeepLink?: boolean
 }
 
 export const initialWalletConnectState: Readonly<WalletConnectState> = {
@@ -135,6 +140,10 @@ const slice = createSlice({
         (req) => req.internalId !== requestInternalId
       )
     },
+
+    setDidOpenFromDeepLink: (state, action: PayloadAction<boolean | undefined>) => {
+      state.didOpenFromDeepLink = action.payload
+    },
   },
 })
 
@@ -146,5 +155,6 @@ export const {
   removePendingSession,
   addRequest,
   removeRequest,
+  setDidOpenFromDeepLink,
 } = slice.actions
 export const { reducer: walletConnectReducer } = slice

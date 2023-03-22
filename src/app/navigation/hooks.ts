@@ -3,6 +3,7 @@ import { useCallback, useContext } from 'react'
 import { navigate as rootNavigate } from 'src/app/navigation/rootNavigation'
 import { useAppStackNavigation, useExploreStackNavigation } from 'src/app/navigation/types'
 import { useTransactionListLazyQuery } from 'src/data/__generated__/types-and-hooks'
+import { TabIndex } from 'src/screens/HomeScreen'
 import { Screens } from 'src/screens/Screens'
 
 /**
@@ -27,7 +28,10 @@ export function useEagerActivityNavigation(): {
     [load]
   )
 
-  const navigate = useCallback(() => navigation.navigate(Screens.Home), [navigation])
+  const navigate = useCallback(
+    () => navigation.navigate(Screens.Home, { tab: TabIndex.Activity }),
+    [navigation]
+  )
 
   return { preload, navigate }
 }
@@ -38,7 +42,7 @@ export function useEagerActivityNavigation(): {
  */
 export function useEagerExternalProfileNavigation(): {
   preload: (address: string) => void
-  navigate: (address: string, walletName?: string) => void
+  navigate: (address: string) => void
 } {
   const navigation = useExploreStackNavigation()
 
@@ -52,8 +56,8 @@ export function useEagerExternalProfileNavigation(): {
   )
 
   const navigate = useCallback(
-    (address: string, walletName?: string) => {
-      navigation.navigate(Screens.ExternalProfile, { address, walletName })
+    (address: string) => {
+      navigation.navigate(Screens.ExternalProfile, { address })
     },
     [navigation]
   )

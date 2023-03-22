@@ -18,7 +18,7 @@ import { useSignerAccounts } from 'src/features/wallet/hooks'
 import { CurrencyId } from 'src/utils/currencyId'
 
 type TokensTabProps = {
-  owner: string
+  owner: Address
   containerProps?: TabContentProps
   scrollHandler?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
   isExternalProfile?: boolean
@@ -37,8 +37,8 @@ export const TokensTab = forwardRef<FlashList<any>, TokensTabProps>(
     const isFiatOnRampEnabled =
       useFiatOnRampEnabled() && ownerAccount?.type === AccountType.SignerMnemonic
 
-    const onPressToken = (currencyId: CurrencyId, tokenName?: string): void => {
-      tokenDetailsNavigation.navigate(currencyId, tokenName)
+    const onPressToken = (currencyId: CurrencyId): void => {
+      tokenDetailsNavigation.navigate(currencyId)
     }
 
     // when fiat on ramp is enabled for owner account, trigger buy flow

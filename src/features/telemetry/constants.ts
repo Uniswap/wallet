@@ -8,6 +8,7 @@ export enum MobileEventName {
 
   // some of these values are Title Cased to match shared repo event format:
   // https://github.com/Uniswap/analytics-events/blob/main/src/primitives.ts
+  BalancesReport = 'Balances Report',
   DeepLinkOpened = 'Deep Link Opened',
   ExploreFilterSelected = 'Explore Filter Selected',
   ExploreSearchResultClicked = 'Explore Search Result Clicked',
@@ -85,6 +86,7 @@ export const enum ModalName {
   TransactionActions = 'transaction-actions',
   ViewSeedPhraseWarning = 'view-seed-phrase-warning',
   WalletConnectScan = 'wallet-connect-scan-modal',
+  WCPendingConnection = 'wc-pending-connection-modal',
   WCSignRequest = 'wc-sign-request-modal',
   WCSwitchChainRequest = 'wc-switch-chain-request-modal',
   WCViewOnlyWarning = 'wc-view-only-warning-modal',
@@ -170,6 +172,7 @@ export const enum ElementName {
 export const enum MarkNames {}
 
 export enum UserPropertyName {
+  AppearanceSetting = 'appearance_setting',
   ActiveWalletAddress = 'active_wallet_address',
   ActiveWalletType = 'active_wallet_type',
   AppOpenAuthMethod = 'app_open_auth_method',

@@ -1,6 +1,8 @@
 // Type information currently gets lost after a migration
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
+/* eslint-disable max-lines */
+
 import dayjs from 'dayjs'
 import { ChainId } from 'src/constants/chains'
 import { ChainsState } from 'src/features/chains/chainsSlice'
@@ -468,6 +470,34 @@ export const migrations = {
     newState.wallet.replaceAccountOptions = {
       isReplacingAccount: false,
       skipToSeedPhrase: false,
+    }
+    return newState
+  },
+
+  34: function addLastBalancesReport(state: any) {
+    const newState = { ...state }
+
+    newState.telemetry = {
+      lastBalancesReport: 0,
+    }
+    return newState
+  },
+
+  35: function addAppearanceSetting(state: any) {
+    const newState = { ...state }
+
+    newState.appearanceSettings = {
+      selectedAppearanceSettings: 'system',
+    }
+    return newState
+  },
+
+  36: function addNfts(state: any) {
+    const newState = { ...state }
+
+    newState.favorites = {
+      ...state.favorites,
+      hiddenNfts: {},
     }
     return newState
   },

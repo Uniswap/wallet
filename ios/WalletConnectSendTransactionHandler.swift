@@ -8,7 +8,7 @@
 import Foundation
 import WalletConnectSwift
 
-class WalletConnectSignTransactionHandler: RequestHandler {
+class WalletConnectSendTransactionHandler: RequestHandler {
   var serverWrapper: WalletConnectServerWrapper!
   var eventEmitter: RCTEventEmitter!
   
@@ -18,7 +18,7 @@ class WalletConnectSignTransactionHandler: RequestHandler {
   }
   
   func canHandle(request: Request) -> Bool {
-    return request.method == EthMethod.signTransaction.rawValue || request.method == EthMethod.sendTransaction.rawValue
+    return request.method == EthMethod.sendTransaction.rawValue
   }
   
   func handle(request: Request) {
@@ -34,6 +34,7 @@ class WalletConnectSignTransactionHandler: RequestHandler {
         withName: EventType.transactionRequest.rawValue, body: [
           "type": request.method,
           "request_internal_id": internalId,
+          "session_id": session.url.topic,
           "account": session.getAccount(),
           "transaction": [
             "data": transaction.data,

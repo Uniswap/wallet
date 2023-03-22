@@ -48,7 +48,6 @@ export function HeaderText({
       case EthMethod.SignTypedData:
         return t('Signature request from')
       case EthMethod.EthSendTransaction:
-      case EthMethod.EthSignTransaction:
         return t('Transaction request from')
     }
 
@@ -59,7 +58,7 @@ export function HeaderText({
     <>
       <Text variant="headlineSmall">{getReadableMethodName(method)}</Text>
       <Text fontWeight="bold" textAlign="center" variant="headlineSmall">
-        {dapp.name}
+        {dapp.name || dapp.url}
       </Text>
     </>
   )

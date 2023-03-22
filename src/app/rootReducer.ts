@@ -1,5 +1,6 @@
 import { combineReducers } from '@reduxjs/toolkit'
 import { monitoredSagaReducers } from 'src/app/rootSaga'
+import { appearanceSettingsReducer } from 'src/features/appearance/slice'
 import { onChainBalanceApi } from 'src/features/balances/api'
 import { biometricSettingsReducer } from 'src/features/biometrics/slice'
 import { chainsReducer } from 'src/features/chains/chainsSlice'
@@ -15,6 +16,7 @@ import { modalsReducer } from 'src/features/modals/modalSlice'
 import { notificationReducer } from 'src/features/notifications/notificationSlice'
 import { providersReducer } from 'src/features/providers/providerSlice'
 import { routingApi } from 'src/features/routing/routingApi'
+import { telemetryReducer } from 'src/features/telemetry/slice'
 import { tokensReducer } from 'src/features/tokens/tokensSlice'
 import { transactionReducer } from 'src/features/transactions/slice'
 import { trmApi } from 'src/features/trm/api'
@@ -28,6 +30,7 @@ const reducers = {
   [onChainBalanceApi.reducerPath]: onChainBalanceApi.reducer,
   [routingApi.reducerPath]: routingApi.reducer,
   [trmApi.reducerPath]: trmApi.reducer,
+  appearanceSettings: appearanceSettingsReducer,
   biometricSettings: biometricSettingsReducer,
   chains: chainsReducer,
   cloudBackup: cloudBackupReducer,
@@ -39,6 +42,7 @@ const reducers = {
   providers: providersReducer,
   saga: monitoredSagaReducers,
   searchHistory: searchHistoryReducer,
+  telemetry: telemetryReducer,
   tokens: tokensReducer,
   transactions: transactionReducer,
   wallet: walletReducer,
