@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* helpful when dealing with deeply nested state objects */
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { createAction, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { providers } from 'ethers'
 import {
   ChainIdToTxIdToDetails,
@@ -53,6 +53,16 @@ const slice = createSlice({
       state[from]![chainId]![id]!.status = status
       if (receipt) state[from]![chainId]![id]!.receipt = receipt
     },
+    deleteTransaction: (
+      state,
+      { payload: { chainId, id, address } }: PayloadAction<TransactionId & { address: string }>
+    ) => {
+      assert(
+        state?.[address]?.[chainId]?.[id],
+        `deleteTransaction: Attempted to delete a tx that doesn't exist with id ${id}`
+      )
+      delete state[address]![chainId]![id]
+    },
     cancelTransaction: (
       state,
       {
@@ -63,7 +73,7 @@ const slice = createSlice({
     ) => {
       assert(
         state?.[address]?.[chainId]?.[id],
-        `cancelTransaction: Attempted to cancel a tx that doesnt exist with id ${id}`
+        `cancelTransaction: Attempted to cancel a tx that doesn't exist with id ${id}`
       )
       state[address]![chainId]![id]!.status = TransactionStatus.Cancelling
       state[address]![chainId]![id]!.cancelRequest = cancelRequest
@@ -120,13 +130,21 @@ const slice = createSlice({
   },
 })
 
+// This action is fired, when user has come back from Moonpay flow using Return to Uniswap button
+export const forceFetchFiatOnRampTransactions = createAction(
+  'transactions/forceFetchFiatOnRampTransactions'
+)
+
 export const {
   addTransaction,
   cancelTransaction,
+  deleteTransaction,
   finalizeTransaction,
   replaceTransaction,
   resetTransactions,
   upsertFiatOnRampTransaction,
   updateTransaction,
 } = slice.actions
-export const { reducer: transactionReducer, actions: transactionActions } = slice
+
+export const { reducer: transactionReducer } = slice
+export const transactionActions = { ...slice.actions, forceFetchFiatOnRampTransactions }

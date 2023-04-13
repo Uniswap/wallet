@@ -238,6 +238,27 @@ export const v36Schema = {
   },
 }
 
+export const v37Schema = { ...v36Schema }
+
+const v37SchemaIntermediate = {
+  ...v37Schema,
+  wallet: {
+    ...v37Schema.wallet,
+    replaceAccountOptions: undefined,
+  },
+}
+delete v37SchemaIntermediate.wallet.replaceAccountOptions
+
+export const v38Schema = { ...v37SchemaIntermediate }
+
+const v38SchemaIntermediate = {
+  ...v38Schema,
+  experiments: undefined,
+}
+delete v38SchemaIntermediate.experiments
+
+export const v39Schema = { ...v38SchemaIntermediate }
+
 // TODO: [MOB-3864] use function with typed output when API reducers are removed from rootReducer
 // export const getSchema = (): RootState => v0Schema
-export const getSchema = (): typeof v35Schema => v35Schema
+export const getSchema = (): typeof v39Schema => v39Schema

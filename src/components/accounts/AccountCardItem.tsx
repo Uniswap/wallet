@@ -13,7 +13,7 @@ import { useENSAvatar } from 'src/features/ens/api'
 import { closeModal } from 'src/features/modals/modalSlice'
 import { useSelectAddressHasNotifications } from 'src/features/notifications/hooks'
 import { pushNotification } from 'src/features/notifications/notificationSlice'
-import { AppNotificationType } from 'src/features/notifications/types'
+import { AppNotificationType, CopyNotificationType } from 'src/features/notifications/types'
 import { ModalName } from 'src/features/telemetry/constants'
 import { useDisplayName } from 'src/features/wallet/hooks'
 import { Screens } from 'src/screens/Screens'
@@ -26,7 +26,6 @@ type AccountCardItemProps = {
   isActive?: boolean
   isViewOnly: boolean
   onPress: (address: Address) => void
-  onPressEdit: (address: Address) => void
 } & PortfolioValueProps
 
 type PortfolioValueProps = {
@@ -80,7 +79,12 @@ export function AccountCardItem({
 
   const onPressCopyAddress = (): void => {
     setClipboard(address)
-    dispatch(pushNotification({ type: AppNotificationType.Copied }))
+    dispatch(
+      pushNotification({
+        type: AppNotificationType.Copied,
+        copyType: CopyNotificationType.Address,
+      })
+    )
   }
 
   const onPressWalletSettings = (): void => {
