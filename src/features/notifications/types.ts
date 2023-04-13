@@ -12,6 +12,7 @@ export enum AppNotificationType {
   Favorites,
   Copied,
   SwapNetwork,
+  NFTVisibility,
 }
 
 interface AppNotificationBase {
@@ -120,13 +121,24 @@ export type TransactionNotification =
   | TransferNFTTxNotification
   | UnknownTxNotification
 
+export enum CopyNotificationType {
+  Address = 'address',
+  TransactionId = 'transactionId',
+}
+
 export interface CopyNotification extends AppNotificationBase {
   type: AppNotificationType.Copied
+  copyType: CopyNotificationType
 }
 
 export interface SwapNetworkNotification extends AppNotificationBase {
   type: AppNotificationType.SwapNetwork
   chainId: ChainId
+}
+
+export interface ChangeNFTVisibilityNotification extends AppNotificationBase {
+  type: AppNotificationType.NFTVisibility
+  visible: boolean
 }
 
 export type AppNotification =
@@ -136,3 +148,4 @@ export type AppNotification =
   | WalletConnectNotification
   | TransactionNotification
   | SwapNetworkNotification
+  | ChangeNFTVisibilityNotification

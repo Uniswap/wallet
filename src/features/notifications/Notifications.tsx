@@ -7,6 +7,8 @@ import { useAppDispatch, useAppSelector, useAppTheme } from 'src/app/hooks'
 import { useEagerActivityNavigation } from 'src/app/navigation/hooks'
 import { store } from 'src/app/store'
 import CheckCircle from 'src/assets/icons/check-circle.svg'
+import EyeOffIcon from 'src/assets/icons/eye-off.svg'
+import EyeIcon from 'src/assets/icons/eye.svg'
 import {
   DappLogoWithTxStatus,
   LogoWithTxStatus,
@@ -25,7 +27,9 @@ import {
   AppErrorNotification,
   AppNotificationDefault,
   ApproveTxNotification,
+  ChangeNFTVisibilityNotification,
   CopyNotification,
+  CopyNotificationType,
   SwapNetworkNotification as SwapNetworkNotificationType,
   SwapTxNotification,
   TransactionNotificationBase,
@@ -483,12 +487,22 @@ export function DefaultNotification({
 }
 
 export function CopiedNotification({
-  notification: { hideDelay = 2000 },
+  notification: { hideDelay = 2000, copyType },
 }: {
   notification: CopyNotification
-}): JSX.Element {
+}): JSX.Element | null {
   const { t } = useTranslation()
   const theme = useAppTheme()
+
+  let title
+  switch (copyType) {
+    case CopyNotificationType.Address:
+      title = t('Address copied')
+      break
+    case CopyNotificationType.TransactionId:
+      title = t('Transaction ID copied')
+      break
+  }
 
   return (
     <NotificationToast
@@ -502,7 +516,7 @@ export function CopiedNotification({
           width={iconSizes.icon24}
         />
       }
-      title={t('Address copied')}
+      title={title}
     />
   )
 }
@@ -521,6 +535,38 @@ export function SwapNetworkNotification({
       hideDelay={hideDelay}
       icon={<NetworkLogo chainId={chainId} size={iconSizes.icon24} />}
       title={t('Swapping on {{ network }}', { network })}
+    />
+  )
+}
+
+export function NftVisibilityChangeNotification({
+  notification: { visible, hideDelay },
+}: {
+  notification: ChangeNFTVisibilityNotification
+}): JSX.Element {
+  const { t } = useTranslation()
+  const theme = useAppTheme()
+
+  return (
+    <NotificationToast
+      useSmallDisplay
+      hideDelay={hideDelay}
+      icon={
+        visible ? (
+          <EyeOffIcon
+            color={theme.colors.textPrimary}
+            height={theme.iconSizes.icon24}
+            width={theme.iconSizes.icon24}
+          />
+        ) : (
+          <EyeIcon
+            color={theme.colors.textPrimary}
+            height={theme.iconSizes.icon24}
+            width={theme.iconSizes.icon24}
+          />
+        )
+      }
+      title={visible ? t('NFT hidden') : t('NFT unhidden')}
     />
   )
 }

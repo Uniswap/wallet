@@ -34,6 +34,9 @@ import {
   v33Schema,
   v34Schema,
   v35Schema,
+  v36Schema,
+  v37Schema,
+  v38Schema,
   v3Schema,
   v4Schema,
   v5Schema,
@@ -51,7 +54,6 @@ import { ChainsState, initialChainsState } from 'src/features/chains/chainsSlice
 import { initialCloudBackupState } from 'src/features/CloudBackup/cloudBackupSlice'
 import { initialPasswordLockoutState } from 'src/features/CloudBackup/passwordLockoutSlice'
 import { ensApi } from 'src/features/ens/api'
-import { initialExperimentsState } from 'src/features/experiments/slice'
 import { initialSearchHistoryState } from 'src/features/explore/searchHistorySlice'
 import { initialFavoritesState } from 'src/features/favorites/slice'
 import { initialModalState } from 'src/features/modals/modalSlice'
@@ -70,7 +72,7 @@ import { Account, AccountType, SignerMnemonicAccount } from 'src/features/wallet
 import { DEMO_ACCOUNT_ADDRESS } from 'src/features/wallet/accounts/useTestAccount'
 import { initialWalletState } from 'src/features/wallet/walletSlice'
 import { initialWalletConnectState } from 'src/features/walletConnect/walletConnectSlice'
-import { account, txDetailsConfirmed } from 'src/test/fixtures'
+import { account, fiatOnRampTxDetailsFailed, txDetailsConfirmed } from 'src/test/fixtures'
 
 // helps with object assignement
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -118,7 +120,6 @@ describe('Redux state migrations', () => {
       chains: initialChainsState,
       cloudBackup: initialCloudBackupState,
       ens: { ensForAddress: {} },
-      experiments: initialExperimentsState,
       favorites: initialFavoritesState,
       modals: initialModalState,
       notifications: initialNotificationsState,
@@ -1004,5 +1005,67 @@ describe('Redux state migrations', () => {
     const v36 = migrations[36](v35Stub)
 
     expect(v36.favorites.hiddenNfts).toEqual({})
+  })
+
+  it('migrates from v36 to 37', () => {
+    const id1 = '123'
+    const id2 = '456'
+    const id3 = '789'
+    const transactions = {
+      [account.address]: {
+        [ChainId.Mainnet]: {
+          [id1]: {
+            ...fiatOnRampTxDetailsFailed,
+            typeInfo: {
+              ...fiatOnRampTxDetailsFailed.typeInfo,
+              id: undefined,
+            },
+          },
+          [id2]: {
+            ...fiatOnRampTxDetailsFailed,
+            typeInfo: {
+              ...fiatOnRampTxDetailsFailed.typeInfo,
+              id: undefined,
+              explorerUrl: undefined,
+            },
+          },
+          [id3]: txDetailsConfirmed,
+        },
+      },
+    }
+
+    const v36Stub = { ...v36Schema, transactions }
+
+    expect(
+      v36Stub.transactions[account.address]?.[ChainId.Mainnet][id1].typeInfo.id
+    ).toBeUndefined()
+    expect(
+      v36Stub.transactions[account.address]?.[ChainId.Mainnet][id2].typeInfo.id
+    ).toBeUndefined()
+
+    const v37 = migrations[37](v36Stub)
+
+    expect(v37.transactions[account.address]?.[ChainId.Mainnet][id1].typeInfo.id).toEqual(
+      fiatOnRampTxDetailsFailed.typeInfo.id
+    )
+    expect(
+      v36Stub.transactions[account.address]?.[ChainId.Mainnet][id2].typeInfo.id
+    ).toBeUndefined()
+    expect(v36Stub.transactions[account.address]?.[ChainId.Mainnet][id3]).toEqual(
+      txDetailsConfirmed
+    )
+  })
+
+  it('migrates from v37 to 38', () => {
+    const v37Stub = { ...v37Schema }
+    const v38 = migrations[38](v37Stub)
+    expect(v38.wallet.replaceAccountOptions).toBeUndefined()
+  })
+
+  it('migrates from v38 to 39', () => {
+    const v38Stub = { ...v38Schema }
+    expect(v38Stub.experiments).toBeDefined()
+    const v39 = migrations[39](v38Stub)
+    expect(v39.experiments).toBeUndefined()
   })
 })

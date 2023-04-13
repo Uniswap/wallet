@@ -1,8 +1,9 @@
-import { createSelector } from '@reduxjs/toolkit'
+import { createSelector, Selector } from '@reduxjs/toolkit'
 import { RootState } from 'src/app/rootReducer'
 import { SearchableRecipient } from 'src/components/RecipientSelect/types'
 import { uniqueAddressesOnly } from 'src/components/RecipientSelect/utils'
 import { ChainId } from 'src/constants/chains'
+import { EMPTY_ARRAY } from 'src/constants/misc'
 import { TransactionState } from 'src/features/transactions/slice'
 import {
   SendTokenTransactionInfo,
@@ -10,33 +11,47 @@ import {
   TransactionStatus,
   TransactionType,
 } from 'src/features/transactions/types'
+import { unique } from 'src/utils/array'
 import { flattenObjectOfObjects } from 'src/utils/objects'
 
 export const selectTransactions = (state: RootState): TransactionState => state.transactions
 
-// TODO(MOB-3968): Add more specific type definition here
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const makeSelectAddressTransactions = (address: Address | null): any =>
+export const makeSelectAddressTransactions = (
+  address: Address | null
+): Selector<RootState, TransactionDetails[]> =>
   createSelector(selectTransactions, (transactions) => {
-    if (!address) return undefined
+    if (!address) return EMPTY_ARRAY
     const addressTransactions = transactions[address]
-    if (!addressTransactions) return undefined
-    return (
-      flattenObjectOfObjects(addressTransactions)
-        // remove dummy fiat onramp transactions from TransactionList, notification badge, etc.
-        .filter(
-          (tx) => tx.typeInfo.type !== TransactionType.FiatPurchase || tx.typeInfo.syncedWithBackend
-        )
-    )
+    if (!addressTransactions) return EMPTY_ARRAY
+
+    return unique(flattenObjectOfObjects(addressTransactions), (tx, _, self) => {
+      // Remove dummy fiat onramp transactions from TransactionList, notification badge, etc.
+      if (tx.typeInfo.type === TransactionType.FiatPurchase && !tx.typeInfo.syncedWithBackend) {
+        return false
+      }
+      /*
+       * Remove duplicate transactions with the same chain and nonce, keep the one with the higher addedTime,
+       * this represents a txn that is replacing or cancelling the older txn.
+       */
+      const duplicate = self.find(
+        (tx2) =>
+          tx2.id !== tx.id &&
+          tx2.options.request.chainId === tx.options.request.chainId &&
+          tx2.options.request.nonce === tx.options.request.nonce
+      )
+      if (duplicate) {
+        return tx.addedTime > duplicate.addedTime
+      }
+      return true
+    })
   })
 
 export const makeSelectTransaction = (
   address: Address | undefined,
   chainId: ChainId | undefined,
   txId: string | undefined
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): any =>
-  createSelector(selectTransactions, (transactions) => {
+): Selector<RootState, TransactionDetails | undefined> =>
+  createSelector(selectTransactions, (transactions): TransactionDetails | undefined => {
     if (!address || !transactions[address] || !chainId || !txId) {
       return undefined
     }

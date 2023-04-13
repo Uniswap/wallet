@@ -1,4 +1,4 @@
-import { createSelector } from '@reduxjs/toolkit'
+import { createSelector, Selector } from '@reduxjs/toolkit'
 import type { RootState } from 'src/app/rootReducer'
 import { TokenSortableField } from 'src/data/__generated__/types-and-hooks'
 import { TokensOrderBy } from 'src/features/explore/types'
@@ -69,15 +69,6 @@ export const selectUserPalette = createSelector(
 export const selectFinishedOnboarding = (state: RootState): boolean | undefined =>
   state.wallet.finishedOnboarding
 
-export const selectReplaceAccountOptions = (
-  state: RootState
-):
-  | {
-      isReplacingAccount: boolean
-      skipToSeedPhrase: boolean
-    }
-  | undefined => state.wallet.replaceAccountOptions
-
 export const selectFlashbotsEnabled = (state: RootState): boolean => state.wallet.flashbotsEnabled
 
 export const selectTokensOrderBy = (state: RootState): TokensOrderBy =>
@@ -92,15 +83,13 @@ export const selectInactiveAccounts = createSelector(
 
 export const makeSelectAccountNotificationSetting = (
   address: Address
-): ((state: RootState) => boolean) =>
+): Selector<RootState, boolean> =>
   createSelector(selectAccounts, (accounts) => !!accounts[address]?.pushNotificationsEnabled)
 
 export const makeSelectAccountHideSmallBalances = (
   address: Address
-): ((state: RootState) => boolean) =>
+): Selector<RootState, boolean> =>
   createSelector(selectAccounts, (accounts) => !accounts[address]?.showSmallBalances)
 
-export const makeSelectAccountHideSpamTokens = (
-  address: Address
-): ((state: RootState) => boolean) =>
+export const makeSelectAccountHideSpamTokens = (address: Address): Selector<RootState, boolean> =>
   createSelector(selectAccounts, (accounts) => !accounts[address]?.showSpamTokens)

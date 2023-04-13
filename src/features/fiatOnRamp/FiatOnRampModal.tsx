@@ -22,7 +22,7 @@ import { useActiveAccountAddressWithThrow } from 'src/features/wallet/hooks'
 import { openUri } from 'src/utils/linking'
 
 const MOONPAY_UNSUPPORTED_REGION_HELP_URL =
-  'https://support.uniswap.org/hc/en-us/articles/10966551707533-Why-is-MoonPay-not-supported-in-my-region'
+  'https://support.uniswap.org/hc/en-us/articles/11306664890381-Why-isn-t-MoonPay-available-in-my-region-'
 
 export function FiatOnRampModal(): JSX.Element {
   const { t } = useTranslation()
@@ -62,12 +62,7 @@ export function FiatOnRampModal(): JSX.Element {
   const onPress = (): void => {
     if (!fiatOnRampHostUrl) return
 
-    // ideally, we would keep users inside our app and open an inapp browser
-    // however, as of iOS 11, Safari won't share cookies with SafariViewControllers,
-    // meaning users have to sign in every time, and some redirects links won't work
-    // (e.g. after using plaid)
-    const openExternalBrowser = true
-    openUri(fiatOnRampHostUrl, openExternalBrowser)
+    openUri(fiatOnRampHostUrl)
 
     dispatchAddTransaction()
     onClose()
