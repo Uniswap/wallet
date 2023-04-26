@@ -1,15 +1,15 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { StyleSheet } from 'react-native'
+import { SvgProps } from 'react-native-svg'
 import { useAppTheme } from 'src/app/hooks'
 import AlertTriangle from 'src/assets/icons/alert-triangle.svg'
 import Approve from 'src/assets/icons/approve.svg'
 import IncomingArrow from 'src/assets/icons/arrow-down-in-circle.svg'
 import OutgoingArrow from 'src/assets/icons/arrow-up-in-circle.svg'
 import UnknownStatus from 'src/assets/icons/question-in-circle.svg'
-import SlashCircleIcon from 'src/assets/icons/slash-circle.svg'
 import WalletConnectLogo from 'src/assets/icons/walletconnect.svg'
 import MoonpayLogo from 'src/assets/logos/moonpay.svg'
-import { CurrencyLogo } from 'src/components/CurrencyLogo'
+import { CurrencyLogo, STATUS_RATIO } from 'src/components/CurrencyLogo'
 import { NetworkLogo } from 'src/components/CurrencyLogo/NetworkLogo'
 import { ImageUri } from 'src/components/images/ImageUri'
 import { NFTViewer } from 'src/components/images/NFTViewer'
@@ -21,6 +21,7 @@ import { AssetType } from 'src/entities/assets'
 import { CurrencyInfo } from 'src/features/dataApi/types'
 import { NFTTradeType, TransactionStatus, TransactionType } from 'src/features/transactions/types'
 import { WalletConnectEvent } from 'src/features/walletConnect/saga'
+import { getNetworkForegroundColor } from 'src/utils/colors'
 import { logger } from 'src/utils/logger'
 
 interface LogoWithTxStatusProps {
@@ -28,6 +29,7 @@ interface LogoWithTxStatusProps {
   txType: TransactionType
   txStatus: TransactionStatus
   size: number
+  chainId: ChainId | null
 }
 
 interface DappLogoWithTxStatusProps {
@@ -36,13 +38,6 @@ interface DappLogoWithTxStatusProps {
   chainId: ChainId | null
   dappImageUrl: string | null
   dappName: string
-}
-
-interface SwapLogoOrLogoWithTxStatusProps {
-  inputCurrencyInfo: NullUndefined<CurrencyInfo>
-  outputCurrencyInfo: NullUndefined<CurrencyInfo>
-  txStatus: TransactionStatus
-  size: number
 }
 
 interface CurrencyStatusProps extends LogoWithTxStatusProps {
@@ -57,10 +52,10 @@ interface NFTStatusProps extends LogoWithTxStatusProps {
 }
 
 export function LogoWithTxStatus(props: CurrencyStatusProps | NFTStatusProps): JSX.Element {
-  const { assetType, txType, txStatus, size } = props
+  const { assetType, txType, txStatus, size, chainId } = props
   const theme = useAppTheme()
 
-  const statusSize = size * (1 / 2)
+  const statusSize = size / 2
 
   const logo =
     txType === TransactionType.FiatPurchase ? (
@@ -80,96 +75,75 @@ export function LogoWithTxStatus(props: CurrencyStatusProps | NFTStatusProps): J
       </Box>
     )
 
-  const fill = theme.colors.background0
-  const gray = theme.colors.textSecondary
-  const green = theme.colors.accentSuccess
-  const yellow = theme.colors.accentWarning
+  const fill =
+    txStatus === TransactionStatus.Success ? theme.colors.accentSuccess : theme.colors.textSecondary
+  const color = theme.colors.background1
 
-  const getTxStatusIcon = (): JSX.Element | null => {
-    if (txStatus === TransactionStatus.Failed) {
-      return <AlertTriangle color={yellow} fill={fill} height={statusSize} width={statusSize} />
-    }
-    if (txStatus === TransactionStatus.Cancelled || txStatus === TransactionStatus.Cancelling) {
-      return (
-        <SlashCircleIcon
-          color={theme.colors.textSecondary}
-          fill={theme.colors.background0}
-          fillOpacity={1}
-          height={statusSize}
-          width={statusSize}
-        />
-      )
-    }
+  let icon: JSX.Element | undefined
+  if (chainId && chainId !== ChainId.Mainnet) {
+    icon = (
+      <NetworkLogo
+        backgroundColor={getNetworkForegroundColor(theme, chainId)}
+        borderColor={theme.colors.background0}
+        borderRadius="rounded8"
+        borderWidth={2}
+        chainId={chainId}
+        size={size * STATUS_RATIO}
+      />
+    )
+  } else {
+    let Icon: React.FC<SvgProps> | undefined
     switch (txType) {
       case TransactionType.Approve:
-        return <Approve color={green} fill={fill} height={statusSize} width={statusSize} />
       case TransactionType.NFTApprove:
-        return <Approve color={green} fill={fill} height={statusSize} width={statusSize} />
+        Icon = Approve
+        break
       case TransactionType.Send:
-        return <OutgoingArrow color={green} fill={fill} height={statusSize} width={statusSize} />
+        Icon = OutgoingArrow
+        break
+      case TransactionType.NFTTrade:
+        if (assetType === AssetType.ERC721 || assetType === AssetType.ERC1155) {
+          if (props.nftTradeType === NFTTradeType.SELL) {
+            Icon = OutgoingArrow
+          } else {
+            Icon = IncomingArrow
+          }
+        }
+        break
       // Fiat purchases use the same icon as receive
       case TransactionType.FiatPurchase:
       case TransactionType.Receive:
-        return <IncomingArrow color={green} fill={fill} height={statusSize} width={statusSize} />
       case TransactionType.NFTMint:
-        return <IncomingArrow color={green} fill={fill} height={statusSize} width={statusSize} />
-      case TransactionType.NFTTrade:
-        if (assetType === AssetType.ERC721 && props.nftTradeType === NFTTradeType.SELL) {
-          return <OutgoingArrow color={green} fill={fill} height={statusSize} width={statusSize} />
-        }
-        return <IncomingArrow color={green} fill={fill} height={statusSize} width={statusSize} />
+        Icon = IncomingArrow
+        break
       case TransactionType.Unknown:
-        return <UnknownStatus color={gray} fill={fill} height={statusSize} width={statusSize} />
+        Icon = UnknownStatus
+        break
     }
-    logger.debug(
-      'statusIcon',
-      'GenerateStatusIcon',
-      'Could not find icon for transaction type:',
-      txType
-    )
-    return null
+    if (Icon) {
+      icon = <Icon color={color} fill={fill} height={statusSize} width={statusSize} />
+    }
   }
-  const statusIcon = getTxStatusIcon()
+
+  useEffect(() => {
+    if (!icon) {
+      logger.warn(
+        'statusIcon',
+        'GenerateStatusIcon',
+        'Could not find icon for transaction type:',
+        txType
+      )
+    }
+  }, [icon, txType])
+
   return (
     <Box alignItems="center" height={size} justifyContent="center" width={size}>
       {logo}
-      <Box bottom={-4} position="absolute" right={-4}>
-        {statusIcon}
-      </Box>
-    </Box>
-  )
-}
-
-export function SwapLogoOrLogoWithTxStatus({
-  size,
-  inputCurrencyInfo,
-  outputCurrencyInfo,
-  txStatus,
-}: SwapLogoOrLogoWithTxStatusProps): JSX.Element {
-  if (
-    txStatus === TransactionStatus.Failed ||
-    txStatus === TransactionStatus.Cancelled ||
-    txStatus === TransactionStatus.Cancelling
-  ) {
-    return (
-      <LogoWithTxStatus
-        assetType={AssetType.Currency}
-        currencyInfo={inputCurrencyInfo}
-        size={size}
-        txStatus={txStatus}
-        txType={TransactionType.Swap}
-      />
-    )
-  }
-
-  return (
-    <Box height={size} width={size}>
-      <Box left={0} position="absolute" testID="swap-success-toast" top={0}>
-        <CurrencyLogo hideNetworkLogo currencyInfo={inputCurrencyInfo} size={size * (2 / 3)} />
-      </Box>
-      <Box bottom={0} position="absolute" right={0}>
-        <CurrencyLogo hideNetworkLogo currencyInfo={outputCurrencyInfo} size={size * (2 / 3)} />
-      </Box>
+      {icon && (
+        <Box bottom={-4} position="absolute" right={-4}>
+          {icon}
+        </Box>
+      )}
     </Box>
   )
 }
@@ -258,7 +232,7 @@ export function DappLogoWithWCBadge({
 }): JSX.Element {
   const theme = useAppTheme()
   const dappImageSize = size
-  const statusSize = dappImageSize * (1 / 2)
+  const statusSize = dappImageSize * STATUS_RATIO
   const totalSize = dappImageSize + statusSize * (1 / 4)
   const dappImage = dappImageUrl ? (
     <RemoteImage
@@ -278,7 +252,9 @@ export function DappLogoWithWCBadge({
       </Box>
       <Box
         backgroundColor="background1"
-        borderRadius="rounded4"
+        borderColor="background0"
+        borderRadius="roundedFull"
+        borderWidth={2}
         bottom={0}
         position="absolute"
         right={0}>

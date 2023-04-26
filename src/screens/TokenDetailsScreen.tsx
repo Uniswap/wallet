@@ -352,6 +352,7 @@ function TokenDetails({
         disableAccept={activeTransactionType === undefined}
         isVisible={showWarningModal}
         safetyLevel={safetyLevel}
+        tokenLogoUrl={token?.project?.logoUrl}
         onAccept={onAcceptWarning}
         onClose={(): void => {
           setActiveTransactionType(undefined)

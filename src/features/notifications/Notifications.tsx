@@ -12,16 +12,15 @@ import EyeIcon from 'src/assets/icons/eye.svg'
 import {
   DappLogoWithTxStatus,
   LogoWithTxStatus,
-  SwapLogoOrLogoWithTxStatus,
 } from 'src/components/CurrencyLogo/LogoWithTxStatus'
 import { NetworkLogo } from 'src/components/CurrencyLogo/NetworkLogo'
+import { SplitLogo } from 'src/components/CurrencyLogo/SplitLogo'
 import { ScannerModalState } from 'src/components/QRCodeScanner/constants'
 import { CHAIN_INFO } from 'src/constants/chains'
 import { AssetType } from 'src/entities/assets'
 import { useENS } from 'src/features/ens/useENS'
 import { closeAllModals, closeModal, openModal } from 'src/features/modals/modalSlice'
 import { useNFT } from 'src/features/nfts/hooks'
-import BalanceUpdateDisplay from 'src/features/notifications/BalanceUpdateDisplay'
 import { NotificationToast } from 'src/features/notifications/NotificationToast'
 import {
   AppErrorNotification,
@@ -154,6 +153,7 @@ export function ApproveNotification({
   const icon = (
     <LogoWithTxStatus
       assetType={AssetType.Currency}
+      chainId={chainId}
       currencyInfo={currencyInfo}
       size={NOTIFICATION_ICON_SIZE}
       txStatus={txStatus}
@@ -177,7 +177,6 @@ export function SwapNotification({
   notification: {
     chainId,
     txId,
-    txType,
     txStatus,
     inputCurrencyId,
     inputCurrencyAmountRaw,
@@ -220,11 +219,11 @@ export function SwapNotification({
   const { onPress, onPressIn } = useNavigateToProfileTab(address)
 
   const icon = (
-    <SwapLogoOrLogoWithTxStatus
+    <SplitLogo
+      chainId={chainId}
       inputCurrencyInfo={inputCurrencyInfo}
       outputCurrencyInfo={outputCurrencyInfo}
       size={NOTIFICATION_ICON_SIZE}
-      txStatus={txStatus}
     />
   )
 
@@ -232,14 +231,6 @@ export function SwapNotification({
     <NotificationToast
       actionButton={retryButton}
       address={address}
-      balanceUpdate={
-        <BalanceUpdateDisplay
-          amountRaw={outputCurrencyAmountRaw}
-          currency={outputCurrencyInfo?.currency}
-          transactionStatus={txStatus}
-          transactionType={txType}
-        />
-      }
       hideDelay={hideDelay}
       icon={icon}
       title={title}
@@ -250,16 +241,7 @@ export function SwapNotification({
 }
 
 export function WrapNotification({
-  notification: {
-    txId,
-    txType,
-    txStatus,
-    currencyAmountRaw,
-    address,
-    hideDelay,
-    unwrapped,
-    chainId,
-  },
+  notification: { txId, txStatus, currencyAmountRaw, address, hideDelay, unwrapped, chainId },
 }: {
   notification: WrapTxNotification
 }): JSX.Element {
@@ -300,11 +282,11 @@ export function WrapNotification({
   const { onPress, onPressIn } = useNavigateToProfileTab(address)
 
   const icon = (
-    <SwapLogoOrLogoWithTxStatus
+    <SplitLogo
+      chainId={chainId}
       inputCurrencyInfo={inputCurrencyInfo}
       outputCurrencyInfo={outputCurrencyInfo}
       size={NOTIFICATION_ICON_SIZE}
-      txStatus={txStatus}
     />
   )
 
@@ -312,14 +294,6 @@ export function WrapNotification({
     <NotificationToast
       actionButton={retryButton}
       address={address}
-      balanceUpdate={
-        <BalanceUpdateDisplay
-          amountRaw={currencyAmountRaw}
-          currency={outputCurrencyInfo?.currency}
-          transactionStatus={txStatus}
-          transactionType={txType}
-        />
-      }
       hideDelay={hideDelay}
       icon={icon}
       title={title}
@@ -363,6 +337,7 @@ export function TransferCurrencyNotification({
   const icon = (
     <LogoWithTxStatus
       assetType={assetType}
+      chainId={chainId}
       currencyInfo={currencyInfo}
       size={NOTIFICATION_ICON_SIZE}
       txStatus={txStatus}
@@ -373,14 +348,6 @@ export function TransferCurrencyNotification({
   return (
     <NotificationToast
       address={address}
-      balanceUpdate={
-        <BalanceUpdateDisplay
-          amountRaw={currencyAmountRaw}
-          currency={currencyInfo?.currency}
-          transactionStatus={txStatus}
-          transactionType={txType}
-        />
-      }
       hideDelay={hideDelay}
       icon={icon}
       title={title}
@@ -417,6 +384,7 @@ export function TransferNFTNotification({
   const icon = (
     <LogoWithTxStatus
       assetType={assetType}
+      chainId={chainId}
       nftImageUrl={nft?.thumbnail?.url ?? undefined}
       size={NOTIFICATION_ICON_SIZE}
       txStatus={txStatus}
@@ -449,6 +417,7 @@ export function UnknownTxNotification({
   const icon = (
     <LogoWithTxStatus
       assetType={AssetType.Currency}
+      chainId={chainId}
       currencyInfo={currencyInfo}
       size={NOTIFICATION_ICON_SIZE}
       txStatus={txStatus}
