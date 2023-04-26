@@ -15,8 +15,9 @@ import {
   TransactionType,
 } from 'src/features/transactions/types'
 import { Account, AccountType } from 'src/features/wallet/accounts/types'
-import { DEMO_ACCOUNT_ADDRESS } from 'src/features/wallet/accounts/useTestAccount'
 import { toSupportedChainId } from 'src/utils/chainId'
+
+export const OLD_DEMO_ACCOUNT_ADDRESS = '0xdd0E380579dF30E38524F9477808d9eE37E2dEa6'
 
 export const migrations = {
   0: (state: any) => {
@@ -147,8 +148,8 @@ export const migrations = {
     const newState = { ...state }
     const accounts = newState?.wallet?.accounts ?? {}
 
-    if (accounts[DEMO_ACCOUNT_ADDRESS]) {
-      delete accounts[DEMO_ACCOUNT_ADDRESS]
+    if (accounts[OLD_DEMO_ACCOUNT_ADDRESS]) {
+      delete accounts[OLD_DEMO_ACCOUNT_ADDRESS]
     }
 
     return newState
@@ -548,6 +549,22 @@ export const migrations = {
   39: function removeExperimentsSlice(state: any) {
     const newState = { ...state }
     delete newState.experiments
+    return newState
+  },
+  40: function removePersistedWalletConnectSlice(state: any) {
+    // Remove `walletConnect` slice from persisted whitelist
+    const newState = { ...state }
+    delete newState.walletConnect
+    return newState
+  },
+
+  41: function addLastBalancesReportValue(state: any) {
+    const newState = { ...state }
+
+    newState.telemetry = {
+      ...state.telemetry,
+      lastBalancesReportValue: 0,
+    }
     return newState
   },
 }

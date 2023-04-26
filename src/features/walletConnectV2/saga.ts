@@ -7,22 +7,27 @@ import { IWeb3Wallet, Web3Wallet, Web3WalletTypes } from '@walletconnect/web3wal
 import { Alert } from 'react-native'
 import { EventChannel, eventChannel } from 'redux-saga'
 import { CallEffect, ChannelTakeEffect, PutEffect } from 'redux-saga/effects'
+import { appSelect } from 'src/app/hooks'
 import { i18n } from 'src/app/i18n'
 import { config } from 'src/config'
-import { ALL_SUPPORTED_CHAIN_IDS, CHAIN_INFO } from 'src/constants/chains'
+import { ALL_SUPPORTED_CHAIN_IDS, ChainId, CHAIN_INFO } from 'src/constants/chains'
 import { pushNotification } from 'src/features/notifications/notificationSlice'
 import { AppNotificationType } from 'src/features/notifications/types'
+import { selectAccounts } from 'src/features/wallet/selectors'
+import { registerWCv2ClientForPushNotifications } from 'src/features/walletConnect/api'
 import { WalletConnectEvent } from 'src/features/walletConnect/saga'
 import { EthMethod } from 'src/features/walletConnect/types'
 import {
   addPendingSession,
   addRequest,
+  addSession,
   removeSession,
 } from 'src/features/walletConnect/walletConnectSlice'
 import {
   getAccountAddressFromEIP155String,
   getChainIdFromEIP155String,
   getSupportedWalletConnectChains,
+  parseProposalNamespaces,
   parseSignRequest,
   parseTransactionRequest,
 } from 'src/features/walletConnectV2/utils'
@@ -47,6 +52,9 @@ async function initializeWeb3Wallet(): Promise<void> {
       icons: ['https://gateway.pinata.cloud/ipfs/QmR1hYqhDMoyvJtwrQ6f1kVyfEKyK65XH3nbCimXBMkHJg'],
     },
   })
+
+  const clientId = await wcCore.crypto.getClientId()
+  registerWCv2ClientForPushNotifications(clientId)
 }
 
 function createWalletConnectV2Channel(): EventChannel<Action<unknown>> {
@@ -58,53 +66,62 @@ function createWalletConnectV2Channel(): EventChannel<Action<unknown>> {
     const sessionProposalHandler = async (
       proposal: Omit<Web3WalletTypes.BaseEventArgs<ProposalTypes.Struct>, 'topic'>
     ): Promise<void> => {
-      const dapp = proposal.params.proposer.metadata
-      const proposalNamespaces = proposal.params.requiredNamespaces
+      const {
+        params: {
+          requiredNamespaces,
+          optionalNamespaces,
+          proposer: { metadata: dapp },
+        },
+        id,
+      } = proposal
 
-      // Check if proposal namespaces includes any unsupported EVM chains
-      const hasUnsupportedEIP155Chains = proposalNamespaces.eip155?.chains?.some(
-        (chain) => getChainIdFromEIP155String(chain) === null
-      )
-
-      const chains = getSupportedWalletConnectChains(proposalNamespaces.eip155?.chains)
-
-      // Reject pending session if namespaces includes non-EVM chains or unsupported EVM chains
-      if (!proposalNamespaces.eip155 || hasUnsupportedEIP155Chains) {
-        const chainLabels = ALL_SUPPORTED_CHAIN_IDS.map(
-          (chainId) => CHAIN_INFO[chainId].label
-        ).join(', ')
-        Alert.alert(
-          i18n.t('Connection Error'),
-          i18n.t('Uniswap Wallet currently only supports {{ chains }}', { chains: chainLabels })
+      try {
+        const { chains, proposalNamespaces } = parseProposalNamespaces(
+          requiredNamespaces,
+          optionalNamespaces
         )
+        emit(
+          addPendingSession({
+            wcSession: {
+              id: id.toString(),
+              proposalNamespaces,
+              chains,
+              version: '2',
+              dapp: {
+                name: dapp.name,
+                url: dapp.url,
+                icon: dapp.icons[0] ?? null,
+                version: '2',
+              },
+            },
+          })
+        )
+      } catch (e) {
+        // Reject pending session if required namespaces includes non-EVM chains or unsupported EVM chains
         wcWeb3Wallet.rejectSession({
           id: proposal.id,
           reason: getSdkError('UNSUPPORTED_CHAINS'),
         })
-        logger.info(
+
+        const chainLabels = ALL_SUPPORTED_CHAIN_IDS.map(
+          (chainId) => CHAIN_INFO[chainId].label
+        ).join(', ')
+
+        Alert.alert(
+          i18n.t('Connection Error'),
+          i18n.t('Uniswap Wallet currently only supports {{ chains }}. \n\n {{ error }}', {
+            chains: chainLabels,
+            error: e,
+          })
+        )
+
+        logger.debug(
           'WalletConnectV2Saga',
           'sessionProposalHandler',
-          `Rejected session proposal due to unsupported chains: ${proposalNamespaces.eip155?.chains}`
+          'Rejected session proposal due to invalid proposal namespaces: ',
+          e
         )
-        return
       }
-
-      emit(
-        addPendingSession({
-          wcSession: {
-            id: proposal.id.toString(),
-            proposalNamespaces,
-            chains,
-            version: '2',
-            dapp: {
-              name: dapp.name,
-              url: dapp.url,
-              icon: dapp.icons[0] ?? null,
-              version: '2',
-            },
-          },
-        })
-      )
     }
 
     const sessionRequestHandler = async (event: Web3WalletTypes.SessionRequest): Promise<void> => {
@@ -247,7 +264,57 @@ export function* watchWalletConnectV2Events(): Generator<
   }
 }
 
+export function* populateActiveSessions() {
+  // Fetch all active sessions and add to store
+  const sessions = wcWeb3Wallet.getActiveSessions()
+
+  const accounts = yield* appSelect(selectAccounts)
+
+  for (const session of Object.values(sessions)) {
+    // Get account address connected to the session from first namespace
+    const namespaces = Object.values(session.namespaces)
+    const eip155Account = namespaces[0]?.accounts[0]
+    if (!eip155Account) continue
+
+    const accountAddress = getAccountAddressFromEIP155String(eip155Account)
+
+    if (!accountAddress) continue
+
+    // Verify account address for session exists in wallet's accounts
+    const matchingAccount = Object.values(accounts).find(
+      (account) => account.address.toLowerCase() === accountAddress.toLowerCase()
+    )
+    if (!matchingAccount) continue
+
+    // Get all chains for session namespaces, supporting `eip155:CHAIN_ID` and `eip155` namespace formats
+    const chains: ChainId[] = []
+    Object.entries(session.namespaces).forEach(([key, namespace]) => {
+      const eip155Chains = key.includes(':') ? [key] : namespace.chains
+      chains.push(...getSupportedWalletConnectChains(eip155Chains))
+    })
+
+    yield* put(
+      addSession({
+        wcSession: {
+          id: session.topic,
+          dapp: {
+            name: session.peer.metadata.name,
+            url: session.peer.metadata.url,
+            icon: session.peer.metadata.icons[0] ?? null,
+            version: '2',
+          },
+          chains,
+          namespaces: session.namespaces,
+          version: '2',
+        },
+        account: accountAddress,
+      })
+    )
+  }
+}
+
 export function* walletConnectV2Saga(): Generator<CallEffect<void>, void, unknown> {
   yield* call(initializeWeb3Wallet)
+  yield* call(populateActiveSessions)
   yield* call(watchWalletConnectV2Events)
 }

@@ -1,15 +1,14 @@
 import { NetworkStatus } from '@apollo/client'
 import { FlashList } from '@shopify/flash-list'
-import { TFunction } from 'i18next'
-import React, { forwardRef, useCallback, useMemo } from 'react'
+import React, { createElement, forwardRef, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { NativeScrollEvent, NativeSyntheticEvent } from 'react-native'
 import { useAppSelector } from 'src/app/hooks'
+import { useAdaptiveFooterHeight } from 'src/components/home/hooks'
 import { NoTransactions } from 'src/components/icons/NoTransactions'
 import { Box, Flex } from 'src/components/layout'
 import { AnimatedFlashList } from 'src/components/layout/AnimatedFlashList'
 import { BaseCard } from 'src/components/layout/BaseCard'
-import { TabContentProps, TAB_STYLES } from 'src/components/layout/TabHelpers'
+import { TabProps, TAB_STYLES } from 'src/components/layout/TabHelpers'
 import { Loader } from 'src/components/loading'
 import { Text } from 'src/components/Text'
 import { EMPTY_ARRAY } from 'src/constants/misc'
@@ -21,21 +20,20 @@ import {
   parseDataResponseToTransactionDetails,
 } from 'src/features/transactions/history/utils'
 import { useMergeLocalAndRemoteTransactions } from 'src/features/transactions/hooks'
-import TransactionSummaryRouter from 'src/features/transactions/SummaryCards/TransactionSummaryRouter'
-import { TransactionDetails } from 'src/features/transactions/types'
-import { AccountType } from 'src/features/wallet/accounts/types'
+import ApproveSummaryItem from 'src/features/transactions/SummaryCards/SummaryItems/ApproveSummaryItem'
+import FiatPurchaseSummaryItem from 'src/features/transactions/SummaryCards/SummaryItems/FiatPurchaseSummaryItem'
+import NFTApproveSummaryItem from 'src/features/transactions/SummaryCards/SummaryItems/NFTApproveSummaryItem'
+import NFTMintSummaryItem from 'src/features/transactions/SummaryCards/SummaryItems/NFTMintSummaryItem'
+import NFTTradeSummaryItem from 'src/features/transactions/SummaryCards/SummaryItems/NFTTradeSummaryItem'
+import ReceiveSummaryItem from 'src/features/transactions/SummaryCards/SummaryItems/ReceiveSummaryItem'
+import SendSummaryItem from 'src/features/transactions/SummaryCards/SummaryItems/SendSummaryItem'
+import SwapSummaryItem from 'src/features/transactions/SummaryCards/SummaryItems/SwapSummaryItem'
+import UnknownSummaryItem from 'src/features/transactions/SummaryCards/SummaryItems/UnknownSummaryItem'
+import WCSummaryItem from 'src/features/transactions/SummaryCards/SummaryItems/WCSummaryItem'
+import WrapSummaryItem from 'src/features/transactions/SummaryCards/SummaryItems/WrapSummaryItem'
+import { TransactionDetails, TransactionType } from 'src/features/transactions/types'
 import { useActiveAccountWithThrow } from 'src/features/wallet/hooks'
 import { makeSelectAccountHideSpamTokens } from 'src/features/wallet/selectors'
-
-type ActivityTabProps = {
-  owner: string
-  containerProps?: TabContentProps
-  scrollHandler?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
-}
-
-const PENDING_TITLE = (t: TFunction): string => t('Pending')
-const TODAY_TITLE = (t: TFunction): string => t('Today')
-const MONTH_TITLE = (t: TFunction): string => t('This Month')
 
 type LoadingItem = {
   itemType: 'LOADING'
@@ -54,7 +52,6 @@ const isSectionHeader = (x: TransactionDetails | SectionHeader | LoadingItem): x
 const LOADING_ITEM = (index: number): LoadingItem => ({ itemType: 'LOADING', id: index })
 const LOADING_DATA = [LOADING_ITEM(1), LOADING_ITEM(2), LOADING_ITEM(3), LOADING_ITEM(4)]
 
-const FOOTER_HEIGHT = 20
 const ESTIMATED_ITEM_SIZE = 92
 
 const SectionTitle = ({ title }: { title: string }): JSX.Element => (
@@ -65,10 +62,11 @@ const SectionTitle = ({ title }: { title: string }): JSX.Element => (
   </Box>
 )
 
-const renderActivityItem = (
-  item: TransactionDetails | SectionHeader | LoadingItem,
-  readonly: boolean
-): JSX.Element => {
+const renderActivityItem = ({
+  item,
+}: {
+  item: TransactionDetails | SectionHeader | LoadingItem
+}): JSX.Element => {
   // if it's a loading item, render the loading placeholder
   if (isLoadingItem(item)) {
     return <Loader.Transaction />
@@ -77,14 +75,67 @@ const renderActivityItem = (
   if (isSectionHeader(item)) {
     return <SectionTitle title={item.title} />
   }
-  return <TransactionSummaryRouter readonly={readonly} transaction={item} />
+  // item is a transaction
+  let SummaryItem
+  switch (item.typeInfo.type) {
+    case TransactionType.Approve:
+      SummaryItem = ApproveSummaryItem
+      break
+    case TransactionType.NFTApprove:
+      SummaryItem = NFTApproveSummaryItem
+      break
+    case TransactionType.Swap:
+      SummaryItem = SwapSummaryItem
+      break
+    case TransactionType.NFTTrade:
+      SummaryItem = NFTTradeSummaryItem
+      break
+    case TransactionType.Send:
+      SummaryItem = SendSummaryItem
+      break
+    case TransactionType.Receive:
+      SummaryItem = ReceiveSummaryItem
+      break
+    case TransactionType.NFTMint:
+      SummaryItem = NFTMintSummaryItem
+      break
+    case TransactionType.Wrap:
+      SummaryItem = WrapSummaryItem
+      break
+    case TransactionType.WCConfirm:
+      SummaryItem = WCSummaryItem
+      break
+    case TransactionType.FiatPurchase:
+      SummaryItem = FiatPurchaseSummaryItem
+      break
+    default:
+      SummaryItem = UnknownSummaryItem
+  }
+  return createElement(
+    SummaryItem as React.FunctionComponent<{ transaction: TransactionDetails }>,
+    {
+      transaction: item,
+    }
+  )
 }
 
-export const ActivityTab = forwardRef<FlashList<unknown>, ActivityTabProps>(
-  ({ owner, containerProps, scrollHandler }, ref) => {
+function getItemType(item: TransactionDetails | SectionHeader | LoadingItem): string {
+  if (isLoadingItem(item)) {
+    return `loading`
+  } else if (isSectionHeader(item)) {
+    return `sectionHeader`
+  } else {
+    return `activity`
+  }
+}
+
+export const ActivityTab = forwardRef<FlashList<unknown>, TabProps>(
+  ({ owner, containerProps, scrollHandler, headerHeight }, ref) => {
     const { t } = useTranslation()
-    const { type } = useActiveAccountWithThrow()
-    const readonly = type === AccountType.Readonly
+
+    const { onContentSizeChange, footerHeight } = useAdaptiveFooterHeight({
+      headerHeight,
+    })
 
     const keyExtractor = useCallback(
       (info: TransactionDetails | SectionHeader | LoadingItem) => {
@@ -129,15 +180,12 @@ export const ActivityTab = forwardRef<FlashList<unknown>, ActivityTabProps>(
     const transactions = useMergeLocalAndRemoteTransactions(owner, formattedTransactions)
 
     // Format transactions for section list
-    const {
-      pending,
-      todayTransactionList,
-      monthTransactionList,
-      priorByMonthTransactionList,
-      combinedTransactionList,
-    } = useMemo(() => formatTransactionsByDate(transactions), [transactions])
+    const { pending, last24hTransactionList, priorByMonthTransactionList } = useMemo(
+      () => formatTransactionsByDate(transactions),
+      [transactions]
+    )
 
-    const hasTransactions = combinedTransactionList?.length > 0
+    const hasTransactions = transactions?.length > 0
 
     const hasData = !!data?.portfolios?.[0]?.assetActivities
     const isLoading = isNonPollingRequestInFlight(networkStatus)
@@ -147,7 +195,7 @@ export const ActivityTab = forwardRef<FlashList<unknown>, ActivityTabProps>(
     const showLoading =
       (!hasData && isLoading) || (Boolean(isError) && networkStatus === NetworkStatus.refetch)
 
-    const sectionData = useMemo(() => {
+    const sectionData: Array<TransactionDetails | SectionHeader | LoadingItem> = useMemo(() => {
       if (showLoading) {
         return LOADING_DATA
       }
@@ -156,15 +204,8 @@ export const ActivityTab = forwardRef<FlashList<unknown>, ActivityTabProps>(
         return EMPTY_ARRAY
       }
       return [
-        ...(pending.length > 0
-          ? [{ itemType: 'HEADER', title: PENDING_TITLE(t) }, ...pending]
-          : EMPTY_ARRAY),
-        ...(todayTransactionList.length > 0
-          ? [{ itemType: 'HEADER', title: TODAY_TITLE(t) }, ...todayTransactionList]
-          : EMPTY_ARRAY),
-        ...(monthTransactionList.length > 0
-          ? [{ itemType: 'HEADER', title: MONTH_TITLE(t) }, ...monthTransactionList]
-          : EMPTY_ARRAY),
+        ...pending,
+        ...last24hTransactionList,
         // for each month prior, detect length and render if includes transactions
         ...Object.keys(priorByMonthTransactionList).reduce(
           (accum: (TransactionDetails | SectionHeader | LoadingItem)[], month) => {
@@ -177,25 +218,7 @@ export const ActivityTab = forwardRef<FlashList<unknown>, ActivityTabProps>(
           []
         ),
       ]
-    }, [
-      hasTransactions,
-      monthTransactionList,
-      pending,
-      priorByMonthTransactionList,
-      t,
-      todayTransactionList,
-      showLoading,
-    ])
-
-    /**
-     * If tab container is smaller than the approximate screen height, we need to manually add
-     * padding so scroll works as intended since minHeight is not supported by FlashList in
-     * `contentContainerStyle`. Padding is proportional to the number of rows the data items take up.
-     */
-    const footerPadding =
-      transactions.length < 6
-        ? (ESTIMATED_ITEM_SIZE * (6 - transactions.length)) / 2
-        : FOOTER_HEIGHT
+    }, [showLoading, hasTransactions, pending, last24hTransactionList, priorByMonthTransactionList])
 
     const onRetry = useCallback(() => {
       refetch({
@@ -215,34 +238,52 @@ export const ActivityTab = forwardRef<FlashList<unknown>, ActivityTabProps>(
       )
     }
 
-    return transactions.length === 0 && !isLoading ? (
-      <Flex centered grow flex={1} style={containerProps?.emptyContainerStyle}>
-        <BaseCard.EmptyState
-          description={t('When this wallet makes transactions, they’ll appear here.')}
-          icon={<NoTransactions />}
-          title={t('No activity yet')}
-        />
-      </Flex>
-    ) : (
+    return (
       <Flex grow style={TAB_STYLES.tabListContainer}>
         <AnimatedFlashList
           ref={ref}
-          ListFooterComponent={
-            // If not loading, we add a footer  to cover any possible space that is covered up by bottom tab bar
-            networkStatus === NetworkStatus.fetchMore ? (
-              <Box p="spacing12">
-                <Loader.Transaction repeat={4} />
-              </Box>
+          ListEmptyComponent={
+            // error view
+            !hasData && isError ? (
+              <Flex grow style={containerProps?.emptyContainerStyle}>
+                <BaseCard.ErrorState
+                  retryButtonLabel={t('Retry')}
+                  title={t('Couldn’t load activity')}
+                  onRetry={onRetry}
+                />
+              </Flex>
             ) : (
-              <Box height={footerPadding} />
+              // empty view
+              (!isLoading && (
+                <Box flexGrow={1} style={containerProps?.emptyContainerStyle}>
+                  <BaseCard.EmptyState
+                    description={t('When this wallet makes transactions, they’ll appear here.')}
+                    icon={<NoTransactions />}
+                    title={t('No activity yet')}
+                  />
+                </Box>
+              )) ||
+              null
             )
+            // initial loading is implemented inside sectionData
+          }
+          // we add a footer to cover any possible space, so user can scroll the top menu all the way to the top
+          ListFooterComponent={
+            <>
+              {isLoading && <Loader.Transaction repeat={4} />}
+              <Box height={footerHeight} />
+            </>
           }
           data={sectionData}
           estimatedItemSize={ESTIMATED_ITEM_SIZE}
+          // To achieve better performance, specify the type based on the item
+          // https://shopify.github.io/flash-list/docs/fundamentals/performant-components#getitemtype
+          getItemType={getItemType}
           keyExtractor={keyExtractor}
           numColumns={1}
-          renderItem={({ item }): JSX.Element => renderActivityItem(item, readonly)}
+          renderItem={renderActivityItem}
           showsVerticalScrollIndicator={false}
+          onContentSizeChange={onContentSizeChange}
           onScroll={scrollHandler}
           {...containerProps}
         />

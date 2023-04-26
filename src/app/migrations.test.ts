@@ -3,7 +3,7 @@
 import { BigNumber } from 'ethers'
 import mockdate from 'mockdate'
 import createMigrate from 'src/app/createMigrate'
-import { migrations } from 'src/app/migrations'
+import { migrations, OLD_DEMO_ACCOUNT_ADDRESS } from 'src/app/migrations'
 import {
   getSchema,
   initialSchema,
@@ -37,7 +37,9 @@ import {
   v36Schema,
   v37Schema,
   v38Schema,
+  v39Schema,
   v3Schema,
+  v40Schema,
   v4Schema,
   v5Schema,
   v6Schema,
@@ -69,7 +71,6 @@ import {
   TransactionType,
 } from 'src/features/transactions/types'
 import { Account, AccountType, SignerMnemonicAccount } from 'src/features/wallet/accounts/types'
-import { DEMO_ACCOUNT_ADDRESS } from 'src/features/wallet/accounts/useTestAccount'
 import { initialWalletState } from 'src/features/wallet/walletSlice'
 import { initialWalletConnectState } from 'src/features/walletConnect/walletConnectSlice'
 import { account, fiatOnRampTxDetailsFailed, txDetailsConfirmed } from 'src/test/fixtures'
@@ -451,7 +452,7 @@ describe('Redux state migrations', () => {
   })
 
   it('migrates from v9 to v10', () => {
-    const TEST_ADDRESSES = ['0xTest', DEMO_ACCOUNT_ADDRESS, '0xTest2', '0xTest3']
+    const TEST_ADDRESSES = ['0xTest', OLD_DEMO_ACCOUNT_ADDRESS, '0xTest2', '0xTest3']
     const TEST_IMPORT_TIME_MS = 12345678912345
 
     const accounts = TEST_ADDRESSES.reduce((acc, address) => {
@@ -473,11 +474,11 @@ describe('Redux state migrations', () => {
     }
 
     expect(Object.values(v9SchemaStub.wallet.accounts)).toHaveLength(4)
-    expect(Object.keys(v9SchemaStub.wallet.accounts)).toContain(DEMO_ACCOUNT_ADDRESS)
+    expect(Object.keys(v9SchemaStub.wallet.accounts)).toContain(OLD_DEMO_ACCOUNT_ADDRESS)
 
     const migratedSchema = migrations[10](v9SchemaStub)
     expect(Object.values(migratedSchema.wallet.accounts)).toHaveLength(3)
-    expect(Object.keys(migratedSchema.wallet.accounts)).not.toContain(DEMO_ACCOUNT_ADDRESS)
+    expect(Object.keys(migratedSchema.wallet.accounts)).not.toContain(OLD_DEMO_ACCOUNT_ADDRESS)
   })
 
   it('migrates from v10 to v11', () => {
@@ -1067,5 +1068,19 @@ describe('Redux state migrations', () => {
     expect(v38Stub.experiments).toBeDefined()
     const v39 = migrations[39](v38Stub)
     expect(v39.experiments).toBeUndefined()
+  })
+
+  it('migrates from v39 to 40', () => {
+    const v39Stub = { ...v39Schema }
+    const v40 = migrations[40](v39Stub)
+    // walletConnect slice still exists but should not be persisted
+    expect(v40.walletConnect).toBeUndefined()
+  })
+
+  it('migrates from v40 to 41', () => {
+    const v40Stub = { ...v40Schema }
+    const v41 = migrations[41](v40Stub)
+    // walletConnect slice still exists but should not be persisted
+    expect(v41.telemetry.lastBalancesReportValue).toBe(0)
   })
 })

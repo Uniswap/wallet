@@ -25,6 +25,7 @@ export const initialSchema = {
   saga: {},
   telemetry: {
     lastBalancesReport: 0,
+    lastBalancesReportValue: 0,
   },
   tokenLists: {
     lastInitializedDefaultListOfLists: [],
@@ -259,6 +260,19 @@ delete v38SchemaIntermediate.experiments
 
 export const v39Schema = { ...v38SchemaIntermediate }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const { walletConnect, ...v39SchemaIntermediate } = { ...v39Schema }
+
+export const v40Schema = { ...v39SchemaIntermediate }
+
+export const v41Schema = {
+  ...v40Schema,
+  telemetry: {
+    ...v40Schema.telemetry,
+    lastBalancesReportValue: 0,
+  },
+}
+
 // TODO: [MOB-3864] use function with typed output when API reducers are removed from rootReducer
 // export const getSchema = (): RootState => v0Schema
-export const getSchema = (): typeof v39Schema => v39Schema
+export const getSchema = (): typeof v41Schema => v41Schema

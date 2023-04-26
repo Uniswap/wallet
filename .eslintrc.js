@@ -173,7 +173,7 @@ module.exports = {
     // ignore return type in saga files given return types are unwieldy and tied
     // to implementation details.
     {
-      files: ['*saga*.ts', '*Saga.ts'],
+      files: ['*saga*.ts', '*Saga.ts', 'handleDeepLink.ts'],
       rules: {
         '@typescript-eslint/explicit-function-return-type': 'off',
       },
@@ -219,10 +219,14 @@ module.exports = {
               'you’re',
               'you’ve',
               'unhide',
-              'unhidden'
+              'unhidden',
+              'cancelling',
+              'cancelled'
             ],
           },
+
         ],
+        'max-lines': ['off'], // cap file length
       },
     },
   ],
