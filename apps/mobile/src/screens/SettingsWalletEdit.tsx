@@ -13,11 +13,11 @@ import { BackHeader } from 'src/components/layout/BackHeader'
 import { Screen } from 'src/components/layout/Screen'
 import { Text } from 'src/components/Text'
 import { NICKNAME_MAX_LENGTH } from 'src/constants/accounts'
-import { ChainId } from 'src/constants/chains'
 import { useENS } from 'src/features/ens/useENS'
 import { EditAccountAction, editAccountActions } from 'src/features/wallet/editAccountSaga'
 import { useAccounts } from 'src/features/wallet/hooks'
-import { shortenAddress } from 'src/utils/addresses'
+import { ChainId } from 'wallet/src/constants/chains'
+import { shortenAddress } from 'wallet/src/utils/addresses'
 import { Screens } from './Screens'
 
 type Props = NativeStackScreenProps<SettingsStackParamList, Screens.SettingsWalletEdit>

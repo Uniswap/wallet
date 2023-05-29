@@ -5,7 +5,6 @@ import React, { useEffect, useMemo } from 'react'
 import { View } from 'react-native'
 import { batch } from 'react-redux'
 import { useAppDispatch, useAppSelector } from 'src/app/hooks'
-import { PollingInterval } from 'src/constants/misc'
 import { useRefetchQueries } from 'src/data/hooks'
 import {
   TransactionHistoryUpdaterQueryResult,
@@ -28,7 +27,8 @@ import {
   makeSelectAccountHideSpamTokens,
   selectActiveAccountAddress,
 } from 'src/features/wallet/selectors'
-import { ONE_SECOND_MS } from 'src/utils/time'
+import { PollingInterval } from 'wallet/src/constants/misc'
+import { ONE_SECOND_MS } from 'wallet/src/utils/time'
 
 /**
  * For all imported accounts, checks for new transactions and updates
@@ -127,10 +127,6 @@ function AddressTransactionHistoryUpdater({
       })
 
       if (newTransactionsFound) {
-        // NOTE: every wallet may call this on new transaction.
-        // It may be better to batch this action, or target specific queries.
-        refetchQueries()
-
         // Fetch full recent txn history and dispatch receive notification if needed.
         if (address === activeAccountAddress) {
           await fetchAndDispatchReceiveNotification(
@@ -139,6 +135,15 @@ function AddressTransactionHistoryUpdater({
             hideSpamTokens
           )
         }
+
+        // Delay 1s to ensure NXYZ balances sync after we detect this new txn. (As balances pulled
+        // from different data source)
+        setTimeout(
+          // NOTE: every wallet may call this on new transaction.
+          // It may be better to batch this action, or target specific queries.
+          refetchQueries,
+          ONE_SECOND_MS
+        )
       }
     })
   }, [

@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { createApi, fetchBaseQuery, retry, skipToken } from '@reduxjs/toolkit/query/react'
 import { walletContextValue } from 'src/app/walletContext'
-import { ChainId } from 'src/constants/chains'
-import { areAddressesEqual } from 'src/utils/addresses'
-import { ONE_MINUTE_MS, ONE_SECOND_MS } from 'src/utils/time'
+import { ChainId } from 'wallet/src/constants/chains'
+import { areAddressesEqual } from 'wallet/src/utils/addresses'
+import { ONE_MINUTE_MS, ONE_SECOND_MS } from 'wallet/src/utils/time'
 export type EnslookupParams = {
   nameOrAddress: string
   chainId: ChainId
@@ -39,7 +39,7 @@ export const ensApi = createApi({
           const checkedName = areAddressesEqual(fwdAddr, address) ? name : null
           return { data: checkedName }
         } catch (e: unknown) {
-          return { error: { status: 500, data: e } }
+          return { error: { status: 500, data: JSON.stringify(e) } }
         }
       },
     }),
@@ -54,7 +54,7 @@ export const ensApi = createApi({
 
           return { data: address }
         } catch (e: unknown) {
-          return { error: { status: 500, data: e } }
+          return { error: { status: 500, data: JSON.stringify(e) } }
         }
       },
     }),
@@ -72,7 +72,7 @@ export const ensApi = createApi({
           const avatarURL = checkedName ? await provider.getAvatar(checkedName) : null
           return { data: avatarURL }
         } catch (e: unknown) {
-          return { error: { status: 500, data: e } }
+          return { error: { status: 500, data: JSON.stringify(e) } }
         }
       },
     }),

@@ -3,10 +3,10 @@ import { Currency, CurrencyAmount, NativeCurrency as NativeCurrencyClass } from 
 import { useMemo } from 'react'
 import ERC20_ABI from 'src/abis/erc20.json'
 import { walletContextValue } from 'src/app/walletContext'
-import { ChainId } from 'src/constants/chains'
-import { NativeCurrency } from 'src/features/tokens/NativeCurrency'
-import { getPollingIntervalByBlocktime } from 'src/utils/chainId'
-import { currencyAddress as getCurrencyAddress } from 'src/utils/currencyId'
+import { ChainId } from 'wallet/src/constants/chains'
+import { NativeCurrency } from 'wallet/src/features/tokens/NativeCurrency'
+import { getPollingIntervalByBlocktime } from 'wallet/src/utils/chainId'
+import { currencyAddress as getCurrencyAddress } from 'wallet/src/utils/currencyId'
 
 const BALANCES_REDUCER_NAME = 'onchain-balances'
 

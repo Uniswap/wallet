@@ -9,16 +9,11 @@ import { BigNumber, providers } from 'ethers'
 import ERC20_ABI from 'src/abis/erc20.json'
 import { Erc20, Weth } from 'src/abis/types'
 import WETH_ABI from 'src/abis/weth.json'
-import { config } from 'src/config'
-import { NATIVE_ADDRESS, SWAP_ROUTER_ADDRESSES } from 'src/constants/addresses'
-import { ChainId } from 'src/constants/chains'
-import { DAI, DAI_ARBITRUM_ONE, UNI, WRAPPED_NATIVE_CURRENCY } from 'src/constants/tokens'
 import { SafetyLevel } from 'src/data/__generated__/types-and-hooks'
 import { AssetType } from 'src/entities/assets'
 import { ContractManager } from 'src/features/contracts/ContractManager'
 import { CurrencyInfo } from 'src/features/dataApi/types'
 import { AppNotificationType } from 'src/features/notifications/types'
-import { NativeCurrency } from 'src/features/tokens/NativeCurrency'
 import { finalizeTransaction } from 'src/features/transactions/slice'
 import {
   ApproveTransactionInfo,
@@ -31,7 +26,12 @@ import { Account, AccountType, BackupType } from 'src/features/wallet/accounts/t
 import { SignerManager } from 'src/features/wallet/signing/SignerManager'
 import { initialWalletState } from 'src/features/wallet/walletSlice'
 import { WalletConnectEvent } from 'src/features/walletConnect/saga'
-import { currencyId } from 'src/utils/currencyId'
+import { config } from 'wallet/src/config'
+import { NATIVE_ADDRESS, SWAP_ROUTER_ADDRESSES } from 'wallet/src/constants/addresses'
+import { ChainId } from 'wallet/src/constants/chains'
+import { DAI, DAI_ARBITRUM_ONE, UNI, WRAPPED_NATIVE_CURRENCY } from 'wallet/src/constants/tokens'
+import { NativeCurrency } from 'wallet/src/features/tokens/NativeCurrency'
+import { currencyId } from 'wallet/src/utils/currencyId'
 
 export const MainnetEth = NativeCurrency.onChain(ChainId.Mainnet)
 export const PolygonMatic = NativeCurrency.onChain(ChainId.Polygon)
@@ -216,7 +216,7 @@ export const fiatOnRampTxDetailsFailed: TransactionDetails & {
 
 export const finalizedTxAction: ReturnType<typeof finalizeTransaction> = {
   payload: { ...txDetailsConfirmed, status: TransactionStatus.Success },
-  type: '',
+  type: 'transactions/finalizeTransaction',
 }
 
 export const swapNotification = {

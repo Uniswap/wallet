@@ -20,8 +20,6 @@ import {
   formatSearchResults,
   tokenOptionDifference,
 } from 'src/components/TokenSelector/utils'
-import { ChainId } from 'src/constants/chains'
-import { EMPTY_ARRAY } from 'src/constants/misc'
 import { sortPortfolioBalances, usePortfolioBalances } from 'src/features/dataApi/balances'
 import { useSearchTokens } from 'src/features/dataApi/searchTokens'
 import { usePopularTokens } from 'src/features/dataApi/topTokens'
@@ -31,8 +29,10 @@ import {
   makeSelectAccountHideSmallBalances,
   makeSelectAccountHideSpamTokens,
 } from 'src/features/wallet/selectors'
-import { CurrencyId } from 'src/utils/currencyId'
 import { useDebounce } from 'src/utils/timing'
+import { ChainId } from 'wallet/src/constants/chains'
+import { EMPTY_ARRAY } from 'wallet/src/constants/misc'
+import { CurrencyId } from 'wallet/src/utils/currencyId'
 
 interface TokenSearchResultListProps {
   onChangeChainFilter: (newChainFilter: ChainId | null) => void

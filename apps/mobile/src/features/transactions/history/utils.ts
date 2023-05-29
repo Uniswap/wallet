@@ -1,7 +1,6 @@
 import dayjs from 'dayjs'
 import { BigNumber } from 'ethers'
 import { parseUnits } from 'ethers/lib/utils'
-import { ChainId } from 'src/constants/chains'
 import {
   Amount,
   Chain,
@@ -9,15 +8,16 @@ import {
   TokenStandard,
   TransactionListQuery,
 } from 'src/data/__generated__/types-and-hooks'
-import { NativeCurrency } from 'src/features/tokens/NativeCurrency'
 import extractTransactionDetails from 'src/features/transactions/history/conversion/extractTransactionDetails'
 import {
   TransactionDetails,
   TransactionStatus,
   TransactionType,
 } from 'src/features/transactions/types'
-import { fromGraphQLChain } from 'src/utils/chainId'
-import { getNativeCurrencyAddressForChain } from 'src/utils/currencyId'
+import { ChainId } from 'wallet/src/constants/chains'
+import { NativeCurrency } from 'wallet/src/features/tokens/NativeCurrency'
+import { fromGraphQLChain } from 'wallet/src/utils/chainId'
+import { getNativeCurrencyAddressForChain } from 'wallet/src/utils/currencyId'
 
 export interface AllFormattedTransactions {
   last24hTransactionList: TransactionDetails[]

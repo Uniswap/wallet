@@ -10,7 +10,6 @@ import { BottomSheetModal } from 'src/components/modals/BottomSheetModal'
 import { NetworkPill } from 'src/components/Network/NetworkPill'
 import { Text } from 'src/components/Text'
 import { DappHeaderIcon } from 'src/components/WalletConnect/DappHeaderIcon'
-import { CHAIN_INFO } from 'src/constants/chains'
 import { ElementName, ModalName } from 'src/features/telemetry/constants'
 import { selectDidOpenFromDeepLink } from 'src/features/walletConnect/selectors'
 import {
@@ -19,7 +18,8 @@ import {
   returnToPreviousApp,
 } from 'src/features/walletConnect/WalletConnect'
 import { SwitchChainRequest } from 'src/features/walletConnect/walletConnectSlice'
-import { toSupportedChainId } from 'src/utils/chainId'
+import { CHAIN_INFO } from 'wallet/src/constants/chains'
+import { toSupportedChainId } from 'wallet/src/utils/chainId'
 
 interface Props {
   onClose: () => void
@@ -70,6 +70,8 @@ export function WalletConnectSwitchChainModal({ onClose, request }: Props): JSX.
     }
   }
 
+  const dappName = dapp.name
+
   return (
     <BottomSheetModal name={ModalName.WCSwitchChainRequest} onClose={handleClose}>
       <Flex gap="spacing24" paddingBottom="spacing48" paddingHorizontal="spacing16" pt="spacing36">
@@ -77,8 +79,8 @@ export function WalletConnectSwitchChainModal({ onClose, request }: Props): JSX.
           <DappHeaderIcon showChain dapp={{ ...dapp, chain_id: newChainId }} />
           <Text textAlign="center" variant="headlineSmall">
             <Trans t={t}>
-              <Text fontWeight="bold">{{ dapp: dapp.name }}</Text> wants to connect to the{' '}
-              {newChainName} network
+              <Text fontWeight="bold">{dappName}</Text> wants to connect to the {newChainName}{' '}
+              network
             </Trans>
           </Text>
           <LinkButton

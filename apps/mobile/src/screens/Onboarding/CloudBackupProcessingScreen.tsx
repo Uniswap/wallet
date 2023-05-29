@@ -14,8 +14,8 @@ import { EditAccountAction, editAccountActions } from 'src/features/wallet/editA
 import { useActiveAccount } from 'src/features/wallet/hooks'
 import { OnboardingScreens } from 'src/screens/Screens'
 import { logger } from 'src/utils/logger'
-import { ONE_SECOND_MS } from 'src/utils/time'
 import { promiseMinDelay } from 'src/utils/timing'
+import { ONE_SECOND_MS } from 'wallet/src/utils/time'
 
 type Props = NativeStackScreenProps<
   OnboardingStackParamList,
@@ -37,7 +37,8 @@ export function CloudBackupProcessingScreen({
   const [processing, doneProcessing] = useReducer(() => false, true)
 
   const handleBackupError = useCallback(
-    (error) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (error: any) => {
       logger.error('CloudBackupProcessingScreen', 'handleBackupError', error)
       Alert.alert(
         t('iCloud error'),

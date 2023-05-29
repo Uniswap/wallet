@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { TokensOrderBy } from 'src/features/explore/types'
 import { Account } from 'src/features/wallet/accounts/types'
 import { NFTViewType } from 'src/features/wallet/types'
-import { areAddressesEqual, getValidAddress } from 'src/utils/addresses'
+import { areAddressesEqual, getValidAddress } from 'wallet/src/utils/addresses'
 
 export const HIDE_SMALL_USD_BALANCES_THRESHOLD = 1
 
@@ -62,7 +62,7 @@ const slice = createSlice({
       const addresses = action.payload
       addresses.forEach((address) => {
         const id = getValidAddress(address, true)
-        if (!id) throw new Error('Cannot add an account with an invalid address')
+        if (!id) throw new Error('Cannot remove an account with an invalid address')
         if (!state.accounts[id]) throw new Error(`Cannot remove missing account ${id}`)
         delete state.accounts[id]
       })

@@ -15,8 +15,8 @@ import {
   selectSignerMnemonicAccountExists,
   selectViewOnlyAccounts,
 } from 'src/features/wallet/selectors'
-import { getValidAddress, sanitizeAddressText, shortenAddress } from 'src/utils/addresses'
-import { trimToLength } from 'src/utils/string'
+import { getValidAddress, sanitizeAddressText, shortenAddress } from 'wallet/src/utils/addresses'
+import { trimToLength } from 'wallet/src/utils/string'
 
 const ENS_TRIM_LENGTH = 8
 

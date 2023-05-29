@@ -2,7 +2,6 @@ import {
   SearchResultOrHeader,
   SEARCH_RESULT_HEADER_KEY,
 } from 'src/components/explore/search/SearchResultsSection'
-import { EMPTY_ARRAY } from 'src/constants/misc'
 import { Chain, ExploreSearchQuery } from 'src/data/__generated__/types-and-hooks'
 import {
   NFTCollectionSearchResult,
@@ -10,7 +9,8 @@ import {
   SearchResultType,
   TokenSearchResult,
 } from 'src/features/explore/searchHistorySlice'
-import { fromGraphQLChain } from 'src/utils/chainId'
+import { EMPTY_ARRAY } from 'wallet/src/constants/misc'
+import { fromGraphQLChain } from 'wallet/src/utils/chainId'
 
 const MAX_TOKEN_RESULTS_COUNT = 4
 
@@ -30,19 +30,20 @@ export function formatTokenSearchResults(
     (tokensMap, token) => {
       if (!token) return tokensMap
 
-      const { chain, address, symbol, name, project, market } = token
+      const { chain, address, symbol, project, market } = token
       const chainId = fromGraphQLChain(chain)
 
       if (!chainId || !project) return tokensMap
 
+      const { name, safetyLevel, logoUrl } = project
       const tokenResult = {
         type: SearchResultType.Token,
         chainId,
         address,
         name,
         symbol: symbol ?? '',
-        safetyLevel: project.safetyLevel,
-        logoUrl: project.logoUrl,
+        safetyLevel,
+        logoUrl,
         volume1Y: market?.volume?.value ?? 0,
       } as TokenSearchResult & { volume1Y: number }
 

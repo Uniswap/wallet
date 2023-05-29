@@ -3,13 +3,13 @@
 exports[`BackupScreen renders backup options when none are completed 1`] = `
 <View
   style={
-    Array [
-      Object {
+    [
+      {
         "backgroundColor": "#FFFFFF",
         "display": "flex",
         "flex": 1,
       },
-      Object {
+      {
         "paddingTop": 200,
       },
     ]
@@ -18,17 +18,17 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
   <View
     onLayout={[Function]}
     style={
-      Array [
-        Array [
-          Object {
+      [
+        [
+          {
             "flex": 1,
             "justifyContent": "flex-end",
           },
-          Object {
+          {
             "marginBottom": undefined,
           },
         ],
-        Object {
+        {
           "paddingBottom": 0,
         },
       ]
@@ -36,8 +36,8 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
   >
     <View
       style={
-        Array [
-          Object {
+        [
+          {
             "alignItems": "stretch",
             "display": "flex",
             "flexDirection": "column",
@@ -51,8 +51,8 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
     >
       <View
         style={
-          Array [
-            Object {
+          [
+            {
               "alignItems": "center",
               "display": "flex",
               "flexDirection": "column",
@@ -66,8 +66,8 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
           allowFontScaling={false}
           maxFontSizeMultiplier={1.2}
           style={
-            Array [
-              Object {
+            [
+              {
                 "color": "#0E1524",
                 "display": "flex",
                 "fontFamily": "Inter-Medium",
@@ -83,8 +83,8 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
         </Text>
         <View
           style={
-            Array [
-              Object {
+            [
+              {
                 "display": "flex",
                 "flexGrow": 0,
                 "flexShrink": 0,
@@ -97,8 +97,8 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
           allowFontScaling={true}
           maxFontSizeMultiplier={1.4}
           style={
-            Array [
-              Object {
+            [
+              {
                 "color": "#5D6785",
                 "display": "flex",
                 "fontFamily": "Inter-Regular",
@@ -114,8 +114,8 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
       </View>
       <View
         style={
-          Array [
-            Object {
+          [
+            {
               "display": "flex",
               "flexGrow": 0,
               "flexShrink": 0,
@@ -126,8 +126,8 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
       />
       <View
         style={
-          Array [
-            Object {
+          [
+            {
               "alignItems": "stretch",
               "display": "flex",
               "flex": 1,
@@ -140,8 +140,8 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
       >
         <View
           style={
-            Array [
-              Object {
+            [
+              {
                 "alignItems": "stretch",
                 "display": "flex",
                 "flexDirection": "column",
@@ -153,8 +153,8 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
         >
           <View
             style={
-              Array [
-                Object {
+              [
+                {
                   "alignItems": "stretch",
                   "display": "flex",
                   "flexDirection": "column",
@@ -165,8 +165,8 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
           >
             <View
               style={
-                Array [
-                  Object {
+                [
+                  {
                     "alignItems": "center",
                     "display": "flex",
                     "flexDirection": "row",
@@ -178,8 +178,8 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
             >
               <View
                 style={
-                  Array [
-                    Object {
+                  [
+                    {
                       "alignItems": "center",
                       "borderColor": "#FC72FF",
                       "borderRadius": 12,
@@ -204,8 +204,8 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
               </View>
               <View
                 style={
-                  Array [
-                    Object {
+                  [
+                    {
                       "display": "flex",
                       "flexGrow": 0,
                       "flexShrink": 0,
@@ -219,8 +219,8 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
                 allowFontScaling={true}
                 maxFontSizeMultiplier={1.4}
                 style={
-                  Array [
-                    Object {
+                  [
+                    {
                       "color": "#0E1524",
                       "display": "flex",
                       "fontFamily": "Inter-Medium",
@@ -234,8 +234,8 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
               </Text>
               <View
                 style={
-                  Array [
-                    Object {
+                  [
+                    {
                       "display": "flex",
                       "flexGrow": 0,
                       "flexShrink": 0,
@@ -247,8 +247,8 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
               />
               <View
                 style={
-                  Array [
-                    Object {
+                  [
+                    {
                       "alignItems": "flex-end",
                       "display": "flex",
                       "flexDirection": "column",
@@ -263,7 +263,7 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
                   collapsable={false}
                   focusable={true}
                   hitSlop={
-                    Object {
+                    {
                       "bottom": 5,
                       "left": 5,
                       "right": 5,
@@ -278,7 +278,7 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
                   onResponderTerminationRequest={[Function]}
                   onStartShouldSetResponder={[Function]}
                   style={
-                    Object {
+                    {
                       "backgroundColor": "#FC72FF1f",
                       "borderRadius": 999999,
                       "display": "flex",
@@ -290,8 +290,8 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
                 >
                   <View
                     style={
-                      Array [
-                        Object {
+                      [
+                        {
                           "alignItems": "stretch",
                           "display": "flex",
                           "flexDirection": "row",
@@ -304,8 +304,8 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
                       allowFontScaling={true}
                       maxFontSizeMultiplier={1.2}
                       style={
-                        Array [
-                          Object {
+                        [
+                          {
                             "color": "#FC72FF",
                             "display": "flex",
                             "fontFamily": "Inter-SemiBold",
@@ -324,8 +324,8 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
             </View>
             <View
               style={
-                Array [
-                  Object {
+                [
+                  {
                     "borderBottomColor": "#D2D9EE",
                     "borderBottomWidth": 0.5,
                     "display": "flex",
@@ -338,8 +338,8 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
             />
             <View
               style={
-                Array [
-                  Object {
+                [
+                  {
                     "alignItems": "center",
                     "display": "flex",
                     "flexDirection": "row",
@@ -351,8 +351,8 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
             >
               <View
                 style={
-                  Array [
-                    Object {
+                  [
+                    {
                       "alignItems": "center",
                       "borderColor": "#FC72FF",
                       "borderRadius": 12,
@@ -377,8 +377,8 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
               </View>
               <View
                 style={
-                  Array [
-                    Object {
+                  [
+                    {
                       "display": "flex",
                       "flexGrow": 0,
                       "flexShrink": 0,
@@ -392,8 +392,8 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
                 allowFontScaling={true}
                 maxFontSizeMultiplier={1.4}
                 style={
-                  Array [
-                    Object {
+                  [
+                    {
                       "color": "#0E1524",
                       "display": "flex",
                       "fontFamily": "Inter-Medium",
@@ -407,8 +407,8 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
               </Text>
               <View
                 style={
-                  Array [
-                    Object {
+                  [
+                    {
                       "display": "flex",
                       "flexGrow": 0,
                       "flexShrink": 0,
@@ -420,8 +420,8 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
               />
               <View
                 style={
-                  Array [
-                    Object {
+                  [
+                    {
                       "alignItems": "flex-end",
                       "display": "flex",
                       "flexDirection": "column",
@@ -436,7 +436,7 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
                   collapsable={false}
                   focusable={true}
                   hitSlop={
-                    Object {
+                    {
                       "bottom": 5,
                       "left": 5,
                       "right": 5,
@@ -451,7 +451,7 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
                   onResponderTerminationRequest={[Function]}
                   onStartShouldSetResponder={[Function]}
                   style={
-                    Object {
+                    {
                       "backgroundColor": "#FC72FF1f",
                       "borderRadius": 999999,
                       "display": "flex",
@@ -463,8 +463,8 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
                 >
                   <View
                     style={
-                      Array [
-                        Object {
+                      [
+                        {
                           "alignItems": "stretch",
                           "display": "flex",
                           "flexDirection": "row",
@@ -477,8 +477,8 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
                       allowFontScaling={true}
                       maxFontSizeMultiplier={1.2}
                       style={
-                        Array [
-                          Object {
+                        [
+                          {
                             "color": "#FC72FF",
                             "display": "flex",
                             "fontFamily": "Inter-SemiBold",
@@ -498,8 +498,8 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
           </View>
           <View
             style={
-              Array [
-                Object {
+              [
+                {
                   "display": "flex",
                   "flexGrow": 0,
                   "flexShrink": 0,
@@ -513,7 +513,7 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
             collapsable={false}
             focusable={true}
             hitSlop={
-              Object {
+              {
                 "bottom": 5,
                 "left": 5,
                 "right": 5,
@@ -528,7 +528,7 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
             onResponderTerminationRequest={[Function]}
             onStartShouldSetResponder={[Function]}
             style={
-              Object {
+              {
                 "alignSelf": "flex-start",
                 "display": "flex",
                 "opacity": 1,
@@ -538,8 +538,8 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
           >
             <View
               style={
-                Array [
-                  Object {
+                [
+                  {
                     "alignItems": "center",
                     "display": "flex",
                     "flexDirection": "row",
@@ -550,8 +550,8 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
             >
               <View
                 style={
-                  Array [
-                    Object {
+                  [
+                    {
                       "display": "flex",
                       "paddingHorizontal": 4,
                     },
@@ -567,8 +567,8 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
               </View>
               <View
                 style={
-                  Array [
-                    Object {
+                  [
+                    {
                       "display": "flex",
                       "flexGrow": 0,
                       "flexShrink": 0,
@@ -582,8 +582,8 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
                 allowFontScaling={true}
                 maxFontSizeMultiplier={1.4}
                 style={
-                  Array [
-                    Object {
+                  [
+                    {
                       "color": "#0E1524",
                       "display": "flex",
                       "fontFamily": "Inter-Medium",
@@ -599,8 +599,8 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
           </View>
           <View
             style={
-              Array [
-                Object {
+              [
+                {
                   "display": "flex",
                   "flexGrow": 0,
                   "flexShrink": 0,
@@ -611,8 +611,8 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
           />
           <View
             style={
-              Array [
-                Object {
+              [
+                {
                   "alignItems": "stretch",
                   "display": "flex",
                   "flexDirection": "column",
@@ -624,7 +624,7 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
           >
             <View
               accessibilityState={
-                Object {
+                {
                   "disabled": true,
                 }
               }
@@ -632,7 +632,7 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
               collapsable={false}
               focusable={true}
               hitSlop={
-                Object {
+                {
                   "bottom": 5,
                   "left": 5,
                   "right": 5,
@@ -647,7 +647,7 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
               onResponderTerminationRequest={[Function]}
               onStartShouldSetResponder={[Function]}
               style={
-                Object {
+                {
                   "alignItems": "center",
                   "backgroundColor": "#FC72FF",
                   "borderColor": "transparent",
@@ -661,97 +661,12 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
             >
               <View
                 style={
-                  Array [
-                    Object {
+                  [
+                    {
                       "alignItems": "stretch",
-                      "borderRadius": 16,
-                      "display": "flex",
-                      "flexDirection": "column",
-                      "height": "100%",
-                      "justifyContent": "flex-start",
-                      "overflow": "hidden",
-                      "position": "absolute",
-                      "width": "100%",
-                    },
-                  ]
-                }
-              >
-                <RNSVGSvgView
-                  bbHeight="100%"
-                  bbWidth="100%"
-                  focusable={false}
-                  height="100%"
-                  style={
-                    Array [
-                      Object {
-                        "backgroundColor": "transparent",
-                        "borderWidth": 0,
-                      },
-                      Object {
-                        "flex": 0,
-                        "height": "100%",
-                        "width": "100%",
-                      },
-                    ]
-                  }
-                  width="100%"
-                >
-                  <RNSVGGroup
-                    fill={
-                      Object {
-                        "payload": 4278190080,
-                        "type": 0,
-                      }
-                    }
-                  >
-                    <RNSVGDefs>
-                      <RNSVGLinearGradient
-                        gradient={
-                          Array [
-                            0,
-                            -958215,
-                            1,
-                            -2011415,
-                          ]
-                        }
-                        gradientTransform={null}
-                        gradientUnits={0}
-                        name="background"
-                        x1="0%"
-                        x2="0%"
-                        y1="0%"
-                        y2="100%"
-                      />
-                    </RNSVGDefs>
-                    <RNSVGRect
-                      fill={
-                        Object {
-                          "brushRef": "background",
-                          "type": 1,
-                        }
-                      }
-                      height="150%"
-                      opacity={1}
-                      propList={
-                        Array [
-                          "fill",
-                        ]
-                      }
-                      width="100%"
-                      x="0"
-                      y="0"
-                    />
-                  </RNSVGGroup>
-                </RNSVGSvgView>
-              </View>
-              <View
-                style={
-                  Array [
-                    Object {
-                      "alignItems": "center",
                       "display": "flex",
                       "flexDirection": "row",
-                      "justifyContent": "center",
+                      "justifyContent": "flex-start",
                       "paddingHorizontal": 12,
                       "paddingVertical": 12,
                     },
@@ -762,8 +677,8 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
                   allowFontScaling={true}
                   maxFontSizeMultiplier={1.2}
                   style={
-                    Array [
-                      Object {
+                    [
+                      {
                         "color": "#FFFFFF",
                         "display": "flex",
                         "fontFamily": "Inter-SemiBold",
@@ -789,13 +704,13 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
 exports[`BackupScreen renders backup options when some are completed 1`] = `
 <View
   style={
-    Array [
-      Object {
+    [
+      {
         "backgroundColor": "#FFFFFF",
         "display": "flex",
         "flex": 1,
       },
-      Object {
+      {
         "paddingTop": 200,
       },
     ]
@@ -804,17 +719,17 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
   <View
     onLayout={[Function]}
     style={
-      Array [
-        Array [
-          Object {
+      [
+        [
+          {
             "flex": 1,
             "justifyContent": "flex-end",
           },
-          Object {
+          {
             "marginBottom": undefined,
           },
         ],
-        Object {
+        {
           "paddingBottom": 0,
         },
       ]
@@ -822,8 +737,8 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
   >
     <View
       style={
-        Array [
-          Object {
+        [
+          {
             "alignItems": "stretch",
             "display": "flex",
             "flexDirection": "column",
@@ -837,8 +752,8 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
     >
       <View
         style={
-          Array [
-            Object {
+          [
+            {
               "alignItems": "center",
               "display": "flex",
               "flexDirection": "column",
@@ -852,8 +767,8 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
           allowFontScaling={false}
           maxFontSizeMultiplier={1.2}
           style={
-            Array [
-              Object {
+            [
+              {
                 "color": "#0E1524",
                 "display": "flex",
                 "fontFamily": "Inter-Medium",
@@ -869,8 +784,8 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
         </Text>
         <View
           style={
-            Array [
-              Object {
+            [
+              {
                 "display": "flex",
                 "flexGrow": 0,
                 "flexShrink": 0,
@@ -883,8 +798,8 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
           allowFontScaling={true}
           maxFontSizeMultiplier={1.4}
           style={
-            Array [
-              Object {
+            [
+              {
                 "color": "#5D6785",
                 "display": "flex",
                 "fontFamily": "Inter-Regular",
@@ -900,8 +815,8 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
       </View>
       <View
         style={
-          Array [
-            Object {
+          [
+            {
               "display": "flex",
               "flexGrow": 0,
               "flexShrink": 0,
@@ -912,8 +827,8 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
       />
       <View
         style={
-          Array [
-            Object {
+          [
+            {
               "alignItems": "stretch",
               "display": "flex",
               "flex": 1,
@@ -926,8 +841,8 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
       >
         <View
           style={
-            Array [
-              Object {
+            [
+              {
                 "alignItems": "stretch",
                 "display": "flex",
                 "flexDirection": "column",
@@ -939,8 +854,8 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
         >
           <View
             style={
-              Array [
-                Object {
+              [
+                {
                   "alignItems": "stretch",
                   "display": "flex",
                   "flexDirection": "column",
@@ -951,8 +866,8 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
           >
             <View
               style={
-                Array [
-                  Object {
+                [
+                  {
                     "alignItems": "center",
                     "display": "flex",
                     "flexDirection": "row",
@@ -964,8 +879,8 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
             >
               <View
                 style={
-                  Array [
-                    Object {
+                  [
+                    {
                       "alignItems": "center",
                       "borderColor": "#FC72FF",
                       "borderRadius": 12,
@@ -990,8 +905,8 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
               </View>
               <View
                 style={
-                  Array [
-                    Object {
+                  [
+                    {
                       "display": "flex",
                       "flexGrow": 0,
                       "flexShrink": 0,
@@ -1005,8 +920,8 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
                 allowFontScaling={true}
                 maxFontSizeMultiplier={1.4}
                 style={
-                  Array [
-                    Object {
+                  [
+                    {
                       "color": "#0E1524",
                       "display": "flex",
                       "fontFamily": "Inter-Medium",
@@ -1020,8 +935,8 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
               </Text>
               <View
                 style={
-                  Array [
-                    Object {
+                  [
+                    {
                       "display": "flex",
                       "flexGrow": 0,
                       "flexShrink": 0,
@@ -1033,8 +948,8 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
               />
               <View
                 style={
-                  Array [
-                    Object {
+                  [
+                    {
                       "alignItems": "flex-end",
                       "display": "flex",
                       "flexDirection": "column",
@@ -1046,8 +961,8 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
               >
                 <View
                   style={
-                    Array [
-                      Object {
+                    [
+                      {
                         "alignItems": "center",
                         "display": "flex",
                         "flexDirection": "row",
@@ -1064,8 +979,8 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
                   />
                   <View
                     style={
-                      Array [
-                        Object {
+                      [
+                        {
                           "display": "flex",
                           "flexGrow": 0,
                           "flexShrink": 0,
@@ -1079,8 +994,8 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
                     allowFontScaling={true}
                     maxFontSizeMultiplier={1.4}
                     style={
-                      Array [
-                        Object {
+                      [
+                        {
                           "color": "#0E1524",
                           "display": "flex",
                           "fontFamily": "Inter-Regular",
@@ -1098,8 +1013,8 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
             </View>
             <View
               style={
-                Array [
-                  Object {
+                [
+                  {
                     "borderBottomColor": "#D2D9EE",
                     "borderBottomWidth": 0.5,
                     "display": "flex",
@@ -1112,8 +1027,8 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
             />
             <View
               style={
-                Array [
-                  Object {
+                [
+                  {
                     "alignItems": "center",
                     "display": "flex",
                     "flexDirection": "row",
@@ -1125,8 +1040,8 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
             >
               <View
                 style={
-                  Array [
-                    Object {
+                  [
+                    {
                       "alignItems": "center",
                       "borderColor": "#FC72FF",
                       "borderRadius": 12,
@@ -1151,8 +1066,8 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
               </View>
               <View
                 style={
-                  Array [
-                    Object {
+                  [
+                    {
                       "display": "flex",
                       "flexGrow": 0,
                       "flexShrink": 0,
@@ -1166,8 +1081,8 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
                 allowFontScaling={true}
                 maxFontSizeMultiplier={1.4}
                 style={
-                  Array [
-                    Object {
+                  [
+                    {
                       "color": "#0E1524",
                       "display": "flex",
                       "fontFamily": "Inter-Medium",
@@ -1181,8 +1096,8 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
               </Text>
               <View
                 style={
-                  Array [
-                    Object {
+                  [
+                    {
                       "display": "flex",
                       "flexGrow": 0,
                       "flexShrink": 0,
@@ -1194,8 +1109,8 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
               />
               <View
                 style={
-                  Array [
-                    Object {
+                  [
+                    {
                       "alignItems": "flex-end",
                       "display": "flex",
                       "flexDirection": "column",
@@ -1210,7 +1125,7 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
                   collapsable={false}
                   focusable={true}
                   hitSlop={
-                    Object {
+                    {
                       "bottom": 5,
                       "left": 5,
                       "right": 5,
@@ -1225,7 +1140,7 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
                   onResponderTerminationRequest={[Function]}
                   onStartShouldSetResponder={[Function]}
                   style={
-                    Object {
+                    {
                       "backgroundColor": "#FC72FF1f",
                       "borderRadius": 999999,
                       "display": "flex",
@@ -1237,8 +1152,8 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
                 >
                   <View
                     style={
-                      Array [
-                        Object {
+                      [
+                        {
                           "alignItems": "stretch",
                           "display": "flex",
                           "flexDirection": "row",
@@ -1251,8 +1166,8 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
                       allowFontScaling={true}
                       maxFontSizeMultiplier={1.2}
                       style={
-                        Array [
-                          Object {
+                        [
+                          {
                             "color": "#FC72FF",
                             "display": "flex",
                             "fontFamily": "Inter-SemiBold",
@@ -1272,8 +1187,8 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
           </View>
           <View
             style={
-              Array [
-                Object {
+              [
+                {
                   "display": "flex",
                   "flexGrow": 0,
                   "flexShrink": 0,
@@ -1287,7 +1202,7 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
             collapsable={false}
             focusable={true}
             hitSlop={
-              Object {
+              {
                 "bottom": 5,
                 "left": 5,
                 "right": 5,
@@ -1302,7 +1217,7 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
             onResponderTerminationRequest={[Function]}
             onStartShouldSetResponder={[Function]}
             style={
-              Object {
+              {
                 "alignSelf": "flex-start",
                 "display": "flex",
                 "opacity": 1,
@@ -1312,8 +1227,8 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
           >
             <View
               style={
-                Array [
-                  Object {
+                [
+                  {
                     "alignItems": "center",
                     "display": "flex",
                     "flexDirection": "row",
@@ -1324,8 +1239,8 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
             >
               <View
                 style={
-                  Array [
-                    Object {
+                  [
+                    {
                       "display": "flex",
                       "paddingHorizontal": 4,
                     },
@@ -1341,8 +1256,8 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
               </View>
               <View
                 style={
-                  Array [
-                    Object {
+                  [
+                    {
                       "display": "flex",
                       "flexGrow": 0,
                       "flexShrink": 0,
@@ -1356,8 +1271,8 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
                 allowFontScaling={true}
                 maxFontSizeMultiplier={1.4}
                 style={
-                  Array [
-                    Object {
+                  [
+                    {
                       "color": "#0E1524",
                       "display": "flex",
                       "fontFamily": "Inter-Medium",
@@ -1373,8 +1288,8 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
           </View>
           <View
             style={
-              Array [
-                Object {
+              [
+                {
                   "display": "flex",
                   "flexGrow": 0,
                   "flexShrink": 0,
@@ -1385,8 +1300,8 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
           />
           <View
             style={
-              Array [
-                Object {
+              [
+                {
                   "alignItems": "stretch",
                   "display": "flex",
                   "flexDirection": "column",
@@ -1398,7 +1313,7 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
           >
             <View
               accessibilityState={
-                Object {
+                {
                   "disabled": false,
                 }
               }
@@ -1406,7 +1321,7 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
               collapsable={false}
               focusable={true}
               hitSlop={
-                Object {
+                {
                   "bottom": 5,
                   "left": 5,
                   "right": 5,
@@ -1421,7 +1336,7 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
               onResponderTerminationRequest={[Function]}
               onStartShouldSetResponder={[Function]}
               style={
-                Object {
+                {
                   "alignItems": "center",
                   "backgroundColor": "#FC72FF",
                   "borderColor": "transparent",
@@ -1435,97 +1350,12 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
             >
               <View
                 style={
-                  Array [
-                    Object {
+                  [
+                    {
                       "alignItems": "stretch",
-                      "borderRadius": 16,
-                      "display": "flex",
-                      "flexDirection": "column",
-                      "height": "100%",
-                      "justifyContent": "flex-start",
-                      "overflow": "hidden",
-                      "position": "absolute",
-                      "width": "100%",
-                    },
-                  ]
-                }
-              >
-                <RNSVGSvgView
-                  bbHeight="100%"
-                  bbWidth="100%"
-                  focusable={false}
-                  height="100%"
-                  style={
-                    Array [
-                      Object {
-                        "backgroundColor": "transparent",
-                        "borderWidth": 0,
-                      },
-                      Object {
-                        "flex": 0,
-                        "height": "100%",
-                        "width": "100%",
-                      },
-                    ]
-                  }
-                  width="100%"
-                >
-                  <RNSVGGroup
-                    fill={
-                      Object {
-                        "payload": 4278190080,
-                        "type": 0,
-                      }
-                    }
-                  >
-                    <RNSVGDefs>
-                      <RNSVGLinearGradient
-                        gradient={
-                          Array [
-                            0,
-                            -958215,
-                            1,
-                            -2011415,
-                          ]
-                        }
-                        gradientTransform={null}
-                        gradientUnits={0}
-                        name="background"
-                        x1="0%"
-                        x2="0%"
-                        y1="0%"
-                        y2="100%"
-                      />
-                    </RNSVGDefs>
-                    <RNSVGRect
-                      fill={
-                        Object {
-                          "brushRef": "background",
-                          "type": 1,
-                        }
-                      }
-                      height="150%"
-                      opacity={1}
-                      propList={
-                        Array [
-                          "fill",
-                        ]
-                      }
-                      width="100%"
-                      x="0"
-                      y="0"
-                    />
-                  </RNSVGGroup>
-                </RNSVGSvgView>
-              </View>
-              <View
-                style={
-                  Array [
-                    Object {
-                      "alignItems": "center",
                       "display": "flex",
                       "flexDirection": "row",
-                      "justifyContent": "center",
+                      "justifyContent": "flex-start",
                       "paddingHorizontal": 12,
                       "paddingVertical": 12,
                     },
@@ -1536,8 +1366,8 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
                   allowFontScaling={true}
                   maxFontSizeMultiplier={1.2}
                   style={
-                    Array [
-                      Object {
+                    [
+                      {
                         "color": "#FFFFFF",
                         "display": "flex",
                         "fontFamily": "Inter-SemiBold",

@@ -18,7 +18,6 @@ import { DappHeaderIcon } from 'src/components/WalletConnect/DappHeaderIcon'
 import { NetworkLogos } from 'src/components/WalletConnect/NetworkLogos'
 import { PendingConnectionSwitchAccountModal } from 'src/components/WalletConnect/ScanSheet/PendingConnectionSwitchAccountModal'
 import { PendingConnectionSwitchNetworkModal } from 'src/components/WalletConnect/ScanSheet/PendingConnectionSwitchNetworkModal'
-import { ChainId, CHAIN_INFO } from 'src/constants/chains'
 import { pushNotification } from 'src/features/notifications/notificationSlice'
 import { AppNotificationType } from 'src/features/notifications/types'
 import { sendAnalyticsEvent } from 'src/features/telemetry'
@@ -40,8 +39,9 @@ import {
 } from 'src/features/walletConnect/walletConnectSlice'
 import { wcWeb3Wallet } from 'src/features/walletConnectV2/saga'
 import { getSessionNamespaces } from 'src/features/walletConnectV2/utils'
-import { toSupportedChainId } from 'src/utils/chainId'
-import { ONE_SECOND_MS } from 'src/utils/time'
+import { ChainId, CHAIN_INFO } from 'wallet/src/constants/chains'
+import { toSupportedChainId } from 'wallet/src/utils/chainId'
+import { ONE_SECOND_MS } from 'wallet/src/utils/time'
 
 type Props = {
   pendingSession: WalletConnectPendingSession
@@ -271,6 +271,8 @@ export const PendingConnectionModal = ({ pendingSession, onClose }: Props): JSX.
     [activeAddress, dispatch, onClose, selectedChainId, pendingSession, didOpenFromDeepLink]
   )
 
+  const dappName = pendingSession.dapp.name || pendingSession.dapp.url
+
   return (
     <BottomSheetModal name={ModalName.WCPendingConnection} onClose={onClose}>
       <AnimatedFlex
@@ -285,10 +287,7 @@ export const PendingConnectionModal = ({ pendingSession, onClose }: Props): JSX.
           <DappHeaderIcon dapp={pendingSession.dapp} showChain={false} />
           <Text textAlign="center" variant="headlineSmall">
             <Trans t={t}>
-              <Text fontWeight="bold">
-                {{ dapp: pendingSession.dapp.name || pendingSession.dapp.url }}
-              </Text>{' '}
-              wants to connect to your wallet
+              <Text fontWeight="bold">{dappName}</Text> wants to connect to your wallet
             </Trans>
           </Text>
           <LinkButton

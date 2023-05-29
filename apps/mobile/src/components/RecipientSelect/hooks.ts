@@ -4,12 +4,12 @@ import { DefaultSectionT, SectionListData } from 'react-native'
 import { useAppSelector } from 'src/app/hooks'
 import { SearchableRecipient } from 'src/components/RecipientSelect/types'
 import { uniqueAddressesOnly } from 'src/components/RecipientSelect/utils'
-import { ChainId } from 'src/constants/chains'
-import { EMPTY_ARRAY } from 'src/constants/misc'
 import { useENS } from 'src/features/ens/useENS'
 import { selectRecipientsByRecency } from 'src/features/transactions/selectors'
 import { selectInactiveAccounts } from 'src/features/wallet/selectors'
-import { getValidAddress } from 'src/utils/addresses'
+import { ChainId } from 'wallet/src/constants/chains'
+import { EMPTY_ARRAY } from 'wallet/src/constants/misc'
+import { getValidAddress } from 'wallet/src/utils/addresses'
 
 const MAX_RECENT_RECIPIENTS = 15
 

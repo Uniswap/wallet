@@ -2,13 +2,11 @@ import { Currency, TradeType } from '@uniswap/sdk-core'
 import { providers } from 'ethers'
 import { CallEffect, PutEffect } from 'redux-saga/effects'
 import { getProvider, getSignerManager } from 'src/app/walletContext'
-import { ChainId, CHAIN_INFO } from 'src/constants/chains'
 import { isFlashbotsSupportedChainId } from 'src/features/providers/flashbotsProvider'
 import { sendAnalyticsEvent } from 'src/features/telemetry'
 import { MobileEventName } from 'src/features/telemetry/constants'
 import { transactionActions } from 'src/features/transactions/slice'
 import { Trade } from 'src/features/transactions/swap/useTrade'
-import { formatAsHexString } from 'src/features/transactions/swap/utils'
 import {
   TransactionDetails,
   TransactionOptions,
@@ -23,10 +21,12 @@ import {
 import { Account, AccountType } from 'src/features/wallet/accounts/types'
 import { selectFlashbotsEnabled } from 'src/features/wallet/selectors'
 import { SignerManager } from 'src/features/wallet/signing/SignerManager'
-import { getCurrencyAddressForAnalytics } from 'src/utils/currencyId'
-import { formatCurrencyAmount, NumberType } from 'src/utils/format'
 import { logger } from 'src/utils/logger'
 import { call, put, select } from 'typed-redux-saga'
+import { ChainId, CHAIN_INFO } from 'wallet/src/constants/chains'
+import { getCurrencyAddressForAnalytics } from 'wallet/src/utils/currencyId'
+import { formatCurrencyAmount, NumberType } from 'wallet/src/utils/format'
+import { hexlifyTransaction } from 'wallet/src/utils/transaction'
 
 export interface SendTransactionParams {
   // internal id used for tracking transactions before theyre submitted
@@ -90,30 +90,6 @@ export async function signAndSendTransaction(
   const signedTx = await connectedSigner.signTransaction(populatedRequest)
   const transactionResponse = await provider.sendTransaction(signedTx)
   return { transactionResponse, populatedRequest }
-}
-
-// hexlifyTransaction is idemnpotent so it's safe to call more than once on a singular transaction request
-function hexlifyTransaction(
-  transferTxRequest: providers.TransactionRequest
-): providers.TransactionRequest {
-  const { value, nonce, gasLimit, gasPrice, maxPriorityFeePerGas, maxFeePerGas } = transferTxRequest
-  return {
-    ...transferTxRequest,
-    nonce: formatAsHexString(nonce),
-    value: formatAsHexString(value),
-    gasLimit: formatAsHexString(gasLimit),
-
-    // only pass in for legacy chains
-    ...(gasPrice ? { gasPrice: formatAsHexString(gasPrice) } : {}),
-
-    // only pass in for eip1559 tx
-    ...(maxPriorityFeePerGas
-      ? {
-          maxPriorityFeePerGas: formatAsHexString(maxPriorityFeePerGas),
-          maxFeePerGas: formatAsHexString(maxFeePerGas),
-        }
-      : {}),
-  }
 }
 
 function* addTransaction(

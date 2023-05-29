@@ -8,14 +8,15 @@ import { AddressDisplay } from 'src/components/AddressDisplay'
 import { Button, ButtonEmphasis } from 'src/components/buttons/Button'
 import { CheckBox } from 'src/components/buttons/CheckBox'
 import { Box, Flex } from 'src/components/layout'
+import { SpinningLoader } from 'src/components/loading/SpinningLoader'
 import { BottomSheetModal } from 'src/components/modals/BottomSheetModal'
 import { Text } from 'src/components/Text'
 import { useAccountListQuery } from 'src/data/__generated__/types-and-hooks'
 import { ElementName, ModalName } from 'src/features/telemetry/constants'
 import { Account } from 'src/features/wallet/accounts/types'
 import { dimensions, spacing } from 'src/styles/sizing'
-import { opacify } from 'src/utils/colors'
-import { formatUSDPrice } from 'src/utils/format'
+import { opacify } from 'ui/src/theme/color/utils'
+import { formatUSDPrice } from 'wallet/src/utils/format'
 
 const ADDRESS_ROW_HEIGHT = 40
 
@@ -31,6 +32,15 @@ export default function RemoveSeedPhraseWarningModal({
 }: RemoveSeedPhraseWarningModalProps): JSX.Element {
   const { t } = useTranslation()
   const theme = useAppTheme()
+
+  const [inProgress, setInProgress] = useState(false)
+  const onPress = useCallback(() => {
+    // we want to call onRemoveWallet only once
+    if (!inProgress) {
+      setInProgress(true)
+      onRemoveWallet?.()
+    }
+  }, [inProgress, onRemoveWallet])
 
   const { data, loading } = useAccountListQuery({
     variables: {
@@ -187,11 +197,12 @@ export default function RemoveSeedPhraseWarningModal({
             <Flex centered row gap="spacing12" pt="spacing12">
               <Button
                 fill
+                CustomIcon={inProgress ? <SpinningLoader color="accentCritical" /> : undefined}
                 disabled={!checkBoxAccepted}
                 emphasis={ButtonEmphasis.Detrimental}
-                label={t('Remove wallet')}
+                label={!inProgress ? t('Remove wallet') : undefined}
                 name={ElementName.Confirm}
-                onPress={onRemoveWallet}
+                onPress={onPress}
               />
             </Flex>
           </>

@@ -2,14 +2,14 @@ import { TypedDataDomain, TypedDataField } from '@ethersproject/abstract-signer'
 import { _TypedDataEncoder } from '@ethersproject/hash'
 import { Bytes, providers, Signer, UnsignedTransaction, utils } from 'ethers'
 import { hexlify } from 'ethers/lib/utils'
-import { ChainId } from 'src/constants/chains'
 import {
   signHashForAddress,
   signMessageForAddress,
   signTransactionHashForAddress,
 } from 'src/lib/RNEthersRs'
-import { areAddressesEqual } from 'src/utils/addresses'
-import { toSupportedChainId } from 'src/utils/chainId'
+import { ChainId } from 'wallet/src/constants/chains'
+import { areAddressesEqual } from 'wallet/src/utils/addresses'
+import { toSupportedChainId } from 'wallet/src/utils/chainId'
 
 // A signer that uses native keystore to access keys
 export class NativeSigner extends Signer {

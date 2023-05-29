@@ -1,7 +1,6 @@
 import { BigintIsh, Currency, CurrencyAmount, TradeType } from '@uniswap/sdk-core'
 import JSBI from 'jsbi'
 import { i18n } from 'src/app/i18n'
-import { CHAIN_INFO } from 'src/constants/chains'
 import { AssetType } from 'src/entities/assets'
 import { SpotPrice } from 'src/features/dataApi/spotPricesQuery'
 import { GQLNftAsset } from 'src/features/nfts/hooks'
@@ -18,10 +17,11 @@ import {
   TransactionType,
 } from 'src/features/transactions/types'
 import { WalletConnectEvent } from 'src/features/walletConnect/saga'
-import { getValidAddress, shortenAddress } from 'src/utils/addresses'
-import { currencyIdToAddress } from 'src/utils/currencyId'
-import { formatCurrencyAmount, formatUSDPrice, NumberType } from 'src/utils/format'
 import { logger } from 'src/utils/logger'
+import { CHAIN_INFO } from 'wallet/src/constants/chains'
+import { getValidAddress, shortenAddress } from 'wallet/src/utils/addresses'
+import { currencyIdToAddress } from 'wallet/src/utils/currencyId'
+import { formatCurrencyAmount, formatUSDPrice, NumberType } from 'wallet/src/utils/format'
 
 export const formWCNotificationTitle = (appNotification: WalletConnectNotification): string => {
   const { event, dappName, chainId } = appNotification

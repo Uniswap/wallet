@@ -1,9 +1,9 @@
 // Copied from https://github.com/Uniswap/interface/blob/main/src/hooks/useENS.ts
 
-import { ChainId } from 'src/constants/chains'
 import { useAddressFromEns, useENSName } from 'src/features/ens/api'
-import { getValidAddress } from 'src/utils/addresses'
 import { useDebounce } from 'src/utils/timing'
+import { ChainId } from 'wallet/src/constants/chains'
+import { getValidAddress } from 'wallet/src/utils/addresses'
 
 /**
  * Given a name or address, does a lookup to resolve to an address and name

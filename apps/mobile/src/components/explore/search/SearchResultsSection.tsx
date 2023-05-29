@@ -17,8 +17,6 @@ import {
 import { AnimatedFlex, Flex } from 'src/components/layout'
 import { BaseCard } from 'src/components/layout/BaseCard'
 import { Text } from 'src/components/Text'
-import { ChainId } from 'src/constants/chains'
-import { EMPTY_ARRAY } from 'src/constants/misc'
 import { SafetyLevel, useExploreSearchQuery } from 'src/data/__generated__/types-and-hooks'
 import { useENS } from 'src/features/ens/useENS'
 import {
@@ -29,8 +27,10 @@ import {
   WalletSearchResult,
 } from 'src/features/explore/searchHistorySlice'
 import { useIsSmartContractAddress } from 'src/features/transactions/transfer/hooks'
-import { getValidAddress } from 'src/utils/addresses'
 import { logger } from 'src/utils/logger'
+import { ChainId } from 'wallet/src/constants/chains'
+import { EMPTY_ARRAY } from 'wallet/src/constants/misc'
+import { getValidAddress } from 'wallet/src/utils/addresses'
 
 export const SEARCH_RESULT_HEADER_KEY = 'header'
 
@@ -143,7 +143,8 @@ export function SearchResultsSection({ searchQuery }: { searchQuery: string }): 
   )
 
   const hasVerifiedTokenResults = tokenResults.some(
-    (res: TokenSearchResult) => res.safetyLevel === SafetyLevel.Verified
+    (res: TokenSearchResult) =>
+      res.safetyLevel === SafetyLevel.Verified || res.safetyLevel === SafetyLevel.MediumWarning
   )
   const hasVerifiedNFTResults = nftCollectionResults.some(
     (res: NFTCollectionSearchResult) => res.isVerified

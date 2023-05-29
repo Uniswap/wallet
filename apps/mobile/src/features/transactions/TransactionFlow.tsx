@@ -136,8 +136,6 @@ export function TransactionFlow({
     transform: [{ translateX: screenXOffset.value }],
   }))
 
-  const { onToggleUSDInput } = useTokenFormActionHandlers(dispatch)
-
   return (
     <TouchableWithoutFeedback>
       <AnimatedFlex grow row gap="none" height="100%" style={wrapperStyle}>
@@ -238,6 +236,8 @@ function HeaderContent({
   const derivedSwapInfo = isSwap ? derivedInfo : undefined
   const { customSlippageTolerance } = derivedSwapInfo ?? {}
 
+  const isViewOnlyWallet = account?.type === AccountType.Readonly
+
   return (
     <Flex
       row
@@ -270,7 +270,7 @@ function HeaderContent({
             </Flex>
           </TouchableArea>
         ) : null}
-        {account?.type === AccountType.Readonly ? (
+        {isViewOnlyWallet ? (
           <TouchableArea
             bg="background2"
             borderRadius="rounded12"
@@ -290,7 +290,7 @@ function HeaderContent({
             </Flex>
           </TouchableArea>
         ) : null}
-        {step === TransactionStep.FORM && isSwap ? (
+        {step === TransactionStep.FORM && isSwap && !isViewOnlyWallet ? (
           <TouchableArea
             hapticFeedback
             name={ElementName.SwapSettings}

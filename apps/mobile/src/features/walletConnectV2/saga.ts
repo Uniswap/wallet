@@ -9,8 +9,6 @@ import { EventChannel, eventChannel } from 'redux-saga'
 import { CallEffect, ChannelTakeEffect, PutEffect } from 'redux-saga/effects'
 import { appSelect } from 'src/app/hooks'
 import { i18n } from 'src/app/i18n'
-import { config } from 'src/config'
-import { ALL_SUPPORTED_CHAIN_IDS, ChainId, CHAIN_INFO } from 'src/constants/chains'
 import { pushNotification } from 'src/features/notifications/notificationSlice'
 import { AppNotificationType } from 'src/features/notifications/types'
 import { selectAccounts } from 'src/features/wallet/selectors'
@@ -33,8 +31,10 @@ import {
   parseTransactionRequest,
 } from 'src/features/walletConnectV2/utils'
 import { logger } from 'src/utils/logger'
-import { ONE_SECOND_MS } from 'src/utils/time'
 import { call, put, take } from 'typed-redux-saga'
+import { config } from 'wallet/src/config'
+import { ALL_SUPPORTED_CHAIN_IDS, ChainId, CHAIN_INFO } from 'wallet/src/constants/chains'
+import { ONE_SECOND_MS } from 'wallet/src/utils/time'
 
 export let wcWeb3Wallet: IWeb3Wallet
 

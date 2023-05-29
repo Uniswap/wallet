@@ -1,4 +1,4 @@
-import { config } from 'src/config'
+import { config } from 'wallet/src/config'
 
 export const uniswapUrls = {
   helpUrl: 'https://support.uniswap.org',
@@ -48,3 +48,7 @@ export const APP_FEEDBACK_LINK =
   'https://docs.google.com/forms/d/e/1FAIpQLSepzL5aMuSfRhSgw0zDw_gVmc2aeVevfrb1UbOwn6WGJ--46w/viewform'
 
 export const GET_HELP_LINK = `${uniswapUrls.helpUrl}/hc/en-us/categories/11301970439565-Uniswap-Wallet`
+
+export const RECOVERY_PHRASE_HELP_URL = `${uniswapUrls.helpUrl}/hc/en-us/articles/11380692567949-How-to-import-my-recovery-phrase-`
+
+export const UNISWAP_HELP_CENTER_WALLET_URL = `${uniswapUrls.helpUrl}/hc/en-us/categories/11301970439565-Uniswap-Wallet`

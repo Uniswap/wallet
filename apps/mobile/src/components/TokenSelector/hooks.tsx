@@ -1,17 +1,17 @@
 import { Token } from '@uniswap/sdk-core'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { flowToModalName, TokenSelectorFlow } from 'src/components/TokenSelector/TokenSelector'
-import { MATIC_MAINNET_ADDRESS } from 'src/constants/addresses'
-import { ChainId } from 'src/constants/chains'
-import { DAI, USDC, USDT, WBTC, WRAPPED_NATIVE_CURRENCY } from 'src/constants/tokens'
 import { useTokenProjects } from 'src/features/dataApi/tokenProjects'
 import { CurrencyInfo, GqlResult } from 'src/features/dataApi/types'
 import { usePersistedError } from 'src/features/dataApi/utils'
 import { sendAnalyticsEvent } from 'src/features/telemetry'
 import { MobileEventName } from 'src/features/telemetry/constants'
-import { NativeCurrency } from 'src/features/tokens/NativeCurrency'
-import { areAddressesEqual } from 'src/utils/addresses'
-import { currencyId } from 'src/utils/currencyId'
+import { MATIC_MAINNET_ADDRESS } from 'wallet/src/constants/addresses'
+import { ChainId } from 'wallet/src/constants/chains'
+import { DAI, USDC, USDT, WBTC, WRAPPED_NATIVE_CURRENCY } from 'wallet/src/constants/tokens'
+import { NativeCurrency } from 'wallet/src/features/tokens/NativeCurrency'
+import { areAddressesEqual } from 'wallet/src/utils/addresses'
+import { currencyId } from 'wallet/src/utils/currencyId'
 
 // Use Mainnet base token addresses since TokenProjects query returns each token on Arbitrum, Optimism, Polygon
 const baseCurrencies = [

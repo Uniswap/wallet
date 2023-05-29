@@ -4,12 +4,12 @@ import { SelectionCircle } from 'src/components/input/SelectionCircle'
 import { Box, Flex } from 'src/components/layout'
 import { Text } from 'src/components/Text'
 import { Unicon } from 'src/components/unicons/Unicon'
-import { ChainId } from 'src/constants/chains'
 import { useIsDarkMode } from 'src/features/appearance/hooks'
 import { useENS } from 'src/features/ens/useENS'
 import { ElementName } from 'src/features/telemetry/constants'
-import { shortenAddress } from 'src/utils/addresses'
-import { formatUSDPrice, NumberType } from 'src/utils/format'
+import { ChainId } from 'wallet/src/constants/chains'
+import { shortenAddress } from 'wallet/src/utils/addresses'
+import { formatUSDPrice, NumberType } from 'wallet/src/utils/format'
 
 interface Props {
   address: string

@@ -20,8 +20,6 @@ import { TokenDetailsFavoriteButton } from 'src/components/TokenDetails/TokenDet
 import { TokenDetailsHeader } from 'src/components/TokenDetails/TokenDetailsHeader'
 import { TokenDetailsStats } from 'src/components/TokenDetails/TokenDetailsStats'
 import TokenWarningModal from 'src/components/tokens/TokenWarningModal'
-import { ChainId } from 'src/constants/chains'
-import { PollingInterval } from 'src/constants/misc'
 import { isError, isNonPollingRequestInFlight } from 'src/data/utils'
 import {
   SafetyLevel,
@@ -39,10 +37,12 @@ import {
 } from 'src/features/transactions/transactionState/transactionState'
 import { Screens } from 'src/screens/Screens'
 import { iconSizes } from 'src/styles/sizing'
-import { fromGraphQLChain } from 'src/utils/chainId'
 import { useExtractedTokenColor } from 'src/utils/colors'
-import { currencyIdToAddress, currencyIdToChain } from 'src/utils/currencyId'
-import { formatUSDPrice } from 'src/utils/format'
+import { ChainId } from 'wallet/src/constants/chains'
+import { PollingInterval } from 'wallet/src/constants/misc'
+import { fromGraphQLChain } from 'wallet/src/utils/chainId'
+import { currencyIdToAddress, currencyIdToChain } from 'wallet/src/utils/currencyId'
+import { formatUSDPrice } from 'wallet/src/utils/format'
 
 type Price = NonNullable<
   NonNullable<NonNullable<NonNullable<TokenDetailsScreenQuery['token']>['project']>['markets']>[0]
@@ -114,9 +114,9 @@ export function TokenDetailsScreen({
     () => ({
       address: currencyIdToAddress(_currencyId),
       chain: currencyIdToChain(_currencyId),
-      currencyName: data?.token?.name,
+      currencyName: data?.token?.project?.name,
     }),
-    [_currencyId, data?.token?.name]
+    [_currencyId, data?.token?.project?.name]
   )
 
   return (

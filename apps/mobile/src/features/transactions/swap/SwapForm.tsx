@@ -44,7 +44,7 @@ import { CurrencyField } from 'src/features/transactions/transactionState/transa
 import { createTransactionId } from 'src/features/transactions/utils'
 import { BlockedAddressWarning } from 'src/features/trm/BlockedAddressWarning'
 import { useIsBlockedActiveAddress } from 'src/features/trm/hooks'
-import { formatCurrencyAmount, formatPrice, NumberType } from 'src/utils/format'
+import { formatCurrencyAmount, formatPrice, NumberType } from 'wallet/src/utils/format'
 
 interface SwapFormProps {
   dispatch: Dispatch<AnyAction>
@@ -169,19 +169,22 @@ function _SwapForm({
     [focusOnCurrencyField, onSetExactAmount]
   )
 
-  const onInputSelectionChange = useCallback((start, end) => setInputSelection({ start, end }), [])
+  const onInputSelectionChange = useCallback(
+    (start: number, end: number) => setInputSelection({ start, end }),
+    []
+  )
   const onOutputSelectionChange = useCallback(
-    (start, end) => setOutputSelection({ start, end }),
+    (start: number, end: number) => setOutputSelection({ start, end }),
     []
   )
 
   const onSetExactAmountInput = useCallback(
-    (value): void => onSetExactAmount(CurrencyField.INPUT, value),
+    (value: string): void => onSetExactAmount(CurrencyField.INPUT, value),
     [onSetExactAmount]
   )
 
   const onSetExactAmountOutput = useCallback(
-    (value): void => onSetExactAmount(CurrencyField.OUTPUT, value),
+    (value: string): void => onSetExactAmount(CurrencyField.OUTPUT, value),
     [onSetExactAmount]
   )
 
