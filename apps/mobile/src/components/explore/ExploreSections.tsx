@@ -12,9 +12,6 @@ import { Box, Flex, Inset } from 'src/components/layout'
 import { BaseCard } from 'src/components/layout/BaseCard'
 import { Loader } from 'src/components/loading'
 import { Text } from 'src/components/Text'
-import { ChainId } from 'src/constants/chains'
-import { EMPTY_ARRAY, PollingInterval } from 'src/constants/misc'
-import { WRAPPED_NATIVE_CURRENCY } from 'src/constants/tokens'
 import {
   Chain,
   ExploreTokensTabQuery,
@@ -28,10 +25,13 @@ import {
 } from 'src/features/explore/utils'
 import { selectHasFavoriteTokens, selectHasWatchedWallets } from 'src/features/favorites/selectors'
 import { selectTokensOrderBy } from 'src/features/wallet/selectors'
-import { areAddressesEqual } from 'src/utils/addresses'
-import { fromGraphQLChain } from 'src/utils/chainId'
-import { buildCurrencyId, buildNativeCurrencyId } from 'src/utils/currencyId'
 import { usePollOnFocusOnly } from 'src/utils/hooks'
+import { ChainId } from 'wallet/src/constants/chains'
+import { EMPTY_ARRAY, PollingInterval } from 'wallet/src/constants/misc'
+import { WRAPPED_NATIVE_CURRENCY } from 'wallet/src/constants/tokens'
+import { areAddressesEqual } from 'wallet/src/utils/addresses'
+import { fromGraphQLChain } from 'wallet/src/utils/chainId'
+import { buildCurrencyId, buildNativeCurrencyId } from 'wallet/src/utils/currencyId'
 
 type ExploreSectionsProps = {
   listRef?: React.MutableRefObject<null>
@@ -181,8 +181,8 @@ function gqlTokenToTokenItemData(
 ): TokenItemData | null {
   if (!token || !token.project) return null
 
-  const { name, symbol, address, chain, project, market } = token
-  const { logoUrl, markets } = project
+  const { symbol, address, chain, project, market } = token
+  const { logoUrl, markets, name } = project
   const tokenProjectMarket = markets?.[0]
 
   const chainId = fromGraphQLChain(chain)

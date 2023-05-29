@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import React from 'react'
-import { ChainId } from 'src/constants/chains'
 import {
   NFTTradeTransactionInfo,
   NFTTradeType,
@@ -8,7 +7,8 @@ import {
   TransactionStatus,
   TransactionType,
 } from 'src/features/transactions/types'
-import { buildNativeCurrencyId } from 'src/utils/currencyId'
+import { ChainId } from 'wallet/src/constants/chains'
+import { buildNativeCurrencyId } from 'wallet/src/utils/currencyId'
 import NFTTradeSummaryItem from './NFTTradeSummaryItem'
 
 const meta: Meta<typeof NFTTradeSummaryItem> = {

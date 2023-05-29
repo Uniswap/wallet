@@ -16,7 +16,6 @@ import { Loader } from 'src/components/loading'
 import { Text } from 'src/components/Text'
 import { RelativeChange } from 'src/components/text/RelativeChange'
 import { useTokenDetailsNavigation } from 'src/components/TokenDetails/hooks'
-import { PollingInterval } from 'src/constants/misc'
 import { isNonPollingRequestInFlight } from 'src/data/utils'
 import { useFavoriteTokenCardQuery } from 'src/data/__generated__/types-and-hooks'
 import { AssetType } from 'src/entities/assets'
@@ -29,9 +28,10 @@ import {
   CurrencyField,
   TransactionState,
 } from 'src/features/transactions/transactionState/transactionState'
-import { fromGraphQLChain } from 'src/utils/chainId'
-import { formatUSDPrice } from 'src/utils/format'
 import { usePollOnFocusOnly } from 'src/utils/hooks'
+import { PollingInterval } from 'wallet/src/constants/misc'
+import { fromGraphQLChain } from 'wallet/src/utils/chainId'
+import { formatUSDPrice } from 'wallet/src/utils/format'
 
 export const FAVORITE_TOKEN_CARD_LOADER_HEIGHT = 102
 

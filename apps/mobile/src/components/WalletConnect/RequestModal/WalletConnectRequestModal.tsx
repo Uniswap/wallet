@@ -22,7 +22,6 @@ import { useTransactionGasFee } from 'src/features/gas/hooks'
 import { GasSpeed } from 'src/features/gas/types'
 import { sendAnalyticsEvent } from 'src/features/telemetry'
 import { ElementName, MobileEventName, ModalName } from 'src/features/telemetry/constants'
-import { NativeCurrency } from 'src/features/tokens/NativeCurrency'
 import { BlockedAddressWarning } from 'src/features/trm/BlockedAddressWarning'
 import { useIsBlocked } from 'src/features/trm/hooks'
 import { useSignerAccounts } from 'src/features/wallet/hooks'
@@ -43,9 +42,10 @@ import {
 } from 'src/features/walletConnect/walletConnectSlice'
 import { wcWeb3Wallet } from 'src/features/walletConnectV2/saga'
 import { iconSizes } from 'src/styles/sizing'
-import { areAddressesEqual } from 'src/utils/addresses'
-import { buildCurrencyId } from 'src/utils/currencyId'
 import { logger } from 'src/utils/logger'
+import { NativeCurrency } from 'wallet/src/features/tokens/NativeCurrency'
+import { areAddressesEqual } from 'wallet/src/utils/addresses'
+import { buildCurrencyId } from 'wallet/src/utils/currencyId'
 
 const MAX_MODAL_MESSAGE_HEIGHT = 200
 

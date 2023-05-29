@@ -18,7 +18,6 @@ import { WalletContextProvider } from 'src/app/walletContext'
 import { OfflineBanner } from 'src/components/banners/OfflineBanner'
 import { Trace } from 'src/components/telemetry/Trace'
 import { TraceUserProperties } from 'src/components/telemetry/TraceUserProperties'
-import { config } from 'src/config'
 import { usePersistedApolloClient } from 'src/data/hooks'
 import { useIsDarkMode } from 'src/features/appearance/hooks'
 import { LockScreenContextProvider } from 'src/features/authentication/lockScreenContext'
@@ -27,6 +26,7 @@ import { NotificationToastWrapper } from 'src/features/notifications/Notificatio
 import { initOneSignal } from 'src/features/notifications/Onesignal'
 import { sendAnalyticsEvent } from 'src/features/telemetry'
 import { MobileEventName } from 'src/features/telemetry/constants'
+import { LocalTransactionUpdater } from 'src/features/transactions/LocalTransactionUpdater'
 import { TransactionHistoryUpdater } from 'src/features/transactions/TransactionHistoryUpdater'
 import { useTrmPrefetch } from 'src/features/trm/api'
 import { useSignerAccounts } from 'src/features/wallet/hooks'
@@ -34,6 +34,7 @@ import { DynamicThemeProvider } from 'src/styles/DynamicThemeProvider'
 import { useAppStateTrigger } from 'src/utils/useAppStateTrigger'
 import { getSentryEnvironment, getStatsigEnvironmentTier } from 'src/utils/version'
 import { StatsigProvider } from 'statsig-react-native'
+import { config } from 'wallet/src/config'
 
 // Keep the splash screen visible while we fetch resources until one of our landing pages loads
 SplashScreen.preventAutoHideAsync()
@@ -165,6 +166,7 @@ function DataUpdaters(): JSX.Element {
     <>
       <TraceUserProperties />
       <TransactionHistoryUpdater />
+      <LocalTransactionUpdater />
     </>
   )
 }

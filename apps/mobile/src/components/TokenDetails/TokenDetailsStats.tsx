@@ -10,9 +10,9 @@ import { Text } from 'src/components/Text'
 import { LongText } from 'src/components/text/LongText'
 import { TokenDetailsScreenQuery } from 'src/data/__generated__/types-and-hooks'
 import { ElementName } from 'src/features/telemetry/constants'
-import { currencyIdToAddress, currencyIdToChain } from 'src/utils/currencyId'
-import { formatNumber, NumberType } from 'src/utils/format'
 import { ExplorerDataType, getExplorerLink, getTwitterLink } from 'src/utils/linking'
+import { currencyIdToAddress, currencyIdToChain } from 'wallet/src/utils/currencyId'
+import { formatNumber, NumberType } from 'wallet/src/utils/format'
 import { LinkButtonWithIcon } from './LinkButtonWithIcon'
 
 function StatsRow({
@@ -115,9 +115,9 @@ export function TokenDetailsStats({
     <Flex gap="spacing24">
       {tokenProjectData?.description && (
         <Flex gap="spacing4">
-          {tokenData?.name && (
+          {tokenProjectData?.name && (
             <Text color="textTertiary" variant="subheadSmall">
-              {t('About {{ token }}', { token: tokenData.name })}
+              {t('About {{ token }}', { token: tokenProjectData.name })}
             </Text>
           )}
           <Flex gap="spacing16">

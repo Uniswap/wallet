@@ -1,15 +1,15 @@
 import { NetworkStatus } from '@apollo/client'
 import { Token } from '@uniswap/sdk-core'
 import { useCallback, useMemo } from 'react'
-import { PollingInterval } from 'src/constants/misc'
 import { usePortfolioBalancesQuery } from 'src/data/__generated__/types-and-hooks'
 import { CurrencyInfo, GqlResult, PortfolioBalance } from 'src/features/dataApi/types'
 import { usePersistedError } from 'src/features/dataApi/utils'
-import { NativeCurrency } from 'src/features/tokens/NativeCurrency'
 import { useActiveAccountAddressWithThrow } from 'src/features/wallet/hooks'
 import { HIDE_SMALL_USD_BALANCES_THRESHOLD } from 'src/features/wallet/walletSlice'
-import { fromGraphQLChain } from 'src/utils/chainId'
-import { currencyId, CurrencyId } from 'src/utils/currencyId'
+import { NativeCurrency } from 'wallet/src/features/tokens/NativeCurrency'
+import { fromGraphQLChain } from 'wallet/src/utils/chainId'
+import { currencyId, CurrencyId } from 'wallet/src/utils/currencyId'
+import { ONE_SECOND_MS } from 'wallet/src/utils/time'
 
 type SortedPortfolioBalances = {
   balances: PortfolioBalance[]
@@ -53,7 +53,7 @@ export function usePortfolioBalances(
     fetchPolicy: 'cache-and-network',
     notifyOnNetworkStatusChange: true,
     onCompleted,
-    pollInterval: shouldPoll ? PollingInterval.Fast : undefined,
+    pollInterval: shouldPoll ? ONE_SECOND_MS * 30 : undefined,
     variables: { ownerAddress: address },
     skip: !address,
   })
@@ -66,35 +66,29 @@ export function usePortfolioBalances(
 
     const byId: Record<CurrencyId, PortfolioBalance> = {}
     balancesForAddress.forEach((balance) => {
-      const chainId = fromGraphQLChain(balance?.token?.chain)
+      const { denominatedValue, token, tokenProjectMarket, quantity } = balance || {}
+      const { address: tokenAddress, chain, decimals, symbol, project } = token || {}
+      const { name, logoUrl, isSpam, safetyLevel } = project || {}
+      const chainId = fromGraphQLChain(chain)
 
       // require all of these fields to be defined
-      if (
-        !chainId ||
-        !balance ||
-        !balance.quantity ||
-        !balance.token ||
-        !balance.token.decimals ||
-        !balance.token.symbol ||
-        !balance.token.name
-      )
-        return
+      if (!chainId || !balance || !quantity || !token || !decimals || !symbol) return
 
       if (
         hideSmallBalances &&
-        (!balance.denominatedValue ||
-          balance.denominatedValue?.value < HIDE_SMALL_USD_BALANCES_THRESHOLD)
+        (!denominatedValue || denominatedValue.value < HIDE_SMALL_USD_BALANCES_THRESHOLD)
       )
         return null
-      if (hideSpamTokens && balance.token?.project?.isSpam) return null
 
-      const currency = balance.token.address
+      if (hideSpamTokens && isSpam) return null
+
+      const currency = tokenAddress
         ? new Token(
             chainId,
-            balance.token.address,
-            balance.token.decimals,
-            balance.token.symbol,
-            balance.token.name,
+            tokenAddress,
+            decimals,
+            symbol,
+            name ?? undefined,
             /* bypassChecksum:*/ true
           )
         : NativeCurrency.onChain(chainId)
@@ -104,16 +98,16 @@ export function usePortfolioBalances(
       const currencyInfo: CurrencyInfo = {
         currency,
         currencyId: currencyId(currency),
-        logoUrl: balance.token?.project?.logoUrl,
-        isSpam: balance.token?.project?.isSpam,
-        safetyLevel: balance.token?.project?.safetyLevel,
+        logoUrl,
+        isSpam,
+        safetyLevel,
       }
 
       const portfolioBalance: PortfolioBalance = {
-        quantity: balance.quantity,
-        balanceUSD: balance.denominatedValue?.value,
+        quantity,
+        balanceUSD: denominatedValue?.value,
         currencyInfo,
-        relativeChange24: balance.tokenProjectMarket?.relativeChange24?.value,
+        relativeChange24: tokenProjectMarket?.relativeChange24?.value,
       }
 
       byId[id] = portfolioBalance

@@ -1,7 +1,5 @@
 import { TradeType } from '@uniswap/sdk-core'
 import JSBI from 'jsbi'
-import { ChainId } from 'src/constants/chains'
-import { DAI, USDC } from 'src/constants/tokens'
 import { AssetType } from 'src/entities/assets'
 import { createFinalizedTxAction } from 'src/features/notifications/notificationWatcher.test'
 import { AppNotificationType } from 'src/features/notifications/types'
@@ -20,6 +18,8 @@ import {
   TransactionType,
 } from 'src/features/transactions/types'
 import { account } from 'src/test/fixtures'
+import { ChainId } from 'wallet/src/constants/chains'
+import { DAI, USDC } from 'wallet/src/constants/tokens'
 
 describe('convertScientificNotationToNumber', () => {
   it('does not do anything to a regular number', () => {

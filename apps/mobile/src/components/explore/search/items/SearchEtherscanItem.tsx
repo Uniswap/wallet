@@ -6,11 +6,11 @@ import { Arrow } from 'src/components/icons/Arrow'
 import { EtherscanIcon } from 'src/components/icons/EtherscanIcon'
 import { Flex } from 'src/components/layout'
 import { Text } from 'src/components/Text'
-import { ChainId } from 'src/constants/chains'
 import { addToSearchHistory, EtherscanSearchResult } from 'src/features/explore/searchHistorySlice'
 import { ElementName } from 'src/features/telemetry/constants'
-import { shortenAddress } from 'src/utils/addresses'
 import { ExplorerDataType, getExplorerLink, openUri } from 'src/utils/linking'
+import { ChainId } from 'wallet/src/constants/chains'
+import { shortenAddress } from 'wallet/src/utils/addresses'
 
 type SearchEtherscanItemProps = {
   etherscanResult: EtherscanSearchResult

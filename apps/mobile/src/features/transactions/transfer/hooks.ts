@@ -3,7 +3,6 @@ import { providers } from 'ethers'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useAppDispatch } from 'src/app/hooks'
 import { useProvider } from 'src/app/walletContext'
-import { ChainId } from 'src/constants/chains'
 import { AssetType } from 'src/entities/assets'
 import {
   useOnChainCurrencyBalance,
@@ -22,8 +21,9 @@ import { BaseDerivedInfo } from 'src/features/transactions/transactionState/type
 import { transferTokenActions } from 'src/features/transactions/transfer/transferTokenSaga'
 import { TransferTokenParams } from 'src/features/transactions/transfer/useTransferTransactionRequest'
 import { useActiveAccount } from 'src/features/wallet/hooks'
-import { buildCurrencyId } from 'src/utils/currencyId'
 import { tryParseExactAmount } from 'src/utils/tryParseAmount'
+import { ChainId } from 'wallet/src/constants/chains'
+import { buildCurrencyId } from 'wallet/src/utils/currencyId'
 
 export type DerivedTransferInfo = BaseDerivedInfo<CurrencyInfo | GQLNftAsset> & {
   currencyTypes: { [CurrencyField.INPUT]?: AssetType }

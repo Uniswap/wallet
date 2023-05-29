@@ -9,7 +9,6 @@ import { OnboardingStackParamList } from 'src/app/navigation/types'
 import { Button } from 'src/components/buttons/Button'
 import { Flex } from 'src/components/layout'
 import { Text } from 'src/components/Text'
-import { ChainId } from 'src/constants/chains'
 import { useENS } from 'src/features/ens/useENS'
 import { GenericImportForm } from 'src/features/import/GenericImportForm'
 import { importAccountActions } from 'src/features/import/importAccountSaga'
@@ -20,9 +19,10 @@ import { ElementName } from 'src/features/telemetry/constants'
 import { useIsSmartContractAddress } from 'src/features/transactions/transfer/hooks'
 import { useAccounts } from 'src/features/wallet/hooks'
 import { OnboardingScreens } from 'src/screens/Screens'
-import { getValidAddress } from 'src/utils/addresses'
-import { normalizeTextInput } from 'src/utils/string'
 import { useAddBackButton } from 'src/utils/useAddBackButton'
+import { ChainId } from 'wallet/src/constants/chains'
+import { getValidAddress } from 'wallet/src/utils/addresses'
+import { normalizeTextInput } from 'wallet/src/utils/string'
 
 type Props = NativeStackScreenProps<OnboardingStackParamList, OnboardingScreens.WatchWallet>
 
@@ -121,11 +121,6 @@ export function WatchWalletScreen({ navigation, route: { params } }: Props): JSX
     sm: 'buttonLabelSmall',
   })
 
-  const entryPadding = useResponsiveProp({
-    xs: 'none',
-    sm: 'spacing24',
-  })
-
   const itemSpacing = useResponsiveProp({
     xs: 'none',
     sm: 'spacing8',
@@ -137,7 +132,7 @@ export function WatchWalletScreen({ navigation, route: { params } }: Props): JSX
         'Enter an Ethereum wallet address (starting with 0x) or ENS name (ending in .eth).'
       )}
       title={t('Enter a wallet address')}>
-      <Flex gap={itemSpacing} pt={entryPadding}>
+      <Flex gap={itemSpacing}>
         <GenericImportForm
           blurOnSubmit
           errorMessage={errorText}

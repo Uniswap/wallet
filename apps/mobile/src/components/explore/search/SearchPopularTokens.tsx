@@ -4,17 +4,17 @@ import { SearchTokenItem } from 'src/components/explore/search/items/SearchToken
 import { getSearchResultId } from 'src/components/explore/search/utils'
 import { Inset } from 'src/components/layout'
 import { Loader } from 'src/components/loading'
-import { ChainId } from 'src/constants/chains'
-import { EMPTY_ARRAY } from 'src/constants/misc'
-import { WRAPPED_NATIVE_CURRENCY } from 'src/constants/tokens'
 import {
   Chain,
   SearchPopularTokensQuery,
   useSearchPopularTokensQuery,
 } from 'src/data/__generated__/types-and-hooks'
 import { SearchResultType, TokenSearchResult } from 'src/features/explore/searchHistorySlice'
-import { areAddressesEqual } from 'src/utils/addresses'
-import { fromGraphQLChain } from 'src/utils/chainId'
+import { ChainId } from 'wallet/src/constants/chains'
+import { EMPTY_ARRAY } from 'wallet/src/constants/misc'
+import { WRAPPED_NATIVE_CURRENCY } from 'wallet/src/constants/tokens'
+import { areAddressesEqual } from 'wallet/src/utils/addresses'
+import { fromGraphQLChain } from 'wallet/src/utils/chainId'
 
 export function SearchPopularTokens(): JSX.Element {
   // Load popular tokens by top Uniswap trading volume
@@ -69,7 +69,8 @@ function gqlTokenToTokenSearchResult(
 ): TokenSearchResult | null {
   if (!token || !token.project) return null
 
-  const { chain, address, symbol, name, project } = token
+  const { chain, address, symbol, project } = token
+  const { name } = project
   const chainId = fromGraphQLChain(chain)
   if (!chainId || !symbol || !name) return null
 

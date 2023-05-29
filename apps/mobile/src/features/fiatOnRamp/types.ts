@@ -5,13 +5,17 @@ export type FiatOnRampWidgetUrlQueryParameters = {
 
 export type FiatOnRampWidgetUrlQueryResponse = { url: string }
 
-/** @ref https://dashboard.moonpay.com/api_reference/client_side_api#ip_addresses */
-export type MoonpayIPAddressesResponse = {
+/** @ref https://dashboard.moonpay.com/api_reference/client_side_api#ip_address_object */
+export type MoonpayIPAddressData = {
   alpha3?: string
+  state?: string
   isAllowed?: boolean
   isBuyAllowed?: boolean
   isSellAllowed?: boolean
 }
+
+/** @ref https://dashboard.moonpay.com/api_reference/client_side_api#check_ip_address */
+export type MoonpayIPAddressesResponse = MoonpayIPAddressData
 
 /** @ref https://dashboard.moonpay.com/api_reference/client_side_api#currencies */
 export type MoonpayCurrency = {
@@ -19,10 +23,34 @@ export type MoonpayCurrency = {
   type: 'crypto' | 'fiat'
   name?: string
   code: string
+  supportsTestMode: boolean
+  supportsLiveMode: boolean
+  notAllowedUSStates: string[]
+  isSupportedInUS: boolean
   metadata?: {
     contractAddress: string
     chainId: string
   }
+}
+
+/** @ref https://dashboard.moonpay.com/api_reference/client_side_api#list_currencies */
+export type MoonpayListCurrenciesResponse = MoonpayCurrency[]
+
+/** @ref https://dashboard.moonpay.com/api_reference/client_side_api#get_currency_buy_quote */
+export type MoonpayBuyQuoteResponse = MoonpayQuote
+
+type CurrencyLimit = {
+  code: string
+  minBuyAmount: number
+  maxBuyAmount: number
+}
+
+/** @ref https://dashboard.moonpay.com/api_reference/client_side_api#get_currency_limits */
+export type MoonpayLimitsResponse = {
+  paymentMethod: string
+  quoteCurrency: CurrencyLimit
+  baseCurrency: CurrencyLimit
+  areFeesIncluded: boolean
 }
 
 /** @ref https://dashboard.moonpay.com/api_reference/client_side_api#transactions */

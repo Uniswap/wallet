@@ -11,8 +11,8 @@ import {
   TransactionDetails,
   TransactionType,
 } from 'src/features/transactions/types'
-import { buildCurrencyId } from 'src/utils/currencyId'
-import { formatNumberOrString, NumberType } from 'src/utils/format'
+import { buildCurrencyId } from 'wallet/src/utils/currencyId'
+import { formatNumberOrString, NumberType } from 'wallet/src/utils/format'
 
 const INFINITE_AMOUNT = 'INF'
 const ZERO_AMOUNT = '0.0'

@@ -1,7 +1,6 @@
 import { ApolloError } from '@apollo/client'
 import { Token } from '@uniswap/sdk-core'
 import { useEffect, useState } from 'react'
-import { ChainId } from 'src/constants/chains'
 import {
   Chain,
   ContractInput,
@@ -9,15 +8,16 @@ import {
   TopTokensQuery,
 } from 'src/data/__generated__/types-and-hooks'
 import { CurrencyInfo } from 'src/features/dataApi/types'
-import { NativeCurrency } from 'src/features/tokens/NativeCurrency'
-import { fromGraphQLChain, toGraphQLChain } from 'src/utils/chainId'
+import { ChainId } from 'wallet/src/constants/chains'
+import { NativeCurrency } from 'wallet/src/features/tokens/NativeCurrency'
+import { fromGraphQLChain, toGraphQLChain } from 'wallet/src/utils/chainId'
 import {
   currencyId,
   CurrencyId,
   currencyIdToChain,
   currencyIdToGraphQLAddress,
   isNativeCurrencyAddress,
-} from 'src/utils/currencyId'
+} from 'wallet/src/utils/currencyId'
 
 // Converts CurrencyId to ContractInput format for GQL token queries
 export function currencyIdToContractInput(id: CurrencyId): ContractInput {
@@ -48,14 +48,21 @@ export function tokenProjectToCurrencyInfos(
       (project) =>
         project?.tokens &&
         sortTokensWithinProject(project?.tokens).map((token) => {
-          const { logoUrl, safetyLevel } = project ?? {}
-          const { chain, address, name, decimals, symbol } = token ?? {}
+          const { logoUrl, safetyLevel, name } = project ?? {}
+          const { chain, address, decimals, symbol } = token ?? {}
           const chainId = fromGraphQLChain(chain)
-          if (!chainId || !decimals || !symbol || !name) return null
+          if (!chainId || !decimals || !symbol) return null
 
           if (chainFilter && chainFilter !== chainId) return null
           const currency = isNonNativeAddress(chainId, address)
-            ? new Token(chainId, address, decimals, symbol, name, /* bypassChecksum:*/ true)
+            ? new Token(
+                chainId,
+                address,
+                decimals,
+                symbol,
+                name ?? undefined,
+                /* bypassChecksum:*/ true
+              )
             : NativeCurrency.onChain(chainId)
 
           const currencyInfo: CurrencyInfo = {
@@ -80,13 +87,13 @@ export function gqlTokenToCurrencyInfo(
   token: NonNullable<NonNullable<TopTokensQuery['topTokens']>[0]>,
   chainFilter?: ChainId | null
 ): CurrencyInfo | null {
-  const { chain, address, decimals, name, symbol, project } = token
+  const { chain, address, decimals, symbol, project } = token
   const chainId = fromGraphQLChain(chain)
 
-  if (!chainId || !decimals || !symbol || !name || !project) return null
+  if (!chainId || !decimals || !symbol || !project || !project.name) return null
   if (chainFilter && chainFilter !== chainId) return null
 
-  const { logoUrl, safetyLevel, isSpam } = project
+  const { logoUrl, name, safetyLevel, isSpam } = project
 
   const currency = isNonNativeAddress(chainId, address)
     ? new Token(chainId, address, decimals, symbol, name, /* bypassChecksum:*/ true)

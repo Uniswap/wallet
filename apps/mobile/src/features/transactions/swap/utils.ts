@@ -4,10 +4,8 @@ import {
   SwapOptions as UniversalRouterSwapOptions,
   SwapRouter as UniversalSwapRouter,
 } from '@uniswap/universal-router-sdk'
-import { BigNumber, BigNumberish } from 'ethers'
+import { BigNumber } from 'ethers'
 import { TFunction } from 'i18next'
-import { ChainId } from 'src/constants/chains'
-import { WRAPPED_NATIVE_CURRENCY } from 'src/constants/tokens'
 import { AssetType } from 'src/entities/assets'
 import { ElementName } from 'src/features/telemetry/constants'
 import { PermitOptions } from 'src/features/transactions/permit/usePermitSignature'
@@ -19,15 +17,17 @@ import {
   ExactOutputSwapTransactionInfo,
   TransactionType,
 } from 'src/features/transactions/types'
-import { areAddressesEqual } from 'src/utils/addresses'
+import { ChainId } from 'wallet/src/constants/chains'
+import { WRAPPED_NATIVE_CURRENCY } from 'wallet/src/constants/tokens'
+import { areAddressesEqual } from 'wallet/src/utils/addresses'
 import {
   areCurrencyIdsEqual,
   CurrencyId,
   currencyId,
   currencyIdToAddress,
   currencyIdToChain,
-} from 'src/utils/currencyId'
-import { formatPrice, NumberType } from 'src/utils/format'
+} from 'wallet/src/utils/currencyId'
+import { formatPrice, NumberType } from 'wallet/src/utils/format'
 import { CurrencyField, TransactionState } from '../transactionState/transactionState'
 
 export function serializeQueryParams(
@@ -108,9 +108,6 @@ export const getRateToDisplay = (trade: Trade, showInverseRate: boolean): string
   const inverseRate = `1 ${baseCurrency.symbol} = ${formattedPrice} ${quoteCurrency.symbol}`
   return showInverseRate ? rate : inverseRate
 }
-
-export const formatAsHexString = (input?: BigNumberish): string | undefined =>
-  input !== undefined ? BigNumber.from(input).toHexString() : input
 
 export const getActionName = (t: TFunction, wrapType: WrapType): string => {
   switch (wrapType) {

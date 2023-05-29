@@ -3,8 +3,6 @@ import { PutEffect, TakeEffect } from 'redux-saga/effects'
 import { appSelect } from 'src/app/hooks'
 import { i18n } from 'src/app/i18n'
 import { getProvider } from 'src/app/walletContext'
-import { ChainId } from 'src/constants/chains'
-import { PollingInterval } from 'src/constants/misc'
 import { fetchFiatOnRampTransaction } from 'src/features/fiatOnRamp/api'
 import {
   pushNotification,
@@ -35,9 +33,11 @@ import {
 } from 'src/features/transactions/types'
 import { getFinalizedTransactionStatus } from 'src/features/transactions/utils'
 import { logger } from 'src/utils/logger'
-import { ONE_SECOND_MS } from 'src/utils/time'
 import { sleep } from 'src/utils/timing'
 import { call, delay, fork, put, race, take } from 'typed-redux-saga'
+import { ChainId } from 'wallet/src/constants/chains'
+import { PollingInterval } from 'wallet/src/constants/misc'
+import { ONE_SECOND_MS } from 'wallet/src/utils/time'
 
 const FLASHBOTS_POLLING_INTERVAL = ONE_SECOND_MS * 5
 
@@ -109,7 +109,7 @@ export function* watchFlashbotsTransaction(transaction: TransactionDetails): Gen
 
   const txStatus = yield* call(getFlashbotsTxConfirmation, hash, chainId)
   if (txStatus === TransactionStatus.Failed || txStatus === TransactionStatus.Unknown) {
-    yield* call(finalizeTransaction, transaction, null, TransactionStatus.Failed)
+    yield* call(finalizeTransaction, transaction, null, TransactionStatus.Failed as StatusOverride)
     yield* put(
       pushNotification({
         type: AppNotificationType.Error,
@@ -291,13 +291,15 @@ export function* waitForTxnInvalidated(
   }
 }
 
+type StatusOverride =
+  | TransactionStatus.Success
+  | TransactionStatus.Failed
+  | TransactionStatus.Cancelled
+
 function* finalizeTransaction(
   transaction: TransactionDetails,
   ethersReceipt?: providers.TransactionReceipt | null,
-  statusOverride?:
-    | TransactionStatus.Success
-    | TransactionStatus.Failed
-    | TransactionStatus.Cancelled
+  statusOverride?: StatusOverride
 ): Generator<
   | PutEffect<{
       payload: FinalizedTransactionDetails

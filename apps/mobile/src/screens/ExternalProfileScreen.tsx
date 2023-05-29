@@ -14,12 +14,12 @@ import { Screen } from 'src/components/layout/Screen'
 import { renderTabLabel, TabContentProps, TAB_STYLES } from 'src/components/layout/TabHelpers'
 import { Trace } from 'src/components/telemetry/Trace'
 import TraceTabView from 'src/components/telemetry/TraceTabView'
-import { EMPTY_ARRAY } from 'src/constants/misc'
 import ProfileHeader from 'src/features/externalProfile/ProfileHeader'
 import { SectionName } from 'src/features/telemetry/constants'
 import { useDisplayName } from 'src/features/wallet/hooks'
 import { ExploreModalAwareView } from 'src/screens/ModalAwareView'
 import { Screens } from 'src/screens/Screens'
+import { EMPTY_ARRAY } from 'wallet/src/constants/misc'
 
 type Props = NativeStackScreenProps<AppStackParamList, Screens.ExternalProfile>
 
@@ -52,22 +52,38 @@ export function ExternalProfileScreen({
     [insets.bottom]
   )
 
+  const emptyContainerStyle = useMemo<StyleProp<ViewStyle>>(
+    () => ({
+      paddingTop: theme.spacing.spacing60,
+      paddingHorizontal: theme.spacing.spacing36,
+      paddingBottom: insets.bottom,
+    }),
+    [insets.bottom, theme.spacing.spacing36, theme.spacing.spacing60]
+  )
+
   const sharedProps = useMemo<TabContentProps>(
     () => ({
       contentContainerStyle: containerStyle,
       loadingContainerStyle: containerStyle,
-      emptyContainerStyle: containerStyle,
+      emptyContainerStyle,
     }),
-    [containerStyle]
+    [containerStyle, emptyContainerStyle]
   )
 
   const renderTab = useCallback(
-    ({ route }) => {
+    ({
+      route,
+    }: {
+      route: {
+        key: SectionName
+        title: string
+      }
+    }) => {
       switch (route?.key) {
         case SectionName.ProfileActivityTab:
-          return <ActivityTab containerProps={sharedProps} owner={address} />
+          return <ActivityTab isExternalProfile containerProps={sharedProps} owner={address} />
         case SectionName.ProfileNftsTab:
-          return <NftsTab containerProps={sharedProps} owner={address} />
+          return <NftsTab isExternalProfile containerProps={sharedProps} owner={address} />
         case SectionName.ProfileTokensTab:
           return <TokensTab isExternalProfile containerProps={sharedProps} owner={address} />
       }

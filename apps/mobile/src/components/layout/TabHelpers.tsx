@@ -86,6 +86,7 @@ export type TabProps = {
   containerProps?: TabContentProps
   scrollHandler?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
   headerHeight?: number
+  isExternalProfile?: boolean
 }
 
 export type TabContentProps = Partial<FlatListProps<unknown>> & {
@@ -112,7 +113,11 @@ export const renderTabLabel = ({
       <Text color={focused ? 'textPrimary' : 'textTertiary'} fontSize={18} variant="bodyLarge">
         {route.title}
       </Text>
-      {!isExternalProfile && route.title === 'Activity' ? <PendingNotificationBadge /> : null}
+      {/* Streamline UI by hiding the Activity tab spinner when focused
+      and showing it only on the specific pending transactions. */}
+      {route.title === 'Activity' && !isExternalProfile && !focused ? (
+        <PendingNotificationBadge />
+      ) : null}
     </Flex>
   )
 }

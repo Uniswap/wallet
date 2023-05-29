@@ -18,7 +18,6 @@ import { TabProps } from 'src/components/layout/TabHelpers'
 import { Loader } from 'src/components/loading'
 import { HiddenNftsRowLeft, HiddenNftsRowRight } from 'src/components/NFT/NFTHiddenRow'
 import { ScannerModalState } from 'src/components/QRCodeScanner/constants'
-import { EMPTY_ARRAY } from 'src/constants/misc'
 import { isError, isNonPollingRequestInFlight } from 'src/data/utils'
 import { NftsTabQuery, useNftsTabQuery } from 'src/data/__generated__/types-and-hooks'
 import { openModal } from 'src/features/modals/modalSlice'
@@ -35,6 +34,7 @@ import { ModalName } from 'src/features/telemetry/constants'
 import { removePendingSession } from 'src/features/walletConnect/walletConnectSlice'
 import { Screens } from 'src/screens/Screens'
 import { dimensions } from 'src/styles/sizing'
+import { EMPTY_ARRAY } from 'wallet/src/constants/misc'
 import { useAdaptiveFooterHeight } from './hooks'
 
 const MAX_NFT_IMAGE_SIZE = 375
@@ -125,7 +125,7 @@ function NftView({ owner, item }: { owner: Address; item: NFTItem }): JSX.Elemen
 }
 
 export const NftsTab = forwardRef<FlashList<unknown>, TabProps>(
-  ({ owner, containerProps, scrollHandler, headerHeight }, ref) => {
+  ({ owner, containerProps, scrollHandler, headerHeight, isExternalProfile = false }, ref) => {
     const { t } = useTranslation()
     const theme = useAppTheme()
     const dispatch = useAppDispatch()
@@ -237,8 +237,12 @@ export const NftsTab = forwardRef<FlashList<unknown>, TabProps>(
               // empty view
               <Box flexGrow={1} style={containerProps?.emptyContainerStyle}>
                 <BaseCard.EmptyState
-                  buttonLabel={t('Receive NFTs')}
-                  description={t('Transfer NFTs from another wallet to get started.')}
+                  buttonLabel={isExternalProfile ? undefined : t('Receive NFTs')}
+                  description={
+                    isExternalProfile
+                      ? t('When this wallet buys or receives NFTs, they’ll appear here.')
+                      : t('Transfer NFTs from another wallet to get started.')
+                  }
                   icon={<NoNFTsIcon color={theme.colors.textSecondary} />}
                   title={t('No NFTs yet')}
                   onPress={onPressScan}

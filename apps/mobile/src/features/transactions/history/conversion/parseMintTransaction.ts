@@ -1,14 +1,14 @@
 import { BigNumber } from 'ethers'
 import { parseUnits } from 'ethers/lib/utils'
-import { ChainId } from 'src/constants/chains'
-import { NativeCurrency } from 'src/features/tokens/NativeCurrency'
 import { parseUSDValueFromAssetChange } from 'src/features/transactions/history/utils'
 import {
   NFTMintTransactionInfo,
   TransactionListQueryResponse,
   TransactionType,
 } from 'src/features/transactions/types'
-import { buildCurrencyId, buildNativeCurrencyId } from 'src/utils/currencyId'
+import { ChainId } from 'wallet/src/constants/chains'
+import { NativeCurrency } from 'wallet/src/features/tokens/NativeCurrency'
+import { buildCurrencyId, buildNativeCurrencyId } from 'wallet/src/utils/currencyId'
 
 export default function parseNFTMintTransaction(
   transaction: TransactionListQueryResponse

@@ -14,7 +14,6 @@ import { Text } from 'src/components/Text'
 import { RelativeChange } from 'src/components/text/RelativeChange'
 import { useTokenDetailsNavigation } from 'src/components/TokenDetails/hooks'
 import { TokenMetadata } from 'src/components/tokens/TokenMetadata'
-import { ChainId } from 'src/constants/chains'
 import { AssetType } from 'src/entities/assets'
 import { TokenMetadataDisplayType } from 'src/features/explore/types'
 import { useToggleFavoriteCallback } from 'src/features/favorites/hooks'
@@ -31,13 +30,14 @@ import {
   CurrencyField,
   TransactionState,
 } from 'src/features/transactions/transactionState/transactionState'
+import { ChainId } from 'wallet/src/constants/chains'
 import {
   buildCurrencyId,
   buildNativeCurrencyId,
   currencyIdToAddress,
   currencyIdToChain,
-} from 'src/utils/currencyId'
-import { formatNumber, formatUSDPrice, NumberType } from 'src/utils/format'
+} from 'wallet/src/utils/currencyId'
+import { formatNumber, formatUSDPrice, NumberType } from 'wallet/src/utils/format'
 
 const FAVORITE_ACTION_INDEX = 0
 const SWAP_ACTION_INDEX = 1

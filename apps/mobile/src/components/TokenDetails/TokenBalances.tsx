@@ -13,8 +13,8 @@ import { MobileEventName } from 'src/features/telemetry/constants'
 import { AccountType } from 'src/features/wallet/accounts/types'
 import { useActiveAccount, useDisplayName } from 'src/features/wallet/hooks'
 import { iconSizes } from 'src/styles/sizing'
-import { CurrencyId } from 'src/utils/currencyId'
-import { formatNumber, NumberType } from 'src/utils/format'
+import { CurrencyId } from 'wallet/src/utils/currencyId'
+import { formatNumber, NumberType } from 'wallet/src/utils/format'
 import { SendButton } from './SendButton'
 
 /**

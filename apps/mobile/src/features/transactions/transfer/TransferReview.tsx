@@ -15,8 +15,8 @@ import {
 } from 'src/features/transactions/transfer/hooks'
 import { AccountType } from 'src/features/wallet/accounts/types'
 import { useActiveAccountWithThrow } from 'src/features/wallet/hooks'
-import { currencyAddress } from 'src/utils/currencyId'
-import { formatCurrencyAmount, formatNumberOrString, NumberType } from 'src/utils/format'
+import { currencyAddress } from 'wallet/src/utils/currencyId'
+import { formatCurrencyAmount, formatNumberOrString, NumberType } from 'wallet/src/utils/format'
 
 interface TransferFormProps {
   derivedTransferInfo: DerivedTransferInfo

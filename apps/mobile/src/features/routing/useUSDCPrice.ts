@@ -1,10 +1,16 @@
 import { Currency, CurrencyAmount, Price, Token, TradeType } from '@uniswap/sdk-core'
 import { useMemo } from 'react'
-import { ChainId } from 'src/constants/chains'
-import { PollingInterval } from 'src/constants/misc'
-import { USDC, USDC_ARBITRUM, USDC_GOERLI, USDC_OPTIMISM, USDC_POLYGON } from 'src/constants/tokens'
 import { useTrade } from 'src/features/transactions/swap/useTrade'
-import { areCurrencyIdsEqual, currencyId } from 'src/utils/currencyId'
+import { ChainId } from 'wallet/src/constants/chains'
+import { PollingInterval } from 'wallet/src/constants/misc'
+import {
+  USDC,
+  USDC_ARBITRUM,
+  USDC_GOERLI,
+  USDC_OPTIMISM,
+  USDC_POLYGON,
+} from 'wallet/src/constants/tokens'
+import { areCurrencyIdsEqual, currencyId } from 'wallet/src/utils/currencyId'
 
 // Stablecoin amounts used when calculating spot price for a given currency.
 // The amount is large enough to filter low liquidity pairs.

@@ -24,10 +24,8 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # local env files
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env
+.env.defaults.local
 
 # turbo
 .turbo
@@ -39,5 +37,5 @@ yarn-error.log*
 
 dist/out-tsc/*
 
-**/.env
-!apps/mobile/.env
+# ci
+.ci-cache/

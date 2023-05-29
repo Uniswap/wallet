@@ -2,8 +2,6 @@ import { createSelector, Selector } from '@reduxjs/toolkit'
 import { RootState } from 'src/app/rootReducer'
 import { SearchableRecipient } from 'src/components/RecipientSelect/types'
 import { uniqueAddressesOnly } from 'src/components/RecipientSelect/utils'
-import { ChainId } from 'src/constants/chains'
-import { EMPTY_ARRAY } from 'src/constants/misc'
 import { TransactionState } from 'src/features/transactions/slice'
 import {
   SendTokenTransactionInfo,
@@ -13,6 +11,8 @@ import {
 } from 'src/features/transactions/types'
 import { unique } from 'src/utils/array'
 import { flattenObjectOfObjects } from 'src/utils/objects'
+import { ChainId } from 'wallet/src/constants/chains'
+import { EMPTY_ARRAY } from 'wallet/src/constants/misc'
 
 export const selectTransactions = (state: RootState): TransactionState => state.transactions
 

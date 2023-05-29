@@ -20,7 +20,6 @@ import { Loader } from 'src/components/loading'
 import { Trace } from 'src/components/telemetry/Trace'
 import { Text } from 'src/components/Text'
 import { LongText } from 'src/components/text/LongText'
-import { PollingInterval } from 'src/constants/misc'
 import {
   NftActivityType,
   NftItemScreenQuery,
@@ -38,16 +37,19 @@ import { ModalName } from 'src/features/telemetry/constants'
 import { useActiveAccountAddressWithThrow } from 'src/features/wallet/hooks'
 import { ExploreModalAwareView } from 'src/screens/ModalAwareView'
 import { Screens } from 'src/screens/Screens'
-import { colorsDark } from 'src/styles/color'
 import { iconSizes } from 'src/styles/sizing'
 import { darkTheme } from 'src/styles/theme'
-import { areAddressesEqual } from 'src/utils/addresses'
 import { setClipboardImage } from 'src/utils/clipboard'
 import {
   MIN_COLOR_CONTRAST_THRESHOLD,
   passesContrast,
   useNearestThemeColorFromImageUri,
 } from 'src/utils/colors'
+import { colorsDark } from 'ui/src/theme/color'
+import { PollingInterval } from 'wallet/src/constants/misc'
+import { areAddressesEqual } from 'wallet/src/utils/addresses'
+
+const MAX_NFT_IMAGE_HEIGHT = 375
 
 export function NFTItemScreen({
   route: {
@@ -223,7 +225,11 @@ export function NFTItemScreen({
                       </Box>
                     ) : asset?.image?.url ? (
                       <TouchableArea onPress={onLongPressNFTImage}>
-                        <NFTViewer autoplay uri={asset.image.url} />
+                        <NFTViewer
+                          autoplay
+                          maxHeight={MAX_NFT_IMAGE_HEIGHT}
+                          uri={asset.image.url}
+                        />
                       </TouchableArea>
                     ) : (
                       <Box
