@@ -21,7 +21,6 @@ import {
 } from 'src/features/wallet/selectors'
 import { Screens } from 'src/screens/Screens'
 import { dimensions } from 'src/styles/sizing'
-import { zIndices } from 'src/styles/zIndices'
 import { useSuspendUpdatesWhenBlured } from 'src/utils/hooks'
 import { EMPTY_ARRAY } from 'wallet/src/constants/misc'
 import { CurrencyId } from 'wallet/src/utils/currencyId'
@@ -152,8 +151,6 @@ export const TokenBalanceList = forwardRef<FlashList<any>, TokenBalanceListProps
             }
             // we add a footer to cover any possible space, so user can scroll the top menu all the way to the top
             ListFooterComponent={<Box height={footerHeight} />}
-            // add negative z index to prevent footer from covering hidden tokens row when minimized
-            ListFooterComponentStyle={{ zIndex: zIndices.negative }}
             ListHeaderComponent={
               isError(networkStatus, !!data) ? (
                 <AnimatedBox entering={FadeInDown} exiting={FadeOut} py="spacing8">
