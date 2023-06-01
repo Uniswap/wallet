@@ -49,8 +49,6 @@ import { colorsDark } from 'ui/src/theme/color'
 import { PollingInterval } from 'wallet/src/constants/misc'
 import { areAddressesEqual } from 'wallet/src/utils/addresses'
 
-const MAX_NFT_IMAGE_HEIGHT = 375
-
 export function NFTItemScreen({
   route: {
     params: { owner, address, tokenId },
@@ -225,11 +223,7 @@ export function NFTItemScreen({
                       </Box>
                     ) : asset?.image?.url ? (
                       <TouchableArea onPress={onLongPressNFTImage}>
-                        <NFTViewer
-                          autoplay
-                          maxHeight={MAX_NFT_IMAGE_HEIGHT}
-                          uri={asset.image.url}
-                        />
+                        <NFTViewer autoplay uri={asset.image.url} />
                       </TouchableArea>
                     ) : (
                       <Box
