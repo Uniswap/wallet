@@ -13,7 +13,6 @@ import {
 } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useAppDispatch, useAppTheme } from 'src/app/hooks'
-import InformationIcon from 'src/assets/icons/i-icon.svg'
 import { Button, ButtonEmphasis, ButtonSize } from 'src/components/buttons/Button'
 import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { CurrencyLogo } from 'src/components/CurrencyLogo'
@@ -28,8 +27,6 @@ import { BottomSheetModal } from 'src/components/modals/BottomSheetModal'
 import { Text } from 'src/components/Text'
 import { Pill } from 'src/components/text/Pill'
 import { FiatOnRampTokenSelector } from 'src/components/TokenSelector/FiatOnRampTokenSelector'
-
-import { CurrencyInfo } from 'src/features/dataApi/types'
 import { FiatOnRampConnectingView } from 'src/features/fiatOnRamp/FiatOnRampConnecting'
 import { useMoonpayFiatOnRamp } from 'src/features/fiatOnRamp/hooks'
 import { MoonpayCurrency } from 'src/features/fiatOnRamp/types'
@@ -40,17 +37,21 @@ import { EventProperties } from 'src/features/telemetry/types'
 import { useCurrencyInfo } from 'src/features/tokens/useCurrencyInfo'
 import { useDynamicFontSizing, useShouldShowNativeKeyboard } from 'src/features/transactions/hooks'
 import { ANIMATE_SPRING_CONFIG } from 'src/features/transactions/utils'
-import { dimensions, iconSizes, spacing } from 'src/styles/sizing'
+import { dimensions } from 'src/styles/sizing'
 import { Theme } from 'src/styles/theme'
 import { openUri } from 'src/utils/linking'
-import { useTimeout } from 'src/utils/timing'
+import InformationIcon from 'ui/src/assets/icons/i-icon.svg'
+import { iconSizes } from 'ui/src/theme/iconSizes'
+import { spacing } from 'ui/src/theme/spacing'
 import { NATIVE_ADDRESS } from 'wallet/src/constants/addresses'
 import { ChainId } from 'wallet/src/constants/chains'
+import { CurrencyInfo } from 'wallet/src/features/dataApi/types'
 import { buildCurrencyId } from 'wallet/src/utils/currencyId'
 import { formatUSDPrice } from 'wallet/src/utils/format'
+import { useTimeout } from 'wallet/src/utils/timing'
 
 export type FiatOnRampCurrency = {
-  currencyInfo: NullUndefined<CurrencyInfo>
+  currencyInfo: Maybe<CurrencyInfo>
   moonpayCurrency: MoonpayCurrency
 }
 

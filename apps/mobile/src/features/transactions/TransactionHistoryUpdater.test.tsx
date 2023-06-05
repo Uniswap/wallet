@@ -4,10 +4,6 @@ import { waitFor } from '@testing-library/react-native'
 import dayjs from 'dayjs'
 import MockDate from 'mockdate'
 import React from 'react'
-import {
-  TransactionHistoryUpdaterDocument,
-  TransactionHistoryUpdaterQuery,
-} from 'src/data/__generated__/types-and-hooks'
 import { AssetType } from 'src/entities/assets'
 import { AppNotificationType } from 'src/features/notifications/types'
 import {
@@ -15,13 +11,18 @@ import {
   TransactionHistoryUpdater,
 } from 'src/features/transactions/TransactionHistoryUpdater'
 import { TransactionStatus, TransactionType } from 'src/features/transactions/types'
-import { Account } from 'src/features/wallet/accounts/types'
 import { account, account2 } from 'src/test/fixtures'
 import { MAX_FIXTURE_TIMESTAMP, Portfolios, PortfoliosWithReceive } from 'src/test/gqlFixtures'
 import { render } from 'src/test/test-utils'
-import { sleep } from 'src/utils/timing'
 import { ChainId } from 'wallet/src/constants/chains'
+import {
+  TransactionHistoryUpdaterDocument,
+  TransactionHistoryUpdaterQuery,
+} from 'wallet/src/data/__generated__/types-and-hooks'
+import { Account } from 'wallet/src/features/wallet/accounts/types'
+import { SAMPLE_SEED_ADDRESS_1 } from 'wallet/src/test/fixtures'
 import { ONE_SECOND_MS } from 'wallet/src/utils/time'
+import { sleep } from 'wallet/src/utils/timing'
 
 const mockedRefetchQueries = jest.fn()
 jest.mock('src/data/hooks', () => ({
@@ -40,7 +41,6 @@ const accounts: Record<Address, Account> = {
 const walletSlice = {
   accounts,
   activeAccountAddress: null,
-  flashbotsEnabled: false,
   isUnlocked: false,
   settings: {},
   replaceAccountOptions: {
@@ -109,6 +109,22 @@ const mock: MockedResponse<TransactionHistoryUpdaterQuery> = {
 describe(TransactionHistoryUpdater, () => {
   beforeEach(() => {
     MockDate.reset()
+  })
+
+  it('skips rendering when no accounts available', () => {
+    const reduxState = {
+      wallet: {
+        ...walletSlice,
+        accounts: {},
+      },
+    }
+
+    const tree = render(<TransactionHistoryUpdater />, {
+      mocks: [mock],
+      preloadedState: reduxState,
+    })
+
+    expect(tree.toJSON()).toEqual(null)
   })
 
   it('updates notification status when there are new transactions', async () => {
@@ -220,7 +236,7 @@ describe(getReceiveNotificationFromData, () => {
       assetType: AssetType.Currency,
       tokenAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
       currencyAmountRaw: '1000000000000000000',
-      sender: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+      sender: SAMPLE_SEED_ADDRESS_1,
     })
   })
 

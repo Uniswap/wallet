@@ -1,10 +1,10 @@
 import React from 'react'
 import { TokenLogo } from 'src/components/CurrencyLogo/TokenLogo'
-import { CurrencyInfo } from 'src/features/dataApi/types'
-import { iconSizes } from 'src/styles/sizing'
+import { iconSizes } from 'ui/src/theme/iconSizes'
+import { CurrencyInfo } from 'wallet/src/features/dataApi/types'
 
 interface CurrencyLogoProps {
-  currencyInfo: NullUndefined<CurrencyInfo>
+  currencyInfo: Maybe<CurrencyInfo>
   size?: number
   hideNetworkLogo?: boolean
 }

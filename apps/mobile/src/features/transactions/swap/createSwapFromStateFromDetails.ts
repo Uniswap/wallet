@@ -5,14 +5,14 @@ import {
   TransactionState,
 } from 'src/features/transactions/transactionState/transactionState'
 import { TransactionDetails, TransactionType } from 'src/features/transactions/types'
-import { logger } from 'src/utils/logger'
-import { tryParseRawAmount } from 'src/utils/tryParseAmount'
+import { logger } from 'wallet/src/features/logger/logger'
 import { currencyAddress, currencyIdToAddress } from 'wallet/src/utils/currencyId'
+import { tryParseRawAmount } from 'wallet/src/utils/tryParseAmount'
 
 interface Props {
   transactionDetails: TransactionDetails
-  inputCurrency: NullUndefined<Currency>
-  outputCurrency: NullUndefined<Currency>
+  inputCurrency: Maybe<Currency>
+  outputCurrency: Maybe<Currency>
 }
 
 /**

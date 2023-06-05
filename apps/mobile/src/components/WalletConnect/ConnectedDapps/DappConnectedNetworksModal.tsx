@@ -1,7 +1,6 @@
 import { getSdkError } from '@walletconnect/utils'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { Alert } from 'react-native'
 import 'react-native-reanimated'
 import { useAppDispatch, useAppTheme } from 'src/app/hooks'
 import { Button, ButtonEmphasis } from 'src/components/buttons/Button'
@@ -20,8 +19,8 @@ import {
   WalletConnectSessionV2,
 } from 'src/features/walletConnect/walletConnectSlice'
 import { wcWeb3Wallet } from 'src/features/walletConnectV2/saga'
-import { logger } from 'src/utils/logger'
 import { CHAIN_INFO } from 'wallet/src/constants/chains'
+import { logger } from 'wallet/src/features/logger/logger'
 import { ONE_SECOND_MS } from 'wallet/src/utils/time'
 interface DappConnectedNetworkModalProps {
   session: WalletConnectSessionV2
@@ -40,11 +39,11 @@ export function DappConnectedNetworkModal({
 
   const onDisconnect = async (): Promise<void> => {
     try {
+      dispatch(removeSession({ account: address, sessionId: id }))
       await wcWeb3Wallet.disconnectSession({
         topic: id,
         reason: getSdkError('USER_DISCONNECTED'),
       })
-      dispatch(removeSession({ account: address, sessionId: id }))
       dispatch(
         pushNotification({
           type: AppNotificationType.WalletConnect,
@@ -61,15 +60,8 @@ export function DappConnectedNetworkModal({
         logger.error(
           'DappConnectionItem',
           'onDisconnect',
-          'Failed to disconnect session',
+          `Failed to disconnect session with ${dapp.name}`,
           e.message
-        )
-        Alert.alert(
-          t('WalletConnect Error'),
-          t('Failed to disconnect from {{ dapp }}. \n\n Error: {{ message }}', {
-            dapp: dapp.name,
-            message: e.message,
-          })
         )
       }
     }

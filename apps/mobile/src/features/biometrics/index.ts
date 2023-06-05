@@ -4,7 +4,7 @@ import {
   isEnrolledAsync,
   LocalAuthenticationOptions,
 } from 'expo-local-authentication'
-import { logger } from 'src/utils/logger'
+import { logger } from 'wallet/src/features/logger/logger'
 
 /**
  * Biometric authentication statuses
@@ -19,7 +19,7 @@ export enum BiometricAuthenticationStatus {
   Authenticating = 'AUTHENTICATING',
 }
 
-// TODO: [MOB-3885] Move into a saga
+// TODO: [MOB-220] Move into a saga
 export async function tryLocalAuthenticate(
   authenticateOptions?: LocalAuthenticationOptions
 ): Promise<BiometricAuthenticationStatus> {

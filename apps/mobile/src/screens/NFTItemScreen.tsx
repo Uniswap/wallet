@@ -8,8 +8,6 @@ import { TouchableOpacity } from 'react-native'
 import ContextMenu from 'react-native-context-menu-view'
 import { useAppDispatch, useAppSelector } from 'src/app/hooks'
 import { AppStackScreenProp, useAppStackNavigation } from 'src/app/navigation/types'
-import EllipsisIcon from 'src/assets/icons/ellipsis.svg'
-import ShareIcon from 'src/assets/icons/share.svg'
 import { AddressDisplay } from 'src/components/AddressDisplay'
 import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { NFTViewer } from 'src/components/images/NFTViewer'
@@ -20,11 +18,6 @@ import { Loader } from 'src/components/loading'
 import { Trace } from 'src/components/telemetry/Trace'
 import { Text } from 'src/components/Text'
 import { LongText } from 'src/components/text/LongText'
-import {
-  NftActivityType,
-  NftItemScreenQuery,
-  useNftItemScreenQuery,
-} from 'src/data/__generated__/types-and-hooks'
 import { selectModalState } from 'src/features/modals/modalSlice'
 import { PriceAmount } from 'src/features/nfts/collection/ListPriceCard'
 import { useNFTMenu } from 'src/features/nfts/hooks'
@@ -37,7 +30,6 @@ import { ModalName } from 'src/features/telemetry/constants'
 import { useActiveAccountAddressWithThrow } from 'src/features/wallet/hooks'
 import { ExploreModalAwareView } from 'src/screens/ModalAwareView'
 import { Screens } from 'src/screens/Screens'
-import { iconSizes } from 'src/styles/sizing'
 import { darkTheme } from 'src/styles/theme'
 import { setClipboardImage } from 'src/utils/clipboard'
 import {
@@ -45,13 +37,23 @@ import {
   passesContrast,
   useNearestThemeColorFromImageUri,
 } from 'src/utils/colors'
+import EllipsisIcon from 'ui/src/assets/icons/ellipsis.svg'
+import ShareIcon from 'ui/src/assets/icons/share.svg'
 import { colorsDark } from 'ui/src/theme/color'
+import { iconSizes } from 'ui/src/theme/iconSizes'
 import { PollingInterval } from 'wallet/src/constants/misc'
+import {
+  NftActivityType,
+  NftItemScreenQuery,
+  useNftItemScreenQuery,
+} from 'wallet/src/data/__generated__/types-and-hooks'
 import { areAddressesEqual } from 'wallet/src/utils/addresses'
+
+const MAX_NFT_IMAGE_HEIGHT = 375
 
 export function NFTItemScreen({
   route: {
-    params: { owner, address, tokenId },
+    params: { owner, address, tokenId, isSpam },
   },
 }: AppStackScreenProp<Screens.NFTItem>): JSX.Element {
   const { t } = useTranslation()
@@ -114,6 +116,7 @@ export function NFTItemScreen({
     tokenId: asset?.tokenId,
     owner,
     showNotification: true,
+    isSpam,
   })
   const { colorLight, colorDark } = useNearestThemeColorFromImageUri(asset?.image?.url)
   // check if colorLight passes contrast against card bg color, if not use fallback
@@ -223,7 +226,11 @@ export function NFTItemScreen({
                       </Box>
                     ) : asset?.image?.url ? (
                       <TouchableArea onPress={onLongPressNFTImage}>
-                        <NFTViewer autoplay uri={asset.image.url} />
+                        <NFTViewer
+                          autoplay
+                          maxHeight={MAX_NFT_IMAGE_HEIGHT}
+                          uri={asset.image.url}
+                        />
                       </TouchableArea>
                     ) : (
                       <Box

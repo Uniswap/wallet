@@ -8,11 +8,11 @@ import {
 import { MMKVWrapper } from 'apollo3-cache-persist'
 import { useCallback, useEffect, useState } from 'react'
 import { MMKV } from 'react-native-mmkv'
-import { uniswapUrls } from 'src/constants/urls'
 import { initAndPersistCache } from 'src/data/cache'
 import { setupErrorLink, setupPerformanceLink } from 'src/data/utils'
-import { isNonJestDev } from 'src/utils/environment'
 import { config } from 'wallet/src/config'
+import { uniswapUrls } from 'wallet/src/constants/urls'
+import { isNonJestDev } from 'wallet/src/utils/environment'
 
 const mmkv = new MMKV()
 if (isNonJestDev()) {
@@ -34,7 +34,7 @@ export const usePersistedApolloClient = (): ApolloClient<NormalizedCacheObject> 
         headers: {
           'Content-Type': 'application/json',
           'X-API-KEY': config.uniswapApiKey,
-          // TODO: [MOB-3883] remove once API gateway supports mobile origin URL
+          // TODO: [MOB-218] remove once API gateway supports mobile origin URL
           Origin: uniswapUrls.apiBaseUrl,
         },
       })

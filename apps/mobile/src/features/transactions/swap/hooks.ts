@@ -1,4 +1,4 @@
-// TODO(MOB-3867): reduce file length
+// TODO(MOB-204): reduce file length
 /* eslint-disable max-lines */
 import { MaxUint256 } from '@ethersproject/constants'
 import { SwapEventName } from '@uniswap/analytics-events'
@@ -8,17 +8,10 @@ import { UNIVERSAL_ROUTER_ADDRESS } from '@uniswap/universal-router-sdk'
 import { providers } from 'ethers'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AnyAction } from 'redux'
-import ERC20_ABI from 'src/abis/erc20.json'
-import { Erc20 } from 'src/abis/types'
 import { useAppDispatch } from 'src/app/hooks'
-import { useContractManager, useProvider } from 'src/app/walletContext'
-import { useOnChainCurrencyBalance } from 'src/features/balances/api'
-import { ContractManager } from 'src/features/contracts/ContractManager'
 import { CurrencyInfo } from 'src/features/dataApi/types'
 import { FEATURE_FLAGS } from 'src/features/experiments/constants'
 import { useFeatureFlag } from 'src/features/experiments/hooks'
-import { useTransactionGasFee } from 'src/features/gas/hooks'
-import { GasSpeed } from 'src/features/gas/types'
 import { pushNotification } from 'src/features/notifications/notificationSlice'
 import { AppNotificationType } from 'src/features/notifications/types'
 import { useSimulatedGasLimit } from 'src/features/routing/hooks'
@@ -54,15 +47,22 @@ import {
 } from 'src/features/transactions/transactionState/transactionState'
 import { BaseDerivedInfo } from 'src/features/transactions/transactionState/types'
 import { useActiveAccount, useActiveAccountAddressWithThrow } from 'src/features/wallet/hooks'
-import { useAsyncData, usePrevious } from 'src/utils/hooks'
-import { logger } from 'src/utils/logger'
 import { toStringish } from 'src/utils/number'
-import { tryParseExactAmount } from 'src/utils/tryParseAmount'
+import ERC20_ABI from 'wallet/src/abis/erc20.json'
+import { Erc20 } from 'wallet/src/abis/types'
 import { SWAP_ROUTER_ADDRESSES } from 'wallet/src/constants/addresses'
 import { ChainId } from 'wallet/src/constants/chains'
+import { ContractManager } from 'wallet/src/features/contracts/ContractManager'
+import { useTransactionGasFee } from 'wallet/src/features/gas/hooks'
+import { GasSpeed } from 'wallet/src/features/gas/types'
+import { logger } from 'wallet/src/features/logger/logger'
+import { useOnChainCurrencyBalance } from 'wallet/src/features/portfolio/api'
+import { useContractManager, useProvider } from 'wallet/src/features/wallet/context'
 import { areAddressesEqual } from 'wallet/src/utils/addresses'
 import { buildCurrencyId } from 'wallet/src/utils/currencyId'
 import { formatCurrencyAmount, NumberType } from 'wallet/src/utils/format'
+import { useAsyncData, usePrevious } from 'wallet/src/utils/hooks'
+import { tryParseExactAmount } from 'wallet/src/utils/tryParseAmount'
 
 const NUM_USD_DECIMALS_DISPLAY = 2
 
@@ -72,17 +72,17 @@ export type DerivedSwapInfo<
 > = BaseDerivedInfo<TInput> & {
   chainId: ChainId
   currencies: BaseDerivedInfo<TInput>['currencies'] & {
-    [CurrencyField.OUTPUT]: NullUndefined<TOutput>
+    [CurrencyField.OUTPUT]: Maybe<TOutput>
   }
   currencyAmounts: BaseDerivedInfo<TInput>['currencyAmounts'] & {
-    [CurrencyField.OUTPUT]: NullUndefined<CurrencyAmount<Currency>>
+    [CurrencyField.OUTPUT]: Maybe<CurrencyAmount<Currency>>
   }
   currencyAmountsUSDValue: {
-    [CurrencyField.INPUT]: NullUndefined<CurrencyAmount<Currency>>
-    [CurrencyField.OUTPUT]: NullUndefined<CurrencyAmount<Currency>>
+    [CurrencyField.INPUT]: Maybe<CurrencyAmount<Currency>>
+    [CurrencyField.OUTPUT]: Maybe<CurrencyAmount<Currency>>
   }
   currencyBalances: BaseDerivedInfo<TInput>['currencyBalances'] & {
-    [CurrencyField.OUTPUT]: NullUndefined<CurrencyAmount<Currency>>
+    [CurrencyField.OUTPUT]: Maybe<CurrencyAmount<Currency>>
   }
   focusOnCurrencyField: CurrencyField | null
   trade: ReturnType<typeof useTrade>
@@ -351,7 +351,7 @@ const getWrapTransactionRequest = async (
   chainId: ChainId,
   address: Address,
   wrapType: WrapType,
-  currencyAmountIn: NullUndefined<CurrencyAmount<Currency>>
+  currencyAmountIn: Maybe<CurrencyAmount<Currency>>
 ): Promise<providers.TransactionRequest | undefined> => {
   if (!currencyAmountIn) return
 
@@ -372,7 +372,7 @@ const MAX_APPROVE_AMOUNT = MaxUint256
 export function useTokenApprovalInfo(
   chainId: ChainId,
   wrapType: WrapType,
-  currencyInAmount: NullUndefined<CurrencyAmount<Currency>>
+  currencyInAmount: Maybe<CurrencyAmount<Currency>>
 ): TokenApprovalInfo | undefined {
   const address = useActiveAccountAddressWithThrow()
   const provider = useProvider(chainId)
@@ -680,8 +680,8 @@ export function useSwapCallback(
   swapTxRequest: providers.TransactionRequest | undefined,
   totalGasFee: string | undefined,
   trade: Trade | null | undefined,
-  currencyInAmountUSD: NullUndefined<CurrencyAmount<Currency>>,
-  currencyOutAmountUSD: NullUndefined<CurrencyAmount<Currency>>,
+  currencyInAmountUSD: Maybe<CurrencyAmount<Currency>>,
+  currencyOutAmountUSD: Maybe<CurrencyAmount<Currency>>,
   isAutoSlippage: boolean,
   onSubmit: () => void,
   txId?: string
@@ -789,7 +789,7 @@ export function useWrapCallback(
 
 // The first trade shown to the user is implicitly accepted but every subsequent update to
 // the trade params require an explicit user approval
-export function useAcceptedTrade(trade: NullUndefined<Trade>): {
+export function useAcceptedTrade(trade: Maybe<Trade>): {
   onAcceptTrade: () => undefined
   acceptedTrade: Trade<Currency, Currency, TradeType> | undefined
 } {

@@ -7,12 +7,6 @@ import { batch } from 'react-redux'
 import { useAppDispatch, useAppSelector } from 'src/app/hooks'
 import { useRefetchQueries } from 'src/data/hooks'
 import {
-  TransactionHistoryUpdaterQueryResult,
-  TransactionListQuery,
-  useTransactionHistoryUpdaterQuery,
-  useTransactionListLazyQuery,
-} from 'src/data/__generated__/types-and-hooks'
-import {
   pushNotification,
   setLastTxNotificationUpdate,
   setNotificationStatus,
@@ -28,27 +22,40 @@ import {
   selectActiveAccountAddress,
 } from 'src/features/wallet/selectors'
 import { PollingInterval } from 'wallet/src/constants/misc'
+import {
+  TransactionHistoryUpdaterQueryResult,
+  TransactionListQuery,
+  useTransactionHistoryUpdaterQuery,
+  useTransactionListLazyQuery,
+} from 'wallet/src/data/__generated__/types-and-hooks'
 import { ONE_SECOND_MS } from 'wallet/src/utils/time'
 
 /**
  * For all imported accounts, checks for new transactions and updates
  * the notification status in redux.
  */
-export function TransactionHistoryUpdater(): JSX.Element {
+export function TransactionHistoryUpdater(): JSX.Element | null {
   const accounts = useAccounts()
   const addresses = useMemo(() => {
     return Object.keys(accounts)
   }, [accounts])
 
+  const skip = addresses.length === 0
+
   const { data } = useTransactionHistoryUpdaterQuery({
     variables: { addresses },
     pollInterval: PollingInterval.Fast,
     fetchPolicy: 'network-only', // Ensure latest data.
+    skip,
   })
+
+  if (skip || !data?.portfolios?.length) {
+    return null
+  }
 
   return (
     <>
-      {data?.portfolios?.map((portfolio) => {
+      {data.portfolios.map((portfolio) => {
         if (!portfolio?.ownerAddress || !portfolio?.assetActivities) return null
 
         return (
@@ -61,7 +68,7 @@ export function TransactionHistoryUpdater(): JSX.Element {
             />
           </View>
         )
-      }) ?? null}
+      })}
     </>
   )
 }

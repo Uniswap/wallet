@@ -7,15 +7,15 @@ import createMigrate from 'src/app/createMigrate'
 import { migrations } from 'src/app/migrations'
 import { ReducerNames, rootReducer, RootState } from 'src/app/rootReducer'
 import { rootSaga } from 'src/app/rootSaga'
-import { walletContextValue } from 'src/app/walletContext'
-import { onChainBalanceApi } from 'src/features/balances/api'
 import { ensApi } from 'src/features/ens/api'
 import { fiatOnRampApi } from 'src/features/fiatOnRamp/api'
-import { gasApi } from 'src/features/gas/api'
 import { routingApi } from 'src/features/routing/routingApi'
 import { trmApi } from 'src/features/trm/api'
-import { isNonJestDev } from 'src/utils/environment'
-import { logger } from 'src/utils/logger'
+import { gasApi } from 'wallet/src/features/gas/gasApi'
+import { logger } from 'wallet/src/features/logger/logger'
+import { onChainBalanceApi } from 'wallet/src/features/portfolio/api'
+import { walletContextValue } from 'wallet/src/features/wallet/context'
+import { isNonJestDev } from 'wallet/src/utils/environment'
 
 const storage = new MMKV()
 
@@ -102,7 +102,7 @@ export const persistConfig = {
   key: 'root',
   storage: reduxStorage,
   whitelist,
-  version: 41,
+  version: 43,
   migrate: createMigrate(migrations),
 }
 
@@ -126,7 +126,7 @@ export const setupStore = (
         // required for rtk-query
         thunk: true,
         // turn off since it slows down for dev and also doesn't run in prod
-        // TODO: [MOB-681] figure out why this is slow
+        // TODO: [MOB-641] figure out why this is slow
         serializableCheck: false,
         invariantCheck: {
           warnAfter: 256,

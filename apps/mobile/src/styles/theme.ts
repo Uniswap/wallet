@@ -1,9 +1,13 @@
+// TODO: rename to /theme/index.ts and move all other theme files to ui package
 import { createTheme } from '@shopify/restyle'
 import { textVariants } from 'src/styles/font'
-import { borderRadii, iconSizes, imageSizes, spacing } from 'src/styles/sizing'
-import { zIndices } from 'src/styles/zIndices'
+import { borderRadii } from 'ui/src/theme/borderRadii'
 import { colorsDark, colorsLight } from 'ui/src/theme/color'
 import { opacify } from 'ui/src/theme/color/utils'
+import { iconSizes } from 'ui/src/theme/iconSizes'
+import { imageSizes } from 'ui/src/theme/imageSizes'
+import { spacing } from 'ui/src/theme/spacing'
+import { zIndices } from 'ui/src/theme/zIndices'
 
 // TODO: move all of these tokens to shared theme files
 export const theme = createTheme({
@@ -40,7 +44,7 @@ export const darkTheme: Theme = {
     translucentBackgroundBackdrop: opacify(5, colorsDark.background0),
     // This color is incorrect for dark mode but we rely on the incorrect color right now.
     // The translucentBackgroundBackdrop is the correct translucent background in dark mode.
-    // TODO: [MOB-3923] come up with a better name for translucentBackground and add it to the theme.
+    // TODO: [MOB-252] come up with a better name for translucentBackground and add it to the theme.
     translucentBackground: opacify(5, colorsDark.white),
     imageTintBackground: opacify(80, colorsDark.background1),
     ...colorsDark,

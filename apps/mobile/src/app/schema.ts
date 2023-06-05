@@ -271,6 +271,22 @@ export const v41Schema = {
   },
 }
 
-// TODO: [MOB-3864] use function with typed output when API reducers are removed from rootReducer
+export const v42Schema = {
+  ...v41Schema,
+  wallet: { ...v41Schema.wallet, flashbotsEnabled: undefined },
+}
+delete v42Schema.wallet.flashbotsEnabled
+
+export const v43Schema = {
+  ...v42Schema,
+  favorites: {
+    ...v42Schema.favorites,
+    nftsData: {},
+    hiddenNfts: undefined,
+  },
+}
+delete v43Schema.favorites.hiddenNfts
+
+// TODO: [MOB-201] use function with typed output when API reducers are removed from rootReducer
 // export const getSchema = (): RootState => v0Schema
-export const getSchema = (): typeof v41Schema => v41Schema
+export const getSchema = (): typeof v43Schema => v43Schema

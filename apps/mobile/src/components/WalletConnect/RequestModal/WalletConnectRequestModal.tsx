@@ -5,7 +5,6 @@ import React, { PropsWithChildren, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { StyleProp, ViewStyle } from 'react-native'
 import { useAppDispatch, useAppSelector, useAppTheme } from 'src/app/hooks'
-import AlertTriangle from 'src/assets/icons/alert-triangle.svg'
 import { AccountDetails } from 'src/components/accounts/AccountDetails'
 import { Button, ButtonEmphasis, ButtonSize } from 'src/components/buttons/Button'
 import { Box, BoxProps, Flex } from 'src/components/layout'
@@ -18,8 +17,6 @@ import { ClientDetails, PermitInfo } from 'src/components/WalletConnect/RequestM
 import { useHasSufficientFunds } from 'src/components/WalletConnect/RequestModal/hooks'
 import { RequestDetails } from 'src/components/WalletConnect/RequestModal/RequestDetails'
 import { useBiometricAppSettings, useBiometricPrompt } from 'src/features/biometrics/hooks'
-import { useTransactionGasFee } from 'src/features/gas/hooks'
-import { GasSpeed } from 'src/features/gas/types'
 import { sendAnalyticsEvent } from 'src/features/telemetry'
 import { ElementName, MobileEventName, ModalName } from 'src/features/telemetry/constants'
 import { BlockedAddressWarning } from 'src/features/trm/BlockedAddressWarning'
@@ -41,8 +38,11 @@ import {
   WalletConnectRequest,
 } from 'src/features/walletConnect/walletConnectSlice'
 import { wcWeb3Wallet } from 'src/features/walletConnectV2/saga'
-import { iconSizes } from 'src/styles/sizing'
-import { logger } from 'src/utils/logger'
+import AlertTriangle from 'ui/src/assets/icons/alert-triangle.svg'
+import { iconSizes } from 'ui/src/theme/iconSizes'
+import { useTransactionGasFee } from 'wallet/src/features/gas/hooks'
+import { GasSpeed } from 'wallet/src/features/gas/types'
+import { logger } from 'wallet/src/features/logger/logger'
 import { NativeCurrency } from 'wallet/src/features/tokens/NativeCurrency'
 import { areAddressesEqual } from 'wallet/src/utils/addresses'
 import { buildCurrencyId } from 'wallet/src/utils/currencyId'
@@ -154,7 +154,7 @@ export function WalletConnectRequestModal({ onClose, request }: Props): JSX.Elem
   const { t } = useTranslation()
   const dispatch = useAppDispatch()
   /**
-   * TODO: [MOB-3908] implement this behavior in a less janky way. Ideally if we can distinguish between `onClose` being called programmatically and `onClose` as a results of a user dismissing the modal then we can determine what this value should be without this class variable.
+   * TODO: [MOB-239] implement this behavior in a less janky way. Ideally if we can distinguish between `onClose` being called programmatically and `onClose` as a results of a user dismissing the modal then we can determine what this value should be without this class variable.
    * Indicates that the modal can reject the request when the modal happens. This will be false when the modal closes as a result of the user explicitly confirming or rejecting a request and true otherwise.
    */
   const rejectOnCloseRef = useRef(true)

@@ -1,4 +1,4 @@
-// TODO(MOB-3866): reduce component complexity
+// TODO(MOB-203): reduce component complexity
 /* eslint-disable complexity */
 import { AnyAction } from '@reduxjs/toolkit'
 import React, { useCallback, useEffect, useState } from 'react'
@@ -6,7 +6,6 @@ import { useTranslation } from 'react-i18next'
 import { Keyboard, StyleSheet } from 'react-native'
 import { FadeIn, FadeOut, FadeOutDown } from 'react-native-reanimated'
 import { useAppTheme } from 'src/app/hooks'
-import AlertTriangleIcon from 'src/assets/icons/alert-triangle.svg'
 import { Button, ButtonSize } from 'src/components/buttons/Button'
 import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { TransferArrowButton } from 'src/components/buttons/TransferArrowButton'
@@ -41,7 +40,8 @@ import { createTransactionId } from 'src/features/transactions/utils'
 import { BlockedAddressWarning } from 'src/features/trm/BlockedAddressWarning'
 import { useIsBlockedActiveAddress } from 'src/features/trm/hooks'
 import { dimensions } from 'src/styles/sizing'
-import { usePrevious } from 'src/utils/hooks'
+import AlertTriangleIcon from 'ui/src/assets/icons/alert-triangle.svg'
+import { usePrevious } from 'wallet/src/utils/hooks'
 
 interface TransferTokenProps {
   dispatch: React.Dispatch<AnyAction>

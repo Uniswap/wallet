@@ -6,11 +6,11 @@ import { useGasFeeQuery } from 'wallet/src/features/gas/gasApi'
 import { FeeType, GasSpeed, TransactionGasFeeInfo } from 'wallet/src/features/gas/types'
 
 export function useTransactionGasFee(
-  tx: providers.TransactionRequest | undefined | null,
+  tx: Maybe<providers.TransactionRequest>,
   speed: GasSpeed = GasSpeed.Urgent,
   skip?: boolean
 ): TransactionGasFeeInfo | undefined {
-  // TODO: [MOB-3889] Handle error responses from gas endpoint
+  // TODO: [MOB-650] Handle error responses from gas endpoint
   const { data } = useGasFeeQuery((!skip && tx) || skipToken, {
     pollingInterval: getPollingIntervalByBlocktime(tx?.chainId),
   })

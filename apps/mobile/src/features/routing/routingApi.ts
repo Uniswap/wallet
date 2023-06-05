@@ -2,14 +2,14 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { TradeType } from '@uniswap/sdk-core'
 import { BigNumber } from 'ethers'
 import { DEFAULT_SLIPPAGE_TOLERANCE } from 'src/constants/transactions'
-import { uniswapUrls } from 'src/constants/urls'
 import { QuoteResult, TradeQuoteResult } from 'src/features/routing/types'
 import { transformQuoteToTrade } from 'src/features/transactions/swap/routeUtils'
 import { PermitSignatureInfo } from 'src/features/transactions/swap/usePermit2Signature'
 import { serializeQueryParams } from 'src/features/transactions/swap/utils'
-import { logger } from 'src/utils/logger'
 import { config } from 'wallet/src/config'
 import { ChainId } from 'wallet/src/constants/chains'
+import { uniswapUrls } from 'wallet/src/constants/urls'
+import { logger } from 'wallet/src/features/logger/logger'
 import { SwapRouterNativeAssets } from 'wallet/src/utils/currencyId'
 
 const DEFAULT_DEADLINE_S = 60 * 30 // 30 minutes in seconds
@@ -34,7 +34,7 @@ export const routingApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: uniswapUrls.routingApiUrl,
     prepareHeaders: (headers) => {
-      // TODO: [MOB-3883] remove once routing api officially supports mobile
+      // TODO: [MOB-218] remove once routing api officially supports mobile
       // spoof origin to go around server permissions
       headers.set('Origin', config.uniswapAppUrl)
       headers.set('X-API-KEY', config.uniswapApiKey)
@@ -127,7 +127,7 @@ export const routingApi = createApi({
         }
       },
       transformResponse: (result: QuoteResult, _, arg): TradeQuoteResult => {
-        // TODO: [MOB-3897] we shouldn't rely on any of the request arguments and transform the data with only response data
+        // TODO: [MOB-231] we shouldn't rely on any of the request arguments and transform the data with only response data
         // Must figure out how to determine whether requested assets are native given the router always returns
         // wrapped token addresses
         const { tokenInAddress, tokenOutAddress, type, deadline, slippageTolerance } = arg

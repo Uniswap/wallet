@@ -8,14 +8,12 @@ import { Button } from 'src/components/buttons/Button'
 import { Box, Flex } from 'src/components/layout'
 import { BaseCard } from 'src/components/layout/BaseCard'
 import { Loader } from 'src/components/loading'
-import { useSelectWalletScreenQuery } from 'src/data/__generated__/types-and-hooks'
 import { importAccountActions, IMPORT_WALLET_AMOUNT } from 'src/features/import/importAccountSaga'
 import { ImportAccountType } from 'src/features/import/types'
 import WalletPreviewCard from 'src/features/import/WalletPreviewCard'
 import { OnboardingScreen } from 'src/features/onboarding/OnboardingScreen'
 import { ImportType } from 'src/features/onboarding/utils'
 import { ElementName } from 'src/features/telemetry/constants'
-import { Account, AccountType, SignerMnemonicAccount } from 'src/features/wallet/accounts/types'
 import { EditAccountAction, editAccountActions } from 'src/features/wallet/editAccountSaga'
 import { useAccounts, usePendingAccounts } from 'src/features/wallet/hooks'
 import {
@@ -24,9 +22,15 @@ import {
 } from 'src/features/wallet/pendingAccountsSaga'
 import { activateAccount } from 'src/features/wallet/walletSlice'
 import { OnboardingScreens } from 'src/screens/Screens'
-import { useTimeout } from 'src/utils/timing'
 import { EMPTY_ARRAY } from 'wallet/src/constants/misc'
+import { useSelectWalletScreenQuery } from 'wallet/src/data/__generated__/types-and-hooks'
+import {
+  Account,
+  AccountType,
+  SignerMnemonicAccount,
+} from 'wallet/src/features/wallet/accounts/types'
 import { ONE_SECOND_MS } from 'wallet/src/utils/time'
+import { useTimeout } from 'wallet/src/utils/timing'
 
 const FORCED_LOADING_DURATION = 3 * ONE_SECOND_MS // 3s
 

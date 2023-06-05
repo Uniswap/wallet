@@ -1,4 +1,4 @@
-// TODO(MOB-3867): reduce file length
+// TODO(MOB-204): reduce file length
 // consider splitting into multiple files
 /* eslint-disable max-lines */
 import React from 'react'
@@ -6,9 +6,6 @@ import { useTranslation } from 'react-i18next'
 import { useAppDispatch, useAppSelector, useAppTheme } from 'src/app/hooks'
 import { useEagerActivityNavigation } from 'src/app/navigation/hooks'
 import { store } from 'src/app/store'
-import CheckCircle from 'src/assets/icons/check-circle.svg'
-import EyeOffIcon from 'src/assets/icons/eye-off.svg'
-import EyeIcon from 'src/assets/icons/eye.svg'
 import {
   DappLogoWithTxStatus,
   LogoWithTxStatus,
@@ -55,7 +52,10 @@ import { useCreateSwapFormState, useCreateWrapFormState } from 'src/features/tra
 import { TransactionStatus, TransactionType } from 'src/features/transactions/types'
 import { selectActiveAccountAddress } from 'src/features/wallet/selectors'
 import { WalletConnectEvent } from 'src/features/walletConnect/saga'
-import { iconSizes } from 'src/styles/sizing'
+import CheckCircle from 'ui/src/assets/icons/check-circle.svg'
+import EyeOffIcon from 'ui/src/assets/icons/eye-off.svg'
+import EyeIcon from 'ui/src/assets/icons/eye.svg'
+import { iconSizes } from 'ui/src/theme/iconSizes'
 import { CHAIN_INFO } from 'wallet/src/constants/chains'
 import { toSupportedChainId } from 'wallet/src/utils/chainId'
 import { buildCurrencyId } from 'wallet/src/utils/currencyId'

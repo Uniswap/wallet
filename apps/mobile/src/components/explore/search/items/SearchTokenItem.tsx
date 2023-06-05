@@ -8,7 +8,6 @@ import { Flex } from 'src/components/layout'
 import { Text } from 'src/components/Text'
 import { useTokenDetailsNavigation } from 'src/components/TokenDetails/hooks'
 import WarningIcon from 'src/components/tokens/WarningIcon'
-import { SafetyLevel } from 'src/data/__generated__/types-and-hooks'
 import {
   addToSearchHistory,
   SearchResultType,
@@ -16,6 +15,7 @@ import {
 } from 'src/features/explore/searchHistorySlice'
 import { sendAnalyticsEvent } from 'src/features/telemetry'
 import { ElementName, MobileEventName } from 'src/features/telemetry/constants'
+import { SafetyLevel } from 'wallet/src/data/__generated__/types-and-hooks'
 import { buildCurrencyId, buildNativeCurrencyId } from 'wallet/src/utils/currencyId'
 
 type SearchTokenItemProps = {
@@ -69,11 +69,13 @@ export function SearchTokenItem({ token, searchContext }: SearchTokenItemProps):
       onPress={onPress}>
       <Flex row alignItems="center" gap="spacing12" px="spacing8" py="spacing12">
         <TokenLogo chainId={chainId} symbol={symbol} url={logoUrl ?? undefined} />
-        <Flex gap="none">
-          <Flex row alignItems="center" gap="spacing4">
-            <Text color="textPrimary" variant="bodyLarge">
-              {name}
-            </Text>
+        <Flex shrink alignItems="flex-start" gap="none">
+          <Flex centered row gap="spacing8">
+            <Flex shrink>
+              <Text color="textPrimary" numberOfLines={1} variant="bodyLarge">
+                {name}
+              </Text>
+            </Flex>
             {(safetyLevel === SafetyLevel.Blocked || safetyLevel === SafetyLevel.StrongWarning) && (
               <WarningIcon
                 height={theme.iconSizes.icon16}
@@ -83,9 +85,11 @@ export function SearchTokenItem({ token, searchContext }: SearchTokenItemProps):
               />
             )}
           </Flex>
-          <Text color="textSecondary" variant="subheadSmall">
-            {symbol.toUpperCase() ?? ''}
-          </Text>
+          <Flex centered row gap="spacing8">
+            <Text color="textSecondary" numberOfLines={1} variant="subheadSmall">
+              {symbol.toUpperCase() ?? ''}
+            </Text>
+          </Flex>
         </Flex>
       </Flex>
     </TouchableArea>

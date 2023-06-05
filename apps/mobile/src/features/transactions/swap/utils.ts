@@ -13,6 +13,10 @@ import { PermitSignatureInfo } from 'src/features/transactions/swap/usePermit2Si
 import { Trade } from 'src/features/transactions/swap/useTrade'
 import { WrapType } from 'src/features/transactions/swap/wrapSaga'
 import {
+  CurrencyField,
+  TransactionState,
+} from 'src/features/transactions/transactionState/transactionState'
+import {
   ExactInputSwapTransactionInfo,
   ExactOutputSwapTransactionInfo,
   TransactionType,
@@ -28,7 +32,6 @@ import {
   currencyIdToChain,
 } from 'wallet/src/utils/currencyId'
 import { formatPrice, NumberType } from 'wallet/src/utils/format'
-import { CurrencyField, TransactionState } from '../transactionState/transactionState'
 
 export function serializeQueryParams(
   params: Record<string, Parameters<typeof encodeURIComponent>[0]>
@@ -69,34 +72,43 @@ export function isWrapAction(wrapType: WrapType): wrapType is WrapType.Unwrap | 
 export function tradeToTransactionInfo(
   trade: Trade
 ): ExactInputSwapTransactionInfo | ExactOutputSwapTransactionInfo {
-  const slippageTolerance = slippageToleranceToPercent(trade.slippageTolerance)
+  const slippageTolerancePercent = slippageToleranceToPercent(trade.slippageTolerance)
+  const { quote, slippageTolerance } = trade
+  const { gasUseEstimate, quoteId, routeString } = quote || {}
+
+  const baseTransactionInfo = {
+    inputCurrencyId: currencyId(trade.inputAmount.currency),
+    outputCurrencyId: currencyId(trade.outputAmount.currency),
+    slippageTolerance,
+    quoteId,
+    gasUseEstimate,
+    routeString,
+  }
+
   return trade.tradeType === TradeType.EXACT_INPUT
     ? {
+        ...baseTransactionInfo,
         type: TransactionType.Swap,
-        inputCurrencyId: currencyId(trade.inputAmount.currency),
-        outputCurrencyId: currencyId(trade.outputAmount.currency),
         tradeType: TradeType.EXACT_INPUT,
         inputCurrencyAmountRaw: trade.inputAmount.quotient.toString(),
         expectedOutputCurrencyAmountRaw: trade.outputAmount.quotient.toString(),
         minimumOutputCurrencyAmountRaw: trade
-          .minimumAmountOut(slippageTolerance)
+          .minimumAmountOut(slippageTolerancePercent)
           .quotient.toString(),
       }
     : {
+        ...baseTransactionInfo,
         type: TransactionType.Swap,
-        inputCurrencyId: currencyId(trade.inputAmount.currency),
-        outputCurrencyId: currencyId(trade.outputAmount.currency),
         tradeType: TradeType.EXACT_OUTPUT,
         outputCurrencyAmountRaw: trade.outputAmount.quotient.toString(),
         expectedInputCurrencyAmountRaw: trade.inputAmount.quotient.toString(),
-        maximumInputCurrencyAmountRaw: trade.maximumAmountIn(slippageTolerance).quotient.toString(),
+        maximumInputCurrencyAmountRaw: trade
+          .maximumAmountIn(slippageTolerancePercent)
+          .quotient.toString(),
       }
 }
 
-export function requireAcceptNewTrade(
-  oldTrade: NullUndefined<Trade>,
-  newTrade: NullUndefined<Trade>
-): boolean {
+export function requireAcceptNewTrade(oldTrade: Maybe<Trade>, newTrade: Maybe<Trade>): boolean {
   return oldTrade?.quote?.methodParameters?.calldata !== newTrade?.quote?.methodParameters?.calldata
 }
 
@@ -150,8 +162,8 @@ export function sumGasFees(gasFee1?: string | undefined, gasFee2?: string): stri
 
 export const clearStaleTrades = (
   trade: Trade,
-  currencyIn: NullUndefined<Currency>,
-  currencyOut: NullUndefined<Currency>
+  currencyIn: Maybe<Currency>,
+  currencyOut: Maybe<Currency>
 ): Trade | null => {
   const currencyInAddress = currencyIn?.wrapped.address
   const currencyOutAddress = currencyOut?.wrapped.address
@@ -195,7 +207,7 @@ export const slippageToleranceToPercent = (slippage: number): Percent => {
 
 interface MethodParameterArgs {
   permit2Signature?: PermitSignatureInfo
-  permitInfo: NullUndefined<PermitOptions>
+  permitInfo: Maybe<PermitOptions>
   trade: Trade
   address: string
   universalRouterEnabled: boolean

@@ -1,12 +1,17 @@
 import dayjs from 'dayjs'
 import { appSelect } from 'src/app/hooks'
-import { AccountType, BackupType, SignerMnemonicAccount } from 'src/features/wallet/accounts/types'
+import { getNotificationErrorAction } from 'src/features/notifications/utils'
 import { selectSortedSignerMnemonicAccounts } from 'src/features/wallet/selectors'
 import { activateAccount, addAccount } from 'src/features/wallet/walletSlice'
 import { generateAndStoreMnemonic, generateAndStorePrivateKey } from 'src/lib/RNEthersRs'
-import { logger } from 'src/utils/logger'
-import { createMonitoredSaga } from 'src/utils/saga'
 import { call, put } from 'typed-redux-saga'
+import { logger } from 'wallet/src/features/logger/logger'
+import {
+  AccountType,
+  BackupType,
+  SignerMnemonicAccount,
+} from 'wallet/src/features/wallet/accounts/types'
+import { createMonitoredSaga } from 'wallet/src/utils/saga'
 
 export function* createAccount() {
   const sortedMnemonicAccounts: SignerMnemonicAccount[] = yield* appSelect(
@@ -67,4 +72,6 @@ export const {
   wrappedSaga: createAccountSaga,
   reducer: createAccountReducer,
   actions: createAccountActions,
-} = createMonitoredSaga(createAccount, 'createAccount')
+} = createMonitoredSaga(createAccount, 'createAccount', {
+  onErrorAction: getNotificationErrorAction,
+})

@@ -5,8 +5,8 @@ import {
   TransactionStatus,
   TransactionType,
 } from 'src/features/transactions/types'
-import { logger } from 'src/utils/logger'
 import { ChainId } from 'wallet/src/constants/chains'
+import { logger } from 'wallet/src/features/logger/logger'
 import { toSupportedChainId } from 'wallet/src/utils/chainId'
 import { getNativeCurrencyAddressForChain } from 'wallet/src/utils/currencyId'
 
@@ -87,7 +87,7 @@ function formatReturnUrl(
     return providedReturnUrl
   }
 
-  // TODO: [MOB-3900] improve formatting when MoonPay provides us with more info
+  // TODO: [MOB-233] improve formatting when MoonPay provides us with more info
   return `${providedReturnUrl}?transactionId=${id}`
 }
 

@@ -17,9 +17,9 @@ import {
 } from 'src/features/walletConnect/walletConnectSlice'
 import { Theme } from 'src/styles/theme'
 import { ExplorerDataType, getExplorerLink } from 'src/utils/linking'
-import { logger } from 'src/utils/logger'
 import { useNoYoloParser } from 'src/utils/useNoYoloParser'
 import { ChainId } from 'wallet/src/constants/chains'
+import { logger } from 'wallet/src/features/logger/logger'
 import { getValidAddress, shortenAddress } from 'wallet/src/utils/addresses'
 
 const getStrMessage = (request: WalletConnectRequest): string => {
@@ -105,7 +105,7 @@ const getParsedObjectDisplay = (chainId: number, obj: any, depth = 0): JSX.Eleme
           )
         }
 
-        // TODO: [MOB-3881] handle array child types
+        // TODO: [MOB-216] handle array child types
         return null
       })}
     </Flex>

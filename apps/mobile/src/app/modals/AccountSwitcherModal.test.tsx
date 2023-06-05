@@ -3,12 +3,16 @@ import React from 'react'
 import { PreloadedState } from 'redux'
 import { AccountSwitcher } from 'src/app/modals/AccountSwitcherModal'
 import { RootState } from 'src/app/rootReducer'
-import { AccountListDocument, AccountListQuery } from 'src/data/__generated__/types-and-hooks'
 import { initialModalState } from 'src/features/modals/modalSlice'
 import { ModalName } from 'src/features/telemetry/constants'
-import { ACCOUNT_ADDRESS_ONE, mockWalletPreloadedState } from 'src/test/fixtures'
+import { mockWalletPreloadedState } from 'src/test/fixtures'
 import { Portfolios } from 'src/test/gqlFixtures'
 import { render } from 'src/test/test-utils'
+import {
+  AccountListDocument,
+  AccountListQuery,
+} from 'wallet/src/data/__generated__/types-and-hooks'
+import { SAMPLE_SEED_ADDRESS_1 } from 'wallet/src/test/fixtures'
 
 jest.useFakeTimers()
 
@@ -24,7 +28,7 @@ const AccountListMock: MockedResponse<AccountListQuery> = {
   request: {
     query: AccountListDocument,
     variables: {
-      addresses: [ACCOUNT_ADDRESS_ONE],
+      addresses: [SAMPLE_SEED_ADDRESS_1],
     },
   },
   result: {
@@ -34,7 +38,7 @@ const AccountListMock: MockedResponse<AccountListQuery> = {
   },
 }
 
-// TODO [MOB-3961]: Figure out how to do snapshot tests when there is a BottomSheetModal
+// TODO [MOB-259]: Figure out how to do snapshot tests when there is a BottomSheetModal
 describe(AccountSwitcher, () => {
   it('renders correctly', () => {
     const tree = render(

@@ -1,7 +1,7 @@
 import { PrefetchOptions } from '@reduxjs/toolkit/dist/query/core/module'
 import { createApi, fetchBaseQuery, skipToken } from '@reduxjs/toolkit/query/react'
-import { uniswapUrls } from 'src/constants/urls'
 import { config } from 'wallet/src/config'
+import { uniswapUrls } from 'wallet/src/constants/urls'
 
 type ScreenResponse = {
   block: boolean
@@ -12,7 +12,7 @@ export const trmApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: uniswapUrls.trmUrl,
     prepareHeaders: (headers) => {
-      // TODO: [MOB-3883] remove once routing api officially supports mobile
+      // TODO: [MOB-218] remove once routing api officially supports mobile
       // spoof origin to go around server permissions
       headers.set('Origin', config.uniswapAppUrl)
       headers.set('X-API-KEY', config.uniswapApiKey)

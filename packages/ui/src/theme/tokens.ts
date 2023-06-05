@@ -1,80 +1,41 @@
 import { createTokens } from 'tamagui'
+import { borderRadii } from 'ui/src/theme/borderRadii'
 import { colors as color } from 'ui/src/theme/color'
+import { fonts } from 'ui/src/theme/fonts'
+import { iconSizes } from 'ui/src/theme/iconSizes'
+import { imageSizes } from 'ui/src/theme/imageSizes'
+import { spacing } from 'ui/src/theme/spacing'
+import { zIndices } from 'ui/src/theme/zIndices'
 
-const space = {
-  none: 0,
-  spacing1: 1,
-  spacing2: 2,
-  spacing4: 4,
-  spacing8: 8,
-  spacing12: 12,
-  spacing16: 16,
-  spacing24: 24,
-  spacing36: 36,
-  spacing48: 48,
-  spacing60: 60,
-  true: 16,
-}
+const space = { ...spacing, true: 8 }
 
 const size = space
 
-export const iconSize = {
-  icon8: 8,
-  icon12: 12,
-  icon16: 16,
-  icon20: 20,
-  icon24: 24,
-  icon28: 28,
-  icon36: 36,
-  icon40: 40,
-  icon64: 64,
-  true: 40,
-}
+const iconSize = { ...iconSizes, true: 40 }
 
-const imageSize = {
-  image12: 12,
-  image16: 16,
-  image20: 20,
-  image24: 24,
-  image32: 32,
-  image36: 36,
-  image40: 40,
-  image48: 48,
-  true: 40,
-}
+const imageSize = { ...imageSizes, true: 40 }
 
 const fontSize = {
-  headlineLarge: 40,
-  headlineMedium: 32,
-  headlineSmall: 24,
-  subheadLarge: 20,
-  subheadSmall: 15,
-  bodyLarge: 17,
-  bodySmall: 15,
-  bodyMicro: 12,
-  buttonLabelLarge: 20,
-  buttonLabelMedium: 17,
-  buttonLabelSmall: 15,
-  buttonLabelMicro: 12,
-  monospace: 15,
-  true: 'bodySmall',
+  headlineLarge: fonts.headlineLarge.fontSize,
+  headlineMedium: fonts.headlineMedium.fontSize,
+  headlineSmall: fonts.headlineSmall.fontSize,
+  subheadLarge: fonts.subheadLarge.fontSize,
+  subheadSmall: fonts.subheadSmall.fontSize,
+  bodyLarge: fonts.bodyLarge.fontSize,
+  bodySmall: fonts.bodySmall.fontSize,
+  bodyMicro: fonts.bodyMicro.fontSize,
+  buttonLabelLarge: fonts.buttonLabelLarge.fontSize,
+  buttonLabelMedium: fonts.buttonLabelMedium.fontSize,
+  buttonLabelSmall: fonts.buttonLabelSmall.fontSize,
+  buttonLabelMicro: fonts.buttonLabelMicro.fontSize,
+  monospace: fonts.monospace.fontSize,
+  true: 14,
 }
 
-const radius = {
-  none: 0,
-  rounded4: 4,
-  rounded8: 8,
-  rounded12: 12,
-  rounded16: 16,
-  rounded20: 20,
-  rounded24: 24,
-  rounded32: 32,
-  roundedFull: 999999,
-  true: 'none',
-}
+// remove true (default) when migrating from restyle to tamagui
+const radius = { ...borderRadii, true: 0 }
 
-// Standard z-index system https://getbootstrap.com/docs/5.0/layout/z-index/
-const zIndex = space
+const zIndex = { ...zIndices, true: 1 }
 
 export const tokens = createTokens({
   color,

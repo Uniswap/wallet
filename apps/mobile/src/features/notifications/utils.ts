@@ -1,9 +1,11 @@
+import { Action } from '@reduxjs/toolkit'
 import { BigintIsh, Currency, CurrencyAmount, TradeType } from '@uniswap/sdk-core'
 import JSBI from 'jsbi'
 import { i18n } from 'src/app/i18n'
 import { AssetType } from 'src/entities/assets'
 import { SpotPrice } from 'src/features/dataApi/spotPricesQuery'
 import { GQLNftAsset } from 'src/features/nfts/hooks'
+import { pushNotification } from 'src/features/notifications/notificationSlice'
 import {
   AppNotificationType,
   ReceiveCurrencyTxNotification,
@@ -17,8 +19,8 @@ import {
   TransactionType,
 } from 'src/features/transactions/types'
 import { WalletConnectEvent } from 'src/features/walletConnect/saga'
-import { logger } from 'src/utils/logger'
 import { CHAIN_INFO } from 'wallet/src/constants/chains'
+import { logger } from 'wallet/src/features/logger/logger'
 import { getValidAddress, shortenAddress } from 'wallet/src/utils/addresses'
 import { currencyIdToAddress } from 'wallet/src/utils/currencyId'
 import { formatCurrencyAmount, formatUSDPrice, NumberType } from 'wallet/src/utils/format'
@@ -47,7 +49,7 @@ export const formWCNotificationTitle = (appNotification: WalletConnectNotificati
 
 export const formApproveNotificationTitle = (
   txStatus: TransactionStatus,
-  currency: NullUndefined<Currency>,
+  currency: Maybe<Currency>,
   tokenAddress: Address,
   spender: Address
 ): string => {
@@ -72,8 +74,8 @@ export const formApproveNotificationTitle = (
 export const formSwapNotificationTitle = (
   txStatus: TransactionStatus,
   tradeType: TradeType,
-  inputCurrency: NullUndefined<Currency>,
-  outputCurrency: NullUndefined<Currency>,
+  inputCurrency: Maybe<Currency>,
+  outputCurrency: Maybe<Currency>,
   inputCurrencyId: string,
   outputCurrencyId: string,
   inputCurrencyAmountRaw: string,
@@ -117,8 +119,8 @@ export const formSwapNotificationTitle = (
 
 export const formWrapNotificationTitle = (
   txStatus: TransactionStatus,
-  inputCurrency: NullUndefined<Currency>,
-  outputCurrency: NullUndefined<Currency>,
+  inputCurrency: Maybe<Currency>,
+  outputCurrency: Maybe<Currency>,
   currencyAmountRaw: string,
   unwrapped: boolean
 ): string => {
@@ -162,7 +164,7 @@ export const formWrapNotificationTitle = (
 export const formTransferCurrencyNotificationTitle = (
   txType: TransactionType,
   txStatus: TransactionStatus,
-  currency: NullUndefined<Currency>,
+  currency: Maybe<Currency>,
   tokenAddress: string,
   currencyAmountRaw: string,
   senderOrRecipient: string
@@ -237,7 +239,7 @@ export interface BalanceUpdate {
 interface BalanceUpdateProps {
   transactionType: TransactionType
   transactionStatus: TransactionStatus
-  currency: NullUndefined<Currency>
+  currency: Maybe<Currency>
   currencyAmountRaw: string
   spotPrice?: SpotPrice
   nftTradeType?: NFTTradeType
@@ -316,7 +318,7 @@ export function convertScientificNotationToNumber(value: string): string | JSBI 
 }
 
 export const getFormattedCurrencyAmount = (
-  currency: NullUndefined<Currency>,
+  currency: Maybe<Currency>,
   currencyAmountRaw: string,
   isApproximateAmount = false
 ): string => {
@@ -339,7 +341,7 @@ export const getFormattedCurrencyAmount = (
 const getUSDValue = (
   spotPrice: SpotPrice | undefined,
   currencyAmountRaw: string,
-  currency: NullUndefined<Currency>
+  currency: Maybe<Currency>
 ): string | undefined => {
   const price = spotPrice?.price?.value
   if (!currency || !price) return undefined
@@ -349,7 +351,7 @@ const getUSDValue = (
 }
 
 export const getCurrencySymbol = (
-  currency: NullUndefined<Currency>,
+  currency: Maybe<Currency>,
   tokenAddressString: Address | undefined
 ): string | undefined => {
   return currency?.symbol
@@ -423,4 +425,11 @@ export function buildReceiveNotification(
   }
 
   return undefined
+}
+
+export function getNotificationErrorAction(errorMessage: string): Action {
+  return pushNotification({
+    type: AppNotificationType.Error,
+    errorMessage,
+  })
 }

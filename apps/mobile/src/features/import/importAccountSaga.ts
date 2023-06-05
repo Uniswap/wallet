@@ -1,7 +1,7 @@
 import dayjs from 'dayjs'
 import { AllEffect, CallEffect, PutEffect } from 'redux-saga/effects'
 import { ImportAccountParams, ImportAccountType } from 'src/features/import/types'
-import { Account, AccountType, BackupType } from 'src/features/wallet/accounts/types'
+import { getNotificationErrorAction } from 'src/features/notifications/utils'
 import {
   activateAccount,
   addAccount,
@@ -9,10 +9,11 @@ import {
   unlockWallet,
 } from 'src/features/wallet/walletSlice'
 import { generateAndStorePrivateKey, importMnemonic } from 'src/lib/RNEthersRs'
-import { logger } from 'src/utils/logger'
-import { createMonitoredSaga } from 'src/utils/saga'
 import { all, call, put, SagaGenerator } from 'typed-redux-saga'
+import { logger } from 'wallet/src/features/logger/logger'
+import { Account, AccountType, BackupType } from 'wallet/src/features/wallet/accounts/types'
 import { getValidAddress } from 'wallet/src/utils/addresses'
+import { createMonitoredSaga } from 'wallet/src/utils/saga'
 
 export const IMPORT_WALLET_AMOUNT = 10
 
@@ -195,4 +196,6 @@ export const {
   wrappedSaga: importAccountSaga,
   reducer: importAccountReducer,
   actions: importAccountActions,
-} = createMonitoredSaga<ImportAccountParams>(importAccount, 'importAccount')
+} = createMonitoredSaga<ImportAccountParams>(importAccount, 'importAccount', {
+  onErrorAction: getNotificationErrorAction,
+})

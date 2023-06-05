@@ -3,20 +3,20 @@ import { MaxUint256 } from '@ethersproject/constants'
 import { BigintIsh, Currency, CurrencyAmount } from '@uniswap/sdk-core'
 import { BigNumber, Contract, providers } from 'ethers'
 import { useCallback } from 'react'
-import EIP_2612 from 'src/abis/eip_2612.json'
-import { useProvider, useWalletSigners } from 'src/app/walletContext'
 import { PERMITTABLE_TOKENS, PermitType } from 'src/features/transactions/permit/permittableTokens'
 import { ApprovalAction } from 'src/features/transactions/swap/hooks'
 import { WrapType } from 'src/features/transactions/swap/wrapSaga'
-import { Account } from 'src/features/wallet/accounts/types'
 import { useActiveAccountWithThrow } from 'src/features/wallet/hooks'
-import { SignerManager } from 'src/features/wallet/signing/SignerManager'
-import { signTypedData } from 'src/features/wallet/signing/signing'
-import { useAsyncData } from 'src/utils/hooks'
-import { logger } from 'src/utils/logger'
+import EIP_2612 from 'wallet/src/abis/eip_2612.json'
 import { SWAP_ROUTER_ADDRESSES } from 'wallet/src/constants/addresses'
 import { ChainId } from 'wallet/src/constants/chains'
+import { logger } from 'wallet/src/features/logger/logger'
+import { Account } from 'wallet/src/features/wallet/accounts/types'
+import { useProvider, useWalletSigners } from 'wallet/src/features/wallet/context'
+import { SignerManager } from 'wallet/src/features/wallet/signing/SignerManager'
+import { signTypedData } from 'wallet/src/features/wallet/signing/signing.ios'
 import { areAddressesEqual } from 'wallet/src/utils/addresses'
+import { useAsyncData } from 'wallet/src/utils/hooks'
 import { inXMinutesUnix } from 'wallet/src/utils/time'
 
 const PERMIT_VALIDITY_TIME = 20 * 60 // 20 mins
@@ -65,7 +65,7 @@ const PERMIT_ALLOWED_TYPE = [
 
 export function usePermitSignature(
   chainId: ChainId,
-  currencyInAmount: NullUndefined<CurrencyAmount<Currency>>,
+  currencyInAmount: Maybe<CurrencyAmount<Currency>>,
   wrapType: WrapType,
   approvalAction?: ApprovalAction
 ): {

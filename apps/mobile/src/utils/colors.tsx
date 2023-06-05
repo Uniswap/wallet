@@ -80,7 +80,7 @@ const specialCaseTokenColors: { [key: string]: string } = {
 }
 
 export function useExtractedColors(
-  imageUrl: NullUndefined<string>,
+  imageUrl: Maybe<string>,
   fallback: keyof Theme['colors'] = 'magentaVibrant',
   cache = true
 ): { colors: Nullable<ExtractedColors>; colorsLoading: boolean } {
@@ -111,7 +111,7 @@ export function useExtractedColors(
   return { colors, colorsLoading }
 }
 
-function getSpecialCaseTokenColor(imageUrl: NullUndefined<string>): Nullable<string> {
+function getSpecialCaseTokenColor(imageUrl: Maybe<string>): Nullable<string> {
   if (!imageUrl || !specialCaseTokenColors[imageUrl]) {
     return null
   }
@@ -138,7 +138,7 @@ function getSpecialCaseTokenColor(imageUrl: NullUndefined<string>): Nullable<str
  * @returns The extracted color as a hex code string
  */
 export function useExtractedTokenColor(
-  imageUrl: NullUndefined<string>,
+  imageUrl: Maybe<string>,
   backgroundColor: string,
   defaultColor: string
 ): { tokenColor: Nullable<string>; tokenColorLoading: boolean } {
@@ -215,7 +215,7 @@ function pickContrastPassingColor(extractedColors: ExtractedColors, backgroundHe
 
   const { background, detail, secondary, primary } = extractedColors
 
-  // TODO(MOB-3693): Define more robust color extraction logic. Some ideas:
+  // TODO(MOB-643): Define more robust color extraction logic. Some ideas:
   // - compute all extracted colors and find the highest contrast one (that isn't #000000 or #FFFFFF)
   // - bump color until it passes contrast: e.g. `import { lighten, desaturate } from 'polished'`
   // - locally cache the result with the image logo URL as a key
