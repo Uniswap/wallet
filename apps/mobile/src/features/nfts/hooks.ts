@@ -3,18 +3,18 @@ import { useTranslation } from 'react-i18next'
 import { NativeSyntheticEvent, Share } from 'react-native'
 import { ContextMenuAction, ContextMenuOnPressNativeEvent } from 'react-native-context-menu-view'
 import { useAppDispatch, useAppSelector } from 'src/app/hooks'
-import { uniswapUrls } from 'src/constants/urls'
-import { NftsQuery, useNftsQuery } from 'src/data/__generated__/types-and-hooks'
-import { GqlResult } from 'src/features/dataApi/types'
-import { selectHiddenNfts } from 'src/features/favorites/selectors'
-import { HiddenNftsByAddress, toggleNftVisibility } from 'src/features/favorites/slice'
+import { selectNftsData } from 'src/features/favorites/selectors'
+import { AccountToNftData, isNftHidden, toggleNftVisibility } from 'src/features/favorites/slice'
 import { NFTItem } from 'src/features/nfts/types'
 import { getNFTAssetKey } from 'src/features/nfts/utils'
 import { pushNotification } from 'src/features/notifications/notificationSlice'
 import { AppNotificationType } from 'src/features/notifications/types'
 import { useAccounts } from 'src/features/wallet/hooks'
-import { logger } from 'src/utils/logger'
 import { PollingInterval } from 'wallet/src/constants/misc'
+import { uniswapUrls } from 'wallet/src/constants/urls'
+import { NftsQuery, useNftsQuery } from 'wallet/src/data/__generated__/types-and-hooks'
+import { GqlResult } from 'wallet/src/features/dataApi/types'
+import { logger } from 'wallet/src/features/logger/logger'
 
 export const HIDDEN_NFTS_ROW_LEFT_ITEM = 'HIDDEN_NFTS_ROW_LEFT_ITEM'
 export const HIDDEN_NFTS_ROW_RIGHT_ITEM = 'HIDDEN_NFTS_ROW_RIGHT_ITEM'
@@ -24,13 +24,12 @@ export type GQLNftAsset = NonNullable<
   NonNullable<NonNullable<NonNullable<NftsQuery['portfolios']>[0]>['nftBalances']>[0]
 >['ownedAsset']
 
-// TODO(MOB-3390): deprecate this hook in favor of component queries
 export function useNFT(
   owner: Address = '',
   address?: Address,
   tokenId?: string
 ): GqlResult<GQLNftAsset> {
-  // TODO: [MOB-3893] do a direct cache lookup in Apollo using id instead of re-querying
+  // TODO: [MOB-227] do a direct cache lookup in Apollo using id instead of re-querying
   const { data, loading, refetch } = useNftsQuery({
     variables: { ownerAddress: owner },
     pollInterval: PollingInterval.Slow,
@@ -55,19 +54,25 @@ interface NFTMenuParams {
   contractAddress?: Address
   owner: Address
   showNotification?: boolean
+  isSpam?: boolean
 }
 
-function shouldHideNft(
-  hiddenNfts: HiddenNftsByAddress,
-  owner: Address,
-  contractAddress?: Address,
-  tokenId?: string
-): boolean {
-  return !!(
-    contractAddress &&
-    tokenId &&
-    !!hiddenNfts[owner]?.[getNFTAssetKey(contractAddress, tokenId)]
-  )
+function shouldHideNft({
+  nftsData,
+  owner,
+  contractAddress,
+  tokenId,
+  isSpam,
+}: {
+  nftsData: AccountToNftData
+  owner: Address
+  contractAddress: Address
+  tokenId: string
+  isSpam?: boolean
+}): boolean {
+  const nftKey = getNFTAssetKey(contractAddress, tokenId)
+  const nftData = nftsData[owner]?.[nftKey] ?? {}
+  return isNftHidden(nftData, isSpam)
 }
 
 export function useNFTMenu({
@@ -75,6 +80,7 @@ export function useNFTMenu({
   tokenId,
   owner,
   showNotification = false,
+  isSpam,
 }: NFTMenuParams): {
   menuActions: Array<ContextMenuAction & { onPress: () => void }>
   onContextMenuPress: (e: NativeSyntheticEvent<ContextMenuOnPressNativeEvent>) => void
@@ -86,62 +92,68 @@ export function useNFTMenu({
   const accounts = useAccounts()
   const isLocalAccount = !!accounts[owner]
 
-  const isShareable = contractAddress && tokenId
-  const hiddenNfts = useAppSelector(selectHiddenNfts)
-  const hidden = shouldHideNft(hiddenNfts, owner, contractAddress, tokenId)
+  const isAddressAndTokenOk = contractAddress && tokenId
+  const nftsData = useAppSelector(selectNftsData)
+  const hidden =
+    isAddressAndTokenOk && shouldHideNft({ nftsData, owner, contractAddress, tokenId, isSpam })
 
   const menuActions = useMemo(
-    () => [
-      ...((isShareable && [
-        {
-          title: t('Share'),
-          systemIcon: 'square.and.arrow.up',
-          onPress: async (): Promise<void> => {
-            if (!isShareable) return
-            try {
-              await Share.share({
-                message: `${uniswapUrls.nftUrl}/asset/${contractAddress}/${tokenId}`,
-              })
-            } catch (e) {
-              logger.error('NFTItemScreen', 'onShare', (e as unknown as Error).message)
-            }
-          },
-        },
-      ]) ||
-        []),
-      ...((isLocalAccount && [
-        {
-          title: hidden ? t('Unhide NFT') : t('Hide NFT'),
-          systemIcon: hidden ? 'eye' : 'eye.slash',
-          destructive: !hidden,
-          onPress: (): void => {
-            if (contractAddress && tokenId) {
-              dispatch(toggleNftVisibility({ owner, contractAddress, tokenId }))
-              if (showNotification) {
-                dispatch(
-                  pushNotification({
-                    type: AppNotificationType.NFTVisibility,
-                    visible: !hidden,
-                    hideDelay: 2000,
+    () =>
+      isAddressAndTokenOk
+        ? [
+            {
+              title: t('Share'),
+              systemIcon: 'square.and.arrow.up',
+              onPress: async (): Promise<void> => {
+                try {
+                  await Share.share({
+                    message: `${uniswapUrls.nftUrl}/asset/${contractAddress}/${tokenId}`,
                   })
-                )
-              }
-            }
-          },
-        },
-      ]) ||
-        []),
-    ],
+                } catch (e) {
+                  logger.error('NFTItemScreen', 'onShare', (e as unknown as Error).message)
+                }
+              },
+            },
+            ...((isLocalAccount && [
+              {
+                title: hidden ? t('Unhide NFT') : t('Hide NFT'),
+                systemIcon: hidden ? 'eye' : 'eye.slash',
+                destructive: !hidden,
+                onPress: (): void => {
+                  dispatch(
+                    toggleNftVisibility({
+                      owner,
+                      contractAddress,
+                      tokenId,
+                      isSpam,
+                    })
+                  )
+                  if (showNotification) {
+                    dispatch(
+                      pushNotification({
+                        type: AppNotificationType.NFTVisibility,
+                        visible: !hidden,
+                        hideDelay: 2000,
+                      })
+                    )
+                  }
+                },
+              },
+            ]) ||
+              []),
+          ]
+        : [],
     [
-      contractAddress,
-      dispatch,
-      hidden,
-      isLocalAccount,
-      isShareable,
-      owner,
-      showNotification,
+      isAddressAndTokenOk,
       t,
+      isLocalAccount,
+      hidden,
+      contractAddress,
       tokenId,
+      dispatch,
+      owner,
+      isSpam,
+      showNotification,
     ]
   )
 
@@ -152,7 +164,7 @@ export function useNFTMenu({
     [menuActions]
   )
 
-  return { menuActions, onContextMenuPress, onlyShare: !!isShareable && !isLocalAccount }
+  return { menuActions, onContextMenuPress, onlyShare: !!isAddressAndTokenOk && !isLocalAccount }
 }
 
 // Apply to NFTs fetched from API hidden filter, which is stored in Redux
@@ -164,14 +176,24 @@ export function useGroupNftsByVisibility(
   nfts: Array<NFTItem | string>
   numHidden: number
 } {
-  const hiddenNfts = useAppSelector(selectHiddenNfts)
+  const nftsData = useAppSelector(selectNftsData)
   return useMemo(() => {
     const { shown, hidden } = nftDataItems.reduce<{
       shown: NFTItem[]
       hidden: NFTItem[]
     }>(
       (acc, item) => {
-        if (shouldHideNft(hiddenNfts, owner, item.contractAddress, item.tokenId)) {
+        if (
+          item.contractAddress &&
+          item.tokenId &&
+          shouldHideNft({
+            nftsData,
+            owner,
+            contractAddress: item.contractAddress,
+            tokenId: item.tokenId,
+            isSpam: item.isSpam,
+          })
+        ) {
           acc.hidden.push(item)
         } else {
           acc.shown.push(item)
@@ -194,5 +216,5 @@ export function useGroupNftsByVisibility(
       ],
       numHidden: hidden.length,
     }
-  }, [hiddenNfts, nftDataItems, owner, showHidden])
+  }, [nftDataItems, nftsData, owner, showHidden])
 }

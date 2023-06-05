@@ -1,23 +1,24 @@
 import { default as React } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAppTheme } from 'src/app/hooks'
-import VerifiedIcon from 'src/assets/icons/verified.svg'
 import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { Chevron } from 'src/components/icons/Chevron'
 import { NFTViewer } from 'src/components/images/NFTViewer'
 import { Box, Flex } from 'src/components/layout'
 import { Loader } from 'src/components/loading'
 import { Text } from 'src/components/Text'
-import { Currency, NftItemScreenQuery } from 'src/data/__generated__/types-and-hooks'
 import { PriceAmount } from 'src/features/nfts/collection/ListPriceCard'
-import { iconSizes, imageSizes } from 'src/styles/sizing'
+import VerifiedIcon from 'ui/src/assets/icons/verified.svg'
+import { iconSizes } from 'ui/src/theme/iconSizes'
+import { imageSizes } from 'ui/src/theme/imageSizes'
+import { Currency, NftItemScreenQuery } from 'wallet/src/data/__generated__/types-and-hooks'
 
 export type Collection = NonNullable<
   NonNullable<NonNullable<NftItemScreenQuery['nftAssets']>>['edges'][0]
 >['node']['collection']
 
 interface CollectionPreviewcardProps {
-  collection: NullUndefined<Collection>
+  collection: Maybe<Collection>
   onPress: () => void
   loading: boolean
 }

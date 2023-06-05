@@ -6,13 +6,7 @@ import {
 } from '@react-native-community/netinfo'
 import { TradeType } from '@uniswap/sdk-core'
 import { BigNumber, providers } from 'ethers'
-import ERC20_ABI from 'src/abis/erc20.json'
-import { Erc20, Weth } from 'src/abis/types'
-import WETH_ABI from 'src/abis/weth.json'
-import { SafetyLevel } from 'src/data/__generated__/types-and-hooks'
 import { AssetType } from 'src/entities/assets'
-import { ContractManager } from 'src/features/contracts/ContractManager'
-import { CurrencyInfo } from 'src/features/dataApi/types'
 import { AppNotificationType } from 'src/features/notifications/types'
 import { finalizeTransaction } from 'src/features/transactions/slice'
 import {
@@ -22,49 +16,39 @@ import {
   TransactionStatus,
   TransactionType,
 } from 'src/features/transactions/types'
-import { Account, AccountType, BackupType } from 'src/features/wallet/accounts/types'
-import { SignerManager } from 'src/features/wallet/signing/SignerManager'
 import { initialWalletState } from 'src/features/wallet/walletSlice'
 import { WalletConnectEvent } from 'src/features/walletConnect/saga'
+import ERC20_ABI from 'wallet/src/abis/erc20.json'
+import { Erc20, Weth } from 'wallet/src/abis/types'
+import WETH_ABI from 'wallet/src/abis/weth.json'
 import { config } from 'wallet/src/config'
 import { NATIVE_ADDRESS, SWAP_ROUTER_ADDRESSES } from 'wallet/src/constants/addresses'
 import { ChainId } from 'wallet/src/constants/chains'
 import { DAI, DAI_ARBITRUM_ONE, UNI, WRAPPED_NATIVE_CURRENCY } from 'wallet/src/constants/tokens'
+import { SafetyLevel } from 'wallet/src/data/__generated__/types-and-hooks'
+import { ContractManager } from 'wallet/src/features/contracts/ContractManager'
+import { CurrencyInfo } from 'wallet/src/features/dataApi/types'
 import { NativeCurrency } from 'wallet/src/features/tokens/NativeCurrency'
+import { Account, AccountType, BackupType } from 'wallet/src/features/wallet/accounts/types'
+import { SignerManager } from 'wallet/src/features/wallet/signing/SignerManager'
+import { SAMPLE_SEED_ADDRESS_1, SAMPLE_SEED_ADDRESS_2 } from 'wallet/src/test/fixtures'
 import { currencyId } from 'wallet/src/utils/currencyId'
-
-export const MainnetEth = NativeCurrency.onChain(ChainId.Mainnet)
-export const PolygonMatic = NativeCurrency.onChain(ChainId.Polygon)
-export const ArbitrumEth = NativeCurrency.onChain(ChainId.ArbitrumOne)
-export const OptimismEth = NativeCurrency.onChain(ChainId.Optimism)
-
-export const ACCOUNT_ADDRESS_ONE = '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
-export const ACCOUNT_ADDRESS_TWO = '0x1234567890123456789012345678901234567890'
 
 export const account: Account = {
   type: AccountType.SignerMnemonic,
-  address: ACCOUNT_ADDRESS_ONE,
+  address: SAMPLE_SEED_ADDRESS_1,
   derivationIndex: 0,
   name: 'Test Account',
   timeImportedMs: 10,
-  mnemonicId: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  mnemonicId: SAMPLE_SEED_ADDRESS_1,
   backups: [BackupType.Cloud],
 }
 
 export const account2: Account = {
   type: AccountType.Readonly,
-  address: '0xe1d494bc8690b1ef2f0a13b6672c4f2ee5c2d2b7',
+  address: SAMPLE_SEED_ADDRESS_2,
   name: 'Test Account',
   timeImportedMs: 10,
-}
-
-const mockSigner = new (class {
-  signTransaction = (): string => '0x1234567890abcdef'
-  connect = (): this => this
-})()
-
-export const mockSignerManager = {
-  getSignerForAccount: async (): Promise<typeof mockSigner> => mockSigner,
 }
 
 const mockFeeData = {
@@ -142,6 +126,9 @@ export const txReceipt = {
   transactionIndex: 1,
   confirmations: 1,
   status: 1,
+  confirmedTime: 1400000000000,
+  gasUsed: BigNumber.from('100000'),
+  effectiveGasPrice: BigNumber.from('1000000000'),
 }
 
 export const txResponse = {
@@ -176,7 +163,9 @@ export const txDetailsConfirmed: TransactionDetails = {
     blockNumber: txReceipt.blockNumber,
     transactionIndex: txReceipt.transactionIndex,
     confirmations: txReceipt.confirmations,
-    confirmedTime: 1400000000000,
+    confirmedTime: txReceipt.confirmedTime,
+    gasUsed: txReceipt.gasUsed.toNumber(),
+    effectiveGasPrice: txReceipt.effectiveGasPrice.toNumber(),
   },
 }
 

@@ -3,8 +3,6 @@ import { useTranslation } from 'react-i18next'
 import { ImageStyle } from 'react-native-fast-image'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useAppTheme } from 'src/app/hooks'
-import VerifiedIcon from 'src/assets/icons/verified.svg'
-import EthereumLogo from 'src/assets/logos/ethereum.svg'
 import { BackButton } from 'src/components/buttons/BackButton'
 import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { ImageUri } from 'src/components/images/ImageUri'
@@ -13,18 +11,20 @@ import { Box, BoxProps, Flex } from 'src/components/layout'
 import { Loader } from 'src/components/loading'
 import { Text } from 'src/components/Text'
 import { LongText } from 'src/components/text/LongText'
-import { NftCollectionScreenQuery } from 'src/data/__generated__/types-and-hooks'
 import { NFTCollectionContextMenu } from 'src/features/nfts/collection/NFTCollectionContextMenu'
-import { iconSizes } from 'src/styles/sizing'
 import { theme as FixedTheme } from 'src/styles/theme'
 import { useExtractedColors } from 'src/utils/colors'
+import VerifiedIcon from 'ui/src/assets/icons/verified.svg'
+import EthereumLogo from 'ui/src/assets/logos/ethereum.svg'
+import { iconSizes } from 'ui/src/theme/iconSizes'
+import { NftCollectionScreenQuery } from 'wallet/src/data/__generated__/types-and-hooks'
 import { formatNumber, NumberType } from 'wallet/src/utils/format'
 
 const PROFILE_IMAGE_SIZE = 72
 const PROFILE_IMAGE_WRAPPER_SIZE = PROFILE_IMAGE_SIZE + FixedTheme.spacing.spacing4
 export const NFT_BANNER_HEIGHT = 102
 
-export type NFTCollectionData = NullUndefined<
+export type NFTCollectionData = Maybe<
   NonNullable<NonNullable<NftCollectionScreenQuery['nftCollections']>['edges']>[0]['node']
 >
 
@@ -34,8 +34,8 @@ export function NFTCollectionHeader({
   collectionAddress,
 }: {
   loading: boolean
-  data: NullUndefined<NFTCollectionData>
-  collectionAddress?: NullUndefined<string>
+  data: Maybe<NFTCollectionData>
+  collectionAddress?: Maybe<string>
 }): ReactElement {
   const theme = useAppTheme()
   const { t } = useTranslation()

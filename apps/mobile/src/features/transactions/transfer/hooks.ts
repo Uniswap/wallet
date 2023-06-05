@@ -2,13 +2,7 @@ import { AnyAction } from '@reduxjs/toolkit'
 import { providers } from 'ethers'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useAppDispatch } from 'src/app/hooks'
-import { useProvider } from 'src/app/walletContext'
 import { AssetType } from 'src/entities/assets'
-import {
-  useOnChainCurrencyBalance,
-  useOnChainNativeCurrencyBalance,
-} from 'src/features/balances/api'
-import { CurrencyInfo } from 'src/features/dataApi/types'
 import { GQLNftAsset, useNFT } from 'src/features/nfts/hooks'
 import { useCurrencyInfo } from 'src/features/tokens/useCurrencyInfo'
 import {
@@ -21,9 +15,15 @@ import { BaseDerivedInfo } from 'src/features/transactions/transactionState/type
 import { transferTokenActions } from 'src/features/transactions/transfer/transferTokenSaga'
 import { TransferTokenParams } from 'src/features/transactions/transfer/useTransferTransactionRequest'
 import { useActiveAccount } from 'src/features/wallet/hooks'
-import { tryParseExactAmount } from 'src/utils/tryParseAmount'
 import { ChainId } from 'wallet/src/constants/chains'
+import { CurrencyInfo } from 'wallet/src/features/dataApi/types'
+import {
+  useOnChainCurrencyBalance,
+  useOnChainNativeCurrencyBalance,
+} from 'wallet/src/features/portfolio/api'
+import { useProvider } from 'wallet/src/features/wallet/context'
 import { buildCurrencyId } from 'wallet/src/utils/currencyId'
+import { tryParseExactAmount } from 'wallet/src/utils/tryParseAmount'
 
 export type DerivedTransferInfo = BaseDerivedInfo<CurrencyInfo | GQLNftAsset> & {
   currencyTypes: { [CurrencyField.INPUT]?: AssetType }

@@ -1,20 +1,20 @@
 import { providers } from 'ethers'
 import { useCallback } from 'react'
-import ERC1155_ABI from 'src/abis/erc1155.json'
-import ERC20_ABI from 'src/abis/erc20.json'
-import ERC721_ABI from 'src/abis/erc721.json'
-import { Erc1155, Erc20, Erc721 } from 'src/abis/types'
-import { useContractManager, useProvider } from 'src/app/walletContext'
 import { AssetType, NFTAssetType } from 'src/entities/assets'
-import { ContractManager } from 'src/features/contracts/ContractManager'
 import { CurrencyField } from 'src/features/transactions/transactionState/transactionState'
 import { DerivedTransferInfo } from 'src/features/transactions/transfer/hooks'
-import { Account } from 'src/features/wallet/accounts/types'
 import { useActiveAccountWithThrow } from 'src/features/wallet/hooks'
-import { useAsyncData } from 'src/utils/hooks'
+import ERC1155_ABI from 'wallet/src/abis/erc1155.json'
+import ERC20_ABI from 'wallet/src/abis/erc20.json'
+import ERC721_ABI from 'wallet/src/abis/erc721.json'
+import { Erc1155, Erc20, Erc721 } from 'wallet/src/abis/types'
 import { ChainId } from 'wallet/src/constants/chains'
+import { ContractManager } from 'wallet/src/features/contracts/ContractManager'
+import { Account } from 'wallet/src/features/wallet/accounts/types'
+import { useContractManager, useProvider } from 'wallet/src/features/wallet/context'
 import { toSupportedChainId } from 'wallet/src/utils/chainId'
 import { currencyAddress, isNativeCurrencyAddress } from 'wallet/src/utils/currencyId'
+import { useAsyncData } from 'wallet/src/utils/hooks'
 
 export interface BaseTransferParams {
   type: AssetType
@@ -164,7 +164,7 @@ async function getErc1155TransferRequest(
     ERC1155_ABI
   )
 
-  // TODO: [MOB-3911] handle `non ERC1155 Receiver implement` error
+  // TODO: [MOB-242] handle `non ERC1155 Receiver implement` error
   const baseRequest = await erc1155Contract.populateTransaction.safeTransferFrom(
     account.address,
     toAddress,

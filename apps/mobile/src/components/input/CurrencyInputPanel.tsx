@@ -16,19 +16,19 @@ import { Flex } from 'src/components/layout/Flex'
 import { Warning, WarningLabel } from 'src/components/modals/WarningModal/types'
 import { Text } from 'src/components/Text'
 import { SelectTokenButton } from 'src/components/TokenSelector/SelectTokenButton'
-import { CurrencyInfo } from 'src/features/dataApi/types'
 import { useDynamicFontSizing } from 'src/features/transactions/hooks'
 import { Theme } from 'src/styles/theme'
-import { useMemoCompare } from 'src/utils/hooks'
+import { CurrencyInfo } from 'wallet/src/features/dataApi/types'
 import { formatCurrencyAmount, formatNumberOrString, NumberType } from 'wallet/src/utils/format'
+import { useMemoCompare } from 'wallet/src/utils/hooks'
 
 const restyleFunctions = [backgroundColor]
 type RestyleProps = BackgroundColorProps<Theme>
 
 type CurrentInputPanelProps = {
-  currencyInfo: NullUndefined<CurrencyInfo>
-  currencyAmount: NullUndefined<CurrencyAmount<Currency>>
-  currencyBalance: NullUndefined<CurrencyAmount<Currency>>
+  currencyInfo: Maybe<CurrencyInfo>
+  currencyAmount: Maybe<CurrencyAmount<Currency>>
+  currencyBalance: Maybe<CurrencyAmount<Currency>>
   onShowTokenSelector: () => void
   onSetExactAmount: (amount: string) => void
   value?: string
@@ -44,7 +44,7 @@ type CurrentInputPanelProps = {
   dimTextColor?: boolean
   selection?: TextInputProps['selection']
   onSelectionChange?: (start: number, end: number) => void
-  usdValue: NullUndefined<CurrencyAmount<Currency>>
+  usdValue: Maybe<CurrencyAmount<Currency>>
 
   // sometimes CurrencyInputPanel rendered off screen like with Send input -> selector flow
   isOnScreen?: boolean

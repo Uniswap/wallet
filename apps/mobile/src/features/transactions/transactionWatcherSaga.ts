@@ -1,16 +1,17 @@
+import { SwapEventName } from '@uniswap/analytics-events'
+import { TradeType } from '@uniswap/sdk-core'
 import { BigNumberish, providers } from 'ethers'
 import { PutEffect, TakeEffect } from 'redux-saga/effects'
 import { appSelect } from 'src/app/hooks'
 import { i18n } from 'src/app/i18n'
-import { getProvider } from 'src/app/walletContext'
 import { fetchFiatOnRampTransaction } from 'src/features/fiatOnRamp/api'
 import {
   pushNotification,
   setNotificationStatus,
 } from 'src/features/notifications/notificationSlice'
 import { AppNotificationType } from 'src/features/notifications/types'
-import { fetchTransactionStatus } from 'src/features/providers/flashbotsProvider'
 import { waitForProvidersInitialized } from 'src/features/providers/providerSaga'
+import { sendAnalyticsEvent } from 'src/features/telemetry'
 import { attemptCancelTransaction } from 'src/features/transactions/cancelTransaction'
 import { attemptReplaceTransaction } from 'src/features/transactions/replaceTransaction'
 import { selectIncompleteTransactions } from 'src/features/transactions/selectors'
@@ -24,6 +25,7 @@ import {
   upsertFiatOnRampTransaction,
 } from 'src/features/transactions/slice'
 import {
+  BaseSwapTransactionInfo,
   FinalizedTransactionDetails,
   TransactionDetails,
   TransactionId,
@@ -32,14 +34,11 @@ import {
   TransactionType,
 } from 'src/features/transactions/types'
 import { getFinalizedTransactionStatus } from 'src/features/transactions/utils'
-import { logger } from 'src/utils/logger'
-import { sleep } from 'src/utils/timing'
 import { call, delay, fork, put, race, take } from 'typed-redux-saga'
 import { ChainId } from 'wallet/src/constants/chains'
 import { PollingInterval } from 'wallet/src/constants/misc'
-import { ONE_SECOND_MS } from 'wallet/src/utils/time'
-
-const FLASHBOTS_POLLING_INTERVAL = ONE_SECOND_MS * 5
+import { logger } from 'wallet/src/features/logger/logger'
+import { getProvider } from 'wallet/src/features/wallet/context'
 
 export function* transactionWatcher() {
   // Delay execution until providers are ready
@@ -66,8 +65,6 @@ export function* transactionWatcher() {
     try {
       if (transaction.typeInfo.type === TransactionType.FiatPurchase) {
         yield* fork(watchFiatOnRampTransaction, transaction)
-      } else if (transaction.isFlashbots) {
-        yield* fork(watchFlashbotsTransaction, transaction)
       } else {
         yield* fork(watchTransaction, transaction)
       }
@@ -89,40 +86,6 @@ export function* transactionWatcher() {
       )
     }
   }
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function* getFlashbotsTxConfirmation(txHash: string, chainId: ChainId): Generator<any> {
-  while (true) {
-    const status = yield* call(fetchTransactionStatus, txHash, chainId)
-    if (status !== TransactionStatus.Pending) {
-      return status
-    }
-
-    yield* call(sleep, FLASHBOTS_POLLING_INTERVAL)
-  }
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function* watchFlashbotsTransaction(transaction: TransactionDetails): Generator<any> {
-  const { chainId, hash, from } = transaction
-
-  const txStatus = yield* call(getFlashbotsTxConfirmation, hash, chainId)
-  if (txStatus === TransactionStatus.Failed || txStatus === TransactionStatus.Unknown) {
-    yield* call(finalizeTransaction, transaction, null, TransactionStatus.Failed as StatusOverride)
-    yield* put(
-      pushNotification({
-        type: AppNotificationType.Error,
-        address: from,
-        errorMessage: i18n.t('Your transaction has failed.'),
-      })
-    )
-    return
-  }
-
-  const provider = yield* call(getProvider, chainId)
-  const receipt = yield* call(waitForReceipt, hash, provider)
-  yield* call(finalizeTransaction, transaction, receipt, txStatus)
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -291,6 +254,52 @@ export function* waitForTxnInvalidated(
   }
 }
 
+/**
+ * Send analytics events for finalized transactions
+ */
+export function logTransactionEvent(
+  actionData: ReturnType<typeof transactionActions.finalizeTransaction>
+): void {
+  const { payload } = actionData
+  const { hash, chainId, addedTime, from, typeInfo, receipt, status } = payload
+  const { gasUsed, effectiveGasPrice, confirmedTime } = receipt ?? {}
+  const { type } = typeInfo
+
+  // Send analytics event for swap success and failure
+  if (type === TransactionType.Swap) {
+    const swapTypeInfo = typeInfo as BaseSwapTransactionInfo
+    const {
+      slippageTolerance,
+      quoteId,
+      routeString,
+      gasUseEstimate,
+      inputCurrencyId,
+      outputCurrencyId,
+      tradeType,
+    } = swapTypeInfo
+    const eventName =
+      status === TransactionStatus.Success
+        ? SwapEventName.SWAP_TRANSACTION_COMPLETED
+        : SwapEventName.SWAP_TRANSACTION_FAILED
+    sendAnalyticsEvent(eventName, {
+      address: from,
+      hash,
+      chain_id: chainId,
+      added_time: addedTime,
+      confirmed_time: confirmedTime,
+      gas_used: gasUsed,
+      effective_gas_price: effectiveGasPrice,
+      inputCurrencyId,
+      outputCurrencyId,
+      tradeType: tradeType === TradeType.EXACT_INPUT ? 'EXACT_INPUT' : 'EXACT_OUTPUT',
+      slippageTolerance,
+      gasUseEstimate,
+      route: routeString,
+      quoteId,
+    })
+  }
+}
+
 type StatusOverride =
   | TransactionStatus.Success
   | TransactionStatus.Failed
@@ -326,6 +335,8 @@ function* finalizeTransaction(
         transactionIndex: ethersReceipt.transactionIndex,
         confirmations: ethersReceipt.confirmations,
         confirmedTime: Date.now(),
+        gasUsed: ethersReceipt.gasUsed?.toNumber(),
+        effectiveGasPrice: ethersReceipt.effectiveGasPrice?.toNumber(),
       }
     : undefined
 

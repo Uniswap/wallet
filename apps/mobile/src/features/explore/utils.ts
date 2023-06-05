@@ -1,11 +1,11 @@
 import { TFunction } from 'i18next'
 import { TokenItemData } from 'src/components/explore/TokenItem'
-import { TokenSortableField } from 'src/data/__generated__/types-and-hooks'
+import { TokenSortableField } from 'wallet/src/data/__generated__/types-and-hooks'
 import {
   ClientTokensOrderBy,
   TokenMetadataDisplayType,
   TokensOrderBy,
-} from 'src/features/explore/types'
+} from 'wallet/src/features/wallet/types'
 
 /**
  * Returns server and client orderBy values to use for topTokens query and client side sorting

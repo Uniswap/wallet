@@ -1,10 +1,13 @@
 import { useMemo } from 'react'
 import { useAppStackNavigation } from 'src/app/navigation/types'
-import { Chain, useTokenDetailsScreenLazyQuery } from 'src/data/__generated__/types-and-hooks'
 import { useMultipleBalances, useSingleBalance } from 'src/features/dataApi/balances'
-import { PortfolioBalance } from 'src/features/dataApi/types'
-import { currencyIdToContractInput } from 'src/features/dataApi/utils'
 import { Screens } from 'src/screens/Screens'
+import {
+  Chain,
+  useTokenDetailsScreenLazyQuery,
+} from 'wallet/src/data/__generated__/types-and-hooks'
+import { PortfolioBalance } from 'wallet/src/features/dataApi/types'
+import { currencyIdToContractInput } from 'wallet/src/features/dataApi/utils'
 import { fromGraphQLChain } from 'wallet/src/utils/chainId'
 import {
   buildCurrencyId,
@@ -16,7 +19,7 @@ import {
 /** Helper hook to retrieve balances across chains for a given currency, for the active account. */
 export function useCrossChainBalances(
   currencyId: string,
-  bridgeInfo: NullUndefined<{ chain: Chain; address?: NullUndefined<string> }[]>
+  bridgeInfo: Maybe<{ chain: Chain; address?: Maybe<string> }[]>
 ): {
   currentChainBalance: PortfolioBalance | null
   otherChainBalances: PortfolioBalance[] | null

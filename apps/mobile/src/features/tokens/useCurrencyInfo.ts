@@ -1,12 +1,15 @@
 import { useMemo } from 'react'
-import { useTokenQuery } from 'src/data/__generated__/types-and-hooks'
-import { CurrencyInfo } from 'src/features/dataApi/types'
-import { currencyIdToContractInput, gqlTokenToCurrencyInfo } from 'src/features/dataApi/utils'
 import { ChainId } from 'wallet/src/constants/chains'
 import { WRAPPED_NATIVE_CURRENCY } from 'wallet/src/constants/tokens'
+import { useTokenQuery } from 'wallet/src/data/__generated__/types-and-hooks'
+import { CurrencyInfo } from 'wallet/src/features/dataApi/types'
+import {
+  currencyIdToContractInput,
+  gqlTokenToCurrencyInfo,
+} from 'wallet/src/features/dataApi/utils'
 import { buildNativeCurrencyId, currencyId } from 'wallet/src/utils/currencyId'
 
-export function useCurrencyInfo(_currencyId?: string): NullUndefined<CurrencyInfo> {
+export function useCurrencyInfo(_currencyId?: string): Maybe<CurrencyInfo> {
   const { data } = useTokenQuery({
     variables: currencyIdToContractInput(_currencyId ?? ''),
     skip: !_currencyId,
@@ -20,12 +23,12 @@ export function useCurrencyInfo(_currencyId?: string): NullUndefined<CurrencyInf
   }, [data, _currencyId])
 }
 
-export function useNativeCurrencyInfo(chainId: ChainId): NullUndefined<CurrencyInfo> {
+export function useNativeCurrencyInfo(chainId: ChainId): Maybe<CurrencyInfo> {
   const nativeCurrencyId = buildNativeCurrencyId(chainId)
   return useCurrencyInfo(nativeCurrencyId)
 }
 
-export function useWrappedNativeCurrencyInfo(chainId: ChainId): NullUndefined<CurrencyInfo> {
+export function useWrappedNativeCurrencyInfo(chainId: ChainId): Maybe<CurrencyInfo> {
   const wrappedCurrencyId = currencyId(WRAPPED_NATIVE_CURRENCY[chainId])
   return useCurrencyInfo(wrappedCurrencyId)
 }

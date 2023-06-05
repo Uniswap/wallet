@@ -13,8 +13,6 @@ import { Loader } from 'src/components/loading'
 import { HiddenTokensRow } from 'src/components/TokenBalanceList/HiddenTokensRow'
 import { TokenBalanceItem } from 'src/components/TokenBalanceList/TokenBalanceItem'
 import { isError, isNonPollingRequestInFlight, isWarmLoadingStatus } from 'src/data/utils'
-import { useSortedPortfolioBalances } from 'src/features/dataApi/balances'
-import { PortfolioBalance } from 'src/features/dataApi/types'
 import {
   makeSelectAccountHideSmallBalances,
   makeSelectAccountHideSpamTokens,
@@ -22,7 +20,10 @@ import {
 import { Screens } from 'src/screens/Screens'
 import { dimensions } from 'src/styles/sizing'
 import { useSuspendUpdatesWhenBlured } from 'src/utils/hooks'
+import { zIndices } from 'ui/src/theme/zIndices'
 import { EMPTY_ARRAY } from 'wallet/src/constants/misc'
+import { useSortedPortfolioBalances } from 'wallet/src/features/dataApi/balances'
+import { PortfolioBalance } from 'wallet/src/features/dataApi/types'
 import { CurrencyId } from 'wallet/src/utils/currencyId'
 
 type TokenBalanceListProps = TabProps & {
@@ -151,6 +152,8 @@ export const TokenBalanceList = forwardRef<FlashList<any>, TokenBalanceListProps
             }
             // we add a footer to cover any possible space, so user can scroll the top menu all the way to the top
             ListFooterComponent={<Box height={footerHeight} />}
+            // add negative z index to prevent footer from covering hidden tokens row when minimized
+            ListFooterComponentStyle={{ zIndex: zIndices.negative }}
             ListHeaderComponent={
               isError(networkStatus, !!data) ? (
                 <AnimatedBox entering={FadeInDown} exiting={FadeOut} py="spacing8">

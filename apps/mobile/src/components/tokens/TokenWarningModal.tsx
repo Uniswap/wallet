@@ -2,7 +2,6 @@ import { TFunction } from 'i18next'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAppTheme } from 'src/app/hooks'
-import ExternalLinkIcon from 'src/assets/icons/external-link.svg'
 import { Button, ButtonEmphasis } from 'src/components/buttons/Button'
 import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { TokenLogo } from 'src/components/CurrencyLogo/TokenLogo'
@@ -11,16 +10,17 @@ import { BottomSheetModal } from 'src/components/modals/BottomSheetModal'
 import { Text } from 'src/components/Text'
 import { getTokenSafetyHeaderText } from 'src/components/tokens/utils'
 import WarningIcon from 'src/components/tokens/WarningIcon'
-import { TOKEN_WARNING_HELP_PAGE_URL } from 'src/constants/urls'
-import { SafetyLevel } from 'src/data/__generated__/types-and-hooks'
 import { ElementName, ModalName } from 'src/features/telemetry/constants'
 import { useTokenSafetyLevelColors } from 'src/features/tokens/safetyHooks'
-import { iconSizes } from 'src/styles/sizing'
 import { ExplorerDataType, getExplorerLink, openUri } from 'src/utils/linking'
+import ExternalLinkIcon from 'ui/src/assets/icons/external-link.svg'
 import { opacify } from 'ui/src/theme/color/utils'
+import { iconSizes } from 'ui/src/theme/iconSizes'
+import { TOKEN_WARNING_HELP_PAGE_URL } from 'wallet/src/constants/urls'
+import { SafetyLevel } from 'wallet/src/data/__generated__/types-and-hooks'
 import { currencyIdToAddress, currencyIdToChain } from 'wallet/src/utils/currencyId'
 
-function getTokenSafetyBodyText(safetyLevel: NullUndefined<SafetyLevel>, t: TFunction): string {
+function getTokenSafetyBodyText(safetyLevel: Maybe<SafetyLevel>, t: TFunction): string {
   switch (safetyLevel) {
     case SafetyLevel.MediumWarning:
       return t(
@@ -40,9 +40,9 @@ function getTokenSafetyBodyText(safetyLevel: NullUndefined<SafetyLevel>, t: TFun
 interface Props {
   isVisible: boolean
   currencyId: string
-  safetyLevel: NullUndefined<SafetyLevel>
+  safetyLevel: Maybe<SafetyLevel>
   disableAccept?: boolean // only show message and close button
-  tokenLogoUrl: NullUndefined<string>
+  tokenLogoUrl: Maybe<string>
   onClose: () => void
   onAccept: () => void
 }
@@ -157,7 +157,7 @@ export default function TokenWarningModal({
   )
 }
 
-function getButtonEmphasis(safetyLevel: NullUndefined<SafetyLevel>): ButtonEmphasis | undefined {
+function getButtonEmphasis(safetyLevel: Maybe<SafetyLevel>): ButtonEmphasis | undefined {
   switch (safetyLevel) {
     case SafetyLevel.MediumWarning:
       return ButtonEmphasis.Secondary

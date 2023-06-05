@@ -38,7 +38,10 @@ class WalletConnectServerWrapper {
   }
   
   func disconnect(_ topic: String) {
-    guard let session = self.topicToSession[topic] else { return }
+    guard let session = self.topicToSession[topic] else {
+      self.eventEmitter.sendEvent(withName: EventType.error.rawValue, body: ["type": ErrorType.wcDisconnectError.rawValue, "message": "Session not found"])
+      return 
+    }
     
     do {
       try self.server.disconnect(from: session)
@@ -313,7 +316,6 @@ extension WalletConnectServerWrapper: ServerDelegate {
     ])
   }
   
-  // TODO: [MOB-3873] figure out why this update function is never called on network change
   func server(_ server: Server, didUpdate session: Session) {
     self.topicToSession.updateValue(session, forKey: session.url.topic)
   }

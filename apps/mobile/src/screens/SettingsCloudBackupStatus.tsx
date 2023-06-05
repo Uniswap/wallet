@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 import { Alert } from 'react-native'
 import { useAppDispatch, useAppTheme } from 'src/app/hooks'
 import { SettingsStackParamList } from 'src/app/navigation/types'
-import Checkmark from 'src/assets/icons/check.svg'
 import { AddressDisplay } from 'src/components/AddressDisplay'
 import { Button, ButtonEmphasis } from 'src/components/buttons/Button'
 import { Flex } from 'src/components/layout'
@@ -15,11 +14,16 @@ import { Text } from 'src/components/Text'
 import { useBiometricAppSettings, useBiometricPrompt } from 'src/features/biometrics/hooks'
 import { deleteICloudMnemonicBackup } from 'src/features/CloudBackup/RNICloudBackupsManager'
 import { ElementName, ModalName } from 'src/features/telemetry/constants'
-import { AccountType, BackupType, SignerMnemonicAccount } from 'src/features/wallet/accounts/types'
 import { EditAccountAction, editAccountActions } from 'src/features/wallet/editAccountSaga'
 import { useAccounts } from 'src/features/wallet/hooks'
 import { Screens } from 'src/screens/Screens'
-import { logger } from 'src/utils/logger'
+import Checkmark from 'ui/src/assets/icons/check.svg'
+import { logger } from 'wallet/src/features/logger/logger'
+import {
+  AccountType,
+  BackupType,
+  SignerMnemonicAccount,
+} from 'wallet/src/features/wallet/accounts/types'
 
 type Props = NativeStackScreenProps<SettingsStackParamList, Screens.SettingsCloudBackupStatus>
 
@@ -96,7 +100,7 @@ export function SettingsCloudBackupStatus({
                 {t('Backed up')}
               </Text>
 
-              {/* @TODO: [MOB-3919] Add non-backed up state once we have more options on this page  */}
+              {/* @TODO: [MOB-249] Add non-backed up state once we have more options on this page  */}
               <Checkmark color={theme.colors.accentSuccess} height={24} width={24} />
             </Flex>
           </Flex>

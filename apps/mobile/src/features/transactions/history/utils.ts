@@ -1,13 +1,6 @@
 import dayjs from 'dayjs'
 import { BigNumber } from 'ethers'
 import { parseUnits } from 'ethers/lib/utils'
-import {
-  Amount,
-  Chain,
-  Currency,
-  TokenStandard,
-  TransactionListQuery,
-} from 'src/data/__generated__/types-and-hooks'
 import extractTransactionDetails from 'src/features/transactions/history/conversion/extractTransactionDetails'
 import {
   TransactionDetails,
@@ -15,6 +8,13 @@ import {
   TransactionType,
 } from 'src/features/transactions/types'
 import { ChainId } from 'wallet/src/constants/chains'
+import {
+  Amount,
+  Chain,
+  Currency,
+  TokenStandard,
+  TransactionListQuery,
+} from 'wallet/src/data/__generated__/types-and-hooks'
 import { NativeCurrency } from 'wallet/src/features/tokens/NativeCurrency'
 import { fromGraphQLChain } from 'wallet/src/utils/chainId'
 import { getNativeCurrencyAddressForChain } from 'wallet/src/utils/currencyId'
@@ -124,7 +124,7 @@ export function parseDataResponseToTransactionDetails(
 export function deriveCurrencyAmountFromAssetResponse(
   tokenStandard: TokenStandard,
   quantity: string,
-  decimals: NullUndefined<number>
+  decimals: Maybe<number>
 ): string {
   return parseUnits(
     quantity,
@@ -148,8 +148,8 @@ export function getAddressFromAsset({
 }: {
   tokenStandard: TokenStandard
   chain: Chain | undefined
-  address: NullUndefined<string>
-}): NullUndefined<string> {
+  address: Maybe<string>
+}): Maybe<string> {
   const supportedChainId = fromGraphQLChain(chain)
   if (!supportedChainId) {
     return null
@@ -166,7 +166,7 @@ export function getAddressFromAsset({
  * @returns parsed USD value as a number if currency is of type USD
  */
 export function parseUSDValueFromAssetChange(
-  transactedValue: NullUndefined<Partial<Amount>>
+  transactedValue: Maybe<Partial<Amount>>
 ): number | undefined {
   return transactedValue?.currency === Currency.Usd ? transactedValue.value ?? undefined : undefined
 }

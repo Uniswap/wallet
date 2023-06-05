@@ -1,4 +1,3 @@
-// TODO(MOB-3867): reduce file length
 /* eslint-disable max-lines */
 import { BigNumber } from 'ethers'
 import mockdate from 'mockdate'
@@ -40,6 +39,8 @@ import {
   v39Schema,
   v3Schema,
   v40Schema,
+  v41Schema,
+  v42Schema,
   v4Schema,
   v5Schema,
   v6Schema,
@@ -68,12 +69,16 @@ import {
   TransactionStatus,
   TransactionType,
 } from 'src/features/transactions/types'
-import { Account, AccountType, SignerMnemonicAccount } from 'src/features/wallet/accounts/types'
 import { initialWalletState } from 'src/features/wallet/walletSlice'
 import { initialWalletConnectState } from 'src/features/walletConnect/walletConnectSlice'
 import { account, fiatOnRampTxDetailsFailed, txDetailsConfirmed } from 'src/test/fixtures'
 import { SWAP_ROUTER_ADDRESSES } from 'wallet/src/constants/addresses'
 import { ChainId } from 'wallet/src/constants/chains'
+import {
+  Account,
+  AccountType,
+  SignerMnemonicAccount,
+} from 'wallet/src/features/wallet/accounts/types'
 
 // helps with object assignement
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1072,15 +1077,51 @@ describe('Redux state migrations', () => {
 
   it('migrates from v39 to 40', () => {
     const v39Stub = { ...v39Schema }
+
     const v40 = migrations[40](v39Stub)
+
     // walletConnect slice still exists but should not be persisted
     expect(v40.walletConnect).toBeUndefined()
   })
 
   it('migrates from v40 to 41', () => {
     const v40Stub = { ...v40Schema }
+
     const v41 = migrations[41](v40Stub)
-    // walletConnect slice still exists but should not be persisted
+
     expect(v41.telemetry.lastBalancesReportValue).toBe(0)
+  })
+
+  it('migrates from v41 to 42', () => {
+    const v41Stub = { ...v41Schema }
+
+    const v42 = migrations[42](v41Stub)
+
+    expect(v42.wallet.flashbotsenabled).toBeUndefined()
+  })
+
+  it('migrates from v42 to 43', () => {
+    const v42Stub = { ...v42Schema }
+
+    v42Stub.favorites.hiddenNfts = {
+      '0xAFa9bAb987E3D7bcD40EB510838aEC663C8b7264': {
+        'nftItem.0xb96e881BD4Cd7BCCc8CB47d3aa0e254a72d2F074.3971': true, // checksummed 1
+        'nftItem.0xb96e881bd4cd7bccc8cb47d3aa0e254a72d2f074.3971': true, // not checksummed 1
+        'nftItem.0x25E503331e69EFCBbc50d2a4D661900B23D47662.2': true, // checksummed 2
+        'nftItem.0xe94abea3932576ff957a0b92190d0191aeb1a782.2': true, // not checksummed 3
+      },
+    }
+
+    const v43 = migrations[43](v42Stub)
+
+    // expect(v43.favorites.hiddenNfts).toEqual(undefined)
+    // all checksummed keys should be converted to not checksummed ones and duplicates should be removed
+    expect(v43.favorites.nftsData).toEqual({
+      '0xAFa9bAb987E3D7bcD40EB510838aEC663C8b7264': {
+        'nftItem.0xb96e881bd4cd7bccc8cb47d3aa0e254a72d2f074.3971': { isHidden: true }, // not checksummed 1
+        'nftItem.0x25e503331e69efcbbc50d2a4d661900b23d47662.2': { isHidden: true }, // not checksummed 2
+        'nftItem.0xe94abea3932576ff957a0b92190d0191aeb1a782.2': { isHidden: true }, // not checksummed 3
+      },
+    })
   })
 })

@@ -6,15 +6,6 @@ import { FadeInDown, FadeOutUp } from 'react-native-reanimated'
 import { SvgProps } from 'react-native-svg'
 import { useDispatch } from 'react-redux'
 import { useSettingsStackNavigation } from 'src/app/navigation/types'
-import { AVATARS_DARK, AVATARS_LIGHT } from 'src/assets'
-import BookOpenIcon from 'src/assets/icons/book-open.svg'
-import ContrastIcon from 'src/assets/icons/contrast.svg'
-import FaceIdIcon from 'src/assets/icons/faceid.svg'
-import FingerprintIcon from 'src/assets/icons/fingerprint.svg'
-import FlashbotsIcon from 'src/assets/icons/flashbots.svg'
-import LikeSquare from 'src/assets/icons/like-square.svg'
-import LockIcon from 'src/assets/icons/lock.svg'
-import MessageQuestion from 'src/assets/icons/message-question.svg'
 import { AddressDisplay } from 'src/components/AddressDisplay'
 import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { Chevron } from 'src/components/icons/Chevron'
@@ -27,16 +18,26 @@ import {
   SettingsSectionItemComponent,
 } from 'src/components/Settings/SettingsRow'
 import { Text } from 'src/components/Text'
-import { APP_FEEDBACK_LINK, GET_HELP_LINK, uniswapUrls } from 'src/constants/urls'
+import { APP_FEEDBACK_LINK, GET_HELP_LINK } from 'src/constants/urls'
 import { useCurrentAppearanceSetting, useIsDarkMode } from 'src/features/appearance/hooks'
 import { useDeviceSupportsBiometricAuth } from 'src/features/biometrics/hooks'
-import { AccountType, SignerMnemonicAccount } from 'src/features/wallet/accounts/types'
 import { useAccounts } from 'src/features/wallet/hooks'
 import { resetWallet, setFinishedOnboarding } from 'src/features/wallet/walletSlice'
 import { Screens } from 'src/screens/Screens'
-import { useTimeout } from 'src/utils/timing'
 import { getFullAppVersion } from 'src/utils/version'
+import { AVATARS_DARK, AVATARS_LIGHT } from 'ui/src/assets'
+import BookOpenIcon from 'ui/src/assets/icons/book-open.svg'
+import ContrastIcon from 'ui/src/assets/icons/contrast.svg'
+import FaceIdIcon from 'ui/src/assets/icons/faceid.svg'
+import FingerprintIcon from 'ui/src/assets/icons/fingerprint.svg'
+import LikeSquare from 'ui/src/assets/icons/like-square.svg'
+import LockIcon from 'ui/src/assets/icons/lock.svg'
+import MessageQuestion from 'ui/src/assets/icons/message-question.svg'
+import UniswapIcon from 'ui/src/assets/icons/uniswap-logo.svg'
+import { uniswapUrls } from 'wallet/src/constants/urls'
+import { AccountType, SignerMnemonicAccount } from 'wallet/src/features/wallet/accounts/types'
 import { ONE_SECOND_MS } from 'wallet/src/utils/time'
+import { useTimeout } from 'wallet/src/utils/timing'
 
 export function SettingsScreen(): JSX.Element {
   const navigation = useSettingsStackNavigation()
@@ -86,7 +87,7 @@ export function SettingsScreen(): JSX.Element {
               <FaceIdIcon {...iconProps} />
             ),
           },
-          // @TODO: [MOB-3920] add back testnet toggle when Zerion provides data for testnets correctly.
+          // @TODO: [MOB-250] add back testnet toggle once nxyz supports testnets
         ],
       },
       {
@@ -142,13 +143,12 @@ export function SettingsScreen(): JSX.Element {
           {
             screen: Screens.SettingsChains,
             text: t('Chains'),
-            // TODO [MOB-3921] use chains icon when available
-            icon: <FlashbotsIcon {...iconProps} />,
+            icon: <UniswapIcon {...iconProps} />,
           },
           {
             screen: Screens.Dev,
             text: t('Dev Options'),
-            icon: <FlashbotsIcon {...iconProps} />,
+            icon: <UniswapIcon {...iconProps} />,
           },
           { component: <OnboardingRow iconProps={iconProps} /> },
         ],
@@ -218,7 +218,7 @@ function OnboardingRow({ iconProps }: { iconProps: SvgProps }): JSX.Element {
       <Box alignItems="center" flexDirection="row" justifyContent="space-between" py="spacing4">
         <Box alignItems="center" flexDirection="row">
           <Flex centered height={32} width={32}>
-            <FlashbotsIcon {...iconProps} />
+            <UniswapIcon {...iconProps} />
           </Flex>
           <Text ml="spacing12" variant="bodyLarge">
             {t('Onboarding')}

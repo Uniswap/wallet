@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 import ContextMenu from 'react-native-context-menu-view'
 import { useAppDispatch, useAppTheme } from 'src/app/hooks'
 import { navigate } from 'src/app/navigation/rootNavigation'
-import Check from 'src/assets/icons/check.svg'
 import { AccountIcon } from 'src/components/AccountIcon'
 import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { Flex } from 'src/components/layout'
@@ -17,8 +16,9 @@ import { AppNotificationType, CopyNotificationType } from 'src/features/notifica
 import { ModalName } from 'src/features/telemetry/constants'
 import { useDisplayName } from 'src/features/wallet/hooks'
 import { Screens } from 'src/screens/Screens'
-import { iconSizes } from 'src/styles/sizing'
 import { setClipboard } from 'src/utils/clipboard'
+import Check from 'ui/src/assets/icons/check.svg'
+import { iconSizes } from 'ui/src/theme/iconSizes'
 import { formatUSDPrice, NumberType } from 'wallet/src/utils/format'
 
 type AccountCardItemProps = {

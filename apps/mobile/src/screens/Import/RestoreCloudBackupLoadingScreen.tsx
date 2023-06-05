@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAppTheme } from 'src/app/hooks'
 import { OnboardingStackParamList } from 'src/app/navigation/types'
-import CloudIcon from 'src/assets/icons/cloud.svg'
 import { Box } from 'src/components/layout'
 import { BaseCard } from 'src/components/layout/BaseCard'
 import { Loader } from 'src/components/loading'
@@ -15,10 +14,11 @@ import {
 import { OnboardingScreen } from 'src/features/onboarding/OnboardingScreen'
 import { ImportType } from 'src/features/onboarding/utils'
 import { OnboardingScreens } from 'src/screens/Screens'
-import { logger } from 'src/utils/logger'
-import { useTimeout } from 'src/utils/timing'
 import { useAddBackButton } from 'src/utils/useAddBackButton'
+import CloudIcon from 'ui/src/assets/icons/cloud.svg'
+import { logger } from 'wallet/src/features/logger/logger'
 import { ONE_SECOND_MS } from 'wallet/src/utils/time'
+import { useTimeout } from 'wallet/src/utils/timing'
 
 type Props = NativeStackScreenProps<
   OnboardingStackParamList,

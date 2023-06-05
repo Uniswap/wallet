@@ -2,15 +2,13 @@
 import { Mutex } from 'async-mutex'
 import { providers as ethersProviders } from 'ethers'
 import { Task } from 'redux-saga'
-import { FLASHBOTS_URLS } from 'src/features/providers/constants'
-import { FLASHBOTS_SUPPORTED_CHAINS } from 'src/features/providers/flashbotsProvider'
-import { getEthersProvider } from 'src/features/providers/getEthersProvider'
-import { getInfuraChainName } from 'src/features/providers/utils'
-import { logger } from 'src/utils/logger'
-import { promiseTimeout, sleep } from 'src/utils/timing'
 import { config } from 'wallet/src/config'
 import { ChainId, CHAIN_INFO, L1ChainInfo, L2ChainInfo } from 'wallet/src/constants/chains'
+import { logger } from 'wallet/src/features/logger/logger'
 import { isStale } from 'wallet/src/utils/time'
+import { promiseTimeout, sleep } from 'wallet/src/utils/timing'
+import { getEthersProvider } from './getEthersProvider'
+import { getInfuraChainName } from './utils'
 
 enum ProviderStatus {
   Disconnected,
@@ -80,15 +78,6 @@ export class ProviderManager {
     return provider
   }
 
-  private getFlashbotsProvider(chainId: ChainId): ethersProviders.JsonRpcProvider {
-    if (!FLASHBOTS_SUPPORTED_CHAINS.includes(chainId.toString())) {
-      throw new Error(`${chainId} is not supported by flashbots`)
-    }
-
-    const flashbotsUrl = FLASHBOTS_URLS[chainId]?.rpcUrl
-    return new ethersProviders.JsonRpcProvider(flashbotsUrl)
-  }
-
   removeProvider(chainId: ChainId): void {
     if (!this._providers[chainId]) {
       logger.warn(
@@ -114,9 +103,7 @@ export class ProviderManager {
     return provider.provider
   }
 
-  getProvider(chainId: ChainId, isFlashbots?: boolean): ethersProviders.JsonRpcProvider {
-    if (isFlashbots) return this.getFlashbotsProvider(chainId)
-
+  getProvider(chainId: ChainId): ethersProviders.JsonRpcProvider {
     if (!this._providers[chainId]) {
       throw new Error(`No provider initialized for chain: ${chainId}`)
     }
@@ -127,7 +114,7 @@ export class ProviderManager {
     return provider.provider
   }
 
-  // TODO: [MOB-3895] responsibility of this overlaps with init code in providerSaga which is initializing all upfront
+  // TODO: [MOB-562] responsibility of this overlaps with init code in providerSaga which is initializing all upfront
   // Switch to using lazy init throughout app or cut this
   async getInitalizedProvider(chainId: ChainId): Promise<ethersProviders.Provider> {
     if (this.hasProvider(chainId)) {

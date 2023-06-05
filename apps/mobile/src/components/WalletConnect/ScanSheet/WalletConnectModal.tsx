@@ -5,8 +5,6 @@ import { Alert } from 'react-native'
 import 'react-native-reanimated'
 import { useAppSelector, useAppTheme } from 'src/app/hooks'
 import { useEagerExternalProfileRootNavigation } from 'src/app/navigation/hooks'
-import Scan from 'src/assets/icons/receive.svg'
-import ScanQRIcon from 'src/assets/icons/scan.svg'
 import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { Flex } from 'src/components/layout'
 import { BackButtonView } from 'src/components/layout/BackButtonView'
@@ -19,14 +17,14 @@ import { Text } from 'src/components/Text'
 import { ConnectedDappsList } from 'src/components/WalletConnect/ConnectedDapps/ConnectedDappsList'
 import { getSupportedURI, URIType } from 'src/components/WalletConnect/ScanSheet/util'
 import { useIsDarkMode } from 'src/features/appearance/hooks'
-import { FEATURE_FLAGS } from 'src/features/experiments/constants'
-import { useFeatureFlag } from 'src/features/experiments/hooks'
 import { ElementName, ModalName } from 'src/features/telemetry/constants'
 import { useWCTimeoutError } from 'src/features/wallet/hooks'
 import { selectActiveAccountAddress } from 'src/features/wallet/selectors'
 import { useWalletConnect } from 'src/features/walletConnect/useWalletConnect'
 import { connectToApp } from 'src/features/walletConnect/WalletConnect'
 import { pairWithWalletConnectURI } from 'src/features/walletConnectV2/utils'
+import Scan from 'ui/src/assets/icons/receive.svg'
+import ScanQRIcon from 'ui/src/assets/icons/scan.svg'
 import { ONE_SECOND_MS } from 'wallet/src/utils/time'
 
 const WC_TIMEOUT_DURATION_MS = 10 * ONE_SECOND_MS // timeout after 10 seconds
@@ -50,7 +48,6 @@ export function WalletConnectModal({
   const { hasScanError, setHasScanError, shouldFreezeCamera, setShouldFreezeCamera } =
     useWCTimeoutError(WC_TIMEOUT_DURATION_MS)
   const { preload, navigate } = useEagerExternalProfileRootNavigation()
-  const walletConnectV2Enabled = useFeatureFlag(FEATURE_FLAGS.WalletConnectV2)
 
   // Update QR scanner states when pending session error alert is shown from WCv2 saga event channel
   useEffect(() => {
@@ -99,7 +96,7 @@ export function WalletConnectModal({
         connectToApp(supportedURI.value)
       }
 
-      if (walletConnectV2Enabled && supportedURI.type === URIType.WalletConnectV2URL) {
+      if (supportedURI.type === URIType.WalletConnectV2URL) {
         setShouldFreezeCamera(true)
         try {
           await pairWithWalletConnectURI(supportedURI.value)
@@ -145,7 +142,6 @@ export function WalletConnectModal({
       setHasScanError,
       setShouldFreezeCamera,
       shouldFreezeCamera,
-      walletConnectV2Enabled,
       t,
     ]
   )

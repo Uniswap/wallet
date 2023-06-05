@@ -4,13 +4,10 @@ import { NativeEventEmitter, NativeModules } from 'react-native'
 import { EventChannel, eventChannel } from 'redux-saga'
 import { CallEffect, ChannelTakeEffect, ForkEffect, PutEffect } from 'redux-saga/effects'
 import { i18n } from 'src/app/i18n'
-import { getSignerManager } from 'src/app/walletContext'
 import { pushNotification } from 'src/features/notifications/notificationSlice'
 import { AppNotification, AppNotificationType } from 'src/features/notifications/types'
 import { sendTransaction, SendTransactionParams } from 'src/features/transactions/sendTransaction'
 import { TransactionType } from 'src/features/transactions/types'
-import { Account } from 'src/features/wallet/accounts/types'
-import { signMessage, signTypedDataMessage } from 'src/features/wallet/signing/signing'
 import {
   deregisterWcPushNotifications,
   registerWcPushNotifications,
@@ -44,10 +41,13 @@ import {
   updateSession,
 } from 'src/features/walletConnect/walletConnectSlice'
 import { wcWeb3Wallet } from 'src/features/walletConnectV2/saga'
-import { logger } from 'src/utils/logger'
-import { createSaga } from 'src/utils/saga'
 import { call, fork, put, take } from 'typed-redux-saga'
 import { ChainId } from 'wallet/src/constants/chains'
+import { logger } from 'wallet/src/features/logger/logger'
+import { Account } from 'wallet/src/features/wallet/accounts/types'
+import { getSignerManager } from 'wallet/src/features/wallet/context'
+import { signMessage, signTypedDataMessage } from 'wallet/src/features/wallet/signing/signing.ios'
+import { createSaga } from 'wallet/src/utils/saga'
 import { ONE_SECOND_MS } from 'wallet/src/utils/time'
 
 export enum WalletConnectEvent {
@@ -88,7 +88,7 @@ function createWalletConnectChannel(
           topic: req.client_id,
           address: req.account,
           peerName: req.dapp.name,
-          language: 'en', // TODO: [MOB-3916] Use local user language
+          language: 'en', // TODO: [MOB-246] Use local user language
         })
       }
     }
@@ -211,6 +211,16 @@ function createWalletConnectChannel(
               type: AppNotificationType.Error,
               address: req.account ?? undefined,
               errorMessage: i18n.t('Failed to switch network, chain is not supported'),
+            })
+          )
+          break
+        case WCErrorType.DisconnectError:
+          emit(
+            pushNotification({
+              type: AppNotificationType.Error,
+              errorMessage: i18n.t(`Disconnecting resulted in error: {{message}}`, {
+                message: req.message,
+              }),
             })
           )
           break

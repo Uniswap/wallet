@@ -1,23 +1,24 @@
 import { MockedResponse } from '@apollo/client/testing'
 import React from 'react'
 import { ActivityTab } from 'src/components/home/ActivityTab'
+import { mockWalletPreloadedState } from 'src/test/fixtures'
+import { DaiAsset, Portfolios } from 'src/test/gqlFixtures'
+import { act, render } from 'src/test/test-utils'
 import {
   Chain,
   TokenDocument,
   TokenQuery,
   TransactionListDocument,
   TransactionListQuery,
-} from 'src/data/__generated__/types-and-hooks'
-import { ACCOUNT_ADDRESS_ONE, mockWalletPreloadedState } from 'src/test/fixtures'
-import { DaiAsset, Portfolios } from 'src/test/gqlFixtures'
-import { act, render } from 'src/test/test-utils'
-import { sleep } from 'src/utils/timing'
+} from 'wallet/src/data/__generated__/types-and-hooks'
+import { SAMPLE_SEED_ADDRESS_1 } from 'wallet/src/test/fixtures'
+import { sleep } from 'wallet/src/utils/timing'
 
 const TransactionListMock: MockedResponse<TransactionListQuery> = {
   request: {
     query: TransactionListDocument,
     variables: {
-      address: ACCOUNT_ADDRESS_ONE,
+      address: SAMPLE_SEED_ADDRESS_1,
     },
   },
   result: {
@@ -67,7 +68,7 @@ describe('ActivityTab', () => {
     const tokensTabScrollHandler = (): undefined => undefined
 
     const tree = render(
-      <ActivityTab owner={ACCOUNT_ADDRESS_ONE} scrollHandler={tokensTabScrollHandler} />,
+      <ActivityTab owner={SAMPLE_SEED_ADDRESS_1} scrollHandler={tokensTabScrollHandler} />,
       {
         mocks: [TransactionListMock, TokenMock, TokenNullMock],
         preloadedState: mockWalletPreloadedState,

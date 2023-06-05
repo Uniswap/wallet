@@ -1,10 +1,10 @@
 import { TradeType } from '@uniswap/sdk-core'
 import { providers } from 'ethers'
-import { TransactionListQuery } from 'src/data/__generated__/types-and-hooks'
 import { AssetType } from 'src/entities/assets'
 import { MoonpayCurrency } from 'src/features/fiatOnRamp/types'
 import { DappInfo } from 'src/features/walletConnect/types'
 import { ChainId, ChainIdTo } from 'wallet/src/constants/chains'
+import { TransactionListQuery } from 'wallet/src/data/__generated__/types-and-hooks'
 
 export type ChainIdToTxIdToDetails = ChainIdTo<{ [txId: string]: TransactionDetails }>
 
@@ -36,8 +36,6 @@ export interface TransactionDetails extends TransactionId {
   options: TransactionOptions
 
   receipt?: TransactionReceipt
-
-  isFlashbots?: boolean
 
   // cancelRequest is the txRequest object to be submitted
   // in attempt to cancel the current transaction
@@ -80,6 +78,8 @@ export interface TransactionReceipt {
   blockNumber: number
   confirmedTime: number
   confirmations: number
+  gasUsed: number
+  effectiveGasPrice: number
 }
 
 export interface NFTSummaryInfo {
@@ -133,11 +133,15 @@ export interface ApproveTransactionInfo extends BaseTransactionInfo {
   approvalAmount?: string
 }
 
-interface BaseSwapTransactionInfo extends BaseTransactionInfo {
+export interface BaseSwapTransactionInfo extends BaseTransactionInfo {
   type: TransactionType.Swap
   tradeType: TradeType
   inputCurrencyId: string
   outputCurrencyId: string
+  slippageTolerance?: number
+  quoteId?: string
+  routeString?: string
+  gasUseEstimate?: string
 }
 
 export interface ExactInputSwapTransactionInfo extends BaseSwapTransactionInfo {
@@ -191,7 +195,10 @@ export interface FiatPurchaseTransactionInfo extends BaseTransactionInfo {
   inputCurrencyAmount?: number
   // metadata will be used to get the output currency
   outputCurrency?: Required<Pick<MoonpayCurrency, 'type' | 'metadata'>>
-  outputCurrencyAmount?: number
+  // outputCurrencyAmount can be null for failed transactions,
+  // cause it's supposed to be set once transaction is complete
+  // https://docs.moonpay.com/moonpay/developer-resources/api/client-side-apis/transactions
+  outputCurrencyAmount?: number | null
   syncedWithBackend: boolean
 }
 

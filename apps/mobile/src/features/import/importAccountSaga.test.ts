@@ -6,7 +6,6 @@ import {
   ImportAddressAccountParams,
   ImportMnemonicAccountParams,
 } from 'src/features/import/types'
-import { AccountType } from 'src/features/wallet/accounts/types'
 import {
   activateAccount,
   addAccount,
@@ -14,23 +13,8 @@ import {
   unlockWallet,
 } from 'src/features/wallet/walletSlice'
 import { signerManager } from 'src/test/fixtures'
-
-const SAMPLE_SEED = [
-  'dove',
-  'lumber',
-  'quote',
-  'board',
-  'young',
-  'robust',
-  'kit',
-  'invite',
-  'plastic',
-  'regular',
-  'skull',
-  'history',
-].join(' ')
-const SAMPLE_SEED_ADDRESS_1 = '0x82D56A352367453f74FC0dC7B071b311da373Fa6'
-const SAMPLE_SEED_ADDRESS_2 = '0x55f4B664C68F398f9e81EFf63ef4444A1A184F98'
+import { AccountType } from 'wallet/src/features/wallet/accounts/types'
+import { SAMPLE_SEED, SAMPLE_SEED_ADDRESS_1, SAMPLE_SEED_ADDRESS_2 } from 'wallet/src/test/fixtures'
 
 describe(importAccount, () => {
   it('imports native account', async () => {

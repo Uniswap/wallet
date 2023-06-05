@@ -5,8 +5,6 @@ import { providers } from 'ethers'
 import { default as React, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAppDispatch, useAppTheme } from 'src/app/hooks'
-import AlertTriangle from 'src/assets/icons/alert-triangle.svg'
-import SlashCircleIcon from 'src/assets/icons/slash-circle.svg'
 import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { Box } from 'src/components/layout'
 import { Flex } from 'src/components/layout/Flex'
@@ -24,11 +22,13 @@ import {
   TransactionStatus,
   TransactionType,
 } from 'src/features/transactions/types'
-import { AccountType } from 'src/features/wallet/accounts/types'
 import { useActiveAccountWithThrow } from 'src/features/wallet/hooks'
-import { iconSizes } from 'src/styles/sizing'
 import { Theme } from 'src/styles/theme'
 import { openMoonpayTransactionLink, openTransactionLink } from 'src/utils/linking'
+import AlertTriangle from 'ui/src/assets/icons/alert-triangle.svg'
+import SlashCircleIcon from 'ui/src/assets/icons/slash-circle.svg'
+import { iconSizes } from 'ui/src/theme/iconSizes'
+import { AccountType } from 'wallet/src/features/wallet/accounts/types'
 
 export const TXN_HISTORY_ICON_SIZE = iconSizes.icon40
 const LOADING_SPINNER_SIZE = 20

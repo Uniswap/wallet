@@ -9,13 +9,13 @@ import { Flex } from 'src/components/layout'
 import { Screen } from 'src/components/layout/Screen'
 import { Text } from 'src/components/Text'
 import { backupMnemonicToICloud } from 'src/features/CloudBackup/RNICloudBackupsManager'
-import { BackupType } from 'src/features/wallet/accounts/types'
 import { EditAccountAction, editAccountActions } from 'src/features/wallet/editAccountSaga'
 import { useActiveAccount } from 'src/features/wallet/hooks'
 import { OnboardingScreens } from 'src/screens/Screens'
-import { logger } from 'src/utils/logger'
-import { promiseMinDelay } from 'src/utils/timing'
+import { logger } from 'wallet/src/features/logger/logger'
+import { BackupType } from 'wallet/src/features/wallet/accounts/types'
 import { ONE_SECOND_MS } from 'wallet/src/utils/time'
+import { promiseMinDelay } from 'wallet/src/utils/timing'
 
 type Props = NativeStackScreenProps<
   OnboardingStackParamList,

@@ -1,10 +1,6 @@
 import React, { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAppDispatch, useAppTheme } from 'src/app/hooks'
-import BookIcon from 'src/assets/icons/book.svg'
-import DollarSign from 'src/assets/icons/dollar.svg'
-import PaperStackIcon from 'src/assets/icons/paper-stack.svg'
-import ScanIcon from 'src/assets/icons/scan-receive.svg'
 import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { Flex } from 'src/components/layout'
 import { ScannerModalState } from 'src/components/QRCodeScanner/constants'
@@ -12,12 +8,16 @@ import { Text } from 'src/components/Text'
 import { UNISWAP_HELP_CENTER_WALLET_URL } from 'src/constants/urls'
 import { openModal } from 'src/features/modals/modalSlice'
 import { ModalName } from 'src/features/telemetry/constants'
-import { AccountType } from 'src/features/wallet/accounts/types'
 import { useActiveAccount } from 'src/features/wallet/hooks'
-import { iconSizes } from 'src/styles/sizing'
 import { opacify } from 'src/utils/colors'
 import { openUri } from 'src/utils/linking'
+import BookIcon from 'ui/src/assets/icons/book.svg'
+import DollarSign from 'ui/src/assets/icons/dollar.svg'
+import PaperStackIcon from 'ui/src/assets/icons/paper-stack.svg'
+import ScanIcon from 'ui/src/assets/icons/scan-receive.svg'
 import { colors } from 'ui/src/theme/color'
+import { iconSizes } from 'ui/src/theme/iconSizes'
+import { AccountType } from 'wallet/src/features/wallet/accounts/types'
 
 interface ActionCardItem {
   title: string
@@ -137,7 +137,7 @@ export function WalletEmptyState(): JSX.Element {
 
   // Order options based on view only status
   const sortedOptions = isViewOnly
-    ? [options.Learn, options.Scan, options.Import]
+    ? [options.Import, options.Learn, options.Scan]
     : [...(!isViewOnly ? [options.Buy] : []), options.Scan, options.Learn]
 
   return (

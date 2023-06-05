@@ -1,8 +1,12 @@
 import { createSelector, Selector } from '@reduxjs/toolkit'
 import type { RootState } from 'src/app/rootReducer'
-import { TokenSortableField } from 'src/data/__generated__/types-and-hooks'
-import { TokensOrderBy } from 'src/features/explore/types'
-import { Account, AccountType, SignerMnemonicAccount } from './accounts/types'
+import { TokenSortableField } from 'wallet/src/data/__generated__/types-and-hooks'
+import {
+  Account,
+  AccountType,
+  SignerMnemonicAccount,
+} from 'wallet/src/features/wallet/accounts/types'
+import { TokensOrderBy } from 'wallet/src/features/wallet/types'
 
 const DEFAULT_TOKENS_ORDER_BY = TokenSortableField.Volume
 
@@ -60,8 +64,6 @@ export const selectUserPalette = createSelector(
 
 export const selectFinishedOnboarding = (state: RootState): boolean | undefined =>
   state.wallet.finishedOnboarding
-
-export const selectFlashbotsEnabled = (state: RootState): boolean => state.wallet.flashbotsEnabled
 
 export const selectTokensOrderBy = (state: RootState): TokensOrderBy =>
   state.wallet.settings.tokensOrderBy ?? DEFAULT_TOKENS_ORDER_BY

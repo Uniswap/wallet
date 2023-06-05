@@ -1,8 +1,6 @@
 import { Currency, TradeType } from '@uniswap/sdk-core'
 import { providers } from 'ethers'
 import { CallEffect, PutEffect } from 'redux-saga/effects'
-import { getProvider, getSignerManager } from 'src/app/walletContext'
-import { isFlashbotsSupportedChainId } from 'src/features/providers/flashbotsProvider'
 import { sendAnalyticsEvent } from 'src/features/telemetry'
 import { MobileEventName } from 'src/features/telemetry/constants'
 import { transactionActions } from 'src/features/transactions/slice'
@@ -18,12 +16,12 @@ import {
   createTransactionId,
   getSerializableTransactionRequest,
 } from 'src/features/transactions/utils'
-import { Account, AccountType } from 'src/features/wallet/accounts/types'
-import { selectFlashbotsEnabled } from 'src/features/wallet/selectors'
-import { SignerManager } from 'src/features/wallet/signing/SignerManager'
-import { logger } from 'src/utils/logger'
-import { call, put, select } from 'typed-redux-saga'
+import { call, put } from 'typed-redux-saga'
 import { ChainId, CHAIN_INFO } from 'wallet/src/constants/chains'
+import { logger } from 'wallet/src/features/logger/logger'
+import { Account, AccountType } from 'wallet/src/features/wallet/accounts/types'
+import { getProvider, getSignerManager } from 'wallet/src/features/wallet/context'
+import { SignerManager } from 'wallet/src/features/wallet/signing/SignerManager'
 import { getCurrencyAddressForAnalytics } from 'wallet/src/utils/currencyId'
 import { formatCurrencyAmount, NumberType } from 'wallet/src/utils/format'
 import { hexlifyTransaction } from 'wallet/src/utils/transaction'
@@ -41,8 +39,6 @@ export interface SendTransactionParams {
 
 // A utility for sagas to send transactions
 // All outgoing transactions should go through here
-// TODO(MOB-3857): Add more specific return type definition
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function* sendTransaction(params: SendTransactionParams): Generator<any> {
   const { chainId, account, options } = params
   const request = options.request
@@ -51,11 +47,8 @@ export function* sendTransaction(params: SendTransactionParams): Generator<any> 
 
   if (account.type === AccountType.Readonly) throw new Error('Account must support signing')
 
-  const isFlashbotsEnabled = yield* select(selectFlashbotsEnabled)
-  const isFlashbots = isFlashbotsEnabled && isFlashbotsSupportedChainId(params.chainId)
-
   // Sign and send the transaction
-  const provider = yield* call(getProvider, chainId, isFlashbots)
+  const provider = yield* call(getProvider, chainId)
 
   const signerManager = yield* call(getSignerManager)
   const { transactionResponse, populatedRequest } = yield* call(
@@ -68,7 +61,7 @@ export function* sendTransaction(params: SendTransactionParams): Generator<any> 
   logger.debug('sendTransaction', '', 'Tx submitted:', transactionResponse.hash)
 
   // Register the tx in the store
-  yield* call(addTransaction, params, transactionResponse.hash, populatedRequest, isFlashbots)
+  yield* call(addTransaction, params, transactionResponse.hash, populatedRequest)
   return { transactionResponse }
 }
 
@@ -95,8 +88,7 @@ export async function signAndSendTransaction(
 function* addTransaction(
   { chainId, typeInfo, account, options, txId, trade }: SendTransactionParams,
   hash: string,
-  populatedRequest: providers.TransactionRequest,
-  isFlashbots?: boolean
+  populatedRequest: providers.TransactionRequest
 ): Generator<
   | CallEffect<never>
   | PutEffect<{
@@ -114,7 +106,6 @@ function* addTransaction(
     chainId,
     hash,
     typeInfo,
-    isFlashbots,
     from: account.address,
     addedTime: Date.now(),
     status: TransactionStatus.Pending,

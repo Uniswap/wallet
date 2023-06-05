@@ -13,8 +13,6 @@ import {
   withTiming,
 } from 'react-native-reanimated'
 import { useAppTheme } from 'src/app/hooks'
-import AlertTriangleIcon from 'src/assets/icons/alert-triangle.svg'
-import SettingsIcon from 'src/assets/icons/settings.svg'
 import { Button, ButtonEmphasis } from 'src/components/buttons/Button'
 import PlusMinusButton, { PlusMinusButtonType } from 'src/components/buttons/PlusMinusButton'
 import { TouchableArea } from 'src/components/buttons/TouchableArea'
@@ -25,13 +23,15 @@ import {
   DEFAULT_SLIPPAGE_TOLERANCE,
   MAX_CUSTOM_SLIPPAGE_TOLERANCE,
 } from 'src/constants/transactions'
-import { SWAP_SLIPPAGE_HELP_PAGE_URL } from 'src/constants/urls'
 import { ModalName } from 'src/features/telemetry/constants'
 import { DerivedSwapInfo } from 'src/features/transactions/swap/hooks'
 import { slippageToleranceToPercent } from 'src/features/transactions/swap/utils'
 import { transactionStateActions } from 'src/features/transactions/transactionState/transactionState'
 import { openUri } from 'src/utils/linking'
+import AlertTriangleIcon from 'ui/src/assets/icons/alert-triangle.svg'
+import SettingsIcon from 'ui/src/assets/icons/settings.svg'
 import { opacify } from 'ui/src/theme/color/utils'
+import { SWAP_SLIPPAGE_HELP_PAGE_URL } from 'wallet/src/constants/urls'
 import { formatCurrencyAmount, NumberType } from 'wallet/src/utils/format'
 
 const SLIPPAGE_INCREMENT = 0.1

@@ -7,7 +7,6 @@ import { ListRenderItemInfo, View } from 'react-native'
 import ContextMenu from 'react-native-context-menu-view'
 import { useAppDispatch, useAppTheme } from 'src/app/hooks'
 import { useAppStackNavigation } from 'src/app/navigation/types'
-import NoNFTsIcon from 'src/assets/icons/empty-state-picture.svg'
 import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { NFTViewer } from 'src/components/images/NFTViewer'
 import { AnimatedFlashList } from 'src/components/layout/AnimatedFlashList'
@@ -19,7 +18,6 @@ import { Loader } from 'src/components/loading'
 import { HiddenNftsRowLeft, HiddenNftsRowRight } from 'src/components/NFT/NFTHiddenRow'
 import { ScannerModalState } from 'src/components/QRCodeScanner/constants'
 import { isError, isNonPollingRequestInFlight } from 'src/data/utils'
-import { NftsTabQuery, useNftsTabQuery } from 'src/data/__generated__/types-and-hooks'
 import { openModal } from 'src/features/modals/modalSlice'
 import {
   EMPTY_NFT_ITEM,
@@ -34,7 +32,9 @@ import { ModalName } from 'src/features/telemetry/constants'
 import { removePendingSession } from 'src/features/walletConnect/walletConnectSlice'
 import { Screens } from 'src/screens/Screens'
 import { dimensions } from 'src/styles/sizing'
+import NoNFTsIcon from 'ui/src/assets/icons/empty-state-picture.svg'
 import { EMPTY_ARRAY } from 'wallet/src/constants/misc'
+import { NftsTabQuery, useNftsTabQuery } from 'wallet/src/data/__generated__/types-and-hooks'
 import { useAdaptiveFooterHeight } from './hooks'
 
 const MAX_NFT_IMAGE_SIZE = 375
@@ -57,6 +57,7 @@ function formatNftItems(data: NftsTabQuery | undefined): NFTItem[] {
         collectionName: item?.ownedAsset?.collection?.name ?? undefined,
         isVerifiedCollection: item?.ownedAsset?.collection?.isVerified ?? undefined,
         floorPrice: item?.ownedAsset?.collection?.markets?.[0]?.floorPrice?.value ?? undefined,
+        isSpam: item?.ownedAsset?.isSpam ?? undefined,
         imageDimensions:
           item?.ownedAsset?.image?.dimensions?.height && item?.ownedAsset?.image?.dimensions?.width
             ? {
@@ -81,13 +82,15 @@ function NftView({ owner, item }: { owner: Address; item: NFTItem }): JSX.Elemen
       owner,
       address: item.contractAddress ?? '',
       tokenId: item.tokenId ?? '',
+      isSpam: item.isSpam,
     })
-  }, [item.contractAddress, item.tokenId, navigation, owner])
+  }, [item.contractAddress, item.isSpam, item.tokenId, navigation, owner])
 
   const { menuActions, onContextMenuPress } = useNFTMenu({
     contractAddress: item.contractAddress,
     tokenId: item.tokenId,
     owner,
+    isSpam: item.isSpam,
   })
 
   return (
@@ -137,7 +140,7 @@ export const NftsTab = forwardRef<FlashList<unknown>, TabProps>(
     })
 
     const { data, fetchMore, refetch, networkStatus } = useNftsTabQuery({
-      variables: { ownerAddress: owner, first: 30 },
+      variables: { ownerAddress: owner, first: 30, filter: { filterSpam: false } },
       notifyOnNetworkStatusChange: true, // Used to trigger network state / loading on refetch or fetchMore
       errorPolicy: 'all', // Suppress non-null image.url fields from backend
     })

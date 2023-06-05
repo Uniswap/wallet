@@ -1,16 +1,16 @@
 import { Currency, CurrencyAmount } from '@uniswap/sdk-core'
-import { CurrencyInfo } from 'src/features/dataApi/types'
 import { CurrencyField } from 'src/features/transactions/transactionState/transactionState'
+import { CurrencyInfo } from 'wallet/src/features/dataApi/types'
 
 export type BaseDerivedInfo<TInput = CurrencyInfo> = {
   currencies: {
-    [CurrencyField.INPUT]: NullUndefined<TInput>
+    [CurrencyField.INPUT]: Maybe<TInput>
   }
   currencyAmounts: {
-    [CurrencyField.INPUT]: NullUndefined<CurrencyAmount<Currency>>
+    [CurrencyField.INPUT]: Maybe<CurrencyAmount<Currency>>
   }
   currencyBalances: {
-    [CurrencyField.INPUT]: NullUndefined<CurrencyAmount<Currency>>
+    [CurrencyField.INPUT]: Maybe<CurrencyAmount<Currency>>
   }
   exactAmountUSD?: string
   exactAmountToken: string

@@ -14,11 +14,11 @@ import { QuoteResult } from 'src/features/routing/types'
 import { useUSDCValue } from 'src/features/routing/useUSDCPrice'
 import { transformQuoteToTrade } from 'src/features/transactions/swap/routeUtils'
 import { clearStaleTrades } from 'src/features/transactions/swap/utils'
-import { useDebounceWithStatus } from 'src/utils/timing'
 import { isL2Chain } from 'wallet/src/constants/chains'
 import { PollingInterval } from 'wallet/src/constants/misc'
+import { useDebounceWithStatus } from 'wallet/src/utils/timing'
 
-// TODO: [MOB-3906] use composition instead of inheritance
+// TODO: [MOB-238] use composition instead of inheritance
 export class Trade<
   TInput extends Currency = Currency,
   TOutput extends Currency = Currency,
@@ -69,8 +69,8 @@ interface TradeWithStatus {
 }
 
 interface UseTradeArgs {
-  amountSpecified: NullUndefined<CurrencyAmount<Currency>>
-  otherCurrency: NullUndefined<Currency>
+  amountSpecified: Maybe<CurrencyAmount<Currency>>
+  otherCurrency: Maybe<Currency>
   tradeType: TradeType
   pollingInterval?: PollingInterval
   customSlippageTolerance?: number
@@ -184,7 +184,7 @@ export function useSetTradeSlippage(
   Note: not using BigNumber because it sucks at decimals and we're dealing with USD values anyways
  */
 // TODO: move logic to `transformResponse` method of routingApi when endpoint returns output USD value
-function useCalculateAutoSlippage(trade: NullUndefined<Trade>): number {
+function useCalculateAutoSlippage(trade: Maybe<Trade>): number {
   const chainId = trade?.quote?.route?.[0]?.[0]?.tokenIn.chainId
   const gasCostUSD = trade?.quote?.gasUseEstimateUSD
   const outputAmountUSD = useUSDCValue(trade?.outputAmount)?.toExact()
