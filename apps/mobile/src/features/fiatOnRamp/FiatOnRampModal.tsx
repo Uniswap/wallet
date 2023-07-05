@@ -29,7 +29,6 @@ import { Pill } from 'src/components/text/Pill'
 import { FiatOnRampTokenSelector } from 'src/components/TokenSelector/FiatOnRampTokenSelector'
 import { FiatOnRampConnectingView } from 'src/features/fiatOnRamp/FiatOnRampConnecting'
 import { useMoonpayFiatOnRamp } from 'src/features/fiatOnRamp/hooks'
-import { MoonpayCurrency } from 'src/features/fiatOnRamp/types'
 import { closeModal } from 'src/features/modals/modalSlice'
 import { sendAnalyticsEvent } from 'src/features/telemetry'
 import { ElementName, MobileEventName, ModalName } from 'src/features/telemetry/constants'
@@ -37,15 +36,16 @@ import { EventProperties } from 'src/features/telemetry/types'
 import { useCurrencyInfo } from 'src/features/tokens/useCurrencyInfo'
 import { useDynamicFontSizing, useShouldShowNativeKeyboard } from 'src/features/transactions/hooks'
 import { ANIMATE_SPRING_CONFIG } from 'src/features/transactions/utils'
-import { dimensions } from 'src/styles/sizing'
-import { Theme } from 'src/styles/theme'
 import { openUri } from 'src/utils/linking'
 import InformationIcon from 'ui/src/assets/icons/i-icon.svg'
 import { iconSizes } from 'ui/src/theme/iconSizes'
+import { dimensions } from 'ui/src/theme/restyle/sizing'
+import { Theme } from 'ui/src/theme/restyle/theme'
 import { spacing } from 'ui/src/theme/spacing'
 import { NATIVE_ADDRESS } from 'wallet/src/constants/addresses'
 import { ChainId } from 'wallet/src/constants/chains'
 import { CurrencyInfo } from 'wallet/src/features/dataApi/types'
+import { MoonpayCurrency } from 'wallet/src/features/fiatOnRamp/types'
 import { buildCurrencyId } from 'wallet/src/utils/currencyId'
 import { formatUSDPrice } from 'wallet/src/utils/format'
 import { useTimeout } from 'wallet/src/utils/timing'
@@ -74,8 +74,13 @@ export function FiatOnRampModal(): JSX.Element {
 
   const [showConnectingToMoonpayScreen, setShowConnectingToMoonpayScreen] = useState(false)
 
-  const { showNativeKeyboard, onDecimalPadLayout, isLayoutPending, onInputPanelLayout } =
-    useShouldShowNativeKeyboard()
+  const {
+    showNativeKeyboard,
+    onDecimalPadLayout,
+    isLayoutPending,
+    onInputPanelLayout,
+    maxContentHeight,
+  } = useShouldShowNativeKeyboard()
 
   const [selection, setSelection] = useState<TextInputProps['selection']>()
 
@@ -205,10 +210,10 @@ export function FiatOnRampModal(): JSX.Element {
             px="spacing24"
             style={{ marginBottom: insets.bottom }}
             width="100%">
-            <Text color="textPrimary" variant="subheadLarge">
-              {t('Buy')}
-            </Text>
-            <Flex onLayout={onInputPanelLayout}>
+            <Flex style={{ height: maxContentHeight }} onLayout={onInputPanelLayout}>
+              <Text color="textPrimary" variant="subheadLarge">
+                {t('Buy')}
+              </Text>
               <AnimatedFlex
                 grow
                 alignItems="center"
@@ -261,7 +266,7 @@ export function FiatOnRampModal(): JSX.Element {
                   )}
                 </Box>
               </AnimatedFlex>
-              <Flex centered row>
+              <Flex centered row pb="spacing16">
                 {['100', '300', '1000'].map((amount) => (
                   <PredefinedAmount
                     key={amount}

@@ -5,22 +5,12 @@ import React, { useEffect, useMemo } from 'react'
 import { View } from 'react-native'
 import { batch } from 'react-redux'
 import { useAppDispatch, useAppSelector } from 'src/app/hooks'
-import { useRefetchQueries } from 'src/data/hooks'
-import {
-  pushNotification,
-  setLastTxNotificationUpdate,
-  setNotificationStatus,
-} from 'src/features/notifications/notificationSlice'
+import { GQLQueries } from 'src/data/queries'
+import { apolloClient } from 'src/data/usePersistedApolloClient'
 import { selectLastTxNotificationUpdate } from 'src/features/notifications/selectors'
 import { buildReceiveNotification } from 'src/features/notifications/utils'
 import { parseDataResponseToTransactionDetails } from 'src/features/transactions/history/utils'
 import { useSelectAddressTransactions } from 'src/features/transactions/hooks'
-import { TransactionStatus, TransactionType } from 'src/features/transactions/types'
-import { useAccounts } from 'src/features/wallet/hooks'
-import {
-  makeSelectAccountHideSpamTokens,
-  selectActiveAccountAddress,
-} from 'src/features/wallet/selectors'
 import { PollingInterval } from 'wallet/src/constants/misc'
 import {
   TransactionHistoryUpdaterQueryResult,
@@ -28,6 +18,18 @@ import {
   useTransactionHistoryUpdaterQuery,
   useTransactionListLazyQuery,
 } from 'wallet/src/data/__generated__/types-and-hooks'
+import {
+  pushNotification,
+  setLastTxNotificationUpdate,
+  setNotificationStatus,
+} from 'wallet/src/features/notifications/slice'
+import { TransactionStatus, TransactionType } from 'wallet/src/features/transactions/types'
+import {
+  useAccounts,
+  useActiveAccountAddress,
+  useSelectAccountHideSpamTokens,
+} from 'wallet/src/features/wallet/hooks'
+import { selectActiveAccountAddress } from 'wallet/src/features/wallet/selectors'
 import { ONE_SECOND_MS } from 'wallet/src/utils/time'
 
 /**
@@ -35,27 +37,41 @@ import { ONE_SECOND_MS } from 'wallet/src/utils/time'
  * the notification status in redux.
  */
 export function TransactionHistoryUpdater(): JSX.Element | null {
-  const accounts = useAccounts()
-  const addresses = useMemo(() => {
-    return Object.keys(accounts)
-  }, [accounts])
+  const allAccounts = useAccounts()
 
-  const skip = addresses.length === 0
+  const activeAccountAddress = useActiveAccountAddress()
+  const nonActiveAccountAddresses = useMemo(() => {
+    return Object.keys(allAccounts).filter((address) => address !== activeAccountAddress)
+  }, [activeAccountAddress, allAccounts])
 
-  const { data } = useTransactionHistoryUpdaterQuery({
-    variables: { addresses },
-    pollInterval: PollingInterval.Fast,
+  // Poll at different intervals to reduce requests made for non active accounts.
+
+  const { data: activeAccountData } = useTransactionHistoryUpdaterQuery({
+    variables: { addresses: activeAccountAddress ?? [] },
+    pollInterval: PollingInterval.KindaFast,
     fetchPolicy: 'network-only', // Ensure latest data.
-    skip,
+    skip: !activeAccountAddress,
   })
 
-  if (skip || !data?.portfolios?.length) {
+  const { data: nonActiveAccountData } = useTransactionHistoryUpdaterQuery({
+    variables: { addresses: nonActiveAccountAddresses },
+    pollInterval: PollingInterval.Normal,
+    fetchPolicy: 'network-only', // Ensure latest data.
+    skip: nonActiveAccountAddresses.length === 0,
+  })
+
+  const combinedPortfoliosData = [
+    ...(activeAccountData?.portfolios ?? []),
+    ...(nonActiveAccountData?.portfolios ?? []),
+  ]
+
+  if (!combinedPortfoliosData.length) {
     return null
   }
 
   return (
     <>
-      {data.portfolios.map((portfolio) => {
+      {combinedPortfoliosData.map((portfolio) => {
         if (!portfolio?.ownerAddress || !portfolio?.assetActivities) return null
 
         return (
@@ -94,11 +110,9 @@ function AddressTransactionHistoryUpdater({
   const fetchAndDispatchReceiveNotification = useFetchAndDispatchReceiveNotification()
 
   // dont show notifications on spam tokens if setting enabled
-  const hideSpamTokens = useAppSelector<boolean>(makeSelectAccountHideSpamTokens(address))
+  const hideSpamTokens = useSelectAccountHideSpamTokens(address)
 
   const localTransactions = useSelectAddressTransactions(address)
-
-  const refetchQueries = useRefetchQueries()
 
   useEffect(() => {
     batch(async () => {
@@ -143,14 +157,9 @@ function AddressTransactionHistoryUpdater({
           )
         }
 
-        // Delay 1s to ensure NXYZ balances sync after we detect this new txn. (As balances pulled
-        // from different data source)
-        setTimeout(
-          // NOTE: every wallet may call this on new transaction.
-          // It may be better to batch this action, or target specific queries.
-          refetchQueries,
-          ONE_SECOND_MS
-        )
+        apolloClient?.refetchQueries({
+          include: [GQLQueries.PortfolioBalances, GQLQueries.TransactionList],
+        })
       }
     })
   }, [
@@ -162,7 +171,6 @@ function AddressTransactionHistoryUpdater({
     hideSpamTokens,
     lastTxNotificationUpdateTimestamp,
     localTransactions,
-    refetchQueries,
   ])
 
   return null
@@ -170,11 +178,11 @@ function AddressTransactionHistoryUpdater({
 
 /*
  * Fetch and search recent transactions for receive txn. If confirmed since the last status update timestamp,
- * dispatch notification update. We specical case here because receive is never initiated within app.
+ * dispatch notification update. We special case here because receive is never initiated within app.
  *
  * Note: we opt for a waterfall request here because full transaction data is a large query that we dont
  * want to submit every polling interval - only fetch this data if new txn is detected. This ideally gets
- * replaced with a subcription to new transactions with more full txn data.
+ * replaced with a subscription to new transactions with more full txn data.
  */
 export function useFetchAndDispatchReceiveNotification(): (
   address: string,

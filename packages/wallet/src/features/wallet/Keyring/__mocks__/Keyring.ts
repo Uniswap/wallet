@@ -13,6 +13,10 @@ class MockKeyring implements IKeyring {
     return Promise.resolve(password === p)
   }
 
+  lock(): Promise<boolean> {
+    return Promise.resolve(true)
+  }
+
   getMnemonicIds(): Promise<string[]> {
     return Promise.resolve(Object.keys(mnemonics))
   }
@@ -22,6 +26,10 @@ class MockKeyring implements IKeyring {
     const wallet = Wallet.fromMnemonic(mnemonic)
     mnemonics[wallet.address] = mnemonic
     return Promise.resolve(wallet.address)
+  }
+
+  retrieveMnemonicUnlocked(address: string): Promise<string | undefined> {
+    return Promise.resolve(mnemonics[address])
   }
 
   // returns the mnemonicId (derived address at index 0) of the stored mnemonic

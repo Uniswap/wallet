@@ -77,7 +77,7 @@ require('react-native-reanimated/lib/reanimated2/jestUtils').setUpTests()
 jest.mock('react-native/Libraries/Animated/NativeAnimatedHelper')
 
 // mock initProviders to avoid creating real ethers providers for each test
-jest.mock('src/features/providers/providerSaga')
+jest.mock('wallet/src/features/providers/saga')
 
 jest.mock('src/lib/RNEthersRs')
 
@@ -106,6 +106,12 @@ jest.mock('react-native-onesignal', () => {
     promptForPushNotificationsWithUserResponse: jest.fn(),
     setNotificationWillShowInForegroundHandler: jest.fn(),
     setNotificationOpenedHandler: jest.fn(),
+  }
+})
+
+jest.mock('react-native-appsflyer', () => {
+  return {
+    initSdk: jest.fn(),
   }
 })
 

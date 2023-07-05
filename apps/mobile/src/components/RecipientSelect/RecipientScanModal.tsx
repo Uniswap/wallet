@@ -14,9 +14,9 @@ import { Text } from 'src/components/Text'
 import { getSupportedURI, URIType } from 'src/components/WalletConnect/ScanSheet/util'
 import { useIsDarkMode } from 'src/features/appearance/hooks'
 import { ElementName, ModalName } from 'src/features/telemetry/constants'
-import { selectActiveAccountAddress } from 'src/features/wallet/selectors'
 import Scan from 'ui/src/assets/icons/receive.svg'
 import ScanQRIcon from 'ui/src/assets/icons/scan.svg'
+import { selectActiveAccountAddress } from 'wallet/src/features/wallet/selectors'
 
 type Props = {
   onClose: () => void

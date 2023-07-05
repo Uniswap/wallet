@@ -16,8 +16,8 @@ import { useIsDarkMode } from 'src/features/appearance/hooks'
 import { sendAnalyticsEvent } from 'src/features/telemetry'
 import { SectionName } from 'src/features/telemetry/constants'
 import { Screens } from 'src/screens/Screens'
-import { flex } from 'src/styles/flex'
-import { Theme } from 'src/styles/theme'
+import { flex } from 'ui/src/theme/restyle/flex'
+import { Theme } from 'ui/src/theme/restyle/theme'
 import { useDebounce } from 'wallet/src/utils/timing'
 
 export function ExploreScreen(): JSX.Element {
@@ -68,7 +68,7 @@ export function ExploreScreen(): JSX.Element {
           ref={textInputRef}
           showCancelButton
           backgroundColor={isSearchMode ? contrastBackgroundColor : searchBarBackgroundColor}
-          placeholder={t('Search tokens and wallets')}
+          placeholder={t('Search tokens, NFTs, and wallets')}
           showShadow={!isSearchMode}
           value={searchQuery}
           onCancel={onSearchCancel}

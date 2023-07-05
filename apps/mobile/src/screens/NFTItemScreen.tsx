@@ -24,13 +24,9 @@ import { useNFTMenu } from 'src/features/nfts/hooks'
 import { BlurredImageBackground } from 'src/features/nfts/item/BlurredImageBackground'
 import { CollectionPreviewCard } from 'src/features/nfts/item/CollectionPreviewCard'
 import { NFTTraitList } from 'src/features/nfts/item/traits'
-import { pushNotification } from 'src/features/notifications/notificationSlice'
-import { AppNotificationType, CopyNotificationType } from 'src/features/notifications/types'
 import { ModalName } from 'src/features/telemetry/constants'
-import { useActiveAccountAddressWithThrow } from 'src/features/wallet/hooks'
 import { ExploreModalAwareView } from 'src/screens/ModalAwareView'
 import { Screens } from 'src/screens/Screens'
-import { darkTheme } from 'src/styles/theme'
 import { setClipboardImage } from 'src/utils/clipboard'
 import {
   MIN_COLOR_CONTRAST_THRESHOLD,
@@ -41,12 +37,16 @@ import EllipsisIcon from 'ui/src/assets/icons/ellipsis.svg'
 import ShareIcon from 'ui/src/assets/icons/share.svg'
 import { colorsDark } from 'ui/src/theme/color'
 import { iconSizes } from 'ui/src/theme/iconSizes'
+import { darkTheme } from 'ui/src/theme/restyle/theme'
 import { PollingInterval } from 'wallet/src/constants/misc'
 import {
   NftActivityType,
   NftItemScreenQuery,
   useNftItemScreenQuery,
 } from 'wallet/src/data/__generated__/types-and-hooks'
+import { pushNotification } from 'wallet/src/features/notifications/slice'
+import { AppNotificationType, CopyNotificationType } from 'wallet/src/features/notifications/types'
+import { useActiveAccountAddressWithThrow } from 'wallet/src/features/wallet/hooks'
 import { areAddressesEqual } from 'wallet/src/utils/addresses'
 
 const MAX_NFT_IMAGE_HEIGHT = 375

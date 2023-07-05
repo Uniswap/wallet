@@ -7,14 +7,15 @@ import { selectNftsData } from 'src/features/favorites/selectors'
 import { AccountToNftData, isNftHidden, toggleNftVisibility } from 'src/features/favorites/slice'
 import { NFTItem } from 'src/features/nfts/types'
 import { getNFTAssetKey } from 'src/features/nfts/utils'
-import { pushNotification } from 'src/features/notifications/notificationSlice'
-import { AppNotificationType } from 'src/features/notifications/types'
-import { useAccounts } from 'src/features/wallet/hooks'
 import { PollingInterval } from 'wallet/src/constants/misc'
 import { uniswapUrls } from 'wallet/src/constants/urls'
 import { NftsQuery, useNftsQuery } from 'wallet/src/data/__generated__/types-and-hooks'
 import { GqlResult } from 'wallet/src/features/dataApi/types'
 import { logger } from 'wallet/src/features/logger/logger'
+import { pushNotification } from 'wallet/src/features/notifications/slice'
+import { AppNotificationType } from 'wallet/src/features/notifications/types'
+import { useAccounts } from 'wallet/src/features/wallet/hooks'
+import { ONE_SECOND_MS } from 'wallet/src/utils/time'
 
 export const HIDDEN_NFTS_ROW_LEFT_ITEM = 'HIDDEN_NFTS_ROW_LEFT_ITEM'
 export const HIDDEN_NFTS_ROW_RIGHT_ITEM = 'HIDDEN_NFTS_ROW_RIGHT_ITEM'
@@ -131,9 +132,10 @@ export function useNFTMenu({
                   if (showNotification) {
                     dispatch(
                       pushNotification({
-                        type: AppNotificationType.NFTVisibility,
+                        type: AppNotificationType.AssetVisibility,
                         visible: !hidden,
-                        hideDelay: 2000,
+                        hideDelay: 2 * ONE_SECOND_MS,
+                        assetName: 'NFT',
                       })
                     )
                   }

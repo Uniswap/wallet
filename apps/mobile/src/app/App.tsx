@@ -17,7 +17,8 @@ import { persistor, store } from 'src/app/store'
 import { OfflineBanner } from 'src/components/banners/OfflineBanner'
 import { Trace } from 'src/components/telemetry/Trace'
 import { TraceUserProperties } from 'src/components/telemetry/TraceUserProperties'
-import { usePersistedApolloClient } from 'src/data/hooks'
+import { usePersistedApolloClient } from 'src/data/usePersistedApolloClient'
+import { initAppsFlyer } from 'src/features/analytics/appsflyer'
 import { useIsDarkMode } from 'src/features/appearance/hooks'
 import { LockScreenContextProvider } from 'src/features/authentication/lockScreenContext'
 import { BiometricContextProvider } from 'src/features/biometrics/context'
@@ -25,16 +26,15 @@ import { NotificationToastWrapper } from 'src/features/notifications/Notificatio
 import { initOneSignal } from 'src/features/notifications/Onesignal'
 import { sendAnalyticsEvent } from 'src/features/telemetry'
 import { MobileEventName } from 'src/features/telemetry/constants'
-import { LocalTransactionUpdater } from 'src/features/transactions/LocalTransactionUpdater'
 import { TransactionHistoryUpdater } from 'src/features/transactions/TransactionHistoryUpdater'
 import { useTrmPrefetch } from 'src/features/trm/api'
-import { useSignerAccounts } from 'src/features/wallet/hooks'
-import { DynamicThemeProvider } from 'src/styles/DynamicThemeProvider'
+import { DynamicThemeProvider } from 'src/theme/DynamicThemeProvider'
 import { useAppStateTrigger } from 'src/utils/useAppStateTrigger'
 import { getSentryEnvironment, getStatsigEnvironmentTier } from 'src/utils/version'
 import { StatsigProvider } from 'statsig-react-native'
 import { config } from 'wallet/src/config'
 import { WalletContextProvider } from 'wallet/src/features/wallet/context'
+import { useSignerAccounts } from 'wallet/src/features/wallet/hooks'
 
 // Keep the splash screen visible while we fetch resources until one of our landing pages loads
 SplashScreen.preventAutoHideAsync()
@@ -49,11 +49,16 @@ if (!__DEV__) {
   Sentry.init({
     environment: getSentryEnvironment(),
     dsn: config.sentryDsn,
+    attachViewHierarchy: true,
+    enableCaptureFailedRequests: true,
     tracesSampler: (_) => {
       return 0.2
     },
     integrations: [
       new Sentry.ReactNativeTracing({
+        enableUserInteractionTracing: true,
+        enableNativeFramesTracking: true,
+        enableStallTracking: true,
         // Pass instrumentation to be used as `routingInstrumentation`
         routingInstrumentation,
       }),
@@ -62,6 +67,7 @@ if (!__DEV__) {
 }
 
 initOneSignal()
+initAppsFlyer()
 
 function App(): JSX.Element | null {
   const client = usePersistedApolloClient()
@@ -112,13 +118,15 @@ function App(): JSX.Element | null {
                       <WalletContextProvider>
                         <BiometricContextProvider>
                           <LockScreenContextProvider>
-                            <DataUpdaters />
-                            <BottomSheetModalProvider>
-                              <AppModals />
-                              <PerformanceProfiler onReportPrepared={onReportPrepared}>
-                                <AppInner />
-                              </PerformanceProfiler>
-                            </BottomSheetModalProvider>
+                            <Sentry.TouchEventBoundary>
+                              <DataUpdaters />
+                              <BottomSheetModalProvider>
+                                <AppModals />
+                                <PerformanceProfiler onReportPrepared={onReportPrepared}>
+                                  <AppInner />
+                                </PerformanceProfiler>
+                              </BottomSheetModalProvider>
+                            </Sentry.TouchEventBoundary>
                           </LockScreenContextProvider>
                         </BiometricContextProvider>
                       </WalletContextProvider>
@@ -165,7 +173,6 @@ function DataUpdaters(): JSX.Element {
     <>
       <TraceUserProperties />
       <TransactionHistoryUpdater />
-      <LocalTransactionUpdater />
     </>
   )
 }

@@ -1,29 +1,27 @@
-import { Action } from '@reduxjs/toolkit'
 import { BigintIsh, Currency, CurrencyAmount, TradeType } from '@uniswap/sdk-core'
 import JSBI from 'jsbi'
 import { i18n } from 'src/app/i18n'
-import { AssetType } from 'src/entities/assets'
 import { SpotPrice } from 'src/features/dataApi/spotPricesQuery'
 import { GQLNftAsset } from 'src/features/nfts/hooks'
-import { pushNotification } from 'src/features/notifications/notificationSlice'
+import { CHAIN_INFO } from 'wallet/src/constants/chains'
+import { AssetType } from 'wallet/src/entities/assets'
+import { logger } from 'wallet/src/features/logger/logger'
 import {
   AppNotificationType,
   ReceiveCurrencyTxNotification,
   ReceiveNFTNotification,
   WalletConnectNotification,
-} from 'src/features/notifications/types'
+} from 'wallet/src/features/notifications/types'
 import {
   NFTTradeType,
   TransactionDetails,
   TransactionStatus,
   TransactionType,
-} from 'src/features/transactions/types'
-import { WalletConnectEvent } from 'src/features/walletConnect/saga'
-import { CHAIN_INFO } from 'wallet/src/constants/chains'
-import { logger } from 'wallet/src/features/logger/logger'
+} from 'wallet/src/features/transactions/types'
+import { WalletConnectEvent } from 'wallet/src/features/walletConnect/types'
 import { getValidAddress, shortenAddress } from 'wallet/src/utils/addresses'
 import { currencyIdToAddress } from 'wallet/src/utils/currencyId'
-import { formatCurrencyAmount, formatUSDPrice, NumberType } from 'wallet/src/utils/format'
+import { formatCurrencyAmount, formatUSDPrice } from 'wallet/src/utils/format'
 
 export const formWCNotificationTitle = (appNotification: WalletConnectNotification): string => {
   const { event, dappName, chainId } = appNotification
@@ -330,7 +328,7 @@ export const getFormattedCurrencyAmount = (
       convertScientificNotationToNumber(currencyAmountRaw)
 
     const currencyAmount = CurrencyAmount.fromRawAmount<Currency>(currency, parsedCurrencyAmountRaw)
-    const formattedAmount = formatCurrencyAmount(currencyAmount, NumberType.TokenTx)
+    const formattedAmount = formatCurrencyAmount(currencyAmount)
     return isApproximateAmount ? `~${formattedAmount} ` : `${formattedAmount} `
   } catch (e) {
     logger.error('notifications/utils', 'getFormattedCurrencyAmount', 'could not format amount', e)
@@ -425,11 +423,4 @@ export function buildReceiveNotification(
   }
 
   return undefined
-}
-
-export function getNotificationErrorAction(errorMessage: string): Action {
-  return pushNotification({
-    type: AppNotificationType.Error,
-    errorMessage,
-  })
 }

@@ -4,18 +4,18 @@
 /* eslint-disable max-lines */
 
 import dayjs from 'dayjs'
-import { ChainsState } from 'src/features/chains/chainsSlice'
-import { ensApi } from 'src/features/ens/api'
 import { AccountToNftData } from 'src/features/favorites/slice'
 import { getNFTAssetKey } from 'src/features/nfts/utils'
 import { ModalName } from 'src/features/telemetry/constants'
 import { TransactionState } from 'src/features/transactions/slice'
+import { ChainId } from 'wallet/src/constants/chains'
+import { ChainsState } from 'wallet/src/features/chains/slice'
+import { ensApi } from 'wallet/src/features/ens/api'
 import {
   ChainIdToTxIdToDetails,
   TransactionStatus,
   TransactionType,
-} from 'src/features/transactions/types'
-import { ChainId } from 'wallet/src/constants/chains'
+} from 'wallet/src/features/transactions/types'
 import { Account, AccountType } from 'wallet/src/features/wallet/accounts/types'
 import { toSupportedChainId } from 'wallet/src/utils/chainId'
 
@@ -607,6 +607,24 @@ export const migrations = {
       nftsData,
     }
     delete newState.favorites.hiddenNfts
+    return newState
+  },
+
+  44: function removeProviders(state: any) {
+    const newState = { ...state }
+
+    delete newState.providers
+
+    return newState
+  },
+
+  45: function addTokensData(state: any) {
+    const newState = { ...state }
+
+    newState.favorites = {
+      ...state.favorites,
+      tokensVisibility: {},
+    }
     return newState
   },
 }

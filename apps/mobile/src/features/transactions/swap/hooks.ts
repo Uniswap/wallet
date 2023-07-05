@@ -12,8 +12,6 @@ import { useAppDispatch } from 'src/app/hooks'
 import { CurrencyInfo } from 'src/features/dataApi/types'
 import { FEATURE_FLAGS } from 'src/features/experiments/constants'
 import { useFeatureFlag } from 'src/features/experiments/hooks'
-import { pushNotification } from 'src/features/notifications/notificationSlice'
-import { AppNotificationType } from 'src/features/notifications/types'
 import { useSimulatedGasLimit } from 'src/features/routing/hooks'
 import {
   STABLECOIN_AMOUNT_OUT,
@@ -46,7 +44,6 @@ import {
   updateExactAmountUSD,
 } from 'src/features/transactions/transactionState/transactionState'
 import { BaseDerivedInfo } from 'src/features/transactions/transactionState/types'
-import { useActiveAccount, useActiveAccountAddressWithThrow } from 'src/features/wallet/hooks'
 import { toStringish } from 'src/utils/number'
 import ERC20_ABI from 'wallet/src/abis/erc20.json'
 import { Erc20 } from 'wallet/src/abis/types'
@@ -56,8 +53,14 @@ import { ContractManager } from 'wallet/src/features/contracts/ContractManager'
 import { useTransactionGasFee } from 'wallet/src/features/gas/hooks'
 import { GasSpeed } from 'wallet/src/features/gas/types'
 import { logger } from 'wallet/src/features/logger/logger'
+import { pushNotification } from 'wallet/src/features/notifications/slice'
+import { AppNotificationType } from 'wallet/src/features/notifications/types'
 import { useOnChainCurrencyBalance } from 'wallet/src/features/portfolio/api'
 import { useContractManager, useProvider } from 'wallet/src/features/wallet/context'
+import {
+  useActiveAccount,
+  useActiveAccountAddressWithThrow,
+} from 'wallet/src/features/wallet/hooks'
 import { areAddressesEqual } from 'wallet/src/utils/addresses'
 import { buildCurrencyId } from 'wallet/src/utils/currencyId'
 import { formatCurrencyAmount, NumberType } from 'wallet/src/utils/format'

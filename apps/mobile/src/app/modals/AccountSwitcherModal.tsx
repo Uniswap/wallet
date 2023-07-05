@@ -19,37 +19,38 @@ import { isICloudAvailable } from 'src/features/CloudBackup/RNICloudBackupsManag
 import { closeModal, selectModalState } from 'src/features/modals/modalSlice'
 import { ImportType, OnboardingEntryPoint } from 'src/features/onboarding/utils'
 import { ElementName, ModalName } from 'src/features/telemetry/constants'
-import { createAccountActions } from 'src/features/wallet/createAccountSaga'
-import { useAccounts, useActiveAccount, useNativeAccountExists } from 'src/features/wallet/hooks'
+import { OnboardingScreens, Screens } from 'src/screens/Screens'
+import { openSettings } from 'src/utils/linking'
+import PlusIcon from 'ui/src/assets/icons/plus.svg'
+import { dimensions } from 'ui/src/theme/restyle/sizing'
+import { AccountType, SignerMnemonicAccount } from 'wallet/src/features/wallet/accounts/types'
+import { createAccountActions } from 'wallet/src/features/wallet/create/createAccountSaga'
 import {
   PendingAccountActions,
   pendingAccountActions,
-} from 'src/features/wallet/pendingAccountsSaga'
+} from 'wallet/src/features/wallet/create/pendingAccountsSaga'
+import {
+  useAccounts,
+  useActiveAccount,
+  useNativeAccountExists,
+} from 'wallet/src/features/wallet/hooks'
 import {
   activateAccount,
   removeAccounts,
   setFinishedOnboarding,
-} from 'src/features/wallet/walletSlice'
-import { OnboardingScreens, Screens } from 'src/screens/Screens'
-import { dimensions } from 'src/styles/sizing'
-import { openSettings } from 'src/utils/linking'
-import PlusIcon from 'ui/src/assets/icons/plus.svg'
-import { AccountType, SignerMnemonicAccount } from 'wallet/src/features/wallet/accounts/types'
+} from 'wallet/src/features/wallet/slice'
 
 // This fast-forwards user to the same app state as if
-// they have pressed "Get Started" on Landing and then "Import my wallet" on the next screen
-function navigateToImportSeedPhrase(): void {
+// they have pressed "Get Started" on Landing and should now see import method view
+function navigateToImportMethod(): void {
   dispatchNavigationAction((state) => {
     const routes = [
       ...state.routes,
       {
         name: OnboardingScreens.ImportMethod,
-      },
-      {
-        name: OnboardingScreens.SeedPhraseInput,
         params: {
-          importType: ImportType.SeedPhrase,
           entryPoint: OnboardingEntryPoint.FreshInstallOrReplace,
+          importType: ImportType.NotYetSelected,
         },
       },
     ]
@@ -139,13 +140,13 @@ export function AccountSwitcher({ onClose }: { onClose: () => void }): JSX.Eleme
         // user has no accounts left, so we bring onboarding back
         dispatch(setFinishedOnboarding({ finishedOnboarding: false }))
         // setImmediate, because first we need onboarding stack to be mounted
-        setImmediate(navigateToImportSeedPhrase)
+        setImmediate(navigateToImportMethod)
       } else {
         // user has view-only accounts left
         navigate(Screens.OnboardingStack, {
-          screen: OnboardingScreens.SeedPhraseInput,
+          screen: OnboardingScreens.ImportMethod,
           params: {
-            importType: ImportType.SeedPhrase,
+            importType: ImportType.NotYetSelected,
             entryPoint: OnboardingEntryPoint.Sidebar,
           },
         })

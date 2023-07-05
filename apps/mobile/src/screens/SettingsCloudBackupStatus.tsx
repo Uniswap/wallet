@@ -14,16 +14,19 @@ import { Text } from 'src/components/Text'
 import { useBiometricAppSettings, useBiometricPrompt } from 'src/features/biometrics/hooks'
 import { deleteICloudMnemonicBackup } from 'src/features/CloudBackup/RNICloudBackupsManager'
 import { ElementName, ModalName } from 'src/features/telemetry/constants'
-import { EditAccountAction, editAccountActions } from 'src/features/wallet/editAccountSaga'
-import { useAccounts } from 'src/features/wallet/hooks'
 import { Screens } from 'src/screens/Screens'
 import Checkmark from 'ui/src/assets/icons/check.svg'
 import { logger } from 'wallet/src/features/logger/logger'
+import {
+  EditAccountAction,
+  editAccountActions,
+} from 'wallet/src/features/wallet/accounts/editAccountSaga'
 import {
   AccountType,
   BackupType,
   SignerMnemonicAccount,
 } from 'wallet/src/features/wallet/accounts/types'
+import { useAccounts } from 'wallet/src/features/wallet/hooks'
 
 type Props = NativeStackScreenProps<SettingsStackParamList, Screens.SettingsCloudBackupStatus>
 

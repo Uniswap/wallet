@@ -1,11 +1,10 @@
 import { providers } from 'ethers'
-import { getNotificationErrorAction } from 'src/features/notifications/utils'
-import { sendTransaction } from 'src/features/transactions/sendTransaction'
+import { sendTransaction } from 'src/features/transactions/sendTransactionSaga'
 import { Trade } from 'src/features/transactions/swap/useTrade'
 import { tradeToTransactionInfo } from 'src/features/transactions/swap/utils'
-import { TransactionType, TransactionTypeInfo } from 'src/features/transactions/types'
 import { call } from 'typed-redux-saga'
 import { logger } from 'wallet/src/features/logger/logger'
+import { TransactionType, TransactionTypeInfo } from 'wallet/src/features/transactions/types'
 import { Account } from 'wallet/src/features/wallet/accounts/types'
 import { getProvider } from 'wallet/src/features/wallet/context'
 import { createMonitoredSaga } from 'wallet/src/utils/saga'
@@ -69,6 +68,4 @@ export const {
   wrappedSaga: swapSaga,
   reducer: swapReducer,
   actions: swapActions,
-} = createMonitoredSaga<SwapParams>(approveAndSwap, 'swap', {
-  onErrorAction: getNotificationErrorAction,
-})
+} = createMonitoredSaga<SwapParams>(approveAndSwap, 'swap')

@@ -18,7 +18,6 @@ import {
   getTokensOrderByValues,
 } from 'src/features/explore/utils'
 import { selectHasFavoriteTokens, selectHasWatchedWallets } from 'src/features/favorites/selectors'
-import { selectTokensOrderBy } from 'src/features/wallet/selectors'
 import { usePollOnFocusOnly } from 'src/utils/hooks'
 import { ChainId } from 'wallet/src/constants/chains'
 import { EMPTY_ARRAY, PollingInterval } from 'wallet/src/constants/misc'
@@ -29,6 +28,7 @@ import {
   useExploreTokensTabQuery,
 } from 'wallet/src/data/__generated__/types-and-hooks'
 import { usePersistedError } from 'wallet/src/features/dataApi/utils'
+import { selectTokensOrderBy } from 'wallet/src/features/wallet/selectors'
 import { areAddressesEqual } from 'wallet/src/utils/addresses'
 import { fromGraphQLChain } from 'wallet/src/utils/chainId'
 import { buildCurrencyId, buildNativeCurrencyId } from 'wallet/src/utils/currencyId'

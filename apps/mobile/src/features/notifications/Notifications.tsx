@@ -13,26 +13,9 @@ import {
 import { NetworkLogo } from 'src/components/CurrencyLogo/NetworkLogo'
 import { SplitLogo } from 'src/components/CurrencyLogo/SplitLogo'
 import { ScannerModalState } from 'src/components/QRCodeScanner/constants'
-import { AssetType } from 'src/entities/assets'
-import { useENS } from 'src/features/ens/useENS'
 import { closeAllModals, closeModal, openModal } from 'src/features/modals/modalSlice'
 import { useNFT } from 'src/features/nfts/hooks'
 import { NotificationToast } from 'src/features/notifications/NotificationToast'
-import {
-  AppErrorNotification,
-  AppNotificationDefault,
-  ApproveTxNotification,
-  ChangeNFTVisibilityNotification,
-  CopyNotification,
-  CopyNotificationType,
-  SwapNetworkNotification as SwapNetworkNotificationType,
-  SwapTxNotification,
-  TransactionNotificationBase,
-  TransferCurrencyTxNotification,
-  TransferNFTTxNotification,
-  WalletConnectNotification,
-  WrapTxNotification,
-} from 'src/features/notifications/types'
 import {
   formApproveNotificationTitle,
   formSwapNotificationTitle,
@@ -49,14 +32,31 @@ import {
   useWrappedNativeCurrencyInfo,
 } from 'src/features/tokens/useCurrencyInfo'
 import { useCreateSwapFormState, useCreateWrapFormState } from 'src/features/transactions/hooks'
-import { TransactionStatus, TransactionType } from 'src/features/transactions/types'
-import { selectActiveAccountAddress } from 'src/features/wallet/selectors'
-import { WalletConnectEvent } from 'src/features/walletConnect/saga'
 import CheckCircle from 'ui/src/assets/icons/check-circle.svg'
 import EyeOffIcon from 'ui/src/assets/icons/eye-off.svg'
 import EyeIcon from 'ui/src/assets/icons/eye.svg'
 import { iconSizes } from 'ui/src/theme/iconSizes'
 import { CHAIN_INFO } from 'wallet/src/constants/chains'
+import { AssetType } from 'wallet/src/entities/assets'
+import { useENS } from 'wallet/src/features/ens/useENS'
+import {
+  AppErrorNotification,
+  AppNotificationDefault,
+  ApproveTxNotification,
+  ChangeAssetVisibilityNotification as ChangeAssetVisibilityNotificationType,
+  CopyNotification,
+  CopyNotificationType,
+  SwapNetworkNotification as SwapNetworkNotificationType,
+  SwapTxNotification,
+  TransactionNotificationBase,
+  TransferCurrencyTxNotification,
+  TransferNFTTxNotification,
+  WalletConnectNotification,
+  WrapTxNotification,
+} from 'wallet/src/features/notifications/types'
+import { TransactionStatus, TransactionType } from 'wallet/src/features/transactions/types'
+import { selectActiveAccountAddress } from 'wallet/src/features/wallet/selectors'
+import { WalletConnectEvent } from 'wallet/src/features/walletConnect/types'
 import { toSupportedChainId } from 'wallet/src/utils/chainId'
 import { buildCurrencyId } from 'wallet/src/utils/currencyId'
 
@@ -511,10 +511,10 @@ export function SwapNetworkNotification({
   )
 }
 
-export function NftVisibilityChangeNotification({
-  notification: { visible, hideDelay },
+export function ChangeAssetVisibilityNotification({
+  notification: { visible, hideDelay, assetName },
 }: {
-  notification: ChangeNFTVisibilityNotification
+  notification: ChangeAssetVisibilityNotificationType
 }): JSX.Element {
   const { t } = useTranslation()
   const theme = useAppTheme()
@@ -538,7 +538,11 @@ export function NftVisibilityChangeNotification({
           />
         )
       }
-      title={visible ? t('NFT hidden') : t('NFT unhidden')}
+      title={
+        visible
+          ? t('{{assetName}} hidden', { assetName })
+          : t('{{assetName}} unhidden', { assetName })
+      }
     />
   )
 }

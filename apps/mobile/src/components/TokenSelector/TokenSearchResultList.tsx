@@ -3,7 +3,7 @@ import { Currency } from '@uniswap/sdk-core'
 import React, { memo, useCallback, useEffect, useMemo, useRef } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { SectionList } from 'react-native'
-import { useAppSelector, useAppTheme } from 'src/app/hooks'
+import { useAppTheme } from 'src/app/hooks'
 import { SearchContext } from 'src/components/explore/search/SearchResultsSection'
 import { Box, Flex, Inset } from 'src/components/layout'
 import { BaseCard } from 'src/components/layout/BaseCard'
@@ -25,15 +25,14 @@ import {
 } from 'src/components/TokenSelector/utils'
 import { useSearchTokens } from 'src/features/dataApi/searchTokens'
 import { usePopularTokens } from 'src/features/dataApi/topTokens'
-import { useActiveAccountWithThrow } from 'src/features/wallet/hooks'
-import {
-  makeSelectAccountHideSmallBalances,
-  makeSelectAccountHideSpamTokens,
-} from 'src/features/wallet/selectors'
 import { ChainId } from 'wallet/src/constants/chains'
 import { EMPTY_ARRAY } from 'wallet/src/constants/misc'
 import { sortPortfolioBalances, usePortfolioBalances } from 'wallet/src/features/dataApi/balances'
 import { GqlResult, PortfolioBalance } from 'wallet/src/features/dataApi/types'
+import {
+  useActiveAccountAddressWithThrow,
+  useSelectAccountHideSpamTokens,
+} from 'wallet/src/features/wallet/hooks'
 import { CurrencyId } from 'wallet/src/utils/currencyId'
 import { useDebounce } from 'wallet/src/utils/timing'
 
@@ -57,29 +56,26 @@ export function useTokenSectionsByVariation(
   searchFilter: string | null
 ): GqlResult<TokenSection[]> {
   const { t } = useTranslation()
-  const activeAccount = useActiveAccountWithThrow()
-  const hideSmallBalances = useAppSelector<boolean>(
-    makeSelectAccountHideSmallBalances(activeAccount.address)
-  )
-  const hideSpamTokens = useAppSelector<boolean>(
-    makeSelectAccountHideSpamTokens(activeAccount.address)
-  )
+  const activeAccountAddress = useActiveAccountAddressWithThrow()
+  const hideSpamTokens = useSelectAccountHideSpamTokens(activeAccountAddress)
 
   const {
     data: popularTokens,
     error: populateTokensError,
     refetch: refetchPopularTokens,
   } = usePopularTokens(chainFilter ?? ChainId.Mainnet)
+
   const {
     data: portfolioBalancesById,
     error: portfolioBalancesByIdError,
     refetch: refetchPortfolioBalances,
   } = usePortfolioBalances(
-    activeAccount.address,
+    activeAccountAddress,
     /*shouldPoll=*/ false, // Home tab's TokenBalanceList will poll portfolio balances for activeAccount
-    hideSmallBalances,
+    /*hideSmallBalances=*/ false, // always show small balances in token selector
     hideSpamTokens
   )
+
   const {
     data: commonBaseCurrencies,
     error: commonBaseCurrenciesError,

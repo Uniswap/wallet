@@ -45,7 +45,6 @@ import { Text } from 'src/components/Text'
 import { PortfolioBalance } from 'src/features/balances/PortfolioBalance'
 import { openModal } from 'src/features/modals/modalSlice'
 import { useSelectAddressHasNotifications } from 'src/features/notifications/hooks'
-import { setNotificationStatus } from 'src/features/notifications/notificationSlice'
 import {
   ElementName,
   MobileEventName,
@@ -53,15 +52,16 @@ import {
   SectionName,
 } from 'src/features/telemetry/constants'
 import { useLastBalancesReporter } from 'src/features/telemetry/hooks'
-import { useActiveAccountWithThrow } from 'src/features/wallet/hooks'
 import { removePendingSession } from 'src/features/walletConnect/walletConnectSlice'
 import { Screens } from 'src/screens/Screens'
-import { dimensions } from 'src/styles/sizing'
 import { hideSplashScreen } from 'src/utils/splashScreen'
 import BuyIcon from 'ui/src/assets/icons/buy.svg'
 import ScanIcon from 'ui/src/assets/icons/scan-receive.svg'
 import SendIcon from 'ui/src/assets/icons/send-action.svg'
+import { dimensions } from 'ui/src/theme/restyle/sizing'
+import { setNotificationStatus } from 'wallet/src/features/notifications/slice'
 import { AccountType } from 'wallet/src/features/wallet/accounts/types'
+import { useActiveAccountWithThrow } from 'wallet/src/features/wallet/hooks'
 import { ONE_SECOND_MS } from 'wallet/src/utils/time'
 import { useInterval, useTimeout } from 'wallet/src/utils/timing'
 
@@ -243,7 +243,7 @@ export function HomeScreen(props?: AppStackScreenProp<Screens.Home>): JSX.Elemen
         <Box pb="spacing4">
           <PortfolioBalance owner={activeAccount.address} />
         </Box>
-        <QuickActions />
+        <QuickActions sentry-label="QuickActions" />
       </Flex>
     )
   }, [activeAccount.address])
@@ -474,6 +474,7 @@ function QuickActions(): JSX.Element {
           flex={1}
           label={t('Buy')}
           name={ElementName.Buy}
+          sentry-label="BuyActionButton"
           onPress={onPressBuy}
         />
       ) : null}
@@ -482,6 +483,7 @@ function QuickActions(): JSX.Element {
         flex={1}
         label={t('Send')}
         name={ElementName.Send}
+        sentry-label="SendActionButton"
         onPress={onPressSend}
       />
       <ActionButton
@@ -489,6 +491,7 @@ function QuickActions(): JSX.Element {
         flex={1}
         label={t('Scan')}
         name={ElementName.WalletConnectScan}
+        sentry-label="ScanActionButton"
         onPress={onPressScan}
       />
     </Flex>

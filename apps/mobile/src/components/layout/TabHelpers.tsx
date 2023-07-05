@@ -15,7 +15,7 @@ import { Route } from 'react-native-tab-view/lib/typescript/types'
 import { Flex } from 'src/components/layout/Flex'
 import { Text } from 'src/components/Text'
 import { PendingNotificationBadge } from 'src/features/notifications/PendingNotificationBadge'
-import { theme as FixedTheme } from 'src/styles/theme'
+import { theme as FixedTheme } from 'ui/src/theme/restyle/theme'
 
 export const TAB_VIEW_SCROLL_THROTTLE = 16
 export const TAB_BAR_HEIGHT = 48
@@ -58,10 +58,6 @@ export const TAB_STYLES = StyleSheet.create({
     shadowOpacity: 0,
     shadowRadius: 0,
     top: 0,
-  },
-  // For container components that wrap lists within tabs.
-  tabListContainer: {
-    paddingHorizontal: FixedTheme.spacing.spacing24,
   },
   // For padding on the list components themselves within tabs.
   tabListInner: {

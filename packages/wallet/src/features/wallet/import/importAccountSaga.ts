@@ -1,5 +1,4 @@
 import dayjs from 'dayjs'
-import { CallEffect } from 'redux-saga/effects'
 import { all, call, put } from 'typed-redux-saga'
 import { logger } from 'wallet/src/features/logger/logger'
 import { Account, AccountType } from 'wallet/src/features/wallet/accounts/types'
@@ -34,11 +33,7 @@ export function* importAccount(params: ImportAccountParams) {
   }
 }
 
-function* importAddressAccount(
-  address: string,
-  name?: string,
-  ignoreActivate?: boolean
-): Generator<CallEffect<void>, void, unknown> {
+function* importAddressAccount(address: string, name?: string, ignoreActivate?: boolean) {
   const formattedAddress = getValidAddress(address, true)
   if (!formattedAddress) {
     throw new Error('Cannot import invalid view-only address')
@@ -179,4 +174,6 @@ export const {
   wrappedSaga: importAccountSaga,
   reducer: importAccountReducer,
   actions: importAccountActions,
-} = createMonitoredSaga<ImportAccountParams>(importAccount, 'importAccount')
+} = createMonitoredSaga<ImportAccountParams>(importAccount, 'importAccount', {
+  showErrorNotification: false,
+})

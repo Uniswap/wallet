@@ -2,7 +2,7 @@ import React, { useMemo } from 'react'
 import { withAnimated } from 'src/components/animated'
 import { Box, BoxProps } from 'src/components/layout/Box'
 import { Spacer, SpacerProps } from 'src/components/layout/Spacer'
-import { Theme } from 'src/styles/theme'
+import { Theme } from 'ui/src/theme/restyle/theme'
 
 type CenteredProps =
   | {
@@ -74,6 +74,7 @@ export function Flex({
       flexShrink={shrink ? 1 : flexShrink}
       flexWrap={flexWrap}
       justifyContent={centered ? 'center' : justifyContent}
+      sentry-label="Flex"
       {...boxProps}>
       {childrenArr.map((child, index, array) => (
         <React.Fragment key={index}>

@@ -41,6 +41,8 @@ import {
   v40Schema,
   v41Schema,
   v42Schema,
+  v43Schema,
+  v44Schema,
   v4Schema,
   v5Schema,
   v6Schema,
@@ -51,34 +53,33 @@ import {
 import { persistConfig } from 'src/app/store'
 import { ScannerModalState } from 'src/components/QRCodeScanner/constants'
 import { initialBiometricsSettingsState } from 'src/features/biometrics/slice'
-import { ChainsState, initialChainsState } from 'src/features/chains/chainsSlice'
 import { initialCloudBackupState } from 'src/features/CloudBackup/cloudBackupSlice'
 import { initialPasswordLockoutState } from 'src/features/CloudBackup/passwordLockoutSlice'
-import { ensApi } from 'src/features/ens/api'
 import { initialSearchHistoryState } from 'src/features/explore/searchHistorySlice'
 import { initialFavoritesState } from 'src/features/favorites/slice'
 import { initialModalState } from 'src/features/modals/modalSlice'
-import { initialNotificationsState } from 'src/features/notifications/notificationSlice'
-import { initialProvidersState } from 'src/features/providers/providerSlice'
 import { ModalName } from 'src/features/telemetry/constants'
 import { initialTelemetryState } from 'src/features/telemetry/slice'
 import { initialTokensState } from 'src/features/tokens/tokensSlice'
 import { initialTransactionsState, TransactionState } from 'src/features/transactions/slice'
-import {
-  TransactionDetails,
-  TransactionStatus,
-  TransactionType,
-} from 'src/features/transactions/types'
-import { initialWalletState } from 'src/features/wallet/walletSlice'
 import { initialWalletConnectState } from 'src/features/walletConnect/walletConnectSlice'
 import { account, fiatOnRampTxDetailsFailed, txDetailsConfirmed } from 'src/test/fixtures'
 import { SWAP_ROUTER_ADDRESSES } from 'wallet/src/constants/addresses'
 import { ChainId } from 'wallet/src/constants/chains'
+import { ChainsState, initialChainsState } from 'wallet/src/features/chains/slice'
+import { ensApi } from 'wallet/src/features/ens/api'
+import { initialNotificationsState } from 'wallet/src/features/notifications/slice'
+import {
+  TransactionDetails,
+  TransactionStatus,
+  TransactionType,
+} from 'wallet/src/features/transactions/types'
 import {
   Account,
   AccountType,
   SignerMnemonicAccount,
 } from 'wallet/src/features/wallet/accounts/types'
+import { initialWalletState } from 'wallet/src/features/wallet/slice'
 
 // helps with object assignement
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -130,7 +131,7 @@ describe('Redux state migrations', () => {
       modals: initialModalState,
       notifications: initialNotificationsState,
       passwordLockout: initialPasswordLockoutState,
-      providers: initialProvidersState,
+      providers: { isInitialized: false },
       saga: {},
       searchHistory: initialSearchHistoryState,
       telemetry: initialTelemetryState,
@@ -1123,5 +1124,23 @@ describe('Redux state migrations', () => {
         'nftItem.0xe94abea3932576ff957a0b92190d0191aeb1a782.2': { isHidden: true }, // not checksummed 3
       },
     })
+  })
+
+  it('migrates from v43 to v44', () => {
+    const v43Stub = { ...v43Schema }
+
+    v43Stub.providers = { isInitialized: true }
+
+    const v44 = migrations[44](v43Stub)
+
+    expect(v44.providers).toBeUndefined()
+  })
+
+  it('migrates from v44 to 45', () => {
+    const v44Stub = { ...v44Schema }
+
+    const v45 = migrations[45](v44Stub)
+
+    expect(v45.favorites.tokensVisibility).toEqual({})
   })
 })

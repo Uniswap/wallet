@@ -1,16 +1,16 @@
-import { SpamCode } from 'src/data/types'
-import { AssetType } from 'src/entities/assets'
 import {
   deriveCurrencyAmountFromAssetResponse,
   getAddressFromAsset,
   parseUSDValueFromAssetChange,
 } from 'src/features/transactions/history/utils'
+import { SpamCode } from 'wallet/src/data/types'
+import { AssetType } from 'wallet/src/entities/assets'
 import {
   FiatPurchaseTransactionInfo,
   ReceiveTokenTransactionInfo,
   TransactionListQueryResponse,
   TransactionType,
-} from 'src/features/transactions/types'
+} from 'wallet/src/features/transactions/types'
 import { areAddressesEqual } from 'wallet/src/utils/addresses'
 import { fromGraphQLChain } from 'wallet/src/utils/chainId'
 

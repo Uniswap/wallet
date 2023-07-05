@@ -1,6 +1,8 @@
-import { Action, createAction, createReducer, PayloadActionCreator } from '@reduxjs/toolkit'
-import { call, CallEffect, delay, Effect, put, race, take, TakeEffect } from 'redux-saga/effects'
+import { createAction, createReducer, PayloadActionCreator } from '@reduxjs/toolkit'
+import { call, delay, put, race, take } from 'typed-redux-saga'
 import { logger } from 'wallet/src/features/logger/logger'
+import { pushNotification } from 'wallet/src/features/notifications/slice'
+import { AppNotificationType } from 'wallet/src/features/notifications/types'
 import { errorToString } from './validation'
 
 /**
@@ -12,23 +14,21 @@ export function createSaga<SagaParams = void>(
   saga: (params: SagaParams) => unknown,
   name: string
 ): {
-  wrappedSaga: () => Generator<Effect, void, unknown>
+  wrappedSaga: () => Generator<unknown, void, unknown>
   actions: {
     trigger: PayloadActionCreator<SagaParams>
   }
 } {
   const triggerAction = createAction<SagaParams>(`${name}/trigger`)
 
-  const wrappedSaga = function* (): Generator<
-    CallEffect<unknown> | TakeEffect,
-    never,
-    Effect<unknown, unknown>
-  > {
+  const wrappedSaga = function* () {
     while (true) {
       try {
-        const trigger: Effect = yield take(triggerAction.type)
+        const trigger = yield* take<{ type: typeof triggerAction.type; payload: SagaParams }>(
+          triggerAction.type
+        )
         logger.debug('saga', 'wrappedSaga', `${name} triggered`)
-        yield call(saga, trigger.payload)
+        yield* call(saga, trigger.payload)
       } catch (error) {
         logger.error('saga', 'wrappedSaga', `${name} error`, error)
       }
@@ -58,8 +58,8 @@ export interface SagaState {
 
 interface MonitoredSagaOptions {
   timeoutDuration?: number // in milliseconds
-  // TODO(EXT-152): Once notifications utils are shared then this won't need to be passed. The error should just be dispatched for both web + mobile.
-  onErrorAction?: (errorMessage: string) => Action // action to dispatch if there is an error
+  // when true, skip dispatch a notification. Defaults to true
+  showErrorNotification?: boolean
   // If retry / or other options are ever needed, they can go here
 }
 
@@ -73,11 +73,12 @@ export function createMonitoredSaga<SagaParams = void>(
   saga: (params: SagaParams) => unknown,
   name: string,
   options?: MonitoredSagaOptions
-  // TODO(MOB-645): Make return type for this function and the one below more explicit and specific.
-  // Types are a little tricky with these generator functions.
-  // https://stackoverflow.com/questions/66893967/typing-generator-functions-in-redux-saga-with-typescript
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): { name: string; wrappedSaga: any; reducer: any; actions: any } {
+): {
+  name: string
+  wrappedSaga: () => any
+  reducer: any
+  actions: any
+} {
   const triggerAction = createAction<SagaParams>(`${name}/trigger`)
   const cancelAction = createAction<void>(`${name}/cancel`)
   const statusAction = createAction<SagaStatus>(`${name}/progress`)
@@ -104,10 +105,12 @@ export function createMonitoredSaga<SagaParams = void>(
   const wrappedSaga = function* (): any {
     while (true) {
       try {
-        const trigger: Effect = yield take(triggerAction.type)
+        const trigger = yield* take<{ type: typeof triggerAction.type; payload: SagaParams }>(
+          triggerAction.type
+        )
         logger.debug('saga', 'monitoredSaga', `${name} triggered`)
-        yield put(statusAction(SagaStatus.Started))
-        const { result, cancel, timeout } = yield race({
+        yield* put(statusAction(SagaStatus.Started))
+        const { result, cancel, timeout } = yield* race({
           // Note: Use fork here instead if parallelism is required for the saga
           result: call(saga, trigger.payload),
           cancel: take(cancelAction.type),
@@ -116,7 +119,7 @@ export function createMonitoredSaga<SagaParams = void>(
 
         if (cancel) {
           logger.debug('saga', 'monitoredSaga', `${name} canceled`)
-          yield put(errorAction('Action was cancelled.'))
+          yield* put(errorAction('Action was cancelled.'))
           continue
         }
 
@@ -130,15 +133,20 @@ export function createMonitoredSaga<SagaParams = void>(
           throw new Error('Action returned failure result.')
         }
 
-        yield put(statusAction(SagaStatus.Success))
+        yield* put(statusAction(SagaStatus.Success))
         logger.debug('saga', 'monitoredSaga', `${name} finished`)
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
         logger.error('saga', 'monitoredSaga', `${name} error`, error)
         const errorMessage = errorToString(error)
-        yield put(errorAction(errorMessage))
-        if (options?.onErrorAction) {
-          yield put(options.onErrorAction(errorMessage))
+        yield* put(errorAction(errorMessage))
+        if (options?.showErrorNotification === undefined || options?.showErrorNotification) {
+          yield* put(
+            pushNotification({
+              type: AppNotificationType.Error,
+              errorMessage,
+            })
+          )
         }
       }
     }

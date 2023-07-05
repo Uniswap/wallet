@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import ContextMenu from 'react-native-context-menu-view'
 import { useSelector } from 'react-redux'
 import { useAppDispatch } from 'src/app/hooks'
-import { RootState } from 'src/app/rootReducer'
+import { MobileState } from 'src/app/reducer'
 import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { TokenLogo } from 'src/components/CurrencyLogo/TokenLogo'
 import { Box } from 'src/components/layout/Box'
@@ -14,7 +14,6 @@ import { Text } from 'src/components/Text'
 import { RelativeChange } from 'src/components/text/RelativeChange'
 import { useTokenDetailsNavigation } from 'src/components/TokenDetails/hooks'
 import { TokenMetadata } from 'src/components/tokens/TokenMetadata'
-import { AssetType } from 'src/entities/assets'
 import { useToggleFavoriteCallback } from 'src/features/favorites/hooks'
 import { selectHasFavoriteToken } from 'src/features/favorites/selectors'
 import { openModal } from 'src/features/modals/modalSlice'
@@ -30,6 +29,7 @@ import {
   TransactionState,
 } from 'src/features/transactions/transactionState/transactionState'
 import { ChainId } from 'wallet/src/constants/chains'
+import { AssetType } from 'wallet/src/entities/assets'
 import { TokenMetadataDisplayType } from 'wallet/src/features/wallet/types'
 import {
   buildCurrencyId,
@@ -81,7 +81,7 @@ export const TokenItem = memo(({ tokenItemData, index, metadataDisplayType }: To
   const _currencyId = address ? buildCurrencyId(chainId, address) : buildNativeCurrencyId(chainId)
 
   // Avoid referencing the entire favorite array, to minimize re-render to this token's inclusion only
-  const isFavorited = useSelector((state: RootState) =>
+  const isFavorited = useSelector((state: MobileState) =>
     selectHasFavoriteToken(state, _currencyId.toLocaleLowerCase())
   )
 

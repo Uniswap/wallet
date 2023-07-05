@@ -31,13 +31,6 @@ import {
 } from 'src/features/notifications/hooks'
 import { promptPushPermission } from 'src/features/notifications/Onesignal'
 import { ElementName, ModalName } from 'src/features/telemetry/constants'
-import { EditAccountAction, editAccountActions } from 'src/features/wallet/editAccountSaga'
-import { useAccounts, useSelectAccountNotificationSetting } from 'src/features/wallet/hooks'
-import {
-  makeSelectAccountHideSmallBalances,
-  makeSelectAccountHideSpamTokens,
-  selectSortedSignerMnemonicAccounts,
-} from 'src/features/wallet/selectors'
 import { showNotificationSettingsAlert } from 'src/screens/Onboarding/NotificationsSetupScreen'
 import NotificationIcon from 'ui/src/assets/icons/bell.svg'
 import ChartIcon from 'ui/src/assets/icons/chart.svg'
@@ -46,7 +39,18 @@ import EditIcon from 'ui/src/assets/icons/edit.svg'
 import GlobalIcon from 'ui/src/assets/icons/global.svg'
 import KeyIcon from 'ui/src/assets/icons/key.svg'
 import ShieldQuestionIcon from 'ui/src/assets/icons/shield-question.svg'
+import {
+  EditAccountAction,
+  editAccountActions,
+} from 'wallet/src/features/wallet/accounts/editAccountSaga'
 import { AccountType, BackupType } from 'wallet/src/features/wallet/accounts/types'
+import {
+  useAccounts,
+  useSelectAccountHideSmallBalances,
+  useSelectAccountHideSpamTokens,
+  useSelectAccountNotificationSetting,
+} from 'wallet/src/features/wallet/hooks'
+import { selectSortedSignerMnemonicAccounts } from 'wallet/src/features/wallet/selectors'
 import { Screens } from './Screens'
 
 type Props = NativeStackScreenProps<SettingsStackParamList, Screens.SettingsWallet>
@@ -72,8 +76,8 @@ export function SettingsWallet({
     Object.values(addressToAccount).length === 1 ||
     (mnemonicWallets.length === 1 && currentAccount?.type === AccountType.SignerMnemonic)
 
-  const hideSmallBalances: boolean = useAppSelector(makeSelectAccountHideSmallBalances(address))
-  const hideSpamTokens: boolean = useAppSelector(makeSelectAccountHideSpamTokens(address))
+  const hideSmallBalances = useSelectAccountHideSmallBalances(address)
+  const hideSpamTokens = useSelectAccountHideSpamTokens(address)
   const notificationOSPermission = useNotificationOSPermissionsEnabled()
   const notificationsEnabledOnFirebase = useSelectAccountNotificationSetting(address)
   const [notificationSwitchEnabled, setNotificationSwitchEnabled] = useState<boolean>(
