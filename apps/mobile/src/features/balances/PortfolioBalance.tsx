@@ -3,9 +3,9 @@ import { Flex } from 'src/components/layout'
 import { WarmLoadingShimmer } from 'src/components/loading/WarmLoadingShimmer'
 import { DecimalNumber } from 'src/components/text/DecimalNumber'
 import { RelativeChange } from 'src/components/text/RelativeChange'
-import { isWarmLoadingStatus } from 'src/data/utils'
-import { theme } from 'src/styles/theme'
+import { iconSizes } from 'ui/src/theme/iconSizes'
 import { PollingInterval } from 'wallet/src/constants/misc'
+import { isWarmLoadingStatus } from 'wallet/src/data/utils'
 import { usePortfolioBalancesQuery } from 'wallet/src/data/__generated__/types-and-hooks'
 import { formatUSDPrice, NumberType } from 'wallet/src/utils/format'
 
@@ -58,7 +58,7 @@ export function PortfolioBalance({ owner }: PortfolioBalanceProps): JSX.Element 
         />
         <RelativeChange
           absoluteChange={portfolioChange?.absolute?.value}
-          arrowSize={theme.iconSizes.icon20}
+          arrowSize={iconSizes.icon20}
           change={portfolioChange?.percentage?.value}
           loading={isLoading}
           negativeChangeColor={isWarmLoading ? 'textSecondary' : 'accentCritical'}

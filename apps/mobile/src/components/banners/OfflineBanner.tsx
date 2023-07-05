@@ -4,8 +4,8 @@ import { useTranslation } from 'react-i18next'
 import { useAppSelector, useAppTheme } from 'src/app/hooks'
 import { TabsAwareBottomBanner } from 'src/components/banners/TabsAwareBottomBanner'
 import { selectSomeModalOpen } from 'src/features/modals/modalSlice'
-import { selectFinishedOnboarding } from 'src/features/wallet/selectors'
 import InfoCircle from 'ui/src/assets/icons/info-circle.svg'
+import { selectFinishedOnboarding } from 'wallet/src/features/wallet/selectors'
 
 export function OfflineBanner(): JSX.Element | null {
   const { t } = useTranslation()

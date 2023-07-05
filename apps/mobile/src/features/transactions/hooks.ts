@@ -6,12 +6,12 @@ import { LayoutChangeEvent } from 'react-native'
 import { useAppSelector } from 'src/app/hooks'
 import { SearchContext } from 'src/components/explore/search/SearchResultsSection'
 import { flowToModalName, TokenSelectorFlow } from 'src/components/TokenSelector/TokenSelector'
-import { AssetType } from 'src/entities/assets'
 import { sendAnalyticsEvent } from 'src/features/telemetry'
 import { MobileEventName } from 'src/features/telemetry/constants'
 import { useCurrencyInfo } from 'src/features/tokens/useCurrencyInfo'
 import {
   makeSelectAddressTransactions,
+  makeSelectLocalTxCurrencyIds,
   makeSelectTransaction,
 } from 'src/features/transactions/selectors'
 import {
@@ -23,15 +23,16 @@ import {
   TransactionState,
   transactionStateActions,
 } from 'src/features/transactions/transactionState/transactionState'
+import { theme } from 'ui/src/theme/restyle/theme'
+import { ChainId } from 'wallet/src/constants/chains'
+import { EMPTY_ARRAY } from 'wallet/src/constants/misc'
+import { AssetType } from 'wallet/src/entities/assets'
 import {
   TransactionDetails,
   TransactionStatus,
   TransactionType,
-} from 'src/features/transactions/types'
-import { useActiveAccountAddressWithThrow } from 'src/features/wallet/hooks'
-import { theme } from 'src/styles/theme'
-import { ChainId } from 'wallet/src/constants/chains'
-import { EMPTY_ARRAY } from 'wallet/src/constants/misc'
+} from 'wallet/src/features/transactions/types'
+import { useActiveAccountAddressWithThrow } from 'wallet/src/features/wallet/hooks'
 import { currencyAddress } from 'wallet/src/utils/currencyId'
 
 export function usePendingTransactions(
@@ -72,6 +73,10 @@ export function useSelectTransaction(
 
 export function useSelectAddressTransactions(address: Address | null): TransactionDetails[] {
   return useAppSelector(makeSelectAddressTransactions(address))
+}
+
+export function useSelectLocalTxCurrencyIds(address: Address | null): Record<string, boolean> {
+  return useAppSelector(makeSelectLocalTxCurrencyIds(address))
 }
 
 export function useCreateSwapFormState(
@@ -329,6 +334,7 @@ export function useShouldShowNativeKeyboard(): {
   onDecimalPadLayout: (event: LayoutChangeEvent) => void
   isLayoutPending: boolean
   showNativeKeyboard: boolean
+  maxContentHeight?: number
 } {
   const [containerHeight, setContainerHeight] = useState<number>()
   const [decimalPadY, setDecimalPadY] = useState<number>()
@@ -357,6 +363,9 @@ export function useShouldShowNativeKeyboard(): {
     onDecimalPadLayout,
     isLayoutPending,
     showNativeKeyboard,
+    // can be used to immitate flexGrow=1 for the input panel
+    maxContentHeight:
+      isLayoutPending || showNativeKeyboard ? undefined : decimalPadY - MIN_INPUT_DECIMALPAD_GAP,
   }
 }
 

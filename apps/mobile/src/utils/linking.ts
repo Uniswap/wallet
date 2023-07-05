@@ -1,10 +1,10 @@
 import * as WebBrowser from 'expo-web-browser'
 import { Linking } from 'react-native'
-import { FiatPurchaseTransactionInfo } from 'src/features/transactions/types'
-import { theme } from 'src/styles/theme'
+import { theme } from 'ui/src/theme/restyle/theme'
 import { ChainId, CHAIN_INFO } from 'wallet/src/constants/chains'
 import { uniswapUrls } from 'wallet/src/constants/urls'
 import { logger } from 'wallet/src/features/logger/logger'
+import { FiatPurchaseTransactionInfo } from 'wallet/src/features/transactions/types'
 
 const ALLOWED_EXTERNAL_URI_SCHEMES = ['http://', 'https://']
 
@@ -95,19 +95,6 @@ export function getExplorerLink(
   type: ExplorerDataType
 ): string {
   if (!chainId) return ''
-  if (chainId === ChainId.ArbitrumOne) {
-    switch (type) {
-      case ExplorerDataType.TRANSACTION:
-        return `https://arbiscan.io/tx/${data}`
-      case ExplorerDataType.ADDRESS:
-      case ExplorerDataType.TOKEN:
-        return `https://arbiscan.io/address/${data}`
-      case ExplorerDataType.BLOCK:
-        return `https://arbiscan.io/block/${data}`
-      default:
-        return 'https://arbiscan.io/'
-    }
-  }
 
   const prefix = CHAIN_INFO[chainId]?.explorer ?? 'https://etherscan.io/'
 

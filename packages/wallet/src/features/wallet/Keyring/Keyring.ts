@@ -8,6 +8,9 @@ export interface IKeyring {
   /** @returns true if password can successfully decrypt mnemonics stored in storage. */
   unlock(password: string): Promise<boolean>
 
+  /** Locks keyring */
+  lock(): Promise<boolean>
+
   /**
    * Fetches all mnemonic IDs, which are used as keys to access the actual mnemonics
    * in key-value store.
@@ -67,11 +70,17 @@ export interface IKeyring {
   signMessageForAddress(address: string, message: string): Promise<string>
 
   signHashForAddress(address: string, hash: string, chainId: number): Promise<string>
+
+  retrieveMnemonicUnlocked(address: string): Promise<string | undefined>
 }
 
 /** Dummy Keyring implementation.  */
 class NullKeyring implements IKeyring {
   unlock(): Promise<boolean> {
+    return Promise.resolve(true)
+  }
+
+  lock(): Promise<boolean> {
     return Promise.resolve(true)
   }
 
@@ -82,6 +91,10 @@ class NullKeyring implements IKeyring {
   // returns the mnemonicId (derived address at index 0) of the imported mnemonic
   importMnemonic(): Promise<string> {
     throw new NotImplementedError('importMnemonic')
+  }
+
+  retrieveMnemonicUnlocked(_address: string): Promise<string | undefined> {
+    throw new Error('Method not implemented.')
   }
 
   // returns the mnemonicId (derived address at index 0) of the stored mnemonic
@@ -115,5 +128,5 @@ class NullKeyring implements IKeyring {
   }
 }
 
-// Will be overriden by the compiler with platform-specific Keyring
+// Will be overridden by the compiler with platform-specific Keyring
 export const Keyring = new NullKeyring()

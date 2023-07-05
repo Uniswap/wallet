@@ -80,14 +80,14 @@ export function SearchTokenItem({ token, searchContext }: SearchTokenItemProps):
               <WarningIcon
                 height={theme.iconSizes.icon16}
                 safetyLevel={safetyLevel}
-                strokeColorOverride="textSecondary"
+                strokeColorOverride="textTertiary"
                 width={theme.iconSizes.icon16}
               />
             )}
           </Flex>
           <Flex centered row gap="spacing8">
             <Text color="textSecondary" numberOfLines={1} variant="subheadSmall">
-              {symbol.toUpperCase() ?? ''}
+              {symbol}
             </Text>
           </Flex>
         </Flex>

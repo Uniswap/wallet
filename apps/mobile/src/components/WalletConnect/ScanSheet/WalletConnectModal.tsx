@@ -19,12 +19,12 @@ import { getSupportedURI, URIType } from 'src/components/WalletConnect/ScanSheet
 import { useIsDarkMode } from 'src/features/appearance/hooks'
 import { ElementName, ModalName } from 'src/features/telemetry/constants'
 import { useWCTimeoutError } from 'src/features/wallet/hooks'
-import { selectActiveAccountAddress } from 'src/features/wallet/selectors'
 import { useWalletConnect } from 'src/features/walletConnect/useWalletConnect'
 import { connectToApp } from 'src/features/walletConnect/WalletConnect'
 import { pairWithWalletConnectURI } from 'src/features/walletConnectV2/utils'
 import Scan from 'ui/src/assets/icons/receive.svg'
 import ScanQRIcon from 'ui/src/assets/icons/scan.svg'
+import { selectActiveAccountAddress } from 'wallet/src/features/wallet/selectors'
 import { ONE_SECOND_MS } from 'wallet/src/utils/time'
 
 const WC_TIMEOUT_DURATION_MS = 10 * ONE_SECOND_MS // timeout after 10 seconds

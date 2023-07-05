@@ -12,20 +12,20 @@ import {
 import React, { PropsWithChildren } from 'react'
 import { Provider } from 'react-redux'
 import { ReactTestRendererJSON } from 'react-test-renderer'
-import type { RootState } from 'src/app/rootReducer'
+import type { MobileState } from 'src/app/reducer'
 import type { AppStore } from 'src/app/store'
 import { persistedReducer } from 'src/app/store'
-import { EXPORTS_FOR_TEST } from 'src/data/cache'
-import { setupErrorLink } from 'src/data/utils'
-import { ensApi } from 'src/features/ens/api'
 import { routingApi } from 'src/features/routing/routingApi'
-import { theme } from 'src/styles/theme'
+import { theme } from 'ui/src/theme/restyle/theme'
+import { setupCache } from 'wallet/src/data/cache'
+import { getErrorLink } from 'wallet/src/data/links'
+import { ensApi } from 'wallet/src/features/ens/api'
 
 // This type interface extends the default options for render from RTL, as well
 // as allows the user to specify other things such as initialState, store.
 interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
   mocks?: ReadonlyArray<MockedResponse>
-  preloadedState?: PreloadedState<RootState>
+  preloadedState?: PreloadedState<MobileState>
   store?: AppStore
 }
 
@@ -59,14 +59,10 @@ Record<string, any> & {
 } {
   function Wrapper({ children }: PropsWithChildren<unknown>): JSX.Element {
     // Helps expose errors in MockedProvider
-    const link = ApolloLink.from([setupErrorLink(1, 1), new MockLink(mocks)])
+    const link = ApolloLink.from([getErrorLink(1, 1), new MockLink(mocks)])
 
     return (
-      <MockedProvider
-        addTypename={false}
-        cache={EXPORTS_FOR_TEST.setupCache()}
-        link={link}
-        mocks={mocks}>
+      <MockedProvider addTypename={false} cache={setupCache()} link={link} mocks={mocks}>
         <Provider store={store}>
           <NavigationContainer>
             <ThemeProvider theme={theme}>{children}</ThemeProvider>
@@ -105,14 +101,10 @@ Record<string, any> & {
 } {
   function Wrapper({ children }: PropsWithChildren<unknown>): JSX.Element {
     // Helps expose errors in MockedProvider
-    const link = ApolloLink.from([setupErrorLink(1, 1), new MockLink(mocks)])
+    const link = ApolloLink.from([getErrorLink(1, 1), new MockLink(mocks)])
 
     return (
-      <MockedProvider
-        addTypename={false}
-        cache={EXPORTS_FOR_TEST.setupCache()}
-        link={link}
-        mocks={mocks}>
+      <MockedProvider addTypename={false} cache={setupCache()} link={link} mocks={mocks}>
         <Provider store={store}>
           <ThemeProvider theme={theme}>{children}</ThemeProvider>
         </Provider>

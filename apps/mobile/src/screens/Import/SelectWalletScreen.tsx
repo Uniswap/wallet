@@ -14,21 +14,24 @@ import WalletPreviewCard from 'src/features/import/WalletPreviewCard'
 import { OnboardingScreen } from 'src/features/onboarding/OnboardingScreen'
 import { ImportType } from 'src/features/onboarding/utils'
 import { ElementName } from 'src/features/telemetry/constants'
-import { EditAccountAction, editAccountActions } from 'src/features/wallet/editAccountSaga'
-import { useAccounts, usePendingAccounts } from 'src/features/wallet/hooks'
-import {
-  PendingAccountActions,
-  pendingAccountActions,
-} from 'src/features/wallet/pendingAccountsSaga'
-import { activateAccount } from 'src/features/wallet/walletSlice'
 import { OnboardingScreens } from 'src/screens/Screens'
 import { EMPTY_ARRAY } from 'wallet/src/constants/misc'
 import { useSelectWalletScreenQuery } from 'wallet/src/data/__generated__/types-and-hooks'
+import {
+  EditAccountAction,
+  editAccountActions,
+} from 'wallet/src/features/wallet/accounts/editAccountSaga'
 import {
   Account,
   AccountType,
   SignerMnemonicAccount,
 } from 'wallet/src/features/wallet/accounts/types'
+import {
+  PendingAccountActions,
+  pendingAccountActions,
+} from 'wallet/src/features/wallet/create/pendingAccountsSaga'
+import { useAccounts, usePendingAccounts } from 'wallet/src/features/wallet/hooks'
+import { activateAccount } from 'wallet/src/features/wallet/slice'
 import { ONE_SECOND_MS } from 'wallet/src/utils/time'
 import { useTimeout } from 'wallet/src/utils/timing'
 
@@ -92,7 +95,7 @@ export function SelectWalletScreen({ navigation, route: { params } }: Props): JS
     }
 
     return EMPTY_ARRAY
-  }, [allAddressBalances, addresses])
+  }, [addresses, allAddressBalances])
 
   const isOnlyOneAccount = initialShownAccounts.length === 1
 
@@ -189,16 +192,7 @@ export function SelectWalletScreen({ navigation, route: { params } }: Props): JS
       params,
       merge: true,
     })
-  }, [
-    dispatch,
-    addresses,
-    pendingAccounts,
-    navigation,
-    selectedAddresses,
-    isFirstAccountActive,
-    params,
-    t,
-  ])
+  }, [addresses, navigation, params, selectedAddresses, dispatch, pendingAccounts, t])
 
   // Force a fixed duration loading state for smoother transition (as we show different UI for 1 vs multiple wallets)
   const [isForcedLoading, setIsForcedLoading] = useState(true)
@@ -257,7 +251,7 @@ export function SelectWalletScreen({ navigation, route: { params } }: Props): JS
         <Box opacity={showError ? 0 : 1}>
           <Button
             disabled={
-              isImportingAccounts || loading || !!showError || selectedAddresses.length === 0
+              isImportingAccounts || isLoading || !!showError || selectedAddresses.length === 0
             }
             label={t('Continue')}
             name={ElementName.Next}

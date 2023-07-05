@@ -1,20 +1,19 @@
 import { SwapEventName } from '@uniswap/analytics-events'
 import { TradeType } from '@uniswap/sdk-core'
 import { BigNumberish, providers } from 'ethers'
-import { PutEffect, TakeEffect } from 'redux-saga/effects'
+import appsFlyer from 'react-native-appsflyer'
 import { appSelect } from 'src/app/hooks'
 import { i18n } from 'src/app/i18n'
+import { GQLQueries } from 'src/data/queries'
+import { apolloClient } from 'src/data/usePersistedApolloClient'
 import { fetchFiatOnRampTransaction } from 'src/features/fiatOnRamp/api'
-import {
-  pushNotification,
-  setNotificationStatus,
-} from 'src/features/notifications/notificationSlice'
-import { AppNotificationType } from 'src/features/notifications/types'
-import { waitForProvidersInitialized } from 'src/features/providers/providerSaga'
 import { sendAnalyticsEvent } from 'src/features/telemetry'
-import { attemptCancelTransaction } from 'src/features/transactions/cancelTransaction'
-import { attemptReplaceTransaction } from 'src/features/transactions/replaceTransaction'
-import { selectIncompleteTransactions } from 'src/features/transactions/selectors'
+import { attemptCancelTransaction } from 'src/features/transactions/cancelTransactionSaga'
+import { attemptReplaceTransaction } from 'src/features/transactions/replaceTransactionSaga'
+import {
+  selectHasDoneASwap,
+  selectIncompleteTransactions,
+} from 'src/features/transactions/selectors'
 import {
   addTransaction,
   cancelTransaction,
@@ -24,25 +23,24 @@ import {
   updateTransaction,
   upsertFiatOnRampTransaction,
 } from 'src/features/transactions/slice'
-import {
-  BaseSwapTransactionInfo,
-  FinalizedTransactionDetails,
-  TransactionDetails,
-  TransactionId,
-  TransactionReceipt,
-  TransactionStatus,
-  TransactionType,
-} from 'src/features/transactions/types'
 import { getFinalizedTransactionStatus } from 'src/features/transactions/utils'
-import { call, delay, fork, put, race, take } from 'typed-redux-saga'
+import { call, delay, fork, put, race, select, take } from 'typed-redux-saga'
 import { ChainId } from 'wallet/src/constants/chains'
 import { PollingInterval } from 'wallet/src/constants/misc'
 import { logger } from 'wallet/src/features/logger/logger'
+import { pushNotification, setNotificationStatus } from 'wallet/src/features/notifications/slice'
+import { AppNotificationType } from 'wallet/src/features/notifications/types'
+import {
+  BaseSwapTransactionInfo,
+  TransactionDetails,
+  TransactionReceipt,
+  TransactionStatus,
+  TransactionType,
+} from 'wallet/src/features/transactions/types'
 import { getProvider } from 'wallet/src/features/wallet/context'
+import { ONE_SECOND_MS } from 'wallet/src/utils/time'
 
 export function* transactionWatcher() {
-  // Delay execution until providers are ready
-  yield* call(waitForProvidersInitialized)
   logger.debug('transactionWatcherSaga', 'transactionWatcher', 'Starting tx watcher')
 
   // First, fork off watchers for any incomplete txs that are already in store
@@ -88,8 +86,7 @@ export function* transactionWatcher() {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function* watchFiatOnRampTransaction(transaction: TransactionDetails): Generator<any> {
+export function* watchFiatOnRampTransaction(transaction: TransactionDetails) {
   // id represents `externalTransactionId` sent to Moonpay
   const { id } = transaction
 
@@ -209,28 +206,14 @@ export async function waitForReceipt(
   return txReceipt
 }
 
-function* waitForCancellation(
-  chainId: ChainId,
-  id: string
-): Generator<TakeEffect, boolean, unknown> {
+function* waitForCancellation(chainId: ChainId, id: string) {
   while (true) {
     const { payload } = yield* take<ReturnType<typeof cancelTransaction>>(cancelTransaction.type)
     if (payload.cancelRequest && payload.chainId === chainId && payload.id === id) return true
   }
 }
 
-function* waitForReplacement(
-  chainId: ChainId,
-  id: string
-): Generator<
-  TakeEffect,
-  TransactionId & {
-    newTxParams: providers.TransactionRequest
-  } & {
-    address: string
-  },
-  unknown
-> {
+function* waitForReplacement(chainId: ChainId, id: string) {
   while (true) {
     const { payload } = yield* take<ReturnType<typeof replaceTransaction>>(replaceTransaction.type)
     if (payload.chainId === chainId && payload.id === id) return payload
@@ -244,7 +227,7 @@ export function* waitForTxnInvalidated(
   chainId: ChainId,
   id: string,
   nonce: BigNumberish | undefined
-): Generator<TakeEffect, boolean, unknown> {
+) {
   while (true) {
     const { payload } = yield* take<ReturnType<typeof transactionActions.finalizeTransaction>>(
       transactionActions.finalizeTransaction.type
@@ -309,22 +292,7 @@ function* finalizeTransaction(
   transaction: TransactionDetails,
   ethersReceipt?: providers.TransactionReceipt | null,
   statusOverride?: StatusOverride
-): Generator<
-  | PutEffect<{
-      payload: FinalizedTransactionDetails
-      type: string
-    }>
-  | PutEffect<{
-      payload: TransactionDetails
-      type: string
-    }>
-  | PutEffect<{
-      payload: { address: string; hasNotifications: boolean }
-      type: string
-    }>,
-  void,
-  unknown
-> {
+) {
   const status =
     statusOverride ?? getFinalizedTransactionStatus(transaction.status, ethersReceipt?.status)
 
@@ -350,6 +318,22 @@ function* finalizeTransaction(
 
   // Flip status to true so we can render Notification badge on home
   yield* put(setNotificationStatus({ address: transaction.from, hasNotifications: true }))
+  // Trigger a refetch of queries so balances is updated on home screen when a local tx is finalized
+  setTimeout(
+    () =>
+      apolloClient?.refetchQueries({
+        include: [GQLQueries.PortfolioBalances, GQLQueries.TransactionList],
+      }),
+    ONE_SECOND_MS // Delay by 1s to give a buffer for data sources to synchronize
+  )
+
+  if (transaction.typeInfo.type === TransactionType.Swap) {
+    const hasDoneASwap = yield* select(selectHasDoneASwap)
+    if (!hasDoneASwap) {
+      // Only log event if it's a user's first ever swap
+      appsFlyer.logEvent('swap_completed', {})
+    }
+  }
 }
 
 /**
@@ -357,14 +341,7 @@ function* finalizeTransaction(
  * be monitored. Often used when txn is replaced or cancelled.
  * @param transaction txn to delete from state
  */
-export function* deleteTransaction(transaction: TransactionDetails): Generator<
-  PutEffect<{
-    payload: { address: string }
-    type: string
-  }>,
-  void,
-  unknown
-> {
+export function* deleteTransaction(transaction: TransactionDetails) {
   yield* put(
     transactionActions.deleteTransaction({
       address: transaction.from,

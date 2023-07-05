@@ -1,5 +1,6 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { useResponsiveProp } from '@shopify/restyle'
+import { SharedEventName } from '@uniswap/analytics-events'
 import React from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { useAppDispatch } from 'src/app/hooks'
@@ -12,14 +13,14 @@ import { Text } from 'src/components/Text'
 import { useIsDarkMode } from 'src/features/appearance/hooks'
 import { ImportType, OnboardingEntryPoint } from 'src/features/onboarding/utils'
 import { ElementName } from 'src/features/telemetry/constants'
-import {
-  PendingAccountActions,
-  pendingAccountActions,
-} from 'src/features/wallet/pendingAccountsSaga'
 import { OnboardingScreens } from 'src/screens/Screens'
 import { openUri } from 'src/utils/linking'
 import { hideSplashScreen } from 'src/utils/splashScreen'
 import { uniswapUrls } from 'wallet/src/constants/urls'
+import {
+  PendingAccountActions,
+  pendingAccountActions,
+} from 'wallet/src/features/wallet/create/pendingAccountsSaga'
 import { useTimeout } from 'wallet/src/utils/timing'
 
 type Props = NativeStackScreenProps<OnboardingStackParamList, OnboardingScreens.Landing>
@@ -54,6 +55,8 @@ export function LandingScreen({ navigation }: Props): JSX.Element {
         <Flex gap={outerGap} justifyContent="flex-end">
           <Flex mx="spacing16">
             <Button
+              hapticFeedback
+              eventName={SharedEventName.ELEMENT_CLICKED}
               label={t('Get started')}
               name={ElementName.GetStarted}
               size={buttonSize}

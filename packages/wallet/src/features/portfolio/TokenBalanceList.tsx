@@ -12,8 +12,6 @@ type TokenBalanceListProps = {
   owner: Address
 }
 
-const HIDDEN_TOKENS_ROW = 'HIDDEN_TOKENS_ROW'
-
 export const TokenBalanceList = ({ owner }: TokenBalanceListProps): JSX.Element => {
   const { data, loading } = useSortedPortfolioBalances(
     owner,
@@ -23,7 +21,7 @@ export const TokenBalanceList = ({ owner }: TokenBalanceListProps): JSX.Element 
     // onCompleted
   )
 
-  const listItems: PortfolioBalance[] = useMemo(() => {
+  const listItems = useMemo((): PortfolioBalance[] => {
     if (!data) {
       return EMPTY_ARRAY
     }
@@ -41,7 +39,7 @@ export const TokenBalanceList = ({ owner }: TokenBalanceListProps): JSX.Element 
     }
 
     // Show all tokens including hidden
-    return [...balances, HIDDEN_TOKENS_ROW, ...smallBalances, ...spamBalances]
+    return [...balances, ...smallBalances, ...spamBalances]
   }, [data])
 
   if (!data && loading) {
@@ -70,6 +68,7 @@ export const TokenBalanceList = ({ owner }: TokenBalanceListProps): JSX.Element 
       marginTop="$spacing16"
       // TODO: make this dynamic
       maxHeight={330}
+      showsVerticalScrollIndicator={false}
       width="100%">
       {listItems?.map((balance: PortfolioBalance) => {
         return (

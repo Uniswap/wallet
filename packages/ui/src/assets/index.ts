@@ -1,7 +1,7 @@
 export const ETHEREUM_LOGO = require('./logos/ethereum-logo.png')
 export const OPTIMISM_LOGO = require('./logos/optimism-logo.png')
 export const ARBITRUM_LOGO = require('./logos/arbitrum-logo.png')
-export const POLYGON_LOGO = require('./logos/polygon-matic-logo.png')
+export const POLYGON_LOGO = require('./logos/polygon-logo.png')
 export const GOERLI_LOGO = require('./logos/goerli-logo.png')
 export const MUMBAI_LOGO = require('./logos/mumbai-logo.png')
 export const UNISWAP_LOGO = require('./logos/uniswap-logo.png')
@@ -15,3 +15,6 @@ export const ONBOARDING_NOTIFICATIONS_DARK = require('./backgrounds/notification
 export const ONBOARDING_NOTIFICATIONS_LIGHT = require('./backgrounds/notifications-light.png')
 export const FOR_CONNECTING_BACKGROUND_DARK = require('./backgrounds/for-connecting-dark.png')
 export const FOR_CONNECTING_BACKGROUND_LIGHT = require('./backgrounds/for-connecting-light.png')
+
+export const SECURITY_SCREEN_BACKGROUND_DARK = require('./backgrounds/security-background-dark.png')
+export const SECURITY_SCREEN_BACKGROUND_LIGHT = require('./backgrounds/security-background-light.png')

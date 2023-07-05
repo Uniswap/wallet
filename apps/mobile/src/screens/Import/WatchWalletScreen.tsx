@@ -9,18 +9,19 @@ import { OnboardingStackParamList } from 'src/app/navigation/types'
 import { Button } from 'src/components/buttons/Button'
 import { Flex } from 'src/components/layout'
 import { Text } from 'src/components/Text'
-import { useENS } from 'src/features/ens/useENS'
 import { GenericImportForm } from 'src/features/import/GenericImportForm'
 import { importAccountActions } from 'src/features/import/importAccountSaga'
 import { ImportAccountType } from 'src/features/import/types'
+import { useCompleteOnboardingCallback } from 'src/features/onboarding/hooks'
 import { SafeKeyboardOnboardingScreen } from 'src/features/onboarding/SafeKeyboardOnboardingScreen'
 import { sendAnalyticsEvent } from 'src/features/telemetry'
 import { ElementName } from 'src/features/telemetry/constants'
 import { useIsSmartContractAddress } from 'src/features/transactions/transfer/hooks'
-import { useAccounts } from 'src/features/wallet/hooks'
 import { OnboardingScreens } from 'src/screens/Screens'
 import { useAddBackButton } from 'src/utils/useAddBackButton'
 import { ChainId } from 'wallet/src/constants/chains'
+import { useENS } from 'wallet/src/features/ens/useENS'
+import { useAccounts } from 'wallet/src/features/wallet/hooks'
 import { getValidAddress } from 'wallet/src/utils/addresses'
 import { normalizeTextInput } from 'wallet/src/utils/string'
 
@@ -48,6 +49,8 @@ export function WatchWalletScreen({ navigation, route: { params } }: Props): JSX
     isAddress ?? undefined,
     ChainId.Mainnet
   )
+
+  const onCompleteOnboarding = useCompleteOnboardingCallback(params.entryPoint, params.importType)
 
   // Form validation.
   const walletExists =
@@ -85,9 +88,9 @@ export function WatchWalletScreen({ navigation, route: { params } }: Props): JSX
         screen: OnboardingScreens.WatchWallet,
         element: ElementName.Continue,
       })
-      navigation.navigate({ name: OnboardingScreens.Notifications, params, merge: true })
+      onCompleteOnboarding()
     }
-  }, [dispatch, isValid, navigation, normalizedValue, params, resolvedAddress, value])
+  }, [dispatch, isValid, normalizedValue, onCompleteOnboarding, resolvedAddress, value])
 
   const onChange = (text: string | undefined): void => {
     if (value !== text?.trim()) {

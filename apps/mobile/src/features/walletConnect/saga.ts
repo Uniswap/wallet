@@ -2,31 +2,15 @@ import { Action } from '@reduxjs/toolkit'
 import { providers } from 'ethers'
 import { NativeEventEmitter, NativeModules } from 'react-native'
 import { EventChannel, eventChannel } from 'redux-saga'
-import { CallEffect, ChannelTakeEffect, ForkEffect, PutEffect } from 'redux-saga/effects'
 import { i18n } from 'src/app/i18n'
-import { pushNotification } from 'src/features/notifications/notificationSlice'
-import { AppNotification, AppNotificationType } from 'src/features/notifications/types'
-import { sendTransaction, SendTransactionParams } from 'src/features/transactions/sendTransaction'
-import { TransactionType } from 'src/features/transactions/types'
+import {
+  sendTransaction,
+  SendTransactionParams,
+} from 'src/features/transactions/sendTransactionSaga'
 import {
   deregisterWcPushNotifications,
   registerWcPushNotifications,
 } from 'src/features/walletConnect/api'
-import {
-  DappInfo,
-  EthMethod,
-  EthSignMethod,
-  SessionConnectedEvent,
-  SessionDisconnectedEvent,
-  SessionPendingEvent,
-  SessionUpdatedEvent,
-  SignRequestEvent,
-  SwitchChainRequestEvent,
-  TransactionRequestEvent,
-  WCError,
-  WCErrorType,
-  WCEventType,
-} from 'src/features/walletConnect/types'
 import {
   initializeWalletConnect,
   reconnectAccountSessions,
@@ -44,19 +28,30 @@ import { wcWeb3Wallet } from 'src/features/walletConnectV2/saga'
 import { call, fork, put, take } from 'typed-redux-saga'
 import { ChainId } from 'wallet/src/constants/chains'
 import { logger } from 'wallet/src/features/logger/logger'
+import { pushNotification } from 'wallet/src/features/notifications/slice'
+import { AppNotificationType } from 'wallet/src/features/notifications/types'
+import { TransactionType } from 'wallet/src/features/transactions/types'
 import { Account } from 'wallet/src/features/wallet/accounts/types'
 import { getSignerManager } from 'wallet/src/features/wallet/context'
 import { signMessage, signTypedDataMessage } from 'wallet/src/features/wallet/signing/signing.ios'
+import {
+  DappInfo,
+  EthMethod,
+  EthSignMethod,
+  SessionConnectedEvent,
+  SessionDisconnectedEvent,
+  SessionPendingEvent,
+  SessionUpdatedEvent,
+  SignRequestEvent,
+  SwitchChainRequestEvent,
+  TransactionRequestEvent,
+  WalletConnectEvent,
+  WCError,
+  WCErrorType,
+  WCEventType,
+} from 'wallet/src/features/walletConnect/types'
 import { createSaga } from 'wallet/src/utils/saga'
 import { ONE_SECOND_MS } from 'wallet/src/utils/time'
-
-export enum WalletConnectEvent {
-  Connected,
-  Disconnected,
-  NetworkChanged,
-  TransactionConfirmed,
-  TransactionFailed,
-}
 
 function createWalletConnectChannel(
   wcEventEmitter: NativeEventEmitter
@@ -88,7 +83,7 @@ function createWalletConnectChannel(
           topic: req.client_id,
           address: req.account,
           peerName: req.dapp.name,
-          language: 'en', // TODO: [MOB-246] Use local user language
+          language: i18n.language,
         })
       }
     }
@@ -254,23 +249,13 @@ function createWalletConnectChannel(
   })
 }
 
-export function* walletConnectSaga(): Generator<
-  CallEffect<void> | ForkEffect<void>,
-  void,
-  unknown
-> {
+export function* walletConnectSaga() {
   yield* call(initializeWalletConnect)
   yield* call(reconnectAccountSessions)
   yield* fork(watchWalletConnectEvents)
 }
 
-export function* watchWalletConnectEvents(): Generator<
-  | CallEffect<EventChannel<Action<unknown>>>
-  | ChannelTakeEffect<Action<unknown>>
-  | PutEffect<Action<unknown>>,
-  void,
-  unknown
-> {
+export function* watchWalletConnectEvents() {
   const wcEvents = new NativeEventEmitter(NativeModules.RNWalletConnect)
   const wcChannel = yield* call(createWalletConnectChannel, wcEvents)
 
@@ -306,16 +291,7 @@ type SignTransactionParams = {
   version: '1' | '2'
 }
 
-export function* signWcRequest(params: SignMessageParams | SignTransactionParams): Generator<
-  | void
-  | CallEffect<unknown>
-  | PutEffect<{
-      payload: AppNotification
-      type: string
-    }>,
-  void,
-  unknown
-> {
+export function* signWcRequest(params: SignMessageParams | SignTransactionParams) {
   const { sessionId, requestInternalId, account, method, chainId, version } = params
   try {
     const signerManager = yield* call(getSignerManager)

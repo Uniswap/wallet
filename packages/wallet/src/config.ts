@@ -1,5 +1,7 @@
 import {
   ACTIVE_CHAINS,
+  APPSFLYER_API_KEY,
+  APPSFLYER_APP_ID,
   INFURA_PROJECT_ID,
   MOONPAY_API_KEY,
   MOONPAY_API_URL,
@@ -13,11 +15,13 @@ import {
   WALLETCONNECT_PROJECT_ID,
 } from 'react-native-dotenv'
 import { ChainIdTo, ChainState } from 'wallet/src/constants/chains'
-import { chainListToStateMap } from 'wallet/src/features/chains/chainIdUtils'
+import { chainListToStateMap } from 'wallet/src/features/chains/utils'
 import { parseActiveChains } from 'wallet/src/utils/chainId'
 
 export interface Config {
   activeChains: ChainIdTo<ChainState>
+  appsflyerApiKey: string
+  appsflyerAppId: string
   moonpayApiKey: string
   moonpayApiUrl: string
   moonpayWidgetApiUrl: string
@@ -33,6 +37,8 @@ export interface Config {
 
 const _config: Config = {
   activeChains: chainListToStateMap(parseActiveChains(process.env.ACTIVE_CHAINS || ACTIVE_CHAINS)),
+  appsflyerApiKey: process.env.APPSFLYER_API_KEY || APPSFLYER_API_KEY,
+  appsflyerAppId: process.env.APPSFLYER_APP_ID || APPSFLYER_APP_ID,
   moonpayApiKey: process.env.MOONPAY_API_KEY || MOONPAY_API_KEY,
   moonpayApiUrl: process.env.MOONPAY_API_URL || MOONPAY_API_URL,
   moonpayWidgetApiUrl: process.env.MOONPAY_WIDGET_API_URL || MOONPAY_WIDGET_API_URL,

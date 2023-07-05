@@ -9,11 +9,14 @@ import { Flex } from 'src/components/layout'
 import { Screen } from 'src/components/layout/Screen'
 import { Text } from 'src/components/Text'
 import { backupMnemonicToICloud } from 'src/features/CloudBackup/RNICloudBackupsManager'
-import { EditAccountAction, editAccountActions } from 'src/features/wallet/editAccountSaga'
-import { useActiveAccount } from 'src/features/wallet/hooks'
 import { OnboardingScreens } from 'src/screens/Screens'
 import { logger } from 'wallet/src/features/logger/logger'
+import {
+  EditAccountAction,
+  editAccountActions,
+} from 'wallet/src/features/wallet/accounts/editAccountSaga'
 import { BackupType } from 'wallet/src/features/wallet/accounts/types'
+import { useActiveAccount } from 'wallet/src/features/wallet/hooks'
 import { ONE_SECOND_MS } from 'wallet/src/utils/time'
 import { promiseMinDelay } from 'wallet/src/utils/timing'
 
@@ -63,10 +66,10 @@ export function CloudBackupProcessingScreen({
   useEffect(() => {
     if (activeAccount?.backups?.includes(BackupType.Cloud)) {
       doneProcessing()
-      // Show success state for 1s before navigating back
+      // Show success state for 1s before navigating
       const timer = setTimeout(() => {
         navigation.navigate({
-          name: OnboardingScreens.Backup,
+          name: OnboardingScreens.Notifications,
           params: { importType, entryPoint },
           merge: true,
         })

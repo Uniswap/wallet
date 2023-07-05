@@ -4,7 +4,7 @@ import mockRNLocalize from 'react-native-localize/mock'
 import App from 'src/app/App'
 import { render } from 'src/test/test-utils'
 
-jest.mock('src/data/hooks', () => {
+jest.mock('src/data/usePersistedApolloClient', () => {
   return {
     usePersistedApolloClient: (): undefined => undefined,
   }
@@ -17,6 +17,7 @@ jest.mock('react-native-device-info', () => ({
   getUniqueId: (): Promise<string> => {
     throw new Error('Prevent re-render')
   },
+  getBundleId: (): string => '.dev',
 }))
 
 it('renders correctly', () => {

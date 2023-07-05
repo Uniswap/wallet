@@ -2,17 +2,16 @@ import { NetworkStatus } from '@apollo/client'
 import { FlashList } from '@shopify/flash-list'
 import React, { createElement, forwardRef, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useAppDispatch, useAppSelector } from 'src/app/hooks'
+import { useAppDispatch } from 'src/app/hooks'
 import { useAdaptiveFooterHeight } from 'src/components/home/hooks'
 import { NoTransactions } from 'src/components/icons/NoTransactions'
 import { Box, Flex } from 'src/components/layout'
 import { AnimatedFlashList } from 'src/components/layout/AnimatedFlashList'
 import { BaseCard } from 'src/components/layout/BaseCard'
-import { TabProps, TAB_STYLES } from 'src/components/layout/TabHelpers'
+import { TabProps } from 'src/components/layout/TabHelpers'
 import { Loader } from 'src/components/loading'
 import { ScannerModalState } from 'src/components/QRCodeScanner/constants'
 import { Text } from 'src/components/Text'
-import { isNonPollingRequestInFlight } from 'src/data/utils'
 import { openModal } from 'src/features/modals/modalSlice'
 import { ModalName } from 'src/features/telemetry/constants'
 import {
@@ -31,13 +30,16 @@ import SwapSummaryItem from 'src/features/transactions/SummaryCards/SummaryItems
 import UnknownSummaryItem from 'src/features/transactions/SummaryCards/SummaryItems/UnknownSummaryItem'
 import WCSummaryItem from 'src/features/transactions/SummaryCards/SummaryItems/WCSummaryItem'
 import WrapSummaryItem from 'src/features/transactions/SummaryCards/SummaryItems/WrapSummaryItem'
-import { TransactionDetails, TransactionType } from 'src/features/transactions/types'
-import { useActiveAccountWithThrow } from 'src/features/wallet/hooks'
-import { makeSelectAccountHideSpamTokens } from 'src/features/wallet/selectors'
 import { removePendingSession } from 'src/features/walletConnect/walletConnectSlice'
 import { EMPTY_ARRAY } from 'wallet/src/constants/misc'
+import { isNonPollingRequestInFlight } from 'wallet/src/data/utils'
 import { useTransactionListQuery } from 'wallet/src/data/__generated__/types-and-hooks'
 import { usePersistedError } from 'wallet/src/features/dataApi/utils'
+import { TransactionDetails, TransactionType } from 'wallet/src/features/transactions/types'
+import {
+  useActiveAccountWithThrow,
+  useSelectAccountHideSpamTokens,
+} from 'wallet/src/features/wallet/hooks'
 
 type LoadingItem = {
   itemType: 'LOADING'
@@ -173,9 +175,7 @@ export const ActivityTab = forwardRef<FlashList<unknown>, TabProps>(
 
     // Hide all spam transactions if active wallet has enabled setting.
     const activeAccount = useActiveAccountWithThrow()
-    const hideSpamTokens = useAppSelector<boolean>(
-      makeSelectAccountHideSpamTokens(activeAccount.address)
-    )
+    const hideSpamTokens = useSelectAccountHideSpamTokens(activeAccount.address)
 
     const formattedTransactions = useMemo(() => {
       if (!data) return EMPTY_ARRAY
@@ -252,7 +252,7 @@ export const ActivityTab = forwardRef<FlashList<unknown>, TabProps>(
     }
 
     return (
-      <Flex grow style={TAB_STYLES.tabListContainer}>
+      <Flex grow paddingHorizontal="spacing24">
         <AnimatedFlashList
           ref={ref}
           ListEmptyComponent={
