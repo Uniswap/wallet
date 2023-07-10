@@ -4,11 +4,11 @@ import { CurrencyLogo } from 'src/components/CurrencyLogo'
 import { Flex } from 'src/components/layout'
 import { Text } from 'src/components/Text'
 import { useUSDValue } from 'src/features/gas/hooks'
-import { useNativeCurrencyInfo } from 'src/features/tokens/useCurrencyInfo'
 import { iconSizes } from 'ui/src/theme/iconSizes'
 import { ChainId } from 'wallet/src/constants/chains'
+import { useNativeCurrencyInfo } from 'wallet/src/features/tokens/useCurrencyInfo'
 import { formatCurrencyAmount, formatUSDPrice, NumberType } from 'wallet/src/utils/format'
-import { tryParseRawAmount } from 'wallet/src/utils/tryParseAmount'
+import { getCurrencyAmount, ValueType } from 'wallet/src/utils/getCurrencyAmount'
 
 export function SpendingDetails({
   value,
@@ -21,7 +21,11 @@ export function SpendingDetails({
 
   const nativeCurrencyInfo = useNativeCurrencyInfo(chainId)
   const nativeCurrencyAmount = nativeCurrencyInfo
-    ? tryParseRawAmount(value, nativeCurrencyInfo.currency)
+    ? getCurrencyAmount({
+        value,
+        valueType: ValueType.Raw,
+        currency: nativeCurrencyInfo.currency,
+      })
     : null
   const usdValue = useUSDValue(chainId, value)
 

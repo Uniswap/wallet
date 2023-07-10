@@ -5,6 +5,7 @@ import {
   LocalAuthenticationOptions,
 } from 'expo-local-authentication'
 import { logger } from 'wallet/src/features/logger/logger'
+import serializeError from 'wallet/src/utils/serializeError'
 
 /**
  * Biometric authentication statuses
@@ -40,8 +41,14 @@ export async function tryLocalAuthenticate(
     }
 
     return BiometricAuthenticationStatus.Authenticated
-  } catch (e) {
-    logger.error('biometrics/index', 'tryLocalAuthenticate', `Failed to authenticate: ${e}`)
+  } catch (error) {
+    logger.error('Failed biometrics authentication', {
+      tags: {
+        file: 'biometrics/index',
+        function: 'tryLocalAuthenticate',
+        error: serializeError(error),
+      },
+    })
 
     return BiometricAuthenticationStatus.Rejected
   }

@@ -21,6 +21,7 @@ import { pushNotification } from 'wallet/src/features/notifications/slice'
 import { AppNotificationType } from 'wallet/src/features/notifications/types'
 import { useActiveAccountAddressWithThrow } from 'wallet/src/features/wallet/hooks'
 import { WalletConnectEvent } from 'wallet/src/features/walletConnect/types'
+import serializeError from 'wallet/src/utils/serializeError'
 import { ONE_SECOND_MS } from 'wallet/src/utils/time'
 interface DappConnectedNetworkModalProps {
   session: WalletConnectSessionV2
@@ -55,15 +56,14 @@ export function DappConnectedNetworkModal({
         })
       )
       onClose()
-    } catch (e) {
-      if (e instanceof Error) {
-        logger.error(
-          'DappConnectionItem',
-          'onDisconnect',
-          `Failed to disconnect session with ${dapp.name}`,
-          e.message
-        )
-      }
+    } catch (error) {
+      logger.error('Unable to disconnect WalletConnect session', {
+        tags: {
+          file: 'DappConnectedNetworkModal',
+          function: 'onDisconnect',
+          error: serializeError(error),
+        },
+      })
     }
   }
 

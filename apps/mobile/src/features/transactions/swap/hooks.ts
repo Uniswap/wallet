@@ -19,7 +19,6 @@ import {
   useUSDCValue,
 } from 'src/features/routing/useUSDCPrice'
 import { sendAnalyticsEvent } from 'src/features/telemetry'
-import { useCurrencyInfo } from 'src/features/tokens/useCurrencyInfo'
 import { PERMITTABLE_TOKENS } from 'src/features/transactions/permit/permittableTokens'
 import { usePermitSignature } from 'src/features/transactions/permit/usePermitSignature'
 import { getBaseTradeAnalyticsProperties } from 'src/features/transactions/swap/analytics'
@@ -56,6 +55,7 @@ import { logger } from 'wallet/src/features/logger/logger'
 import { pushNotification } from 'wallet/src/features/notifications/slice'
 import { AppNotificationType } from 'wallet/src/features/notifications/types'
 import { useOnChainCurrencyBalance } from 'wallet/src/features/portfolio/api'
+import { useCurrencyInfo } from 'wallet/src/features/tokens/useCurrencyInfo'
 import { useContractManager, useProvider } from 'wallet/src/features/wallet/context'
 import {
   useActiveAccount,
@@ -64,8 +64,8 @@ import {
 import { areAddressesEqual } from 'wallet/src/utils/addresses'
 import { buildCurrencyId } from 'wallet/src/utils/currencyId'
 import { formatCurrencyAmount, NumberType } from 'wallet/src/utils/format'
+import { getCurrencyAmount, ValueType } from 'wallet/src/utils/getCurrencyAmount'
 import { useAsyncData, usePrevious } from 'wallet/src/utils/hooks'
-import { tryParseExactAmount } from 'wallet/src/utils/tryParseAmount'
 
 const NUM_USD_DECIMALS_DISPLAY = 2
 
@@ -148,7 +148,11 @@ export function useDerivedSwapInfo(state: TransactionState): DerivedSwapInfo {
 
   // amountSpecified, otherCurrency, tradeType fully defines a trade
   const amountSpecified = useMemo(() => {
-    return tryParseExactAmount(exactAmountToken, exactCurrency)
+    return getCurrencyAmount({
+      value: exactAmountToken,
+      valueType: ValueType.Exact,
+      currency: exactCurrency,
+    })
   }, [exactAmountToken, exactCurrency])
 
   const shouldGetQuote = !isWrapAction(wrapType)
@@ -265,10 +269,12 @@ export function useUSDTokenUpdater(
     if (!exactCurrency || !price) return
 
     if (shouldUseUSDRef.current) {
-      const stablecoinAmount = tryParseExactAmount(
-        exactAmountUSD,
-        STABLECOIN_AMOUNT_OUT[exactCurrency.chainId]?.currency
-      )
+      const stablecoinAmount = getCurrencyAmount({
+        value: exactAmountUSD,
+        valueType: ValueType.Exact,
+        currency: STABLECOIN_AMOUNT_OUT[exactCurrency.chainId]?.currency,
+      })
+
       const currencyAmount = stablecoinAmount ? price?.invert().quote(stablecoinAmount) : undefined
 
       return dispatch(
@@ -278,7 +284,11 @@ export function useUSDTokenUpdater(
       )
     }
 
-    const exactCurrencyAmount = tryParseExactAmount(exactAmountToken, exactCurrency)
+    const exactCurrencyAmount = getCurrencyAmount({
+      value: exactAmountToken,
+      valueType: ValueType.Exact,
+      currency: exactCurrency,
+    })
     const usdPrice = exactCurrencyAmount ? price?.quote(exactCurrencyAmount) : undefined
     return dispatch(
       updateExactAmountUSD({ amount: usdPrice?.toFixed(NUM_USD_DECIMALS_DISPLAY) || '' })
@@ -695,7 +705,13 @@ export function useSwapCallback(
   return useMemo(() => {
     if (!account || !swapTxRequest || !trade || !totalGasFee) {
       return () => {
-        logger.error('hooks', 'useSwapCallback', 'Missing swapTx')
+        logger.error('Attempted swap with missing required parameters', {
+          tags: {
+            file: 'swap/hooks',
+            function: 'useSwapCallback',
+            params: JSON.stringify({ account, swapTxRequest, trade, totalGasFee }),
+          },
+        })
       }
     }
 
@@ -759,18 +775,25 @@ export function useWrapCallback(
     if (!isWrapAction(wrapType)) {
       return {
         wrapCallback: (): void =>
-          logger.error('hooks', 'useWrapCallback', 'Wrap callback invoked for non-wrap actions'),
+          logger.error('Attempted wrap on a non-wrap transaction', {
+            tags: {
+              file: 'swap/hooks',
+              function: 'useWrapCallback',
+            },
+          }),
       }
     }
 
     if (!account || !inputCurrencyAmount || !txRequest) {
       return {
         wrapCallback: (): void =>
-          logger.error(
-            'hooks',
-            'useWrapCallback',
-            'Wrap callback invoked without active account, input currency or valid transaction request'
-          ),
+          logger.error('Attempted wrap with missing required parameters', {
+            tags: {
+              file: 'swap/hooks',
+              function: 'useWrapCallback',
+              parameters: JSON.stringify({ account, inputCurrencyAmount, txRequest }),
+            },
+          }),
       }
     }
 

@@ -8,16 +8,15 @@ import { SearchContext } from 'src/components/explore/search/SearchResultsSectio
 import { flowToModalName, TokenSelectorFlow } from 'src/components/TokenSelector/TokenSelector'
 import { sendAnalyticsEvent } from 'src/features/telemetry'
 import { MobileEventName } from 'src/features/telemetry/constants'
-import { useCurrencyInfo } from 'src/features/tokens/useCurrencyInfo'
 import {
   makeSelectAddressTransactions,
   makeSelectLocalTxCurrencyIds,
   makeSelectTransaction,
 } from 'src/features/transactions/selectors'
 import {
-  createSwapFromStateFromDetails,
-  createWrapFormStateFromDetails,
-} from 'src/features/transactions/swap/createSwapFromStateFromDetails'
+  createSwapFormFromTxDetails,
+  createWrapFormFromTxDetails,
+} from 'src/features/transactions/swap/createSwapFormFromTxDetails'
 import {
   CurrencyField,
   TransactionState,
@@ -27,6 +26,7 @@ import { theme } from 'ui/src/theme/restyle/theme'
 import { ChainId } from 'wallet/src/constants/chains'
 import { EMPTY_ARRAY } from 'wallet/src/constants/misc'
 import { AssetType } from 'wallet/src/entities/assets'
+import { useCurrencyInfo } from 'wallet/src/features/tokens/useCurrencyInfo'
 import {
   TransactionDetails,
   TransactionStatus,
@@ -104,7 +104,7 @@ export function useCreateSwapFormState(
       return undefined
     }
 
-    return createSwapFromStateFromDetails({
+    return createSwapFormFromTxDetails({
       transactionDetails: transaction,
       inputCurrency: inputCurrencyInfo?.currency,
       outputCurrency: outputCurrencyInfo?.currency,
@@ -126,7 +126,7 @@ export function useCreateWrapFormState(
       return undefined
     }
 
-    return createWrapFormStateFromDetails({
+    return createWrapFormFromTxDetails({
       transactionDetails: transaction,
       inputCurrency,
       outputCurrency,

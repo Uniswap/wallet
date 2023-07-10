@@ -3,7 +3,6 @@ import { providers } from 'ethers'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useAppDispatch } from 'src/app/hooks'
 import { GQLNftAsset, useNFT } from 'src/features/nfts/hooks'
-import { useCurrencyInfo } from 'src/features/tokens/useCurrencyInfo'
 import {
   CurrencyField,
   selectRecipient,
@@ -20,10 +19,11 @@ import {
   useOnChainCurrencyBalance,
   useOnChainNativeCurrencyBalance,
 } from 'wallet/src/features/portfolio/api'
+import { useCurrencyInfo } from 'wallet/src/features/tokens/useCurrencyInfo'
 import { useProvider } from 'wallet/src/features/wallet/context'
 import { useActiveAccount } from 'wallet/src/features/wallet/hooks'
 import { buildCurrencyId } from 'wallet/src/utils/currencyId'
-import { tryParseExactAmount } from 'wallet/src/utils/tryParseAmount'
+import { getCurrencyAmount, ValueType } from 'wallet/src/utils/getCurrencyAmount'
 
 export type DerivedTransferInfo = BaseDerivedInfo<CurrencyInfo | GQLNftAsset> & {
   currencyTypes: { [CurrencyField.INPUT]?: AssetType }
@@ -83,7 +83,12 @@ export function useDerivedTransferInfo(state: TransactionState): DerivedTransfer
   )
 
   const amountSpecified = useMemo(
-    () => tryParseExactAmount(exactAmountToken, currencyIn),
+    () =>
+      getCurrencyAmount({
+        value: exactAmountToken,
+        valueType: ValueType.Exact,
+        currency: currencyIn,
+      }),
     [currencyIn, exactAmountToken]
   )
   const currencyAmounts = useMemo(

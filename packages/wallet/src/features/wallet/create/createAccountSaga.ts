@@ -1,6 +1,5 @@
 import dayjs from 'dayjs'
 import { call, put } from 'typed-redux-saga'
-import { logger } from 'wallet/src/features/logger/logger'
 import {
   AccountType,
   BackupType,
@@ -8,20 +7,29 @@ import {
 } from 'wallet/src/features/wallet/accounts/types'
 import { Keyring } from 'wallet/src/features/wallet/Keyring/Keyring'
 import { selectSortedSignerMnemonicAccounts } from 'wallet/src/features/wallet/selectors'
-import { activateAccount, addAccount } from 'wallet/src/features/wallet/slice'
+import { addAccount } from 'wallet/src/features/wallet/slice'
 import { appSelect } from 'wallet/src/state'
 import { createMonitoredSaga } from 'wallet/src/utils/saga'
 
-export function* createAccount() {
+interface CreateAccountParams {
+  validatedPassword: string
+}
+
+export function* createAccount(params: CreateAccountParams) {
   const sortedMnemonicAccounts: SignerMnemonicAccount[] = yield* appSelect(
     selectSortedSignerMnemonicAccounts
   )
   const { nextDerivationIndex, mnemonicId, existingBackups } = yield* call(
     getNewAccountParams,
+    params.validatedPassword,
     sortedMnemonicAccounts
   )
-  const address = yield* call(Keyring.generateAndStorePrivateKey, mnemonicId, nextDerivationIndex)
-
+  const address = yield* call(
+    [Keyring, Keyring.generateAndStorePrivateKey],
+    mnemonicId,
+    nextDerivationIndex,
+    params.validatedPassword
+  )
   yield* put(
     addAccount({
       type: AccountType.SignerMnemonic,
@@ -33,17 +41,19 @@ export function* createAccount() {
       backups: existingBackups,
     })
   )
-  yield* put(activateAccount(address))
-  logger.debug('createAccountSaga', '', 'New account created:', address)
+  // in mobile we activate the account here, but on web we wait for a later stage of onboarding to activate it, in case the onboarding flow gets abandoned
 }
 
-async function getNewAccountParams(sortedAccounts: SignerMnemonicAccount[]): Promise<{
+async function getNewAccountParams(
+  password: string,
+  sortedAccounts: SignerMnemonicAccount[]
+): Promise<{
   nextDerivationIndex: number
   mnemonicId: string
   existingBackups?: BackupType[]
 }> {
   if (sortedAccounts.length === 0 || !sortedAccounts[0]) {
-    const mnemonicId = await Keyring.generateAndStoreMnemonic()
+    const mnemonicId = await Keyring.generateAndStoreMnemonic(password)
     return { nextDerivationIndex: 0, mnemonicId }
   }
   return {
@@ -71,4 +81,4 @@ export const {
   wrappedSaga: createAccountSaga,
   reducer: createAccountReducer,
   actions: createAccountActions,
-} = createMonitoredSaga(createAccount, 'createAccount')
+} = createMonitoredSaga<CreateAccountParams>(createAccount, 'createAccount')

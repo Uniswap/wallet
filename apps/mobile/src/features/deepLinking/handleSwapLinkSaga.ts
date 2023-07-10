@@ -11,6 +11,7 @@ import { selectActiveChainIds } from 'wallet/src/features/chains/saga'
 import { logger } from 'wallet/src/features/logger/logger'
 import { getValidAddress } from 'wallet/src/utils/addresses'
 import { currencyIdToAddress, currencyIdToChain } from 'wallet/src/utils/currencyId'
+import serializeError from 'wallet/src/utils/serializeError'
 
 export function* handleSwapLink(url: URL) {
   try {
@@ -43,9 +44,14 @@ export function* handleSwapLink(url: URL) {
     }
 
     yield* put(openModal({ name: ModalName.Swap, initialState: swapFormState }))
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
-    logger.error('handleSwapLink', 'handleSwapLink', error?.message)
+  } catch (error) {
+    logger.error('Error handling swap link', {
+      tags: {
+        file: 'handleSwapLinkSaga',
+        function: 'handleSwapLink',
+        error: serializeError(error),
+      },
+    })
     yield* put(openModal({ name: ModalName.Swap }))
   }
 }

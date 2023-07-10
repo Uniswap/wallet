@@ -15,6 +15,7 @@ import { TransactionDetails, TransactionStatus } from 'wallet/src/features/trans
 import { getProvider, getSignerManager } from 'wallet/src/features/wallet/context'
 import { selectAccounts } from 'wallet/src/features/wallet/selectors'
 import { getValidAddress } from 'wallet/src/utils/addresses'
+import serializeError from 'wallet/src/utils/serializeError'
 
 export function* attemptReplaceTransaction(
   transaction: TransactionDetails,
@@ -76,7 +77,14 @@ export function* attemptReplaceTransaction(
     // Add new transaction for monitoring after submitting on chain
     yield* put(addTransaction(replacementTransaction))
   } catch (error) {
-    logger.error('replaceTransaction', '', 'Error while attempting tx replacement', hash, error)
+    logger.error('Unable to replace transaction', {
+      tags: {
+        file: 'replaceTransactionSaga',
+        function: 'attemptReplaceTransaction',
+        txHash: hash,
+        error: serializeError(error),
+      },
+    })
 
     // Unable to submit txn on chain, delete from state. This can sometimes be the case where we
     // attempt to replace a txn that has already been mined. Delete new txn in case it was added

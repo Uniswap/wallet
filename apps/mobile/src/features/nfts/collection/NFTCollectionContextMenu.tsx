@@ -10,6 +10,7 @@ import { NFTCollectionData } from 'src/features/nfts/collection/NFTCollectionHea
 import { getTwitterLink, getUniswapCollectionUrl, openUri } from 'src/utils/linking'
 import { theme as FixedTheme, Theme } from 'ui/src/theme/restyle/theme'
 import { logger } from 'wallet/src/features/logger/logger'
+import serializeError from 'wallet/src/utils/serializeError'
 
 type MenuOption = {
   title: string
@@ -53,8 +54,14 @@ export function NFTCollectionContextMenu({
       await Share.share({
         message: shareURL,
       })
-    } catch (e) {
-      logger.error('NFTCollectionScreen', 'onShare', (e as unknown as Error).message)
+    } catch (error) {
+      logger.error('Unable to share NFT URL', {
+        tags: {
+          file: 'NFTCollectionContextMenu',
+          function: 'onSharePress',
+          error: serializeError(error),
+        },
+      })
     }
   }, [shareURL])
 

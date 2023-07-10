@@ -51,6 +51,7 @@ import {
   WCEventType,
 } from 'wallet/src/features/walletConnect/types'
 import { createSaga } from 'wallet/src/utils/saga'
+import serializeError from 'wallet/src/utils/serializeError'
 import { ONE_SECOND_MS } from 'wallet/src/utils/time'
 
 function createWalletConnectChannel(
@@ -220,7 +221,13 @@ function createWalletConnectChannel(
           )
           break
         default:
-          logger.error('wcSaga', 'native module', 'errorHandler', req.type, req.message || '')
+          logger.error('Unhandled WC error', {
+            tags: {
+              file: 'walletConnect/saga',
+              function: 'errorHandler',
+              error: serializeError(req),
+            },
+          })
       }
     }
 
@@ -263,8 +270,14 @@ export function* watchWalletConnectEvents() {
     try {
       const payload = yield* take(wcChannel)
       yield* put(payload)
-    } catch (err) {
-      logger.error('wcSaga', 'watchWalletConnectSessions', 'channel error: ', err)
+    } catch (error) {
+      logger.error('Error watching WalletConnect events', {
+        tags: {
+          file: 'walletConnect/saga',
+          function: 'watchWalletConnectEvents',
+          error: serializeError(error),
+        },
+      })
     }
   }
 }
@@ -329,7 +342,7 @@ export function* signWcRequest(params: SignMessageParams | SignTransactionParams
         },
       })
     }
-  } catch (err) {
+  } catch (error) {
     if (version === '1') {
       yield* call(rejectRequest, requestInternalId)
     } else if (version === '2') {
@@ -338,7 +351,7 @@ export function* signWcRequest(params: SignMessageParams | SignTransactionParams
         response: {
           id: Number(requestInternalId),
           jsonrpc: '2.0',
-          error: { code: 5000, message: `Signing error: ${err}` },
+          error: { code: 5000, message: `Signing error: ${error}` },
         },
       })
     }
@@ -353,7 +366,13 @@ export function* signWcRequest(params: SignMessageParams | SignTransactionParams
         address: account.address,
       })
     )
-    logger.error('wcSaga', 'signWcRequest', 'signing error:', err)
+    logger.error('WalletConnect signing error', {
+      tags: {
+        file: 'walletConnect/saga',
+        function: 'signWcRequest',
+        error: serializeError(error),
+      },
+    })
   }
 }
 

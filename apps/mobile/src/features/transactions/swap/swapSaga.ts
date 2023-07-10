@@ -8,6 +8,7 @@ import { TransactionType, TransactionTypeInfo } from 'wallet/src/features/transa
 import { Account } from 'wallet/src/features/wallet/accounts/types'
 import { getProvider } from 'wallet/src/features/wallet/context'
 import { createMonitoredSaga } from 'wallet/src/utils/saga'
+import serializeError from 'wallet/src/utils/serializeError'
 
 export type SwapParams = {
   txId?: string
@@ -58,8 +59,14 @@ export function* approveAndSwap(params: SwapParams) {
       typeInfo: swapTypeInfo,
       trade,
     })
-  } catch (e) {
-    logger.error('swapSaga', 'approveAndSwap', 'Failed:', e)
+  } catch (error) {
+    logger.error('Swap failed', {
+      tags: {
+        file: 'swapSaga',
+        function: 'approveAndSwap',
+        error: serializeError(error),
+      },
+    })
   }
 }
 

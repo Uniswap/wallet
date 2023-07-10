@@ -8,6 +8,7 @@ import { Alert } from 'react-native'
 import { EventChannel, eventChannel } from 'redux-saga'
 import { appSelect } from 'src/app/hooks'
 import { i18n } from 'src/app/i18n'
+import { store } from 'src/app/store'
 import { registerWCv2ClientForPushNotifications } from 'src/features/walletConnect/api'
 import {
   addPendingSession,
@@ -27,11 +28,9 @@ import { call, fork, put, take } from 'typed-redux-saga'
 import { config } from 'wallet/src/config'
 import { ALL_SUPPORTED_CHAIN_IDS, ChainId, CHAIN_INFO } from 'wallet/src/constants/chains'
 import { logger } from 'wallet/src/features/logger/logger'
-import { pushNotification } from 'wallet/src/features/notifications/slice'
-import { AppNotificationType } from 'wallet/src/features/notifications/types'
 import { selectAccounts, selectActiveAccountAddress } from 'wallet/src/features/wallet/selectors'
-import { EthEvent, EthMethod, WalletConnectEvent } from 'wallet/src/features/walletConnect/types'
-import { ONE_SECOND_MS } from 'wallet/src/utils/time'
+import { EthEvent, EthMethod } from 'wallet/src/features/walletConnect/types'
+import serializeError from 'wallet/src/utils/serializeError'
 
 export let wcWeb3Wallet: IWeb3Wallet
 
@@ -92,7 +91,7 @@ function createWalletConnectV2Channel(): EventChannel<AnyAction> {
   })
 }
 
-export function* watchWalletConnectV2Events() {
+function* watchWalletConnectV2Events() {
   const wcV2Channel = yield* call(createWalletConnectV2Channel)
 
   while (true) {
@@ -105,13 +104,19 @@ export function* watchWalletConnectV2Events() {
       } else if (event.type === 'session_delete') {
         yield* call(handleSessionDelete, event.session)
       }
-    } catch (err) {
-      logger.error('wcV2Saga', 'watchWalletConnectSessions', 'channel error: ', err)
+    } catch (error) {
+      logger.error('WalletConnect V2 event channel error', {
+        tags: {
+          file: 'walletConnectV2/saga',
+          function: 'watchWalletConnectV2Events',
+          error: serializeError(error),
+        },
+      })
     }
   }
 }
 
-export function* handleSessionProposal(proposal: ProposalTypes.Struct) {
+function* handleSessionProposal(proposal: ProposalTypes.Struct) {
   const activeAccountAddress = yield* appSelect(selectActiveAccountAddress)
 
   const {
@@ -186,8 +191,8 @@ export function* handleSessionProposal(proposal: ProposalTypes.Struct) {
       [
         {
           text: 'OK',
-          onPress: function* onPress(): Generator {
-            yield* put(setHasPendingSessionError(false))
+          onPress: (): void => {
+            store.dispatch(setHasPendingSessionError(false))
           },
         },
       ]
@@ -205,7 +210,7 @@ export function* handleSessionProposal(proposal: ProposalTypes.Struct) {
   }
 }
 
-export function* handleSessionRequest(sessionRequest: PendingRequestTypes.Struct) {
+function* handleSessionRequest(sessionRequest: PendingRequestTypes.Struct) {
   const { topic, params, id } = sessionRequest
   const { request: wcRequest, chainId: wcChainId } = params
   const { method, params: requestParams } = wcRequest
@@ -269,45 +274,13 @@ export function* handleSessionRequest(sessionRequest: PendingRequestTypes.Struct
   }
 }
 
-export function* handleSessionDelete(event: Web3WalletTypes.SessionDelete) {
+function* handleSessionDelete(event: Web3WalletTypes.SessionDelete) {
   const { topic } = event
-  const session = wcWeb3Wallet.engine.signClient.session.get(topic)
-  const dapp = session.peer.metadata
-  const account = session.namespaces.eip155?.accounts[0]
 
-  if (!account) {
-    logger.error(
-      'WalletConnectV2Saga',
-      'sessionDeleteHandler',
-      'Account not found in session namespaces'
-    )
-    return
-  }
-
-  const address = getAccountAddressFromEIP155String(account)
-  if (!address) {
-    logger.error(
-      'WalletConnectV2Saga',
-      'sessionDeleteHandler',
-      'Unable to parse account address from session namespaces'
-    )
-    return
-  }
-
-  yield* put(removeSession({ account: address, sessionId: event.topic }))
-  yield* put(
-    pushNotification({
-      type: AppNotificationType.WalletConnect,
-      address,
-      dappName: dapp.name,
-      event: WalletConnectEvent.Disconnected,
-      imageUrl: dapp.icons[0] ?? null,
-      hideDelay: 3 * ONE_SECOND_MS,
-    })
-  )
+  yield* put(removeSession({ sessionId: topic }))
 }
 
-export function* populateActiveSessions() {
+function* populateActiveSessions() {
   // Fetch all active sessions and add to store
   const sessions = wcWeb3Wallet.getActiveSessions()
 
@@ -357,7 +330,7 @@ export function* populateActiveSessions() {
 }
 
 // Load any existing pending session proposals from the WC connection
-export function* fetchPendingSessionProposals() {
+function* fetchPendingSessionProposals() {
   const pendingSessionProposals = wcWeb3Wallet.getPendingSessionProposals()
   for (const proposal of Object.values(pendingSessionProposals)) {
     yield* call(handleSessionProposal, proposal)
@@ -365,7 +338,7 @@ export function* fetchPendingSessionProposals() {
 }
 
 // Load any existing pending session requests from the WC connection
-export function* fetchPendingSessionRequests() {
+function* fetchPendingSessionRequests() {
   const pendingSessionRequests = wcWeb3Wallet.getPendingSessionRequests()
   for (const sessionRequest of Object.values(pendingSessionRequests)) {
     yield* call(handleSessionRequest, sessionRequest)

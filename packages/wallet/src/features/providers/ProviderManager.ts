@@ -5,6 +5,7 @@ import { ChainId, CHAIN_INFO, L1ChainInfo, L2ChainInfo } from 'wallet/src/consta
 import { logger } from 'wallet/src/features/logger/logger'
 
 import { getEthersProvider } from 'wallet/src/features/providers/getEthersProvider'
+import serializeError from 'wallet/src/utils/serializeError'
 import { getInfuraChainName } from './utils'
 
 enum ProviderStatus {
@@ -24,9 +25,14 @@ type ChainIdToProvider = Partial<Record<ChainId, ProviderDetails>>
 const getChainDetails = (chainId: ChainId): L1ChainInfo | L2ChainInfo => {
   const chainDetails = CHAIN_INFO[chainId]
   if (!chainDetails) {
-    const error = new Error(`Cannot create provider for invalid chain details for ${chainId}`)
-    logger.error('ProviderManager', 'getChainDetails', `${error}`)
-    throw error
+    logger.error('Cannot create provider for invalid chain details', {
+      tags: {
+        file: 'ProviderManager',
+        function: 'getChainDetails',
+        chainDetails,
+      },
+    })
+    throw new Error(`Cannot create provider for invalid chain details for ${chainId}`)
   }
   return chainDetails
 }
@@ -55,10 +61,16 @@ export class ProviderManager {
       this.onUpdate?.()
       return newProvider
     }
-    const error = new Error(`Failed to create new provider for ${chainId}`)
-    logger.error('ProviderManager', 'createProvider', `${error}`)
+
+    logger.error('Failed to create provider', {
+      tags: {
+        file: 'ProviderManager',
+        function: 'createProvider',
+        chainId,
+      },
+    })
     // Otherwise show error
-    throw error
+    throw new Error(`Failed to create new provider for ${chainId}`)
   }
 
   removeProvider(chainId: ChainId): void {
@@ -99,7 +111,7 @@ export class ProviderManager {
 
   // TODO: [MOB-562] responsibility of this overlaps with init code in providerSaga which is initializing all upfront
   // Switch to using lazy init throughout app or cut this
-  getInitalizedProvider(chainId: ChainId): ethersProviders.Provider {
+  getInitializedProvider(chainId: ChainId): ethersProviders.Provider {
     if (this.hasProvider(chainId)) {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       return this._providers[chainId]!.provider
@@ -123,12 +135,14 @@ export class ProviderManager {
 
       return provider
     } catch (error) {
-      logger.error(
-        'ProviderManager',
-        'initProvider',
-        `Failed to connect to infura rpc provider for: ${getInfuraChainName(chainId)}`,
-        error
-      )
+      logger.error('Failed to initialize provider', {
+        tags: {
+          file: 'ProviderManager',
+          function: 'initProvider',
+          chainId,
+          error: serializeError(error),
+        },
+      })
       return null
     }
   }

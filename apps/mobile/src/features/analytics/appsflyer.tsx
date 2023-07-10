@@ -2,6 +2,7 @@ import appsFlyer from 'react-native-appsflyer'
 import { isBetaBuild, isDevBuild } from 'src/utils/version'
 import { config } from 'wallet/src/config'
 import { logger } from 'wallet/src/features/logger/logger'
+import serializeError from 'wallet/src/utils/serializeError'
 
 export function initAppsFlyer(): void {
   appsFlyer.initSdk(
@@ -17,7 +18,13 @@ export function initAppsFlyer(): void {
       logger.debug('appsflyer', 'initAppsFlyer', 'Result:', result)
     },
     (error) => {
-      logger.error('appsflyer', 'initAppsFlyer', 'Error:', error)
+      logger.error('Unable to init AppsFlyer', {
+        tags: {
+          file: 'appsflyer',
+          function: 'initAppsFlyer',
+          error: serializeError(error),
+        },
+      })
     }
   )
 }

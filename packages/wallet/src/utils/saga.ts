@@ -3,6 +3,7 @@ import { call, delay, put, race, take } from 'typed-redux-saga'
 import { logger } from 'wallet/src/features/logger/logger'
 import { pushNotification } from 'wallet/src/features/notifications/slice'
 import { AppNotificationType } from 'wallet/src/features/notifications/types'
+import serializeError from 'wallet/src/utils/serializeError'
 import { errorToString } from './validation'
 
 /**
@@ -30,7 +31,14 @@ export function createSaga<SagaParams = void>(
         logger.debug('saga', 'wrappedSaga', `${name} triggered`)
         yield* call(saga, trigger.payload)
       } catch (error) {
-        logger.error('saga', 'wrappedSaga', `${name} error`, error)
+        logger.error('Error creating saga', {
+          tags: {
+            file: 'utils/saga',
+            function: 'createSaga',
+            sagaName: name,
+            error: serializeError(error),
+          },
+        })
       }
     }
   }
@@ -75,8 +83,11 @@ export function createMonitoredSaga<SagaParams = void>(
   options?: MonitoredSagaOptions
 ): {
   name: string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   wrappedSaga: () => any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   reducer: any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   actions: any
 } {
   const triggerAction = createAction<SagaParams>(`${name}/trigger`)
@@ -135,9 +146,16 @@ export function createMonitoredSaga<SagaParams = void>(
 
         yield* put(statusAction(SagaStatus.Success))
         logger.debug('saga', 'monitoredSaga', `${name} finished`)
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } catch (error: any) {
-        logger.error('saga', 'monitoredSaga', `${name} error`, error)
+      } catch (error) {
+        logger.error('Error creating monitored saga', {
+          tags: {
+            file: 'utils/saga',
+            function: 'createMonitoredSaga',
+            sagaName: name,
+            error: serializeError(error),
+          },
+        })
+
         const errorMessage = errorToString(error)
         yield* put(errorAction(errorMessage))
         if (options?.showErrorNotification === undefined || options?.showErrorNotification) {

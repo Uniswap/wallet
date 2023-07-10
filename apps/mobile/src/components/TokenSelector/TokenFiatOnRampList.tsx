@@ -16,10 +16,9 @@ import { useFiatOnRampSupportedTokens } from 'src/features/fiatOnRamp/hooks'
 import { ElementName } from 'src/features/telemetry/constants'
 import { ChainId } from 'wallet/src/constants/chains'
 import { EMPTY_ARRAY } from 'wallet/src/constants/misc'
+import { fromMoonpayNetwork } from 'wallet/src/features/chains/utils'
 import { CurrencyInfo, GqlResult } from 'wallet/src/features/dataApi/types'
 import { MoonpayCurrency } from 'wallet/src/features/fiatOnRamp/types'
-import { logger } from 'wallet/src/features/logger/logger'
-import { fromMoonpayNetwork } from 'wallet/src/utils/chainId'
 import { CurrencyId } from 'wallet/src/utils/currencyId'
 
 interface Props {
@@ -31,23 +30,16 @@ const findTokenOptionForMoonpayCurrency = (
   commonBaseCurrencies: CurrencyInfo[] | undefined,
   moonpayCurrency: MoonpayCurrency
 ): Maybe<CurrencyInfo> => {
-  return (
-    (commonBaseCurrencies || []).find((item) => {
-      const [code, network] = moonpayCurrency.code.split('_') ?? [undefined, undefined]
-      try {
-        const chainId = fromMoonpayNetwork(network)
-        return (
-          item &&
-          code &&
-          code === item.currency.symbol?.toLowerCase() &&
-          chainId === item.currency.chainId
-        )
-      } catch (error) {
-        logger.error('TokenFiatOnRampList', 'findTokenOptionForMoonpayCurrency', `${error}`)
-        return false
-      }
-    }) ?? null
-  )
+  return (commonBaseCurrencies || []).find((item) => {
+    const [code, network] = moonpayCurrency.code.split('_') ?? [undefined, undefined]
+    const chainId = fromMoonpayNetwork(network)
+    return (
+      item &&
+      code &&
+      code === item.currency.symbol?.toLowerCase() &&
+      chainId === item.currency.chainId
+    )
+  })
 }
 
 function useFiatOnRampTokenList(
@@ -82,6 +74,37 @@ function useFiatOnRampTokenList(
   )
 }
 
+function TokenOptionItemWrapper({
+  currency,
+  onSelectCurrency,
+}: {
+  currency: FiatOnRampCurrency
+  onSelectCurrency: (currency: FiatOnRampCurrency) => void
+}): JSX.Element | null {
+  const { currencyInfo } = currency
+
+  const option = useMemo(
+    // we need to convert to TokenOption without quantity and balanceUSD
+    // to use in Token Selector
+    () => (currencyInfo ? { currencyInfo, quantity: 0, balanceUSD: 0 } : null),
+    [currencyInfo]
+  )
+  const onPress = useCallback(() => onSelectCurrency?.(currency), [currency, onSelectCurrency])
+
+  if (!option) {
+    return null
+  }
+
+  return (
+    <TokenOptionItem
+      option={option}
+      showNetworkPill={currencyInfo?.currency.chainId !== ChainId.Mainnet}
+      showWarnings={true}
+      onPress={onPress}
+    />
+  )
+}
+
 function _TokenFiatOnRampList({ onSelectCurrency, onBack }: Props): JSX.Element {
   const { t } = useTranslation()
 
@@ -98,17 +121,7 @@ function _TokenFiatOnRampList({ onSelectCurrency, onBack }: Props): JSX.Element 
 
   const renderItem = useCallback(
     ({ item: currency }: ListRenderItemInfo<FiatOnRampCurrency>) => {
-      if (!currency.currencyInfo) {
-        return null
-      }
-      return (
-        <TokenOptionItem
-          option={{ currencyInfo: currency.currencyInfo, quantity: 0, balanceUSD: 0 }}
-          showNetworkPill={currency.currencyInfo.currency.chainId !== ChainId.Mainnet}
-          showWarnings={true}
-          onPress={(): void => onSelectCurrency?.(currency)}
-        />
-      )
+      return <TokenOptionItemWrapper currency={currency} onSelectCurrency={onSelectCurrency} />
     },
     [onSelectCurrency]
   )
