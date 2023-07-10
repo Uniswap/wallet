@@ -4,11 +4,10 @@ import { BigNumberish, providers } from 'ethers'
 import appsFlyer from 'react-native-appsflyer'
 import { appSelect } from 'src/app/hooks'
 import { i18n } from 'src/app/i18n'
-import { GQLQueries } from 'src/data/queries'
-import { apolloClient } from 'src/data/usePersistedApolloClient'
 import { fetchFiatOnRampTransaction } from 'src/features/fiatOnRamp/api'
 import { sendAnalyticsEvent } from 'src/features/telemetry'
 import { attemptCancelTransaction } from 'src/features/transactions/cancelTransactionSaga'
+import { refetchGQLQueries } from 'src/features/transactions/refetchGQLQueriesSaga'
 import { attemptReplaceTransaction } from 'src/features/transactions/replaceTransactionSaga'
 import {
   selectHasDoneASwap,
@@ -38,7 +37,7 @@ import {
   TransactionType,
 } from 'wallet/src/features/transactions/types'
 import { getProvider } from 'wallet/src/features/wallet/context'
-import { ONE_SECOND_MS } from 'wallet/src/utils/time'
+import serializeError from 'wallet/src/utils/serializeError'
 
 export function* transactionWatcher() {
   logger.debug('transactionWatcherSaga', 'transactionWatcher', 'Starting tx watcher')
@@ -67,14 +66,15 @@ export function* transactionWatcher() {
         yield* fork(watchTransaction, transaction)
       }
     } catch (error) {
-      const { hash } = transaction
-      logger.error(
-        'transactionWatcherSaga',
-        'watchTransaction',
-        'Error while watching transaction',
-        hash,
-        error
-      )
+      logger.error('Failed to fork a transaction watcher', {
+        tags: {
+          file: 'transactionWatcherSaga',
+          function: 'watchTransaction',
+          txHash: transaction.hash,
+          error: serializeError(error),
+        },
+      })
+
       yield* put(
         pushNotification({
           type: AppNotificationType.Error,
@@ -137,13 +137,14 @@ export function* watchFiatOnRampTransaction(transaction: TransactionDetails) {
         timeout: delay(PollingInterval.Normal),
       })
     }
-  } catch (e) {
-    logger.error(
-      'transactionWatcherSaga',
-      'watchFiatOnRampTranasction',
-      'Failed to fetch details',
-      e
-    )
+  } catch (error) {
+    logger.error('Failed while watching for a fiat on-ramp transaction', {
+      tags: {
+        file: 'transactionWatcherSaga',
+        function: 'watchFiatOnRampTransaction',
+        error: serializeError(error),
+      },
+    })
   }
 }
 
@@ -318,14 +319,8 @@ function* finalizeTransaction(
 
   // Flip status to true so we can render Notification badge on home
   yield* put(setNotificationStatus({ address: transaction.from, hasNotifications: true }))
-  // Trigger a refetch of queries so balances is updated on home screen when a local tx is finalized
-  setTimeout(
-    () =>
-      apolloClient?.refetchQueries({
-        include: [GQLQueries.PortfolioBalances, GQLQueries.TransactionList],
-      }),
-    ONE_SECOND_MS // Delay by 1s to give a buffer for data sources to synchronize
-  )
+  // Refetch data when a local tx has confirmed
+  yield* refetchGQLQueries(transaction)
 
   if (transaction.typeInfo.type === TransactionType.Swap) {
     const hasDoneASwap = yield* select(selectHasDoneASwap)

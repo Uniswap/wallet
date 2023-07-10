@@ -46,6 +46,7 @@ import {
 } from 'wallet/src/features/walletConnect/types'
 import { areAddressesEqual } from 'wallet/src/utils/addresses'
 import { buildCurrencyId } from 'wallet/src/utils/currencyId'
+import serializeError from 'wallet/src/utils/serializeError'
 
 const MAX_MODAL_MESSAGE_HEIGHT = 200
 
@@ -77,8 +78,14 @@ const getPermitInfo = (request: WalletConnectRequest): PermitInfo | undefined =>
     const amount = permitPayload.value
 
     return { currencyId, amount }
-  } catch (e) {
-    logger.error('WalletConnectRequestModal', 'getPermitInfo', 'invalid JSON message', e)
+  } catch (error) {
+    logger.error('Invalid WalletConnect permit info', {
+      tags: {
+        file: 'WalletConnectRequestModal',
+        function: 'getPermitInfo',
+        error: serializeError(error),
+      },
+    })
     return undefined
   }
 }

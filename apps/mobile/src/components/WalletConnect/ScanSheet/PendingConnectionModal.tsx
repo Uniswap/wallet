@@ -1,6 +1,6 @@
 import { getSdkError } from '@walletconnect/utils'
 import React, { useCallback, useEffect, useState } from 'react'
-import { Trans, useTranslation } from 'react-i18next'
+import { useTranslation } from 'react-i18next'
 import { useAppDispatch, useAppSelector, useAppTheme } from 'src/app/hooks'
 import { AccountDetails } from 'src/components/accounts/AccountDetails'
 import { Button, ButtonEmphasis } from 'src/components/buttons/Button'
@@ -31,6 +31,7 @@ import { getSessionNamespaces } from 'src/features/walletConnectV2/utils'
 import Checkmark from 'ui/src/assets/icons/check.svg'
 import X from 'ui/src/assets/icons/x.svg'
 import { ChainId, CHAIN_INFO } from 'wallet/src/constants/chains'
+import { toSupportedChainId } from 'wallet/src/features/chains/utils'
 import { pushNotification } from 'wallet/src/features/notifications/slice'
 import { AppNotificationType } from 'wallet/src/features/notifications/types'
 import {
@@ -44,7 +45,6 @@ import {
   WCEventType,
   WCRequestOutcome,
 } from 'wallet/src/features/walletConnect/types'
-import { toSupportedChainId } from 'wallet/src/utils/chainId'
 import { ONE_SECOND_MS } from 'wallet/src/utils/time'
 
 type Props = {
@@ -288,11 +288,10 @@ export const PendingConnectionModal = ({ pendingSession, onClose }: Props): JSX.
         py="spacing60">
         <Flex alignItems="center" flex={1} gap="spacing16" justifyContent="flex-end">
           <DappHeaderIcon dapp={pendingSession.dapp} showChain={false} />
-          <Text textAlign="center" variant="headlineSmall">
-            <Trans t={t}>
-              <Text fontWeight="bold">{truncateDappName(dappName)}</Text> wants to connect to your
-              wallet
-            </Trans>
+          <Text fontWeight="bold" textAlign="center" variant="headlineSmall">
+            {t('{{ dappName }} wants to connect to your wallet', {
+              dappName: truncateDappName(dappName),
+            })}{' '}
           </Text>
           <LinkButton
             backgroundColor="background2"

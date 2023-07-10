@@ -9,7 +9,11 @@ import { PermitSignatureInfo } from 'src/features/transactions/swap/usePermit2Si
 import { ChainId } from 'wallet/src/constants/chains'
 import { PollingInterval } from 'wallet/src/constants/misc'
 import { useActiveAccount } from 'wallet/src/features/wallet/hooks'
-import { currencyAddressForSwapQuote } from 'wallet/src/utils/currencyId'
+import {
+  areCurrencyIdsEqual,
+  currencyAddressForSwapQuote,
+  currencyId,
+} from 'wallet/src/utils/currencyId'
 import { useDebounceWithStatus } from 'wallet/src/utils/timing'
 
 export interface UseQuoteProps {
@@ -53,13 +57,19 @@ export function useRouterQuote(params: UseQuoteProps) {
   const tokenOutAddress = currencyOut ? currencyAddressForSwapQuote(currencyOut) : undefined
   const tokenOutChainId = currencyOut?.chainId
 
+  const currencyInEqualsCurrencyOut =
+    currencyIn &&
+    currencyOut &&
+    areCurrencyIdsEqual(currencyId(currencyIn), currencyId(currencyOut))
+
   const skipQuery =
     skip ||
     !amountSpecified ||
     !tokenInAddress ||
     !tokenOutAddress ||
     !tokenInChainId ||
-    !tokenOutChainId
+    !tokenOutChainId ||
+    currencyInEqualsCurrencyOut
 
   const result = useQuoteQuery(
     skipQuery

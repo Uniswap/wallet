@@ -5,9 +5,10 @@ import { SignRequest, TransactionRequest } from 'src/features/walletConnect/wall
 import { wcWeb3Wallet } from 'src/features/walletConnectV2/saga'
 import { ChainId } from 'wallet/src/constants/chains'
 import { EMPTY_ARRAY } from 'wallet/src/constants/misc'
+import { toSupportedChainId } from 'wallet/src/features/chains/utils'
 import { logger } from 'wallet/src/features/logger/logger'
 import { EthMethod, EthSignMethod } from 'wallet/src/features/walletConnect/types'
-import { toSupportedChainId } from 'wallet/src/utils/chainId'
+import serializeError from 'wallet/src/utils/serializeError'
 
 /**
  * Construct WalletConnect 2.0 session namespaces to complete a new pairing. Used when approving a new pairing request.
@@ -185,14 +186,15 @@ export function getAddressAndMessageToSign(
 export async function pairWithWalletConnectURI(uri: string): Promise<void | PairingTypes.Struct> {
   try {
     return await wcWeb3Wallet.core.pairing.pair({ uri })
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (e: any) {
-    const errorMessage = typeof e === 'object' ? e?.message : ''
-    logger.error(
-      'walletConnectV2',
-      'pairWithWalletConnectURI',
-      `Error with new WalletConnect v2 pairing: ${errorMessage}`
-    )
-    return Promise.reject(errorMessage)
+  } catch (error) {
+    logger.error('Error with new WalletConnect v2 pairing', {
+      tags: {
+        file: 'walletConnectV2/utils',
+        function: 'pairWithWalletConnectURI',
+        error: serializeError(error),
+      },
+    })
+
+    return Promise.reject(error instanceof Error ? error.message : '')
   }
 }

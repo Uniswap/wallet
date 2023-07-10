@@ -10,6 +10,12 @@ import {
   importAccountSagaName,
 } from 'src/features/import/importAccountSaga'
 import { notificationWatcher } from 'src/features/notifications/notificationWatcherSaga'
+import {
+  createAccountActions,
+  createAccountReducer,
+  createAccountSaga,
+  createAccountSagaName,
+} from 'src/features/onboarding/create/createAccountSaga'
 import { telemetrySaga } from 'src/features/telemetry/saga'
 import {
   swapActions,
@@ -30,7 +36,7 @@ import {
   transferTokenSaga,
   transferTokenSagaName,
 } from 'src/features/transactions/transfer/transferTokenSaga'
-import { signWcRequestSaga, walletConnectSaga } from 'src/features/walletConnect/saga'
+import { signWcRequestSaga } from 'src/features/walletConnect/saga'
 import { walletConnectV2Saga } from 'src/features/walletConnectV2/saga'
 import { spawn } from 'typed-redux-saga'
 import {
@@ -39,12 +45,6 @@ import {
   editAccountSaga,
   editAccountSagaName,
 } from 'wallet/src/features/wallet/accounts/editAccountSaga'
-import {
-  createAccountActions,
-  createAccountReducer,
-  createAccountSaga,
-  createAccountSagaName,
-} from 'wallet/src/features/wallet/create/createAccountSaga'
 import {
   pendingAccountActions,
   pendingAccountReducer,
@@ -62,7 +62,6 @@ const sagas = [
   transactionWatcher,
   firebaseDataWatcher,
   notificationWatcher,
-  walletConnectSaga,
   walletConnectV2Saga,
   signWcRequestSaga,
   cloudBackupsManagerSaga,

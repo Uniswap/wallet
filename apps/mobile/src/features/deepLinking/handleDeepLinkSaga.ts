@@ -16,6 +16,7 @@ import { call, fork, put, takeLatest } from 'typed-redux-saga'
 import { logger } from 'wallet/src/features/logger/logger'
 import { selectAccounts, selectActiveAccount } from 'wallet/src/features/wallet/selectors'
 import { activateAccount } from 'wallet/src/features/wallet/slice'
+import serializeError from 'wallet/src/utils/serializeError'
 
 export interface DeepLink {
   url: string
@@ -96,15 +97,14 @@ export function* handleDeepLink(action: ReturnType<typeof openDeepLink>) {
       screen,
       is_cold_start: coldStart,
     })
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
-    const errorMessage = error?.message
-    yield* call(
-      logger.error,
-      'handleDeepLink',
-      'handleDeepLink',
-      `Error handling deep link ${action.payload.url}: ${errorMessage}`
-    )
+  } catch (error) {
+    yield* call(logger.error, 'Error handling deep link', {
+      tags: {
+        file: 'handleDeepLinkSaga',
+        function: 'handleDeepLink',
+        error: serializeError(error),
+      },
+    })
   }
 }
 

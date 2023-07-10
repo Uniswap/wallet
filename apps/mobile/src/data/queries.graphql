@@ -247,8 +247,18 @@ query NftCollectionScreen(
   }
 }
 
-query NftsTab($ownerAddress: String!, $first: Int, $after: String, $filter: NftBalancesFilterInput) {
-  nftBalances(ownerAddress: $ownerAddress, first: $first, after: $after, filter: $filter) {
+query NftsTab(
+  $ownerAddress: String!
+  $first: Int
+  $after: String
+  $filter: NftBalancesFilterInput
+) {
+  nftBalances(
+    ownerAddress: $ownerAddress
+    first: $first
+    after: $after
+    filter: $filter
+  ) {
     edges {
       node {
         ownedAsset {
@@ -323,7 +333,6 @@ query PortfolioBalances($ownerAddress: String!) {
         value
       }
       token {
-        id
         chain
         address
         symbol
@@ -374,7 +383,6 @@ query TransactionHistoryUpdater($addresses: [String!]!) {
 
 query Token($chain: Chain!, $address: String) {
   token(chain: $chain, address: $address) {
-    id
     symbol
     decimals
     chain
@@ -391,7 +399,6 @@ query Token($chain: Chain!, $address: String) {
 
 query TokenDetailsScreen($chain: Chain!, $address: String) {
   token(chain: $chain, address: $address) {
-    id
     address
     chain
     symbol
@@ -420,10 +427,6 @@ query TokenDetailsScreen($chain: Chain!, $address: String) {
           id
           value
         }
-        fullyDilutedMarketCap {
-          id
-          value
-        }
         priceHigh52W: priceHighLow(duration: YEAR, highLow: HIGH) {
           id
           value
@@ -434,7 +437,6 @@ query TokenDetailsScreen($chain: Chain!, $address: String) {
         }
       }
       tokens {
-        id
         chain
         address
       }
@@ -449,7 +451,6 @@ query TokenProjects($contracts: [ContractInput!]!) {
     logoUrl
     safetyLevel
     tokens {
-      id
       chain
       address
       decimals
@@ -554,7 +555,6 @@ query TopTokens(
     pageSize: $pageSize
     orderBy: $orderBy
   ) {
-    id
     address
     chain
     decimals
@@ -590,7 +590,6 @@ query ExploreSearch(
   $nftCollectionsFilter: NftCollectionsFilterInput!
 ) {
   searchTokens(searchQuery: $searchQuery) {
-    id
     chain
     address
     decimals
@@ -648,7 +647,6 @@ query SpotPrices($contracts: [ContractInput!]!) {
 }
 
 fragment TopTokenParts on Token {
-  id
   symbol
   chain
   address
@@ -703,7 +701,6 @@ query ExploreTokensTab($topTokensOrderBy: TokenSortableField!) {
 
 query FavoriteTokenCard($chain: Chain!, $address: String) {
   token(chain: $chain, address: $address) {
-    id
     symbol
     chain
     address

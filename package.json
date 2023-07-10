@@ -60,6 +60,7 @@
     "react-native-svg": "13.8.0",
     "react-native-web": "0.18.12",
     "react-refresh": "^0.14.0",
+    "semver": "7.5.2",
     "typescript": "4.9.4",
     "ua-parser-js": "0.7.33",
     "webpack": "^5.74.0",
@@ -67,6 +68,7 @@
     "yaml": "2.2.2"
   },
   "scripts": {
+    "bootstrap": "yarn contracts:compile && yarn g:build",
     "contracts:compile": "typechain --target ethers-v5 --out-dir packages/wallet/src/abis/types './packages/wallet/src/abis/**/*.json'",
     "g:build": "turbo run build --concurrency=100%",
     "g:check:deps": "manypkg check",
@@ -82,6 +84,7 @@
     "mobile": "yarn workspace @uniswap/mobile",
     "postinstall": "husky install",
     "staged:lint:fix": "eslint --fix",
+    "ui:build:icons": "yarn workspace ui build:icons",
     "upgrade:next": "manypkg upgrade next && manypkg upgrade eslint-config-next",
     "upgrade:rnw": "manypkg upgrade react-native-web",
     "upgrade:tamagui": "manypkg upgrade tamagui && manypkg upgrade @tamagui && manypkg upgrade tamagui-loader && manypkg upgrade react-native-web-lite",

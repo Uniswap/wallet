@@ -5,14 +5,16 @@ import { call } from 'typed-redux-saga'
 import { Weth } from 'wallet/src/abis/types'
 import WETH_ABI from 'wallet/src/abis/weth.json'
 import { ChainId } from 'wallet/src/constants/chains'
-import { WRAPPED_NATIVE_CURRENCY } from 'wallet/src/constants/tokens'
+import { logger } from 'wallet/src/features/logger/logger'
 import {
   TransactionOptions,
   TransactionType,
   TransactionTypeInfo,
 } from 'wallet/src/features/transactions/types'
 import { Account } from 'wallet/src/features/wallet/accounts/types'
+import { getWrappedNativeCurrencyAddressForChain } from 'wallet/src/utils/currencyId'
 import { createMonitoredSaga } from 'wallet/src/utils/saga'
+import serializeError from 'wallet/src/utils/serializeError'
 
 export enum WrapType {
   NotApplicable,
@@ -31,38 +33,48 @@ export async function getWethContract(
   chainId: ChainId,
   provider: providers.Provider
 ): Promise<Weth> {
-  return new Contract(WRAPPED_NATIVE_CURRENCY[chainId].address, WETH_ABI, provider) as Weth
+  return new Contract(getWrappedNativeCurrencyAddressForChain(chainId), WETH_ABI, provider) as Weth
 }
 
 export function* wrap(params: Params) {
-  const { account, inputCurrencyAmount, txRequest, txId } = params
-  let typeInfo: TransactionTypeInfo
+  try {
+    const { account, inputCurrencyAmount, txRequest, txId } = params
+    let typeInfo: TransactionTypeInfo
 
-  if (inputCurrencyAmount.currency.isNative) {
-    typeInfo = {
-      type: TransactionType.Wrap,
-      unwrapped: false,
-      currencyAmountRaw: inputCurrencyAmount.quotient.toString(),
+    if (inputCurrencyAmount.currency.isNative) {
+      typeInfo = {
+        type: TransactionType.Wrap,
+        unwrapped: false,
+        currencyAmountRaw: inputCurrencyAmount.quotient.toString(),
+      }
+    } else {
+      typeInfo = {
+        type: TransactionType.Wrap,
+        unwrapped: true,
+        currencyAmountRaw: inputCurrencyAmount.quotient.toString(),
+      }
     }
-  } else {
-    typeInfo = {
-      type: TransactionType.Wrap,
-      unwrapped: true,
-      currencyAmountRaw: inputCurrencyAmount.quotient.toString(),
+
+    const options: TransactionOptions = {
+      request: txRequest,
     }
-  }
 
-  const options: TransactionOptions = {
-    request: txRequest,
+    yield* call(sendTransaction, {
+      txId,
+      chainId: inputCurrencyAmount.currency.chainId,
+      account,
+      options,
+      typeInfo,
+    })
+  } catch (error) {
+    logger.error('Wrap failed', {
+      tags: {
+        file: 'wrapSaga',
+        function: 'wrap',
+        error: serializeError(error),
+      },
+    })
   }
-
-  yield* call(sendTransaction, {
-    txId,
-    chainId: inputCurrencyAmount.currency.chainId,
-    account,
-    options,
-    typeInfo,
-  })
 }
 
 export const {

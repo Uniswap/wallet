@@ -1,8 +1,11 @@
 import { FlashList } from '@shopify/flash-list'
 import { ReactNavigationPerformanceView } from '@shopify/react-native-performance-navigation'
-import React, { forwardRef, useEffect, useState } from 'react'
+import React, { forwardRef, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { RefreshControl } from 'react-native'
 import { FadeInDown, FadeOut } from 'react-native-reanimated'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useAppTheme } from 'src/app/hooks'
 import { useAdaptiveFooterHeight } from 'src/components/home/hooks'
 import { AnimatedBox, Box } from 'src/components/layout'
 import { AnimatedFlashList } from 'src/components/layout/AnimatedFlashList'
@@ -43,10 +46,14 @@ export const TokenBalanceList = forwardRef<FlashList<any>, TokenBalanceListProps
       scrollHandler,
       isExternalProfile = false,
       headerHeight,
+      refreshing,
+      onRefresh,
     },
     ref
   ) => {
     const { t } = useTranslation()
+    const theme = useAppTheme()
+    const insets = useSafeAreaInsets()
 
     const { onContentSizeChange, footerHeight, setFooterHeight } = useAdaptiveFooterHeight({
       headerHeight,
@@ -65,13 +72,14 @@ export const TokenBalanceList = forwardRef<FlashList<any>, TokenBalanceListProps
       data: balancesById,
       networkStatus,
       refetch,
-    } = usePortfolioBalances(
-      owner,
-      /*shouldPoll=*/ true,
-      /*hideSmallBalances=*/ false,
-      /*hideSpamBalances=*/ false,
-      onCompleted
-    )
+    } = usePortfolioBalances({
+      address: owner,
+      shouldPoll: true,
+      hideSmallBalances: false,
+      hideSpamTokens: false,
+      onCompleted,
+      fetchPolicy: 'cache-and-network',
+    })
 
     const [isWarmLoading, setIsWarmLoading] = useState(false)
     const [hiddenTokensExpanded, setHiddenTokensExpanded] = useState(false)
@@ -104,12 +112,23 @@ export const TokenBalanceList = forwardRef<FlashList<any>, TokenBalanceListProps
       }
     }, [balancesById, isExternalProfile, networkStatus])
 
+    const refreshControl = useMemo(() => {
+      return (
+        <RefreshControl
+          progressViewOffset={insets.top}
+          refreshing={refreshing ?? false}
+          tintColor={theme.colors.textTertiary}
+          onRefresh={onRefresh}
+        />
+      )
+    }, [refreshing, onRefresh, theme.colors.textTertiary, insets.top])
+
     // Note: `PerformanceView` must wrap the entire return statement to properly track interactive states.
     return (
       <ReactNavigationPerformanceView
         interactive={balancesById !== undefined}
         screenName={
-          // Marks the home screen as intereactive when balances are defined
+          // Marks the home screen as interactive when balances are defined
           Screens.Home
         }>
         {!balancesById ? (
@@ -155,6 +174,8 @@ export const TokenBalanceList = forwardRef<FlashList<any>, TokenBalanceListProps
             data={tokens}
             estimatedItemSize={ESTIMATED_TOKEN_ITEM_HEIGHT}
             keyExtractor={key}
+            refreshControl={refreshControl}
+            refreshing={refreshing}
             renderItem={({ item }): JSX.Element | null => {
               if (item === HIDDEN_TOKEN_BALANCES_ROW) {
                 return (
@@ -185,6 +206,7 @@ export const TokenBalanceList = forwardRef<FlashList<any>, TokenBalanceListProps
             showsVerticalScrollIndicator={false}
             windowSize={5}
             onContentSizeChange={onContentSizeChange}
+            onRefresh={onRefresh}
             onScroll={scrollHandler}
             {...containerProps}
           />

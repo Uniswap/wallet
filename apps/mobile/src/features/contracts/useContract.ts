@@ -7,6 +7,7 @@ import { Erc20 } from 'wallet/src/abis/types'
 import { ChainId } from 'wallet/src/constants/chains'
 import { logger } from 'wallet/src/features/logger/logger'
 import { useContractManager, useProviderManager } from 'wallet/src/features/wallet/context'
+import serializeError from 'wallet/src/utils/serializeError'
 
 export function useContract<T extends Contract = Contract>(
   chainId: ChainId,
@@ -26,7 +27,13 @@ export function useContract<T extends Contract = Contract>(
     try {
       return contractsManager.getOrCreateContract(chainId, address, provider, ABI)
     } catch (error) {
-      logger.error('useContract', 'useContract', 'Failed to get contract', error)
+      logger.error('Failed to get contract', {
+        tags: {
+          file: 'useContract',
+          function: 'useContract',
+          error: serializeError(error),
+        },
+      })
       return null
     }
   }, [chainId, addressOrAddressMap, ABI, provider, contractsManager]) as T

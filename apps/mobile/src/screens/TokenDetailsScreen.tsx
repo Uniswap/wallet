@@ -43,9 +43,9 @@ import {
   useTokenDetailsScreenQuery,
 } from 'wallet/src/data/__generated__/types-and-hooks'
 import { AssetType } from 'wallet/src/entities/assets'
+import { fromGraphQLChain } from 'wallet/src/features/chains/utils'
 import { currencyIdToContractInput } from 'wallet/src/features/dataApi/utils'
 import { useActiveAccountAddressWithThrow } from 'wallet/src/features/wallet/hooks'
-import { fromGraphQLChain } from 'wallet/src/utils/chainId'
 import { currencyIdToAddress, currencyIdToChain } from 'wallet/src/utils/currencyId'
 import { formatUSDPrice } from 'wallet/src/utils/format'
 
@@ -70,7 +70,8 @@ function HeaderTitleElement({ data }: { data: TokenDetailsScreenQuery | undefine
   const tokenProject = token?.project
 
   return (
-    <Flex alignItems="center" gap="none" justifyContent="space-between">
+    // ml="spacing32" is needed to compensate `...` menu, so the header is centered
+    <Flex alignItems="center" gap="none" justifyContent="space-between" ml="spacing32">
       <HeaderPriceLabel price={tokenProject?.markets?.[0]?.price} />
       <Flex centered row gap="spacing4">
         <TokenLogo
@@ -282,6 +283,7 @@ function TokenDetails({
     currencyId: _currencyId,
     owner: activeAccountAddress,
     isSpam: currentChainBalance?.currencyInfo.isSpam,
+    isNative: currentChainBalance?.currencyInfo.currency.isNative,
     balanceUSD: currentChainBalance?.balanceUSD,
     tokenSymbolForNotification: data?.token?.symbol,
   })

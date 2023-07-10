@@ -23,6 +23,7 @@ import {
 } from 'wallet/src/features/wallet/accounts/editAccountSaga'
 import { BackupType, SignerMnemonicAccount } from 'wallet/src/features/wallet/accounts/types'
 import { useAccounts } from 'wallet/src/features/wallet/hooks'
+import serializeError from 'wallet/src/utils/serializeError'
 
 type Props = NativeStackScreenProps<SettingsStackParamList, Screens.SettingsCloudBackupScreen>
 
@@ -56,7 +57,14 @@ export function SettingsCloudBackupScreen({
         })
       )
     } catch (error) {
-      logger.error('SettingsCloudBackupScreen', 'onPressNext', `${error}`)
+      logger.error('Unable to backup to iCloud', {
+        tags: {
+          file: 'SettingsCloudBackupScreen',
+          function: 'onPressNext',
+          error: serializeError(error),
+        },
+      })
+
       Alert.alert(
         t('iCloud error'),
         t(

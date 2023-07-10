@@ -27,6 +27,7 @@ import {
   SignerMnemonicAccount,
 } from 'wallet/src/features/wallet/accounts/types'
 import { useAccounts } from 'wallet/src/features/wallet/hooks'
+import serializeError from 'wallet/src/utils/serializeError'
 
 type Props = NativeStackScreenProps<SettingsStackParamList, Screens.SettingsCloudBackupStatus>
 
@@ -69,13 +70,16 @@ export function SettingsCloudBackupStatus({
       navigation.navigate(Screens.SettingsWallet, { address })
     } catch (error) {
       setShowBackupDeleteWarning(false)
-      const err = error as Error
-      logger.error('SettingsCloudBackStatus', 'deleteBackup', `${error}`)
-      Alert.alert(t('iCloud error'), err.message, [
-        {
-          text: t('OK'),
-          style: 'default',
+      logger.error('Unable to delete iCloud backup', {
+        tags: {
+          file: 'SettingsCloudBackupStatus',
+          function: 'deleteBackup',
+          error: serializeError(error),
         },
+      })
+
+      Alert.alert(t('iCloud error'), t('Unable to delete backup'), [
+        { text: t('OK'), style: 'default' },
       ])
     }
   }

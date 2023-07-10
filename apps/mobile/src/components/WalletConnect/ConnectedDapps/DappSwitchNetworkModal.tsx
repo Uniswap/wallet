@@ -14,8 +14,8 @@ import {
   WalletConnectSessionV1,
 } from 'src/features/walletConnect/walletConnectSlice'
 import { ChainId } from 'wallet/src/constants/chains'
+import { toSupportedChainId } from 'wallet/src/features/chains/utils'
 import { useActiveAccountAddressWithThrow } from 'wallet/src/features/wallet/hooks'
-import { toSupportedChainId } from 'wallet/src/utils/chainId'
 
 interface DappSwitchNetworkModalProps {
   selectedSession: WalletConnectSessionV1
@@ -40,10 +40,10 @@ export function DappSwitchNetworkModal({
     [selectedSession.id, onClose]
   )
 
-  const networkOptions = useNetworkOptions(
-    toSupportedChainId(selectedSession.dapp.chain_id),
-    onPress
-  )
+  const networkOptions = useNetworkOptions({
+    selectedChain: toSupportedChainId(selectedSession.dapp.chain_id),
+    onPress,
+  })
 
   const options = useMemo(
     () =>

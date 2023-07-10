@@ -12,6 +12,7 @@ import { UserPropertyName } from 'src/features/telemetry/constants'
 import { EventProperties } from 'src/features/telemetry/types'
 import { uniswapUrls } from 'wallet/src/constants/urls'
 import { logger } from 'wallet/src/features/logger/logger'
+import serializeError from 'wallet/src/utils/serializeError'
 
 const DUMMY_KEY = '00000000000000000000000000000000'
 
@@ -36,8 +37,14 @@ export async function initAnalytics(): Promise<void> {
       }
     )
     setDeviceId(await getUniqueId()) // Ensure we're using the same deviceId across Amplitude and Statsig
-  } catch (err) {
-    logger.error('telemetry/index', 'initiAnalytics', `${err}`)
+  } catch (error) {
+    logger.error('Error initializing analytics', {
+      tags: {
+        file: 'telemetry/index',
+        function: 'initAnalytics',
+        error: serializeError(error),
+      },
+    })
   }
 }
 

@@ -3,9 +3,9 @@ import { _TypedDataEncoder } from '@ethersproject/hash'
 import { Bytes, providers, Signer, UnsignedTransaction, utils } from 'ethers'
 import { hexlify } from 'ethers/lib/utils'
 import { ChainId } from 'wallet/src/constants/chains'
+import { toSupportedChainId } from 'wallet/src/features/chains/utils'
 import { Keyring } from 'wallet/src/features/wallet/Keyring/Keyring'
 import { areAddressesEqual } from 'wallet/src/utils/addresses'
-import { toSupportedChainId } from 'wallet/src/utils/chainId'
 
 /**
  * A signer that uses a native keyring to access keys
@@ -17,7 +17,7 @@ export class NativeSigner extends Signer {
     super()
 
     if (provider && !providers.Provider.isProvider(provider)) {
-      throw new Error('invalid provider' + provider)
+      throw new Error(`Invalid provider: ${provider}`)
     }
 
     utils.defineReadOnly(this, 'provider', provider)
@@ -54,11 +54,12 @@ export class NativeSigner extends Signer {
     const tx = await utils.resolveProperties(transaction)
 
     if (tx.chainId === undefined) {
-      throw new Error('Expected chainId to be defined')
+      throw new Error('Attempted to sign transaction with an undefined chain')
     }
+
     if (tx.from != null) {
       if (!areAddressesEqual(tx.from, this.address)) {
-        throw new Error('transaction from address mismatch')
+        throw new Error(`Signing address does not match the tx 'from' address`)
       }
       delete tx.from
     }
