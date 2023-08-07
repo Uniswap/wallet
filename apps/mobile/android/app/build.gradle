@@ -1,4 +1,7 @@
 apply plugin: "com.android.application"
+apply plugin: 'com.google.gms.google-services'
+apply plugin: 'maven-publish'
+apply plugin: 'kotlin-android'
 
 import com.android.build.OutputFile
 
@@ -77,11 +80,26 @@ import com.android.build.OutputFile
  * ]
  */
 
+def nodeModulesPath = "../../../../node_modules"
+def rnRoot = "../.."
+
+
+def keystorePropertiesFile = rootProject.file("keystore.properties");
+def keystoreProperties = new Properties()
+if (keystorePropertiesFile.exists()) {
+  keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
 project.ext.react = [
-    enableHermes: false,  // clean and rebuild if changing
+    enableHermes: true,  // clean and rebuild if changing
+    root: "${rnRoot}/",
+    cliPath: "${nodeModulesPath}/react-native/cli.js",
+    entryFile: "index.js",
+    hermesCommand: "${nodeModulesPath}/react-native/sdks/hermesc/%OS-BIN%/hermesc",
+    composeSourceMapsPath: "../../node_modules/react-native/scripts/compose-source-maps.js", // This is relative to the project root.
 ]
 
-apply from: "../../node_modules/react-native/react.gradle"
+apply from: "${nodeModulesPath}/react-native/react.gradle"
 
 /**
  * Set this to true to create two separate APKs instead of one:
@@ -109,7 +127,7 @@ def enableProguardInReleaseBuilds = false
  * give correct results when using with locales other than en-US.  Note that
  * this variant is about 6MiB larger per architecture than default.
  */
-def jscFlavor = 'org.webkit:android-jsc:+'
+def jscFlavor = 'org.webkit:android-jsc-intl:+'
 
 /**
  * Whether to enable the Hermes VM.
@@ -148,15 +166,37 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        release {
+          storeFile file(System.getenv("KEYSTORE_FILE") ?: 'keystore.jks')
+          storePassword System.getenv("STORE_PASSWORD") ?: keystoreProperties.getProperty("STORE_PASSWORD")
+          keyAlias System.getenv("KEYSTORE_ALIAS") ?: keystoreProperties.getProperty("KEYSTORE_ALIAS")
+          keyPassword System.getenv("KEY_PASSWORD") ?: keystoreProperties.getProperty("KEY_PASSWORD")
+        }
     }
+
+    flavorDimensions += "variant"
+
+    productFlavors {
+      dev {
+        isDefault(true)
+        applicationIdSuffix ".dev"
+        dimension "variant"
+      }
+      beta {
+        applicationIdSuffix ".beta"
+        dimension "variant"
+      }
+      prod {
+        dimension "variant"
+      }
+    }
+
     buildTypes {
         debug {
-            signingConfig signingConfigs.debug
+          signingConfig signingConfigs.debug
         }
         release {
-            // Caution! In production, you need to generate your own keystore file.
-            // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
@@ -177,6 +217,13 @@ android {
 
         }
     }
+
+    buildFeatures {
+        compose true
+    }
+    composeOptions {
+         kotlinCompilerExtensionVersion = "1.1.1"
+    }
 }
 
 dependencies {
@@ -184,7 +231,10 @@ dependencies {
     //noinspection GradleDynamicVersion
     implementation "com.facebook.react:react-native:+"  // From node_modules
 
-    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+
+    implementation "androidx.compose.foundation:foundation:$compose"
+    implementation "androidx.compose.material:material:$compose"
 
     debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}") {
       exclude group:'com.facebook.fbjni'
@@ -200,9 +250,9 @@ dependencies {
     }
 
     if (enableHermes) {
-        def hermesPath = "../../node_modules/hermes-engine/android/";
-        debugImplementation files(hermesPath + "hermes-debug.aar")
-        releaseImplementation files(hermesPath + "hermes-release.aar")
+      implementation("com.facebook.react:hermes-engine:+") {
+        exclude group:'com.facebook.fbjni'
+      }
     } else {
         implementation jscFlavor
     }
@@ -215,4 +265,4 @@ task copyDownloadableDepsToLibs(type: Copy) {
     into 'libs'
 }
 
-apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
+apply from: file("${nodeModulesPath}/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)

@@ -1,4 +1,3 @@
-import { SwapOptions, SwapRouter } from '@uniswap/router-sdk'
 import { Currency, Percent, TradeType } from '@uniswap/sdk-core'
 import {
   SwapOptions as UniversalRouterSwapOptions,
@@ -7,22 +6,20 @@ import {
 import { BigNumber } from 'ethers'
 import { TFunction } from 'i18next'
 import { ElementName } from 'src/features/telemetry/constants'
-import { PermitOptions } from 'src/features/transactions/permit/usePermitSignature'
-import { PermitSignatureInfo } from 'src/features/transactions/swap/usePermit2Signature'
-import { Trade } from 'src/features/transactions/swap/useTrade'
 import { WrapType } from 'src/features/transactions/swap/wrapSaga'
+import { ChainId } from 'wallet/src/constants/chains'
+import { AssetType } from 'wallet/src/entities/assets'
+import { PermitSignatureInfo } from 'wallet/src/features/transactions/swap/usePermit2Signature'
+import { Trade } from 'wallet/src/features/transactions/swap/useTrade'
 import {
   CurrencyField,
   TransactionState,
-} from 'src/features/transactions/transactionState/transactionState'
-import { ChainId } from 'wallet/src/constants/chains'
-import { AssetType } from 'wallet/src/entities/assets'
+} from 'wallet/src/features/transactions/transactionState/types'
 import {
   ExactInputSwapTransactionInfo,
   ExactOutputSwapTransactionInfo,
   TransactionType,
 } from 'wallet/src/features/transactions/types'
-import { areAddressesEqual } from 'wallet/src/utils/addresses'
 import {
   areCurrencyIdsEqual,
   buildWrappedNativeCurrencyId,
@@ -32,16 +29,6 @@ import {
   currencyIdToChain,
 } from 'wallet/src/utils/currencyId'
 import { formatPrice, NumberType } from 'wallet/src/utils/format'
-
-export function serializeQueryParams(
-  params: Record<string, Parameters<typeof encodeURIComponent>[0]>
-): string {
-  const queryString = []
-  for (const [param, value] of Object.entries(params)) {
-    queryString.push(`${encodeURIComponent(param)}=${encodeURIComponent(value)}`)
-  }
-  return queryString.join('&')
-}
 
 export function getWrapType(
   inputCurrency: Currency | null | undefined,
@@ -164,26 +151,6 @@ export function sumGasFees(gasFee1?: string | undefined, gasFee2?: string): stri
   return BigNumber.from(gasFee1).add(gasFee2).toString()
 }
 
-export const clearStaleTrades = (
-  trade: Trade,
-  currencyIn: Maybe<Currency>,
-  currencyOut: Maybe<Currency>
-): Trade | null => {
-  const currencyInAddress = currencyIn?.wrapped.address
-  const currencyOutAddress = currencyOut?.wrapped.address
-
-  const inputsMatch =
-    !!currencyInAddress &&
-    areAddressesEqual(currencyInAddress, trade?.inputAmount.currency.wrapped.address)
-  const outputsMatch =
-    !!currencyOutAddress &&
-    areAddressesEqual(currencyOutAddress, trade?.outputAmount.currency.wrapped.address)
-
-  // if the addresses entered by the user don't match what is being returned by the quote endpoint
-  // then set `trade` to null
-  return inputsMatch && outputsMatch ? trade : null
-}
-
 export const prepareSwapFormState = ({
   inputCurrencyId,
 }: {
@@ -211,18 +178,14 @@ export const slippageToleranceToPercent = (slippage: number): Percent => {
 
 interface MethodParameterArgs {
   permit2Signature?: PermitSignatureInfo
-  permitInfo: Maybe<PermitOptions>
   trade: Trade
   address: string
-  universalRouterEnabled: boolean
 }
 
 export const getSwapMethodParameters = ({
   permit2Signature,
   trade,
   address,
-  permitInfo,
-  universalRouterEnabled,
 }: MethodParameterArgs): { calldata: string; value: string } => {
   const slippageTolerancePercent = slippageToleranceToPercent(trade.slippageTolerance)
   const baseOptions = {
@@ -230,21 +193,14 @@ export const getSwapMethodParameters = ({
     recipient: address,
   }
 
-  if (universalRouterEnabled || permit2Signature) {
-    const universalRouterSwapOptions: UniversalRouterSwapOptions = permit2Signature
-      ? {
-          ...baseOptions,
-          inputTokenPermit: {
-            signature: permit2Signature.signature,
-            ...permit2Signature.permitMessage,
-          },
-        }
-      : baseOptions
-    return UniversalSwapRouter.swapERC20CallParameters(trade, universalRouterSwapOptions)
-  }
-
-  const swapOptions: SwapOptions = permitInfo
-    ? { ...baseOptions, inputTokenPermit: permitInfo }
-    : { ...baseOptions }
-  return SwapRouter.swapCallParameters(trade, swapOptions)
+  const universalRouterSwapOptions: UniversalRouterSwapOptions = permit2Signature
+    ? {
+        ...baseOptions,
+        inputTokenPermit: {
+          signature: permit2Signature.signature,
+          ...permit2Signature.permitMessage,
+        },
+      }
+    : baseOptions
+  return UniversalSwapRouter.swapERC20CallParameters(trade, universalRouterSwapOptions)
 }

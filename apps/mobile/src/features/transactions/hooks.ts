@@ -13,27 +13,40 @@ import {
   makeSelectLocalTxCurrencyIds,
   makeSelectTransaction,
 } from 'src/features/transactions/selectors'
+import { finalizeTransaction } from 'src/features/transactions/slice'
 import {
   createSwapFormFromTxDetails,
   createWrapFormFromTxDetails,
 } from 'src/features/transactions/swap/createSwapFormFromTxDetails'
-import {
-  CurrencyField,
-  TransactionState,
-  transactionStateActions,
-} from 'src/features/transactions/transactionState/transactionState'
+import { transactionStateActions } from 'src/features/transactions/transactionState/transactionState'
 import { theme } from 'ui/src/theme/restyle/theme'
 import { ChainId } from 'wallet/src/constants/chains'
-import { EMPTY_ARRAY } from 'wallet/src/constants/misc'
 import { AssetType } from 'wallet/src/entities/assets'
 import { useCurrencyInfo } from 'wallet/src/features/tokens/useCurrencyInfo'
 import {
+  CurrencyField,
+  TransactionState,
+} from 'wallet/src/features/transactions/transactionState/types'
+import {
+  FinalizedTransactionDetails,
   TransactionDetails,
   TransactionStatus,
   TransactionType,
 } from 'wallet/src/features/transactions/types'
 import { useActiveAccountAddressWithThrow } from 'wallet/src/features/wallet/hooks'
+import { useAppDispatch } from 'wallet/src/state'
 import { currencyAddress } from 'wallet/src/utils/currencyId'
+
+function isFinalizedTx(
+  tx: TransactionDetails | FinalizedTransactionDetails
+): tx is FinalizedTransactionDetails {
+  return (
+    tx.status === TransactionStatus.Success ||
+    tx.status === TransactionStatus.Failed ||
+    tx.status === TransactionStatus.Cancelled ||
+    tx.status === TransactionStatus.FailedCancel
+  )
+}
 
 export function usePendingTransactions(
   address: Address | null,
@@ -71,7 +84,9 @@ export function useSelectTransaction(
   return useAppSelector(makeSelectTransaction(address, chainId, txId))
 }
 
-export function useSelectAddressTransactions(address: Address | null): TransactionDetails[] {
+export function useSelectAddressTransactions(
+  address: Address | null
+): TransactionDetails[] | undefined {
   return useAppSelector(makeSelectAddressTransactions(address))
 }
 
@@ -268,26 +283,39 @@ export function useTokenFormActionHandlers(dispatch: React.Dispatch<AnyAction>):
  */
 export function useMergeLocalAndRemoteTransactions(
   address: string,
-  remoteTransactions: TransactionDetails[]
-): TransactionDetails[] {
+  remoteTransactions: TransactionDetails[] | undefined
+): TransactionDetails[] | undefined {
+  const dispatch = useAppDispatch()
   const localTransactions = useSelectAddressTransactions(address)
 
-  // Merge local and remote txns into array of single type.
-  const combinedTransactionList = useMemo((): TransactionDetails[] => {
-    if (!address) return EMPTY_ARRAY
+  // Merge local and remote txns into one array.
+  const combinedTransactionList = useMemo((): TransactionDetails[] | undefined => {
+    if (!address) return
+    if (!remoteTransactions) return localTransactions
+    if (!localTransactions) return remoteTransactions
 
-    const localHashes: Set<string> = new Set()
-    localTransactions.forEach((t: { hash: string }) => localHashes.add(t.hash))
+    const localTxMap: Map<string, TransactionDetails> = new Map()
+    localTransactions.forEach((tx) => localTxMap.set(tx.hash, tx))
 
-    const deDupedRemoteTxs = remoteTransactions.reduce((accum: TransactionDetails[], txn) => {
-      if (!localHashes.has(txn.hash)) accum.push(txn) // dedupe
-      return accum
-    }, [])
+    // Filter out remote txns that are already included in the local store.
+    const deDupedRemoteTxs = remoteTransactions.filter((remoteTxn) => {
+      const dupeLocalTx = localTxMap.get(remoteTxn.hash)
+      if (!dupeLocalTx) return true
+
+      // If the tx exists both locally and remotely, then use the status of the remote tx as the source
+      // of truth to avoid infinite pending states and filter the remote tx from the combined list
+      if (dupeLocalTx.status !== remoteTxn.status) {
+        dupeLocalTx.status = remoteTxn.status
+        if (isFinalizedTx(dupeLocalTx)) dispatch(finalizeTransaction(dupeLocalTx))
+      }
+
+      return false
+    })
 
     return [...localTransactions, ...deDupedRemoteTxs].sort((a, b) =>
       a.addedTime > b.addedTime ? -1 : 1
     )
-  }, [address, localTransactions, remoteTransactions])
+  }, [dispatch, address, localTransactions, remoteTransactions])
 
   return combinedTransactionList
 }
@@ -315,15 +343,15 @@ export function useLowestPendingNonce(): BigNumberish | undefined {
 export function useAllTransactionsBetweenAddresses(
   sender: Address,
   recipient: string | undefined | null
-): TransactionDetails[] {
+): TransactionDetails[] | undefined {
   const txnsToSearch = useSelectAddressTransactions(sender)
   return useMemo(() => {
-    if (!sender || !recipient || !txnsToSearch) return EMPTY_ARRAY
-    const commonTxs = txnsToSearch.filter(
+    if (!sender || !recipient || !txnsToSearch) return
+
+    return txnsToSearch.filter(
       (tx: TransactionDetails) =>
         tx.typeInfo.type === TransactionType.Send && tx.typeInfo.recipient === recipient
     )
-    return commonTxs.length ? commonTxs : EMPTY_ARRAY
   }, [recipient, sender, txnsToSearch])
 }
 

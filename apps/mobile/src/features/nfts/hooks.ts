@@ -7,8 +7,8 @@ import { selectNftsData } from 'src/features/favorites/selectors'
 import { AccountToNftData, isNftHidden, toggleNftVisibility } from 'src/features/favorites/slice'
 import { NFTItem } from 'src/features/nfts/types'
 import { getNFTAssetKey } from 'src/features/nfts/utils'
+import { getNftUrl } from 'src/utils/linking'
 import { PollingInterval } from 'wallet/src/constants/misc'
-import { uniswapUrls } from 'wallet/src/constants/urls'
 import { NftsQuery, useNftsQuery } from 'wallet/src/data/__generated__/types-and-hooks'
 import { GqlResult } from 'wallet/src/features/dataApi/types'
 import { logger } from 'wallet/src/features/logger/logger'
@@ -54,7 +54,7 @@ export function useNFT(
 interface NFTMenuParams {
   tokenId?: string
   contractAddress?: Address
-  owner: Address
+  owner?: Address
   showNotification?: boolean
   isSpam?: boolean
 }
@@ -92,12 +92,53 @@ export function useNFTMenu({
   const dispatch = useAppDispatch()
 
   const accounts = useAccounts()
-  const isLocalAccount = !!accounts[owner]
+  const isLocalAccount = owner && !!accounts[owner]
 
   const isAddressAndTokenOk = contractAddress && tokenId
   const nftsData = useAppSelector(selectNftsData)
   const hidden =
-    isAddressAndTokenOk && shouldHideNft({ nftsData, owner, contractAddress, tokenId, isSpam })
+    owner &&
+    isAddressAndTokenOk &&
+    shouldHideNft({ nftsData, owner, contractAddress, tokenId, isSpam })
+
+  const onPressShare = useCallback(async (): Promise<void> => {
+    if (!contractAddress || !tokenId) return
+    try {
+      await Share.share({
+        message: getNftUrl(contractAddress, tokenId),
+      })
+    } catch (error) {
+      logger.error('Unable to share NFT Item url', {
+        tags: {
+          file: 'nfts/hooks',
+          function: 'useNFTMenu',
+          error: serializeError(error),
+        },
+      })
+    }
+  }, [contractAddress, tokenId])
+
+  const onPressHiddenStatus = useCallback(() => {
+    if (!owner || !contractAddress || !tokenId) return
+    dispatch(
+      toggleNftVisibility({
+        owner,
+        contractAddress,
+        tokenId,
+        isSpam,
+      })
+    )
+    if (showNotification) {
+      dispatch(
+        pushNotification({
+          type: AppNotificationType.AssetVisibility,
+          visible: !hidden,
+          hideDelay: 2 * ONE_SECOND_MS,
+          assetName: 'NFT',
+        })
+      )
+    }
+  }, [contractAddress, dispatch, hidden, isSpam, owner, showNotification, tokenId])
 
   const menuActions = useMemo(
     () =>
@@ -106,69 +147,25 @@ export function useNFTMenu({
             {
               title: t('Share'),
               systemIcon: 'square.and.arrow.up',
-              onPress: async (): Promise<void> => {
-                try {
-                  await Share.share({
-                    message: `${uniswapUrls.nftUrl}/asset/${contractAddress}/${tokenId}`,
-                  })
-                } catch (error) {
-                  logger.error('Unable to share NFT url', {
-                    tags: {
-                      file: 'nfts/hooks',
-                      function: 'useNFTMenu',
-                      error: serializeError(error),
-                    },
-                  })
-                }
-              },
+              onPress: onPressShare,
             },
             ...((isLocalAccount && [
               {
                 title: hidden ? t('Unhide NFT') : t('Hide NFT'),
                 systemIcon: hidden ? 'eye' : 'eye.slash',
                 destructive: !hidden,
-                onPress: (): void => {
-                  dispatch(
-                    toggleNftVisibility({
-                      owner,
-                      contractAddress,
-                      tokenId,
-                      isSpam,
-                    })
-                  )
-                  if (showNotification) {
-                    dispatch(
-                      pushNotification({
-                        type: AppNotificationType.AssetVisibility,
-                        visible: !hidden,
-                        hideDelay: 2 * ONE_SECOND_MS,
-                        assetName: 'NFT',
-                      })
-                    )
-                  }
-                },
+                onPress: onPressHiddenStatus,
               },
             ]) ||
               []),
           ]
         : [],
-    [
-      isAddressAndTokenOk,
-      t,
-      isLocalAccount,
-      hidden,
-      contractAddress,
-      tokenId,
-      dispatch,
-      owner,
-      isSpam,
-      showNotification,
-    ]
+    [isAddressAndTokenOk, t, onPressShare, isLocalAccount, hidden, onPressHiddenStatus]
   )
 
   const onContextMenuPress = useCallback(
-    (e: NativeSyntheticEvent<ContextMenuOnPressNativeEvent>): void => {
-      menuActions[e.nativeEvent.index]?.onPress?.()
+    async (e: NativeSyntheticEvent<ContextMenuOnPressNativeEvent>): Promise<void> => {
+      await menuActions[e.nativeEvent.index]?.onPress?.()
     },
     [menuActions]
   )
@@ -178,7 +175,7 @@ export function useNFTMenu({
 
 // Apply to NFTs fetched from API hidden filter, which is stored in Redux
 export function useGroupNftsByVisibility(
-  nftDataItems: Array<NFTItem>,
+  nftDataItems: Array<NFTItem> | undefined,
   showHidden: boolean,
   owner: Address
 ): {
@@ -187,7 +184,7 @@ export function useGroupNftsByVisibility(
 } {
   const nftsData = useAppSelector(selectNftsData)
   return useMemo(() => {
-    const { shown, hidden } = nftDataItems.reduce<{
+    const { shown, hidden } = (nftDataItems ?? []).reduce<{
       shown: NFTItem[]
       hidden: NFTItem[]
     }>(

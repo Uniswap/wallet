@@ -1,4 +1,3 @@
-import { SharedEventName } from '@uniswap/analytics-events'
 import React, { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAppDispatch, useAppTheme } from 'src/app/hooks'
@@ -6,6 +5,7 @@ import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { Flex } from 'src/components/layout'
 import { ScannerModalState } from 'src/components/QRCodeScanner/constants'
 import { Text } from 'src/components/Text'
+import Trace from 'src/components/Trace/Trace'
 import { UNISWAP_HELP_CENTER_WALLET_URL } from 'src/constants/urls'
 import { openModal } from 'src/features/modals/modalSlice'
 import { ElementName, ModalName } from 'src/features/telemetry/constants'
@@ -163,36 +163,33 @@ const ActionCard = ({
   badgeText,
   elementName,
 }: ActionCardItem): JSX.Element => (
-  <TouchableArea
-    backgroundColor="background2"
-    borderRadius="rounded20"
-    eventName={SharedEventName.ELEMENT_CLICKED}
-    name={elementName}
-    onPress={onPress}>
-    <Flex centered row p="spacing16">
-      {icon}
-      <Flex flexShrink={1} gap="spacing4">
-        <Flex row alignItems="center" gap="spacing8">
-          <Text variant="subheadSmall">{title}</Text>
-          {badgeText && (
-            <Flex
-              centered
-              backgroundColor="magentaDark"
-              borderRadius="rounded8"
-              px="spacing8"
-              py="spacing4">
-              <Text color="magentaVibrant" variant="buttonLabelMicro">
-                {badgeText}
-              </Text>
-            </Flex>
-          )}
+  <Trace logPress element={elementName}>
+    <TouchableArea backgroundColor="background2" borderRadius="rounded20" onPress={onPress}>
+      <Flex centered row p="spacing16">
+        {icon}
+        <Flex flexShrink={1} gap="spacing4">
+          <Flex row alignItems="center" gap="spacing8">
+            <Text variant="subheadSmall">{title}</Text>
+            {badgeText && (
+              <Flex
+                centered
+                backgroundColor="magentaDark"
+                borderRadius="rounded8"
+                px="spacing8"
+                py="spacing4">
+                <Text color="magentaVibrant" variant="buttonLabelMicro">
+                  {badgeText}
+                </Text>
+              </Flex>
+            )}
+          </Flex>
+          <Text color="textSecondary" variant="bodySmall">
+            {blurb}
+          </Text>
         </Flex>
-        <Text color="textSecondary" variant="bodySmall">
-          {blurb}
-        </Text>
       </Flex>
-    </Flex>
-  </TouchableArea>
+    </TouchableArea>
+  </Trace>
 )
 
 const IconContainer = ({

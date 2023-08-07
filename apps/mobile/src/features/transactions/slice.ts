@@ -12,11 +12,11 @@ import {
 } from 'wallet/src/features/transactions/types'
 import { assert } from 'wallet/src/utils/validation'
 
-export interface TransactionState {
+export interface TransactionStateMap {
   [address: Address]: ChainIdToTxIdToDetails
 }
 
-export const initialTransactionsState: TransactionState = {}
+export const initialTransactionsState: TransactionStateMap = {}
 
 const slice = createSlice({
   name: 'transactions',
@@ -28,7 +28,6 @@ const slice = createSlice({
         !state?.[from]?.[chainId]?.[id],
         `addTransaction: Attempted to overwrite tx with id ${id}`
       )
-
       state[from] ??= {}
       state[from]![chainId] ??= {}
       state[from]![chainId]![id] = transaction

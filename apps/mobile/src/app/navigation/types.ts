@@ -6,18 +6,30 @@ import {
 } from '@react-navigation/native'
 import { NativeStackNavigationProp, NativeStackScreenProps } from '@react-navigation/native-stack'
 import { EducationContentType } from 'src/components/education'
+import { NFTItem } from 'src/features/nfts/types'
 import { ImportType, OnboardingEntryPoint } from 'src/features/onboarding/utils'
 import { TabIndex } from 'src/screens/HomeScreen'
 import { OnboardingScreens, Screens } from 'src/screens/Screens'
 
-type NFTItem = { owner: Address; address: string; tokenId: string; isSpam?: boolean }
+type NFTItemScreenParams = {
+  owner?: Address
+  address: string
+  tokenId: string
+  isSpam?: boolean
+  fallbackData?: NFTItem
+}
+
+export type CloudBackupFormParms = {
+  address: Address
+  password: string
+}
 
 export type ExploreStackParamList = {
   [Screens.Explore]: undefined
   [Screens.ExternalProfile]: {
     address: string
   }
-  [Screens.NFTItem]: NFTItem
+  [Screens.NFTItem]: NFTItemScreenParams
   [Screens.NFTCollection]: { collectionAddress: string }
   [Screens.TokenDetails]: {
     currencyId: string
@@ -39,7 +51,9 @@ export type SettingsStackParamList = {
   [Screens.SettingsAppearance]: undefined
   [Screens.WebView]: { headerTitle: string; uriLink: string }
   [Screens.Dev]: undefined
-  [Screens.SettingsCloudBackupScreen]: { address: Address }
+  [Screens.SettingsCloudBackupPasswordCreate]: { address: Address }
+  [Screens.SettingsCloudBackupPasswordConfirm]: CloudBackupFormParms
+  [Screens.SettingsCloudBackupProcessing]: CloudBackupFormParms
   [Screens.SettingsCloudBackupStatus]: { address: Address }
   [Screens.SettingsViewSeedPhrase]: { address: Address }
 }
@@ -50,14 +64,12 @@ export type OnboardingStackBaseParams = {
 }
 
 export type OnboardingStackParamList = {
-  [OnboardingScreens.BackupCloudProcessing]: {
-    password: string
-  } & OnboardingStackBaseParams
   [OnboardingScreens.BackupManual]: OnboardingStackBaseParams
-  [OnboardingScreens.BackupCloudPassword]: OnboardingStackBaseParams
-  [OnboardingScreens.BackupCloudPasswordConfirm]: {
-    password: string
+  [OnboardingScreens.BackupCloudPasswordCreate]: {
+    address: Address
   } & OnboardingStackBaseParams
+  [OnboardingScreens.BackupCloudPasswordConfirm]: CloudBackupFormParms & OnboardingStackBaseParams
+  [OnboardingScreens.BackupCloudProcessing]: CloudBackupFormParms & OnboardingStackBaseParams
   [OnboardingScreens.Backup]: OnboardingStackBaseParams
   [OnboardingScreens.Landing]: OnboardingStackBaseParams
   [OnboardingScreens.EditName]: OnboardingStackBaseParams
@@ -89,7 +101,7 @@ export type AppStackParamList = {
   [Screens.TokenDetails]: {
     currencyId: string
   }
-  [Screens.NFTItem]: NFTItem
+  [Screens.NFTItem]: NFTItemScreenParams
   [Screens.NFTCollection]: { collectionAddress: string }
   [Screens.ExternalProfile]: {
     address: string

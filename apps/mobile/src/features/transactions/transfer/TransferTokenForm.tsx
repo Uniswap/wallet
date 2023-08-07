@@ -19,7 +19,6 @@ import WarningModal, { getAlertColor } from 'src/components/modals/WarningModal/
 import { NFTTransfer } from 'src/components/NFT/NFTTransfer'
 import { Text } from 'src/components/Text'
 import { TokenSelectorFlow } from 'src/components/TokenSelector/TokenSelector'
-import { useUSDCValue } from 'src/features/routing/useUSDCPrice'
 import { ElementName, ModalName } from 'src/features/telemetry/constants'
 import {
   useShouldShowNativeKeyboard,
@@ -27,10 +26,7 @@ import {
   useTokenSelectorActionHandlers,
 } from 'src/features/transactions/hooks'
 import { useUSDTokenUpdater } from 'src/features/transactions/swap/hooks'
-import {
-  CurrencyField,
-  transactionStateActions,
-} from 'src/features/transactions/transactionState/transactionState'
+import { transactionStateActions } from 'src/features/transactions/transactionState/transactionState'
 import {
   DerivedTransferInfo,
   useOnToggleShowRecipientSelector,
@@ -38,9 +34,11 @@ import {
 import { TransferFormSpeedbumps } from 'src/features/transactions/transfer/TransferFormWarnings'
 import { createTransactionId } from 'src/features/transactions/utils'
 import { BlockedAddressWarning } from 'src/features/trm/BlockedAddressWarning'
-import { useIsBlockedActiveAddress } from 'src/features/trm/hooks'
 import AlertTriangleIcon from 'ui/src/assets/icons/alert-triangle.svg'
 import { dimensions } from 'ui/src/theme/restyle/sizing'
+import { useUSDCValue } from 'wallet/src/features/routing/useUSDCPrice'
+import { CurrencyField } from 'wallet/src/features/transactions/transactionState/types'
+import { useIsBlockedActiveAddress } from 'wallet/src/features/trm/hooks'
 import { usePrevious } from 'wallet/src/utils/hooks'
 
 interface TransferTokenProps {
@@ -368,8 +366,8 @@ export function TransferTokenForm({
           <Button
             disabled={actionButtonDisabled}
             label={t('Review transfer')}
-            name={ElementName.ReviewTransfer}
             size={ButtonSize.Large}
+            testID={ElementName.ReviewTransfer}
             onPress={onPressReview}
           />
         </AnimatedFlex>

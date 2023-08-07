@@ -22,9 +22,9 @@ export function SearchEtherscanItem({ etherscanResult }: SearchEtherscanItemProp
 
   const { address } = etherscanResult
 
-  const onPressViewEtherscan = (): void => {
+  const onPressViewEtherscan = async (): Promise<void> => {
     const explorerLink = getExplorerLink(ChainId.Mainnet, address, ExplorerDataType.ADDRESS)
-    openUri(explorerLink)
+    await openUri(explorerLink)
     dispatch(
       addToSearchHistory({
         searchResult: etherscanResult,
@@ -36,7 +36,7 @@ export function SearchEtherscanItem({ etherscanResult }: SearchEtherscanItemProp
     <TouchableArea
       hapticFeedback
       hapticStyle={ImpactFeedbackStyle.Light}
-      name={ElementName.SearchEtherscanItem}
+      testID={ElementName.SearchEtherscanItem}
       onPress={onPressViewEtherscan}>
       <Flex
         row
@@ -46,7 +46,7 @@ export function SearchEtherscanItem({ etherscanResult }: SearchEtherscanItemProp
         px="spacing8"
         py="spacing12">
         <Flex centered row gap="spacing12">
-          <EtherscanIcon size={theme.iconSizes.icon40} />
+          <EtherscanIcon height={theme.iconSizes.icon40} width={theme.iconSizes.icon40} />
           <Text variant="bodyLarge">{shortenAddress(address)}</Text>
         </Flex>
         <Arrow color={theme.colors.textSecondary} direction="ne" size={24} />

@@ -1,8 +1,7 @@
 import { CompositeScreenProps } from '@react-navigation/native'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { StackScreenProps } from '@react-navigation/stack'
-import { SharedEventName } from '@uniswap/analytics-events'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Alert } from 'react-native'
 import { useAppTheme } from 'src/app/hooks'
@@ -17,6 +16,7 @@ import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { EducationContentType } from 'src/components/education'
 import { Flex } from 'src/components/layout'
 import { Text } from 'src/components/Text'
+import Trace from 'src/components/Trace/Trace'
 import { isICloudAvailable } from 'src/features/CloudBackup/RNICloudBackupsManager'
 import { OnboardingScreen } from 'src/features/onboarding/OnboardingScreen'
 import { OptionCard } from 'src/features/onboarding/OptionCard'
@@ -29,6 +29,7 @@ import InfoCircle from 'ui/src/assets/icons/info-circle.svg'
 import PaperIcon from 'ui/src/assets/icons/paper-stack.svg'
 import { BackupType } from 'wallet/src/features/wallet/accounts/types'
 import { useActiveAccount } from 'wallet/src/features/wallet/hooks'
+import { useAsyncData } from 'wallet/src/utils/hooks'
 
 type Props = CompositeScreenProps<
   StackScreenProps<OnboardingStackParamList, OnboardingScreens.Backup>,
@@ -39,17 +40,11 @@ export function BackupScreen({ navigation, route: { params } }: Props): JSX.Elem
   const { t } = useTranslation()
   const theme = useAppTheme()
   const { navigate } = useOnboardingStackNavigation()
-  const [iCloudAvailable, setICloudAvailable] = useState<boolean>()
 
-  useEffect(() => {
-    async function checkICloudAvailable(): Promise<void> {
-      const available = await isICloudAvailable()
-      setICloudAvailable(available)
-    }
-    checkICloudAvailable()
-  }, [])
+  const { data: iCloudAvailable } = useAsyncData(isICloudAvailable)
 
-  const activeAccountBackups = useActiveAccount()?.backups
+  const activeAccount = useActiveAccount()
+  const activeAccountBackups = activeAccount?.backups
 
   const renderHeaderLeft = useCallback(
     () => (
@@ -97,9 +92,10 @@ export function BackupScreen({ navigation, route: { params } }: Props): JSX.Elem
       )
       return
     }
+    if (!activeAccount?.address) return
     navigate({
-      name: OnboardingScreens.BackupCloudPassword,
-      params,
+      name: OnboardingScreens.BackupCloudPasswordCreate,
+      params: { ...params, address: activeAccount.address },
       merge: true,
     })
   }
@@ -131,16 +127,16 @@ export function BackupScreen({ navigation, route: { params } }: Props): JSX.Elem
           <OptionCard
             blurb={t('Safe, simple, and all you need to save is your password.')}
             disabled={hasCloudBackup}
+            elementName={ElementName.AddiCloudBackup}
             icon={<CloudIcon color={theme.colors.magentaVibrant} height={theme.iconSizes.icon16} />}
-            name={ElementName.AddiCloudBackup}
             title={t('Backup with iCloud')}
             onPress={onPressICloudBackup}
           />
           <OptionCard
             blurb={t("Top-notch security with no third parties. You're in control.")}
             disabled={hasManualBackup}
+            elementName={ElementName.AddManualBackup}
             icon={<PaperIcon color={theme.colors.magentaVibrant} height={theme.iconSizes.icon16} />}
-            name={ElementName.AddManualBackup}
             title={t('Backup with recovery phrase')}
             onPress={onPressManualBackup}
           />
@@ -159,21 +155,21 @@ export function BackupScreen({ navigation, route: { params } }: Props): JSX.Elem
             </Flex>
           </TouchableArea>
           {showSkipOption && (
-            <Button
-              emphasis={ButtonEmphasis.Tertiary}
-              eventName={SharedEventName.ELEMENT_CLICKED}
-              label={t('I already backed up')}
-              name={ElementName.Next}
-              onPress={onPressNext}
-            />
+            <Trace logPress element={ElementName.Next}>
+              <Button
+                emphasis={ButtonEmphasis.Tertiary}
+                label={t('I already backed up')}
+                onPress={onPressNext}
+              />
+            </Trace>
           )}
-          <Button
-            disabled={disabled}
-            eventName={SharedEventName.ELEMENT_CLICKED}
-            label={disabled ? t('Select backup to continue') : t('Continue')}
-            name={ElementName.Next}
-            onPress={onPressContinue}
-          />
+          <Trace logPress element={ElementName.Next}>
+            <Button
+              disabled={disabled}
+              label={disabled ? t('Select backup to continue') : t('Continue')}
+              onPress={onPressContinue}
+            />
+          </Trace>
         </Flex>
       </Flex>
     </OnboardingScreen>

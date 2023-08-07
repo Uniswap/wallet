@@ -1,9 +1,9 @@
 import type { IconProps } from '@tamagui/helpers-icon'
-import React, { memo } from 'react'
+import { forwardRef, memo } from 'react'
 import { Defs, LinearGradient, Rect, Stop, Svg } from 'react-native-svg'
 import { getTokenValue, isWeb, useTheme } from 'tamagui'
 
-const Icon: React.FC<IconProps> = (props) => {
+const Icon = forwardRef<Svg, IconProps>((props, ref) => {
   // isWeb currentColor to maintain backwards compat a bit better, on native uses theme color
   const {
     color: colorProp = isWeb ? 'currentColor' : undefined,
@@ -13,12 +13,23 @@ const Icon: React.FC<IconProps> = (props) => {
   } = props
   const theme = useTheme()
 
-  const size = typeof sizeProp === 'string' ? getTokenValue(sizeProp, 'size') : sizeProp
+  const size =
+    getTokenValue(
+      // @ts-expect-error it falls back to undefined
+      sizeProp,
+      'size'
+    ) ?? sizeProp
 
   const strokeWidth =
-    typeof strokeWidthProp === 'string' ? getTokenValue(strokeWidthProp, 'size') : strokeWidthProp
+    getTokenValue(
+      // @ts-expect-error it falls back to undefined
+      strokeWidthProp,
+      'size'
+    ) ?? strokeWidthProp
 
-  const color = colorProp ?? theme.color.get()
+  const color =
+    // @ts-expect-error its fine to access colorProp undefined
+    theme[colorProp]?.get() ?? colorProp ?? theme.color.get()
 
   const svgProps = {
     ...restProps,
@@ -28,7 +39,7 @@ const Icon: React.FC<IconProps> = (props) => {
   }
 
   return (
-    <Svg fill="none" height={size} viewBox="0 0 18 17" width={size} {...svgProps}>
+    <Svg ref={ref} fill="none" height={size} viewBox="0 0 18 17" width={size} {...svgProps}>
       <Rect fill="white" height="3.1875" opacity="0.3" rx="1.0625" width="8.46875" y="0.53125" />
       <Rect
         fill="white"
@@ -98,7 +109,7 @@ const Icon: React.FC<IconProps> = (props) => {
       </Defs>
     </Svg>
   )
-}
+})
 
 Icon.displayName = 'SeedPhraseIcon'
 

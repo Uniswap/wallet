@@ -38,6 +38,11 @@ exports[`SeedPhraseInputScreen seed phrase initial screen rendering 1`] = `
   >
     <RCTScrollView
       bounces={false}
+      contentContainerStyle={
+        {
+          "flexGrow": 1,
+        }
+      }
       keyboardShouldPersistTaps="handled"
     >
       <View>
@@ -227,7 +232,6 @@ exports[`SeedPhraseInputScreen seed phrase initial screen rendering 1`] = `
                       blurOnSubmit={true}
                       maxFontSizeMultiplier={1.4}
                       multiline={true}
-                      numberOfLines={4}
                       onBlur={[Function]}
                       onChangeText={[Function]}
                       onFocus={[Function]}
@@ -248,12 +252,13 @@ exports[`SeedPhraseInputScreen seed phrase initial screen rendering 1`] = `
                             "lineHeight": 17,
                             "paddingHorizontal": 0,
                             "paddingVertical": 0,
-                            "textAlign": "left",
+                            "textAlign": "center",
                             "width": 8,
                           },
                         ]
                       }
                       testID="import_account_form/input"
+                      textAlignVertical="bottom"
                     />
                   </View>
                   <View
@@ -524,7 +529,6 @@ exports[`SeedPhraseInputScreen seed phrase initial screen rendering 1`] = `
                       "opacity": 1,
                     }
                   }
-                  testID="recovery-help-button"
                 >
                   <Text
                     allowFontScaling={true}
@@ -593,7 +597,6 @@ exports[`SeedPhraseInputScreen seed phrase initial screen rendering 1`] = `
                   "opacity": 0.4,
                 }
               }
-              testID="next"
             >
               <View
                 sentry-label="Flex"

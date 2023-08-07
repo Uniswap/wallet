@@ -6,6 +6,8 @@ import { SwapModal } from 'src/app/modals/SwapModal'
 import { TransferTokenModal } from 'src/app/modals/TransferTokenModal'
 import { LazyModalRenderer } from 'src/app/modals/utils'
 import { ForceUpgradeModal } from 'src/components/forceUpgrade/ForceUpgradeModal'
+import { RemoveWalletModal } from 'src/components/RemoveWallet/RemoveWalletModal'
+import { RestoreWalletModal } from 'src/components/RestoreWalletModal/RestoreWalletModal'
 import { WalletConnectModals } from 'src/components/WalletConnect/WalletConnectModals'
 import { LockScreenModal } from 'src/features/authentication/LockScreenModal'
 import { FiatOnRampModal } from 'src/features/fiatOnRamp/FiatOnRampModal'
@@ -42,6 +44,14 @@ export function AppModals(): JSX.Element {
 
       <LazyModalRenderer name={ModalName.AccountSwitcher}>
         <AccountSwitcherModal />
+      </LazyModalRenderer>
+
+      <LazyModalRenderer name={ModalName.RemoveWallet}>
+        <RemoveWalletModal />
+      </LazyModalRenderer>
+
+      <LazyModalRenderer name={ModalName.RestoreWallet}>
+        <RestoreWalletModal />
       </LazyModalRenderer>
     </>
   )

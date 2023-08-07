@@ -1,17 +1,22 @@
 import { config } from 'wallet/src/config'
 
+export const UNISWAP_APP_HOSTNAME = 'app.uniswap.org'
+
 export const uniswapUrls = {
   helpUrl: 'https://support.uniswap.org',
   apiBaseUrl: getUniswapApiBaseUrl(),
   appBaseUrl: 'https://uniswap.org/app',
-  gasServiceUrl: getUniswapGasServiceUrl(),
+  gasServicePath: getUniswapGasServicePath(),
   routingApiUrl: getUniswapRoutingApiUrl(),
   graphQLUrl: getUniswapGraphQLUrl(),
-  trmUrl: getUniswapTrmUrl(),
+  trmPath: getUniswapTrmPath(),
   amplitudeProxyUrl: getUniswapAmplitudeProxyUrl(),
   termsOfServiceUrl: 'https://uniswap.org/terms-of-service',
   privacyPolicyUrl: 'https://uniswap.org/privacy-policy',
-  nftUrl: 'https://app.uniswap.org/#/nfts',
+  appUrl: `https://${UNISWAP_APP_HOSTNAME}/#`,
+  interfaceUrl: `https://${UNISWAP_APP_HOSTNAME}/#/swap`,
+  moonpayHelpUrl:
+    'https://support.uniswap.org/hc/en-us/articles/11306574799117-How-to-use-Moon-Pay-on-the-Uniswap-web-app-',
 }
 
 function getUniswapApiBaseUrl(): string {
@@ -22,16 +27,16 @@ function getUniswapRoutingApiUrl(): string {
   return `${config.uniswapApiBaseUrl}/v1`
 }
 
-function getUniswapGasServiceUrl(): string {
-  return `${config.uniswapApiBaseUrl}/v1/gas-fee`
+function getUniswapGasServicePath(): string {
+  return '/v1/gas-fee'
 }
 
 function getUniswapGraphQLUrl(): string {
   return `${config.uniswapApiBaseUrl}/v1/graphql`
 }
 
-function getUniswapTrmUrl(): string {
-  return `${config.uniswapApiBaseUrl}/v1/screen`
+function getUniswapTrmPath(): string {
+  return '/v1/screen'
 }
 
 function getUniswapAmplitudeProxyUrl(): string {
@@ -41,3 +46,5 @@ function getUniswapAmplitudeProxyUrl(): string {
 export const TOKEN_WARNING_HELP_PAGE_URL = `${uniswapUrls.helpUrl}/hc/en-us/articles/8723118437133-What-are-token-warnings-`
 
 export const SWAP_SLIPPAGE_HELP_PAGE_URL = `${uniswapUrls.helpUrl}/hc/en-us/articles/8643879653261-What-is-Price-Slippage-`
+
+export const SUPPORTED_NETWORKS_PAGE_URL = `${uniswapUrls.helpUrl}/hc/en-us/articles/14569415293325`

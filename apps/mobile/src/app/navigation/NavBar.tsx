@@ -4,7 +4,7 @@ import { SharedEventName } from '@uniswap/analytics-events'
 import { impactAsync } from 'expo-haptics'
 import React, { memo, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { StyleSheet } from 'react-native'
+import { Dimensions, StyleSheet } from 'react-native'
 import { TapGestureHandler, TapGestureHandlerGestureEvent } from 'react-native-gesture-handler'
 import {
   cancelAnimation,
@@ -12,17 +12,16 @@ import {
   useAnimatedGestureHandler,
   useAnimatedStyle,
   useSharedValue,
-  withSequence,
-  withSpring,
-  WithSpringConfig,
 } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg'
 import { useAppDispatch, useAppTheme } from 'src/app/hooks'
 import { TouchableArea } from 'src/components/buttons/TouchableArea'
+import { pulseAnimation } from 'src/components/buttons/utils'
 import { GradientBackground } from 'src/components/gradients/GradientBackground'
 import { AnimatedBox, AnimatedFlex, Box, Flex } from 'src/components/layout'
 import { Text } from 'src/components/Text'
+import { IS_ANDROID } from 'src/constants/globals'
 import { useIsDarkMode } from 'src/features/appearance/hooks'
 import { openModal } from 'src/features/modals/modalSlice'
 import { sendAnalyticsEvent } from 'src/features/telemetry'
@@ -40,17 +39,6 @@ export const NAV_BAR_HEIGHT_SM = 72
 export const SWAP_BUTTON_HEIGHT = 56
 const SWAP_BUTTON_SHADOW_OFFSET: ShadowProps<Theme>['shadowOffset'] = { width: 0, height: 4 }
 
-function pulseAnimation(
-  activeScale: number,
-  spingAnimationConfig: WithSpringConfig = { damping: 1, stiffness: 200 }
-): number {
-  'worklet'
-  return withSequence(
-    withSpring(activeScale, spingAnimationConfig),
-    withSpring(1, spingAnimationConfig)
-  )
-}
-
 function sendSwapPressAnalyticsEvent(): void {
   sendAnalyticsEvent(SharedEventName.ELEMENT_CLICKED, {
     screen: Screens.Home,
@@ -58,10 +46,11 @@ function sendSwapPressAnalyticsEvent(): void {
   })
 }
 
-export const NavBar = (): JSX.Element => {
+export function NavBar(): JSX.Element {
   const insets = useSafeAreaInsets()
   const theme = useAppTheme()
   const isDarkMode = useIsDarkMode()
+  const screenHeight = Dimensions.get('screen').height
 
   const BUTTONS_OFFSET =
     useResponsiveProp({ xs: theme.spacing.spacing24, sm: theme.spacing.none }) ?? theme.spacing.none
@@ -70,7 +59,7 @@ export const NavBar = (): JSX.Element => {
     <>
       <Box pointerEvents="none" style={StyleSheet.absoluteFill}>
         <GradientBackground overflow="hidden">
-          <Svg height="100%" opacity={isDarkMode ? '1' : '0.3'} width="100%">
+          <Svg height={screenHeight} opacity={isDarkMode ? '1' : '0.3'} width="100%">
             <Defs>
               <LinearGradient id="background" x1="0%" x2="0%" y1="85%" y2="100%">
                 <Stop offset="0" stopColor={theme.colors.black} stopOpacity="0" />
@@ -98,6 +87,7 @@ export const NavBar = (): JSX.Element => {
           flex={1}
           gap="spacing12"
           justifyContent="space-between"
+          mb={IS_ANDROID ? 'spacing8' : 'none'}
           mx="spacing24"
           pointerEvents="auto">
           <ExploreTabBarButton />
@@ -116,7 +106,7 @@ type SwapTabBarButtonProps = {
   activeScale?: number
 }
 
-const SwapFAB = memo(({ activeScale = 0.96 }: SwapTabBarButtonProps) => {
+const SwapFAB = memo(function _SwapFAB({ activeScale = 0.96 }: SwapTabBarButtonProps) {
   const { t } = useTranslation()
   const dispatch = useAppDispatch()
 
@@ -126,15 +116,15 @@ const SwapFAB = memo(({ activeScale = 0.96 }: SwapTabBarButtonProps) => {
   const activeAccountAddress = useActiveAccountAddressWithThrow()
   const inputCurrencyId = useHighestBalanceNativeCurrencyId(activeAccountAddress)
 
-  const onPress = useCallback(() => {
-    impactAsync()
-
+  const onPress = useCallback(async () => {
     dispatch(
       openModal({
         name: ModalName.Swap,
         initialState: prepareSwapFormState({ inputCurrencyId }),
       })
     )
+
+    await impactAsync()
   }, [dispatch, inputCurrencyId])
 
   const scale = useSharedValue(1)

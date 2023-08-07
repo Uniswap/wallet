@@ -43,6 +43,7 @@ import {
   v42Schema,
   v43Schema,
   v44Schema,
+  v45Schema,
   v4Schema,
   v5Schema,
   v6Schema,
@@ -61,13 +62,12 @@ import { initialModalState } from 'src/features/modals/modalSlice'
 import { ModalName } from 'src/features/telemetry/constants'
 import { initialTelemetryState } from 'src/features/telemetry/slice'
 import { initialTokensState } from 'src/features/tokens/tokensSlice'
-import { initialTransactionsState, TransactionState } from 'src/features/transactions/slice'
+import { initialTransactionsState, TransactionStateMap } from 'src/features/transactions/slice'
 import { initialWalletConnectState } from 'src/features/walletConnect/walletConnectSlice'
 import { account, fiatOnRampTxDetailsFailed, txDetailsConfirmed } from 'src/test/fixtures'
 import { SWAP_ROUTER_ADDRESSES } from 'wallet/src/constants/addresses'
 import { ChainId } from 'wallet/src/constants/chains'
 import { ChainsState, initialChainsState } from 'wallet/src/features/chains/slice'
-import { ensApi } from 'wallet/src/features/ens/api'
 import { initialNotificationsState } from 'wallet/src/features/notifications/slice'
 import {
   TransactionDetails,
@@ -81,7 +81,7 @@ import {
 } from 'wallet/src/features/wallet/accounts/types'
 import { initialWalletState } from 'wallet/src/features/wallet/slice'
 
-// helps with object assignement
+// helps with object assignment
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getAllKeysOfNestedObject = (obj: any, prefix = ''): string[] => {
   const keys = Object.keys(obj)
@@ -675,7 +675,7 @@ describe('Redux state migrations', () => {
     const RINKEBY = 4 as ChainId
     const KOVAN = 42 as ChainId
 
-    const transactions: TransactionState = {
+    const transactions: TransactionStateMap = {
       [TEST_ADDRESS]: {
         [ChainId.Mainnet]: {
           '0': txDetails0,
@@ -974,11 +974,11 @@ describe('Redux state migrations', () => {
   })
 
   it('migrates from v31 to 32', () => {
-    const v31Stub = { ...v31Schema, [ensApi.reducerPath]: 'defined' }
+    const v31Stub = { ...v31Schema, ENS: 'defined' }
 
     const v32 = migrations[32](v31Stub)
 
-    expect(v32[ensApi.reducerPath]).toBe(undefined)
+    expect(v32.ENS).toBe(undefined)
   })
 
   it('migrates from v32 to 33', () => {
@@ -1142,5 +1142,17 @@ describe('Redux state migrations', () => {
     const v45 = migrations[45](v44Stub)
 
     expect(v45.favorites.tokensVisibility).toEqual({})
+  })
+
+  it('migrates from v45 to 46', () => {
+    const v45Stub = { ...v45Schema }
+    const v46 = migrations[46](v45Stub)
+
+    expect(v46.ENS).toBeUndefined()
+    expect(v46.ens).toBeUndefined()
+    expect(v46.gasApi).toBeUndefined()
+    expect(v46.onChainBalanceApi).toBeUndefined()
+    expect(v46.routingApi).toBeUndefined()
+    expect(v46.trmApi).toBeUndefined()
   })
 })

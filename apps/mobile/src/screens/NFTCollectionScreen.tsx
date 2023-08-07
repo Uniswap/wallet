@@ -7,15 +7,14 @@ import { ListRenderItemInfo } from 'react-native'
 import { useAnimatedScrollHandler, useSharedValue, withTiming } from 'react-native-reanimated'
 import { AppStackScreenProp, useAppStackNavigation } from 'src/app/navigation/types'
 import { TouchableArea } from 'src/components/buttons/TouchableArea'
-import { NFTViewer } from 'src/components/images/NFTViewer'
 import { Box, Flex } from 'src/components/layout'
 import { AnimatedFlashList } from 'src/components/layout/AnimatedFlashList'
 import { BaseCard } from 'src/components/layout/BaseCard'
 import { Screen } from 'src/components/layout/Screen'
 import { ScrollHeader } from 'src/components/layout/screens/ScrollHeader'
 import { Loader } from 'src/components/loading'
-import { Trace } from 'src/components/telemetry/Trace'
 import { Text } from 'src/components/Text'
+import Trace from 'src/components/Trace/Trace'
 import { ListPriceBadge } from 'src/features/nfts/collection/ListPriceCard'
 import { NFTCollectionContextMenu } from 'src/features/nfts/collection/NFTCollectionContextMenu'
 import {
@@ -28,12 +27,12 @@ import { ExploreModalAwareView } from 'src/screens/ModalAwareView'
 import { Screens } from 'src/screens/Screens'
 import { dimensions } from 'ui/src/theme/restyle/sizing'
 import { theme } from 'ui/src/theme/restyle/theme'
-import { EMPTY_ARRAY } from 'wallet/src/constants/misc'
 import { isError } from 'wallet/src/data/utils'
 import {
   NftCollectionScreenQuery,
   useNftCollectionScreenQuery,
 } from 'wallet/src/data/__generated__/types-and-hooks'
+import { NFTViewer } from 'wallet/src/features/images/NFTViewer'
 
 const PREFETCH_ITEMS_THRESHOLD = 0.5
 const ASSET_FETCH_PAGE_SIZE = 30
@@ -41,16 +40,16 @@ const ESTIMATED_ITEM_SIZE = 104 // heuristic provided by FlashList
 
 const LOADING_ITEM = 'loading'
 const LOADING_BUFFER_AMOUNT = 9
-const LOADING_ITEMS_ARRAY = Array(LOADING_BUFFER_AMOUNT).fill(LOADING_ITEM)
+const LOADING_ITEMS_ARRAY: NFTItem[] = Array(LOADING_BUFFER_AMOUNT).fill(LOADING_ITEM)
 
 const keyExtractor = (item: NFTItem | string, index: number): string =>
   typeof item === 'string'
     ? `${LOADING_ITEM}-${index}`
     : getNFTAssetKey(item.contractAddress ?? '', item.tokenId ?? '')
 
-function gqlNFTAssetToNFTItem(data: NftCollectionScreenQuery | undefined): NFTItem[] {
+function gqlNFTAssetToNFTItem(data: NftCollectionScreenQuery | undefined): NFTItem[] | undefined {
   const items = data?.nftAssets?.edges?.flatMap((item) => item.node)
-  if (!items) return EMPTY_ARRAY
+  if (!items) return
 
   return items.map((item): NFTItem => {
     return {
@@ -86,19 +85,17 @@ export function NFTCollectionScreen({
 
   // Parse response for overview data and collection grid data
   const collectionData = data?.nftCollections?.edges?.[0]?.node
-  const collectionItems = useMemo(() => {
-    return gqlNFTAssetToNFTItem(data)
-  }, [data])
+  const collectionItems = useMemo(() => gqlNFTAssetToNFTItem(data), [data])
 
   // Fill in grid with loading boxes if we have incomplete data and are loading more
   const extraLoadingItemAmount =
     networkStatus === NetworkStatus.fetchMore || networkStatus === NetworkStatus.loading
-      ? LOADING_BUFFER_AMOUNT + (3 - (collectionItems.length % 3))
+      ? LOADING_BUFFER_AMOUNT + (3 - ((collectionItems ?? []).length % 3))
       : undefined
 
-  const onListEndReached = useCallback(() => {
+  const onListEndReached = useCallback(async () => {
     if (!data?.nftAssets?.pageInfo?.hasNextPage) return
-    fetchMore({
+    await fetchMore({
       variables: {
         first: ASSET_FETCH_PAGE_SIZE,
         after: data?.nftAssets?.pageInfo?.endCursor,
@@ -122,10 +119,10 @@ export function NFTCollectionScreen({
 
   const onPressItem = (asset: NFTItem): void => {
     navigation.push(Screens.NFTItem, {
-      owner: asset.ownerAddress ?? '',
       address: asset.contractAddress ?? '',
       tokenId: asset.tokenId ?? '',
       isSpam: asset.isSpam ?? false,
+      fallbackData: asset,
     })
   }
 
@@ -193,13 +190,13 @@ export function NFTCollectionScreen({
   const gridDataLoading = networkStatus === NetworkStatus.loading && !collectionItems
 
   const gridDataWithLoadingElements = useMemo(() => {
-    if (gridDataLoading) {
-      return LOADING_ITEMS_ARRAY
-    }
-    if (extraLoadingItemAmount) {
-      return [...collectionItems, ...Array(extraLoadingItemAmount).fill(LOADING_ITEM)]
-    }
-    return collectionItems
+    if (gridDataLoading) return LOADING_ITEMS_ARRAY
+
+    const extraLoadingItems: NFTItem[] = extraLoadingItemAmount
+      ? Array(extraLoadingItemAmount).fill(LOADING_ITEM)
+      : []
+
+    return [...(collectionItems ?? []), ...extraLoadingItems]
   }, [collectionItems, extraLoadingItemAmount, gridDataLoading])
 
   const traceProperties = useMemo(
@@ -212,7 +209,7 @@ export function NFTCollectionScreen({
 
   if (isError(networkStatus, !!data)) {
     return (
-      <Screen edges={[]}>
+      <Screen noInsets={true}>
         <Flex grow>
           <NFTCollectionHeader data={undefined} loading={true} />
           <BaseCard.ErrorState
@@ -233,7 +230,7 @@ export function NFTCollectionScreen({
         logImpression={!!traceProperties}
         properties={traceProperties}
         screen={Screens.NFTCollection}>
-        <Screen edges={EMPTY_ARRAY}>
+        <Screen noInsets={true}>
           <ScrollHeader
             fullScreen
             centerElement={

@@ -15,7 +15,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useAppDispatch, useAppTheme } from 'src/app/hooks'
 import { Button, ButtonEmphasis, ButtonSize } from 'src/components/buttons/Button'
 import { TouchableArea } from 'src/components/buttons/TouchableArea'
-import { CurrencyLogo } from 'src/components/CurrencyLogo'
 import { Chevron } from 'src/components/icons/Chevron'
 import { AmountInput } from 'src/components/input/AmountInput'
 import { DecimalPad } from 'src/components/input/DecimalPad'
@@ -27,12 +26,13 @@ import { BottomSheetModal } from 'src/components/modals/BottomSheetModal'
 import { Text } from 'src/components/Text'
 import { Pill } from 'src/components/text/Pill'
 import { FiatOnRampTokenSelector } from 'src/components/TokenSelector/FiatOnRampTokenSelector'
+import Trace from 'src/components/Trace/Trace'
 import { FiatOnRampConnectingView } from 'src/features/fiatOnRamp/FiatOnRampConnecting'
 import { useMoonpayFiatOnRamp } from 'src/features/fiatOnRamp/hooks'
 import { closeModal } from 'src/features/modals/modalSlice'
 import { sendAnalyticsEvent } from 'src/features/telemetry'
 import { ElementName, MobileEventName, ModalName } from 'src/features/telemetry/constants'
-import { EventProperties } from 'src/features/telemetry/types'
+import { MobileEventProperties } from 'src/features/telemetry/types'
 import { useDynamicFontSizing, useShouldShowNativeKeyboard } from 'src/features/transactions/hooks'
 import { ANIMATE_SPRING_CONFIG } from 'src/features/transactions/utils'
 import { openUri } from 'src/utils/linking'
@@ -41,6 +41,7 @@ import { iconSizes } from 'ui/src/theme/iconSizes'
 import { dimensions } from 'ui/src/theme/restyle/sizing'
 import { Theme } from 'ui/src/theme/restyle/theme'
 import { spacing } from 'ui/src/theme/spacing'
+import { CurrencyLogo } from 'wallet/src/components/CurrencyLogo/CurrencyLogo'
 import { NATIVE_ADDRESS } from 'wallet/src/constants/addresses'
 import { ChainId } from 'wallet/src/constants/chains'
 import { CurrencyInfo } from 'wallet/src/features/dataApi/types'
@@ -127,9 +128,9 @@ export function FiatOnRampModal(): JSX.Element {
   })
 
   useTimeout(
-    () => {
+    async () => {
       if (fiatOnRampHostUrl) {
-        openUri(fiatOnRampHostUrl)
+        await openUri(fiatOnRampHostUrl)
         dispatchAddTransaction()
         onClose()
       }
@@ -158,7 +159,7 @@ export function FiatOnRampModal(): JSX.Element {
   }
 
   const onChangeValue =
-    (source: EventProperties[MobileEventName.FiatOnRampAmountEntered]['source']) =>
+    (source: MobileEventProperties[MobileEventName.FiatOnRampAmountEntered]['source']) =>
     (newAmount: string): void => {
       sendAnalyticsEvent(MobileEventName.FiatOnRampAmountEntered, { source })
       onSetFontSize(newAmount)
@@ -301,11 +302,11 @@ export function FiatOnRampModal(): JSX.Element {
                 eligible={eligible}
                 isLoading={isLoading}
                 properties={{ externalTransactionId }}
-                onPress={(): void => {
+                onPress={async (): Promise<void> => {
                   if (eligible) {
                     setShowConnectingToMoonpayScreen(true)
                   } else {
-                    openUri(MOONPAY_UNSUPPORTED_REGION_HELP_URL)
+                    await openUri(MOONPAY_UNSUPPORTED_REGION_HELP_URL)
                   }
                 }}
               />
@@ -350,25 +351,32 @@ function MoonpayCtaButton({
   const theme = useAppTheme()
   const { t } = useTranslation()
   return (
-    <Button
-      CustomIcon={
-        isLoading ? (
-          <SpinningLoader color="textOnBrightPrimary" />
-        ) : !eligible ? (
-          <InformationIcon color={theme.colors.textPrimary} width={theme.iconSizes.icon20} />
-        ) : undefined
-      }
-      disabled={disabled}
-      emphasis={!isLoading && !eligible ? ButtonEmphasis.Secondary : ButtonEmphasis.Primary}
-      eventName={MobileEventName.FiatOnRampWidgetOpened}
-      label={
-        isLoading ? undefined : eligible ? t('Continue to checkout') : t('Not supported in region')
-      }
-      name={ElementName.FiatOnRampWidgetButton}
-      properties={properties}
-      size={ButtonSize.Large}
-      onPress={onPress}
-    />
+    <Trace
+      logPress
+      element={ElementName.FiatOnRampWidgetButton}
+      pressEvent={MobileEventName.FiatOnRampWidgetOpened}
+      properties={properties}>
+      <Button
+        CustomIcon={
+          isLoading ? (
+            <SpinningLoader color="textOnBrightPrimary" />
+          ) : !eligible ? (
+            <InformationIcon color={theme.colors.textPrimary} width={theme.iconSizes.icon20} />
+          ) : undefined
+        }
+        disabled={disabled}
+        emphasis={!isLoading && !eligible ? ButtonEmphasis.Secondary : ButtonEmphasis.Primary}
+        label={
+          isLoading
+            ? undefined
+            : eligible
+            ? t('Continue to checkout')
+            : t('Not supported in region')
+        }
+        size={ButtonSize.Large}
+        onPress={onPress}
+      />
+    </Trace>
   )
 }
 
@@ -419,7 +427,7 @@ function SelectTokenButton({
     <TouchableArea
       hapticFeedback
       borderRadius="roundedFull"
-      name={ElementName.TokenSelectorToggle}
+      testID={ElementName.TokenSelectorToggle}
       onPress={onPress}>
       <Flex centered row flexDirection="row" gap="spacing4" p="spacing4">
         {loading ? (

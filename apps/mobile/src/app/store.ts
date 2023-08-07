@@ -6,11 +6,8 @@ import { persistReducer, persistStore, Storage } from 'redux-persist'
 import createMigrate from 'src/app/createMigrate'
 import { migrations } from 'src/app/migrations'
 import { fiatOnRampApi } from 'src/features/fiatOnRamp/api'
-import { importAccountSagaName } from 'src/features/import/importAccountSaga'
-import { routingApi } from 'src/features/routing/routingApi'
-import { trmApi } from 'src/features/trm/api'
-import { ensApi } from 'wallet/src/features/ens/api'
 import { logger } from 'wallet/src/features/logger/logger'
+import { importAccountSagaName } from 'wallet/src/features/wallet/import/importAccountSaga'
 import { createStore } from 'wallet/src/state'
 import { RootReducerNames } from 'wallet/src/state/reducer'
 import { isNonJestDev } from 'wallet/src/utils/environment'
@@ -34,38 +31,25 @@ export const reduxStorage: Storage = {
   },
 }
 
-// list of apis to ignore when logging errors, i.e. logging is handled by api
-const rtkQueryErrorLoggerIgnoreList: Array<ReducerNames> = [
-  ensApi.reducerPath, // verbose
-  routingApi.reducerPath, // verbose, handled in routing hook
-]
 const rtkQueryErrorLogger: Middleware = () => (next) => (action: PayloadAction<unknown>) => {
   if (!isRejectedWithValue(action)) {
     return next(action)
   }
 
-  const shouldSkipErrorLogging = rtkQueryErrorLoggerIgnoreList.some((reducerName) =>
-    action.type.startsWith(reducerName)
-  )
-  if (shouldSkipErrorLogging) {
-    // still log in debug to ensure those errors are surfaced, but avoids polluting sentry
-    logger.debug('store', 'rtkQueryErrorLogger', JSON.stringify(action))
-  } else {
-    logger.error(action.error, {
-      tags: {
-        file: 'store',
-        function: 'rtkQueryErrorLogger',
-        error: JSON.stringify({
-          type: action.type,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          endpointName: (action.meta as any)?.arg?.endpointName,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          status: (action.payload as any)?.status,
-          error: action.error,
-        }),
-      },
-    })
-  }
+  logger.error(action.error, {
+    tags: {
+      file: 'store',
+      function: 'rtkQueryErrorLogger',
+      error: JSON.stringify({
+        type: action.type,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        endpointName: (action.meta as any)?.arg?.endpointName,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        status: (action.payload as any)?.status,
+        error: action.error,
+      }),
+    },
+  })
 
   return next(action)
 }
@@ -82,15 +66,13 @@ const whitelist: Array<ReducerNames | RootReducerNames> = [
   'tokens',
   'transactions',
   'wallet',
-  ensApi.reducerPath,
-  trmApi.reducerPath,
 ]
 
 export const persistConfig = {
   key: 'root',
   storage: reduxStorage,
   whitelist,
-  version: 45,
+  version: 46,
   migrate: createMigrate(migrations),
 }
 
@@ -122,14 +104,7 @@ export const setupStore = (
     reducer: persistedReducer,
     preloadedState,
     additionalSagas: [mobileSaga],
-    middlewareAfter: [
-      ensApi.middleware,
-      fiatOnRampApi.middleware,
-      routingApi.middleware,
-      rtkQueryErrorLogger,
-      trmApi.middleware,
-      ...middlewares,
-    ],
+    middlewareAfter: [fiatOnRampApi.middleware, rtkQueryErrorLogger, ...middlewares],
     enhancers: [sentryReduxEnhancer],
   })
 }

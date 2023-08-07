@@ -11,7 +11,6 @@ import { selectActiveAccountNotifications } from 'src/features/notifications/sel
 import { useSortedPendingTransactions } from 'src/features/transactions/hooks'
 import AlertCircle from 'ui/src/assets/icons/alert-circle.svg'
 import { theme as FixedTheme } from 'ui/src/theme/restyle/theme'
-import { EMPTY_ARRAY } from 'wallet/src/constants/misc'
 import { AppNotificationType } from 'wallet/src/features/notifications/types'
 import { TransactionStatus } from 'wallet/src/features/transactions/types'
 import { selectActiveAccountAddress } from 'wallet/src/features/wallet/selectors'
@@ -29,15 +28,14 @@ export function PendingNotificationBadge({
   const theme = useAppTheme()
   const activeAccountAddress = useAppSelector(selectActiveAccountAddress)
   const notifications = useAppSelector(selectActiveAccountNotifications)
-  const sortedPendingTransactions =
-    useSortedPendingTransactions(activeAccountAddress) || EMPTY_ARRAY
+  const sortedPendingTransactions = useSortedPendingTransactions(activeAccountAddress)
   const hasNotifications = useSelectAddressHasNotifications(activeAccountAddress)
 
   const { preload, navigate } = useEagerActivityNavigation()
 
   /*************** In-app txn confirmed  **************/
 
-  const currentNotification = notifications[0]
+  const currentNotification = notifications?.[0]
   if (currentNotification?.type === AppNotificationType.Transaction) {
     const { txStatus } = currentNotification
     if (txStatus === TransactionStatus.Success) {
@@ -57,9 +55,9 @@ export function PendingNotificationBadge({
 
   /*************** Pending in-app txn  **************/
 
-  const pendingTransactionCount = sortedPendingTransactions.length
+  const pendingTransactionCount = (sortedPendingTransactions ?? []).length
   const txPendingLongerThanLimit =
-    sortedPendingTransactions[0] &&
+    sortedPendingTransactions?.[0] &&
     Date.now() - sortedPendingTransactions[0].addedTime > PENDING_TX_TIME_LIMIT
 
   // If a transaction has been pending for longer than 5 mins, then don't show the pending icon anymore
@@ -70,8 +68,8 @@ export function PendingNotificationBadge({
       <TouchableArea
         position="relative"
         onPress={activeAccountAddress ? navigate : (): void => undefined}
-        onPressIn={(): void | null =>
-          activeAccountAddress ? preload(activeAccountAddress) : null
+        onPressIn={async (): Promise<void | null> =>
+          activeAccountAddress ? await preload(activeAccountAddress) : null
         }>
         <Box
           alignItems="center"
@@ -90,8 +88,8 @@ export function PendingNotificationBadge({
   }
 
   /**
-   Has unchecked notification status (triggered by Transaction history updater or transaction watcher saga). 
-   Aka, will flip status to true when any local or remote transaction is confirmed. 
+   Has unchecked notification status (triggered by Transaction history updater or transaction watcher saga).
+   Aka, will flip status to true when any local or remote transaction is confirmed.
   **/
 
   if (hasNotifications) {
