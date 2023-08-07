@@ -1,6 +1,5 @@
 import React, { PropsWithChildren, ReactNode } from 'react'
 import { useAppTheme } from 'src/app/hooks'
-import { AppTFunction } from 'src/app/i18n'
 import { Button, ButtonEmphasis } from 'src/components/buttons/Button'
 import { Flex } from 'src/components/layout'
 import { BottomSheetModal } from 'src/components/modals/BottomSheetModal'
@@ -10,7 +9,6 @@ import { useBiometricAppSettings, useBiometricPrompt } from 'src/features/biomet
 import { ElementName, ModalName } from 'src/features/telemetry/constants'
 import AlertTriangleIcon from 'ui/src/assets/icons/alert-triangle.svg'
 import { opacify } from 'ui/src/theme/color/utils'
-import { AccountType } from 'wallet/src/features/wallet/accounts/types'
 
 export type WarningModalProps = {
   onClose?: () => void
@@ -26,17 +24,6 @@ export type WarningModalProps = {
   isDismissible?: boolean
   hideHandlebar?: boolean
   icon?: ReactNode
-}
-
-export function captionForAccountRemovalWarning(accountType: AccountType, t: AppTFunction): string {
-  switch (accountType) {
-    case AccountType.Readonly:
-      return t('This action will remove this view-only wallet from appearing in your app.')
-    case AccountType.SignerMnemonic:
-      return t(
-        'This action will only remove your wallet from appearing in Uniswap Wallet. Your recovery phrase will remain stored until you delete the app.'
-      )
-  }
 }
 
 export default function WarningModal({
@@ -58,9 +45,9 @@ export default function WarningModal({
   const { requiredForTransactions } = useBiometricAppSettings()
   const { trigger } = useBiometricPrompt(onConfirm)
 
-  const onPressConfirm = (): void => {
+  const onPressConfirm = async (): Promise<void> => {
     if (requiredForTransactions && useBiometric) {
-      trigger()
+      await trigger()
     } else {
       onConfirm?.()
     }
@@ -116,7 +103,7 @@ export default function WarningModal({
               fill
               emphasis={alertColor.buttonEmphasis}
               label={confirmText}
-              name={ElementName.Confirm}
+              testID={ElementName.Confirm}
               onPress={onPressConfirm}
             />
           )}

@@ -1,10 +1,9 @@
-import { BigintIsh, Currency, CurrencyAmount, TradeType } from '@uniswap/sdk-core'
+import { Currency, TradeType } from '@uniswap/sdk-core'
 import { i18n } from 'src/app/i18n'
 import { SpotPrice } from 'src/features/dataApi/spotPricesQuery'
 import { GQLNftAsset } from 'src/features/nfts/hooks'
 import { CHAIN_INFO } from 'wallet/src/constants/chains'
 import { AssetType } from 'wallet/src/entities/assets'
-import { logger } from 'wallet/src/features/logger/logger'
 import {
   AppNotificationType,
   ReceiveCurrencyTxNotification,
@@ -19,10 +18,9 @@ import {
 } from 'wallet/src/features/transactions/types'
 import { WalletConnectEvent } from 'wallet/src/features/walletConnect/types'
 import { getValidAddress, shortenAddress } from 'wallet/src/utils/addresses'
-import { convertScientificNotationToNumber } from 'wallet/src/utils/convertScientificNotation'
+import { getCurrencyDisplayText, getFormattedCurrencyAmount } from 'wallet/src/utils/currency'
 import { currencyIdToAddress } from 'wallet/src/utils/currencyId'
-import { formatCurrencyAmount, formatUSDPrice } from 'wallet/src/utils/format'
-import serializeError from 'wallet/src/utils/serializeError'
+import { formatUSDPrice } from 'wallet/src/utils/format'
 
 export const formWCNotificationTitle = (appNotification: WalletConnectNotification): string => {
   const { event, dappName, chainId } = appNotification
@@ -52,20 +50,20 @@ export const formApproveNotificationTitle = (
   tokenAddress: Address,
   spender: Address
 ): string => {
-  const currencySymbol = getCurrencySymbol(currency, tokenAddress)
+  const currencyDisplayText = getCurrencyDisplayText(currency, tokenAddress)
   const address = shortenAddress(spender)
   return txStatus === TransactionStatus.Success
     ? i18n.t('Approved {{currencySymbol}} for use with {{address}}.', {
-        currencySymbol,
+        currencySymbol: currencyDisplayText,
         address,
       })
     : txStatus === TransactionStatus.Cancelled
     ? i18n.t('Canceled {{currencySymbol}} approve.', {
-        currencySymbol,
+        currencySymbol: currencyDisplayText,
         address,
       })
     : i18n.t('Failed to approve {{currencySymbol}} for use with {{address}}.', {
-        currencySymbol,
+        currencySymbol: currencyDisplayText,
         address,
       })
 }
@@ -80,8 +78,11 @@ export const formSwapNotificationTitle = (
   inputCurrencyAmountRaw: string,
   outputCurrencyAmountRaw: string
 ): string => {
-  const inputCurrencySymbol = getCurrencySymbol(inputCurrency, currencyIdToAddress(inputCurrencyId))
-  const outputCurrencySymbol = getCurrencySymbol(
+  const inputCurrencySymbol = getCurrencyDisplayText(
+    inputCurrency,
+    currencyIdToAddress(inputCurrencyId)
+  )
+  const outputCurrencySymbol = getCurrencyDisplayText(
     outputCurrency,
     currencyIdToAddress(outputCurrencyId)
   )
@@ -168,7 +169,7 @@ export const formTransferCurrencyNotificationTitle = (
   currencyAmountRaw: string,
   senderOrRecipient: string
 ): string => {
-  const currencySymbol = getCurrencySymbol(currency, tokenAddress)
+  const currencySymbol = getCurrencyDisplayText(currency, tokenAddress)
   const amount = getFormattedCurrencyAmount(currency, currencyAmountRaw)
   const shortenedAddressOrENS = getShortenedAddressOrEns(senderOrRecipient)
   return formTransferTxTitle(txType, txStatus, `${amount}${currencySymbol}`, shortenedAddressOrENS)
@@ -282,33 +283,6 @@ export const createBalanceUpdate = ({
   }
 }
 
-export const getFormattedCurrencyAmount = (
-  currency: Maybe<Currency>,
-  currencyAmountRaw: string,
-  isApproximateAmount = false
-): string => {
-  if (!currency) return ''
-
-  try {
-    // Convert scientific notation into number format so it can be parsed by BigInt properly
-    const parsedCurrencyAmountRaw: string | BigintIsh =
-      convertScientificNotationToNumber(currencyAmountRaw)
-
-    const currencyAmount = CurrencyAmount.fromRawAmount<Currency>(currency, parsedCurrencyAmountRaw)
-    const formattedAmount = formatCurrencyAmount(currencyAmount)
-    return isApproximateAmount ? `~${formattedAmount} ` : `${formattedAmount} `
-  } catch (error) {
-    logger.error('Could not format currency amount', {
-      tags: {
-        file: 'notifications/utils',
-        function: 'getFormattedCurrencyAmount',
-        error: serializeError(error),
-      },
-    })
-    return ''
-  }
-}
-
 const getUSDValue = (
   spotPrice: SpotPrice | undefined,
   currencyAmountRaw: string,
@@ -319,17 +293,6 @@ const getUSDValue = (
 
   const usdValue = (Number(currencyAmountRaw) / 10 ** currency.decimals) * price
   return formatUSDPrice(usdValue)
-}
-
-export const getCurrencySymbol = (
-  currency: Maybe<Currency>,
-  tokenAddressString: Address | undefined
-): string | undefined => {
-  return currency?.symbol
-    ? currency.symbol
-    : tokenAddressString && getValidAddress(tokenAddressString, true)
-    ? shortenAddress(tokenAddressString)
-    : tokenAddressString
 }
 
 const getShortenedAddressOrEns = (addressOrENS: string): string => {

@@ -1,6 +1,4 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
-import { useResponsiveProp } from '@shopify/restyle'
-import { SharedEventName } from '@uniswap/analytics-events'
 import { TFunction } from 'i18next'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
@@ -8,20 +6,19 @@ import { Alert } from 'react-native'
 import { useAppDispatch, useAppTheme } from 'src/app/hooks'
 import { OnboardingStackParamList } from 'src/app/navigation/types'
 import { TouchableArea } from 'src/components/buttons/TouchableArea'
-import { Box, Flex } from 'src/components/layout'
+import { Flex } from 'src/components/layout'
 import { Text } from 'src/components/Text'
+import Trace from 'src/components/Trace/Trace'
 import { isICloudAvailable } from 'src/features/CloudBackup/RNICloudBackupsManager'
-import { createAccountActions } from 'src/features/onboarding/create/createAccountSaga'
 import { OnboardingScreen } from 'src/features/onboarding/OnboardingScreen'
+import { OptionCard } from 'src/features/onboarding/OptionCard'
 import { ImportType, OnboardingEntryPoint } from 'src/features/onboarding/utils'
-import { sendAnalyticsEvent } from 'src/features/telemetry'
 import { ElementName } from 'src/features/telemetry/constants'
 import { OnboardingScreens } from 'src/screens/Screens'
 import { openSettings } from 'src/utils/linking'
 import { useAddBackButton } from 'src/utils/useAddBackButton'
-import ImportIcon from 'ui/src/assets/icons/arrow-rightwards-down.svg'
 import EyeIcon from 'ui/src/assets/icons/eye.svg'
-import SeedPhraseIcon from 'ui/src/assets/icons/pencil.svg'
+import ImportIcon from 'ui/src/assets/icons/paper-stack.svg'
 import { Theme } from 'ui/src/theme/restyle/theme'
 import {
   PendingAccountActions,
@@ -35,38 +32,31 @@ interface ImportMethodOption {
   nav: OnboardingScreens
   importType: ImportType
   name: ElementName
+  badgeText?: (t: TFunction) => string
 }
 
 const options: ImportMethodOption[] = [
   {
-    title: (t: TFunction) => t('Import my wallet'),
-    blurb: (t: TFunction) => t('Enter your recovery phrase'),
+    title: (t: TFunction) => t('Import a wallet'),
+    blurb: (t: TFunction) => t('Enter your recovery phrase from another crypto wallet'),
     icon: (theme: Theme) => (
-      <ImportIcon color={theme.colors.textPrimary} height={18} strokeWidth="1.5" width={18} />
+      <ImportIcon color={theme.colors.magentaVibrant} height={18} strokeWidth="1.5" width={18} />
     ),
     nav: OnboardingScreens.SeedPhraseInput,
     importType: ImportType.SeedPhrase,
     name: ElementName.OnboardingImportSeedPhrase,
+    badgeText: (t: TFunction) => t('Recommended'),
   },
   {
     title: (t: TFunction) => t('Watch a wallet'),
-    blurb: (t: TFunction) => t('Try it out with any wallet address'),
+    blurb: (t: TFunction) =>
+      t('Explore the contents of a wallet by entering any address or ENS name '),
     icon: (theme: Theme) => (
-      <EyeIcon color={theme.colors.textPrimary} height={24} strokeWidth="1.5" width={24} />
+      <EyeIcon color={theme.colors.magentaVibrant} height={24} strokeWidth="1.5" width={24} />
     ),
     nav: OnboardingScreens.WatchWallet,
     importType: ImportType.Watch,
     name: ElementName.OnboardingImportWatchedAccount,
-  },
-  {
-    title: (t: TFunction) => t('Create a new wallet'),
-    blurb: (t: TFunction) => t('Start with a new recovery phrase'),
-    icon: (theme: Theme) => (
-      <SeedPhraseIcon color={theme.colors.textPrimary} height={22} strokeWidth="1.5" width={22} />
-    ),
-    nav: OnboardingScreens.EditName,
-    importType: ImportType.CreateNew,
-    name: ElementName.OnboardingCreateWallet,
   },
 ]
 
@@ -104,26 +94,14 @@ export function ImportMethodScreen({ navigation, route: { params } }: Props): JS
     })
   }
 
-  const handleOnPress = (
-    nav: OnboardingScreens,
-    importType: ImportType,
-    elementName: ElementName
-  ): void => {
+  const handleOnPress = async (nav: OnboardingScreens, importType: ImportType): Promise<void> => {
     // Delete any pending accounts before entering flow.
-    dispatch(pendingAccountActions.trigger(PendingAccountActions.DELETE))
-    if (importType === ImportType.CreateNew) {
-      dispatch(createAccountActions.trigger())
-    }
+    dispatch(pendingAccountActions.trigger(PendingAccountActions.Delete))
 
     if (importType === ImportType.Restore) {
-      handleOnPressRestoreBackup()
+      await handleOnPressRestoreBackup()
       return
     }
-
-    sendAnalyticsEvent(SharedEventName.ELEMENT_CLICKED, {
-      element: elementName,
-      screen: OnboardingScreens.ImportMethod,
-    })
 
     navigation.navigate({
       name: nav,
@@ -138,107 +116,33 @@ export function ImportMethodScreen({ navigation, route: { params } }: Props): JS
       : options
 
   return (
-    <OnboardingScreen title={t('How do you want to get started?')}>
+    <OnboardingScreen title={t('How do you want to add your wallet?')}>
       <Flex grow gap="spacing12" marginTop="spacing4">
-        {importOptions.map(({ title, blurb, icon, nav, importType, name }) => (
+        {importOptions.map(({ title, blurb, icon, nav, importType, name, badgeText }) => (
           <OptionCard
             key={'connection-option-' + title}
+            hapticFeedback
+            badgeText={badgeText?.(t)}
             blurb={blurb(t)}
+            elementName={name}
             icon={icon(theme)}
-            name={name}
             title={title(t)}
-            onPress={(): void => handleOnPress(nav, importType, name)}
+            onPress={(): Promise<void> => handleOnPress(nav, importType)}
           />
         ))}
       </Flex>
-      <Flex alignItems="center" mb="spacing12">
-        <Text
-          color="accentAction"
-          variant="buttonLabelMedium"
-          onPress={(): void =>
-            handleOnPress(
-              OnboardingScreens.RestoreCloudBackup,
-              ImportType.Restore,
-              ElementName.OnboardingImportBackup
-            )
-          }>
-          {t('Restore from iCloud')}
-        </Text>
-      </Flex>
+      <Trace logPress element={ElementName.OnboardingImportBackup}>
+        <TouchableArea alignItems="center" mb="spacing12">
+          <Text
+            color="accentAction"
+            variant="buttonLabelMedium"
+            onPress={(): Promise<void> =>
+              handleOnPress(OnboardingScreens.RestoreCloudBackup, ImportType.Restore)
+            }>
+            {t('Restore from iCloud')}
+          </Text>
+        </TouchableArea>
+      </Trace>
     </OnboardingScreen>
-  )
-}
-
-function OptionCard({
-  title,
-  blurb,
-  icon,
-  onPress,
-  name,
-  disabled,
-  opacity,
-}: {
-  title: string
-  blurb: string
-  icon: React.ReactNode
-  onPress: () => void
-  name: ElementName
-  disabled?: boolean
-  opacity?: number
-}): JSX.Element {
-  const theme = useAppTheme()
-
-  const titleSize = useResponsiveProp({
-    xs: 'subheadSmall',
-    sm: 'subheadLarge',
-  })
-
-  const iconSize = useResponsiveProp({
-    xs: theme.iconSizes.icon24,
-    sm: theme.iconSizes.icon40,
-  })
-
-  const verticalPadding = useResponsiveProp({
-    xs: 'spacing16',
-    sm: 'spacing24',
-  })
-
-  return (
-    <TouchableArea
-      backgroundColor="background2"
-      borderColor="backgroundOutline"
-      borderRadius="rounded16"
-      borderWidth={1}
-      disabled={disabled}
-      name={name}
-      opacity={opacity}
-      px="spacing16"
-      py={verticalPadding}
-      testID={name}
-      onPress={onPress}>
-      <Flex row alignContent="center" alignItems="center" gap="spacing16">
-        <Box
-          alignItems="center"
-          borderColor="accentBranded"
-          borderRadius="rounded12"
-          borderWidth={1.25}
-          height={iconSize}
-          justifyContent="center"
-          padding="spacing16"
-          width={iconSize}>
-          {icon}
-        </Box>
-        <Flex row alignItems="center" gap="spacing4" paddingRight="spacing60">
-          <Flex fill alignItems="flex-start" gap="spacing4" justifyContent="space-around">
-            <Text allowFontScaling={false} variant={titleSize}>
-              {title}
-            </Text>
-            <Text allowFontScaling={false} color="textSecondary" variant="bodySmall">
-              {blurb}
-            </Text>
-          </Flex>
-        </Flex>
-      </Flex>
-    </TouchableArea>
   )
 }

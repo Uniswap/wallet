@@ -3,20 +3,21 @@ import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
 import * as Sentry from '@sentry/react-native'
 import { PerformanceProfiler, RenderPassReport } from '@shopify/react-native-performance'
 import * as SplashScreen from 'expo-splash-screen'
-import React, { StrictMode, useCallback, useEffect, useState } from 'react'
-import { StatusBar } from 'react-native'
+import { default as React, StrictMode, useCallback, useEffect } from 'react'
+import { NativeModules, StatusBar } from 'react-native'
 import { getUniqueId } from 'react-native-device-info'
+import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
-import { Provider } from 'react-redux'
 import { PersistGate } from 'redux-persist/integration/react'
 import { ErrorBoundary } from 'src/app/ErrorBoundary'
 import { AppModals } from 'src/app/modals/AppModals'
+import { useIsPartOfNavigationTree } from 'src/app/navigation/hooks'
 import { AppStackNavigator } from 'src/app/navigation/navigation'
 import { NavigationContainer } from 'src/app/navigation/NavigationContainer'
 import { persistor, store } from 'src/app/store'
 import { OfflineBanner } from 'src/components/banners/OfflineBanner'
-import { Trace } from 'src/components/telemetry/Trace'
-import { TraceUserProperties } from 'src/components/telemetry/TraceUserProperties'
+import Trace from 'src/components/Trace/Trace'
+import { TraceUserProperties } from 'src/components/Trace/TraceUserProperties'
 import { usePersistedApolloClient } from 'src/data/usePersistedApolloClient'
 import { initAppsFlyer } from 'src/features/analytics/appsflyer'
 import { useIsDarkMode } from 'src/features/appearance/hooks'
@@ -26,18 +27,23 @@ import { NotificationToastWrapper } from 'src/features/notifications/Notificatio
 import { initOneSignal } from 'src/features/notifications/Onesignal'
 import { sendAnalyticsEvent } from 'src/features/telemetry'
 import { MobileEventName } from 'src/features/telemetry/constants'
+import { shouldLogScreen } from 'src/features/telemetry/directLogScreens'
 import { TransactionHistoryUpdater } from 'src/features/transactions/TransactionHistoryUpdater'
-import { useTrmPrefetch } from 'src/features/trm/api'
 import { DynamicThemeProvider } from 'src/theme/DynamicThemeProvider'
-import { useAppStateTrigger } from 'src/utils/useAppStateTrigger'
 import { getSentryEnvironment, getStatsigEnvironmentTier } from 'src/utils/version'
 import { StatsigProvider } from 'statsig-react-native'
+import { flex } from 'ui/src/theme/restyle/flex'
 import { config } from 'wallet/src/config'
+import { AnalyticsNavigationContextProvider } from 'wallet/src/features/telemetry/trace/AnalyticsNavigationContext'
+import { useTrmQuery } from 'wallet/src/features/trm/api'
+import { AccountType } from 'wallet/src/features/wallet/accounts/types'
 import { WalletContextProvider } from 'wallet/src/features/wallet/context'
-import { useSignerAccounts } from 'wallet/src/features/wallet/hooks'
+import { useActiveAccount } from 'wallet/src/features/wallet/hooks'
+import { SharedProvider } from 'wallet/src/provider'
+import { useAsyncData } from 'wallet/src/utils/hooks'
 
 // Keep the splash screen visible while we fetch resources until one of our landing pages loads
-SplashScreen.preventAutoHideAsync()
+SplashScreen.preventAutoHideAsync().catch(() => undefined)
 
 // Construct a new instrumentation instance. This is needed to communicate between the integration and React
 const routingInstrumentation = new Sentry.ReactNavigationInstrumentation()
@@ -71,19 +77,17 @@ initAppsFlyer()
 
 function App(): JSX.Element | null {
   const client = usePersistedApolloClient()
-  const [deviceId, setDeviceId] = useState<string | null>(null)
 
   // We want to ensure deviceID is used as the identifier to link with analytics
-  useEffect(() => {
-    async function fetchAndSetDeviceId(): Promise<void> {
-      const uniqueId = await getUniqueId()
-      setDeviceId(uniqueId)
-      Sentry.setUser({
-        id: uniqueId,
-      })
-    }
-    fetchAndSetDeviceId()
+  const fetchAndSetDeviceId = useCallback(async () => {
+    const uniqueId = await getUniqueId()
+    Sentry.setUser({
+      id: uniqueId,
+    })
+    return uniqueId
   }, [])
+
+  const deviceId = useAsyncData(fetchAndSetDeviceId).data
 
   const onReportPrepared = useCallback((report: RenderPassReport) => {
     sendAnalyticsEvent(MobileEventName.PerformanceReport, report)
@@ -110,31 +114,37 @@ function App(): JSX.Element | null {
       <StrictMode>
         <StatsigProvider {...statSigOptions}>
           <SafeAreaProvider>
-            <Provider store={store}>
-              <ApolloProvider client={client}>
-                <PersistGate loading={null} persistor={persistor}>
-                  <DynamicThemeProvider>
-                    <ErrorBoundary>
-                      <WalletContextProvider>
-                        <BiometricContextProvider>
-                          <LockScreenContextProvider>
-                            <Sentry.TouchEventBoundary>
-                              <DataUpdaters />
-                              <BottomSheetModalProvider>
-                                <AppModals />
-                                <PerformanceProfiler onReportPrepared={onReportPrepared}>
-                                  <AppInner />
-                                </PerformanceProfiler>
-                              </BottomSheetModalProvider>
-                            </Sentry.TouchEventBoundary>
-                          </LockScreenContextProvider>
-                        </BiometricContextProvider>
-                      </WalletContextProvider>
-                    </ErrorBoundary>
-                  </DynamicThemeProvider>
-                </PersistGate>
-              </ApolloProvider>
-            </Provider>
+            <SharedProvider reduxStore={store}>
+              <AnalyticsNavigationContextProvider
+                shouldLogScreen={shouldLogScreen}
+                useIsPartOfNavigationTree={useIsPartOfNavigationTree}>
+                <ApolloProvider client={client}>
+                  <PersistGate loading={null} persistor={persistor}>
+                    <DynamicThemeProvider>
+                      <ErrorBoundary>
+                        <GestureHandlerRootView style={flex.fill}>
+                          <WalletContextProvider>
+                            <BiometricContextProvider>
+                              <LockScreenContextProvider>
+                                <Sentry.TouchEventBoundary>
+                                  <DataUpdaters />
+                                  <BottomSheetModalProvider>
+                                    <AppModals />
+                                    <PerformanceProfiler onReportPrepared={onReportPrepared}>
+                                      <AppInner />
+                                    </PerformanceProfiler>
+                                  </BottomSheetModalProvider>
+                                </Sentry.TouchEventBoundary>
+                              </LockScreenContextProvider>
+                            </BiometricContextProvider>
+                          </WalletContextProvider>
+                        </GestureHandlerRootView>
+                      </ErrorBoundary>
+                    </DynamicThemeProvider>
+                  </PersistGate>
+                </ApolloProvider>
+              </AnalyticsNavigationContextProvider>
+            </SharedProvider>
           </SafeAreaProvider>
         </StatsigProvider>
       </StrictMode>
@@ -145,29 +155,22 @@ function App(): JSX.Element | null {
 function AppInner(): JSX.Element {
   const isDarkMode = useIsDarkMode()
 
+  useEffect(() => {
+    // TODO: This is a temporary solution (it should be replaced with Appearance.setColorScheme
+    // after updating RN to 0.72.0 or higher)
+    NativeModules.ThemeModule.setColorScheme(isDarkMode ? 'dark' : 'light')
+  }, [isDarkMode])
+
   return <NavStack isDarkMode={isDarkMode} />
 }
 
-const PREFETCH_OPTIONS = {
-  ifOlderThan: 60 * 15, // cache results for 15 minutes
-}
-
 function DataUpdaters(): JSX.Element {
-  const signerAccounts = useSignerAccounts()
-  const prefetchTrm = useTrmPrefetch()
-
-  const prefetchTrmData = useCallback(
-    () =>
-      signerAccounts.forEach((account) => {
-        prefetchTrm(account.address, PREFETCH_OPTIONS)
-      }),
-    [prefetchTrm, signerAccounts]
+  const activeAccount = useActiveAccount()
+  useTrmQuery(
+    activeAccount && activeAccount.type === AccountType.SignerMnemonic
+      ? activeAccount.address
+      : undefined
   )
-
-  // Prefetch TRM data on app start (either cold or warm)
-  useEffect(prefetchTrmData, [prefetchTrmData])
-  useAppStateTrigger('background', 'active', prefetchTrmData)
-  useAppStateTrigger('inactive', 'active', prefetchTrmData)
 
   return (
     <>
@@ -186,7 +189,11 @@ function NavStack({ isDarkMode }: { isDarkMode: boolean }): JSX.Element {
       <OfflineBanner />
       <NotificationToastWrapper />
       <AppStackNavigator />
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
+      <StatusBar
+        translucent
+        backgroundColor="transparent"
+        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+      />
     </NavigationContainer>
   )
 }

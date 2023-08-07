@@ -33,7 +33,7 @@ If you have suggestions on how we can improve the app, or would like to report a
 
 ## Requirements
 
-This guide assumes that:
+This guide assumes the following:
 
 - You are using a Mac (you will need a Mac computer in order to run the Xcode iOS Simulator)
 - You are using an Apple Silicon Mac (if you’re not sure, go to  → About this Mac and check if the chip name starts with "Apple")
@@ -92,7 +92,21 @@ to see if it installed correctly.
 
 ### CocoaPods
 
-Run `brew install cocoapods`
+Use `rbenv` to install a specific version of `ruby`:
+`brew install rbenv ruby-build`
+
+Run `rbenv init` and follow the instructions to complete the installation.
+
+After following the instructions, make sure you `source` your `.zshrc` or `.bash_profile`, or start a new terminal session.
+
+Install a version of `ruby`:
+`rbenv install 3.2.2`
+
+Set this as your default version:
+`rbenv global 3.2.2`
+
+Install cocoapods:
+`gem install cocoapods -v 1.11.3`
 
 ### Add Xcode Command Line Tools
 
@@ -245,7 +259,8 @@ export NVM_DIR="$HOME/.nvm"
 export USE_FLIPPER=1
 export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
 
-# ruby things
+# Ruby things.
+# You don't need any of this if you're using rbenv. Simply follow the instructions from `rbenv init` instead.
 export LDFLAGS="-L/opt/homebrew/opt/ruby/lib"
 export CPPFLAGS="-I/opt/homebrew/opt/ruby/include"
 

@@ -6,14 +6,14 @@ import { useAppTheme } from 'src/app/hooks'
 import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { Flex } from 'src/components/layout/Flex'
 import { Warning } from 'src/components/modals/WarningModal/types'
-import { TracePressEvent } from 'src/components/telemetry/TraceEvent'
 import { Text } from 'src/components/Text'
-import { useUSDCPrice } from 'src/features/routing/useUSDCPrice'
+import Trace from 'src/components/Trace/Trace'
 import { ElementName } from 'src/features/telemetry/constants'
-import { Trade } from 'src/features/transactions/swap/useTrade'
 import { getRateToDisplay } from 'src/features/transactions/swap/utils'
 import { TransactionDetails } from 'src/features/transactions/TransactionDetails'
 import InfoCircle from 'ui/src/assets/icons/info-circle.svg'
+import { useUSDCPrice } from 'wallet/src/features/routing/useUSDCPrice'
+import { Trade } from 'wallet/src/features/transactions/swap/useTrade'
 import { formatPrice, NumberType } from 'wallet/src/utils/format'
 
 interface SwapDetailsProps {
@@ -91,7 +91,7 @@ export function SwapDetails({
               </TouchableOpacity>
             </Flex>
             <Flex centered row gap="none">
-              <TracePressEvent element={ElementName.AcceptNewRate}>
+              <Trace logPress element={ElementName.AcceptNewRate}>
                 <TouchableArea
                   backgroundColor="accentActive"
                   borderRadius="rounded8"
@@ -102,7 +102,7 @@ export function SwapDetails({
                     {t('Accept')}
                   </Text>
                 </TouchableArea>
-              </TracePressEvent>
+              </Trace>
             </Flex>
           </Flex>
         ) : null

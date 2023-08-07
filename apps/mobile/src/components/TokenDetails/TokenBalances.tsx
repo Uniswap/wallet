@@ -2,14 +2,15 @@ import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAppTheme } from 'src/app/hooks'
 import { TouchableArea } from 'src/components/buttons/TouchableArea'
-import { TokenLogo } from 'src/components/CurrencyLogo/TokenLogo'
 import { Box, Flex } from 'src/components/layout'
 import { Separator } from 'src/components/layout/Separator'
 import { InlineNetworkPill } from 'src/components/Network/NetworkPill'
 import { Text } from 'src/components/Text'
 import { useTokenDetailsNavigation } from 'src/components/TokenDetails/hooks'
+import Trace from 'src/components/Trace/Trace'
 import { MobileEventName } from 'src/features/telemetry/constants'
 import { iconSizes } from 'ui/src/theme/iconSizes'
+import { TokenLogo } from 'wallet/src/components/CurrencyLogo/TokenLogo'
 import { PortfolioBalance } from 'wallet/src/features/dataApi/types'
 import { AccountType } from 'wallet/src/features/wallet/accounts/types'
 import { useActiveAccount, useDisplayName } from 'wallet/src/features/wallet/hooks'
@@ -127,34 +128,33 @@ function OtherChainBalance({
   navigate: (currencyId: CurrencyId) => void
 }): JSX.Element {
   return (
-    <TouchableArea
-      hapticFeedback
-      eventName={MobileEventName.TokenDetailsOtherChainButtonPressed}
-      onPress={(): void => navigate(balance.currencyInfo.currencyId)}>
-      <Flex row alignItems="center" justifyContent="space-between">
-        <Flex row alignItems="center" gap="spacing4">
-          <TokenLogo
-            chainId={balance.currencyInfo.currency.chainId}
-            size={iconSizes.icon36}
-            symbol={balance.currencyInfo.currency.symbol}
-            url={balance.currencyInfo.logoUrl ?? undefined}
-          />
-          <Box alignItems="flex-start">
-            <Text px="spacing4" variant="bodyLarge">
-              {formatNumber(balance.balanceUSD, NumberType.FiatTokenDetails)}
-            </Text>
-            <InlineNetworkPill
+    <Trace logPress pressEvent={MobileEventName.TokenDetailsOtherChainButtonPressed}>
+      <TouchableArea hapticFeedback onPress={(): void => navigate(balance.currencyInfo.currencyId)}>
+        <Flex row alignItems="center" justifyContent="space-between">
+          <Flex row alignItems="center" gap="spacing4">
+            <TokenLogo
               chainId={balance.currencyInfo.currency.chainId}
-              showBackgroundColor={false}
-              textVariant="buttonLabelMicro"
+              size={iconSizes.icon36}
+              symbol={balance.currencyInfo.currency.symbol}
+              url={balance.currencyInfo.logoUrl ?? undefined}
             />
-          </Box>
+            <Box alignItems="flex-start">
+              <Text px="spacing4" variant="bodyLarge">
+                {formatNumber(balance.balanceUSD, NumberType.FiatTokenDetails)}
+              </Text>
+              <InlineNetworkPill
+                chainId={balance.currencyInfo.currency.chainId}
+                showBackgroundColor={false}
+                textVariant="buttonLabelMicro"
+              />
+            </Box>
+          </Flex>
+          <Text color="textSecondary" variant="bodyLarge">
+            {formatNumber(balance.quantity, NumberType.TokenNonTx)}{' '}
+            {balance.currencyInfo.currency.symbol}
+          </Text>
         </Flex>
-        <Text color="textSecondary" variant="bodyLarge">
-          {formatNumber(balance.quantity, NumberType.TokenNonTx)}{' '}
-          {balance.currencyInfo.currency.symbol}
-        </Text>
-      </Flex>
-    </TouchableArea>
+      </TouchableArea>
+    </Trace>
   )
 }

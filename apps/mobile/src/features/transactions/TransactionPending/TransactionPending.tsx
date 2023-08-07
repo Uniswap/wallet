@@ -34,9 +34,9 @@ export function TransactionPending({
 }: TransactionStatusProps): JSX.Element {
   const { t } = useTranslation()
 
-  const onPressViewTransaction = (): void => {
+  const onPressViewTransaction = async (): Promise<void> => {
     if (transaction) {
-      openTransactionLink(transaction.hash, transaction.chainId)
+      await openTransactionLink(transaction.hash, transaction.chainId)
     }
   }
 
@@ -67,7 +67,7 @@ export function TransactionPending({
           onPress={onPressViewTransaction}
         />
       ) : null}
-      <Button label={t('Close')} name={ElementName.OK} onPress={onNext} />
+      <Button label={t('Close')} testID={ElementName.OK} onPress={onNext} />
     </AnimatedFlex>
   )
 }

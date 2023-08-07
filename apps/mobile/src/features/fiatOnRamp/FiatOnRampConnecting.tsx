@@ -12,7 +12,7 @@ import {
   FOR_CONNECTING_BACKGROUND_LIGHT,
   UNISWAP_LOGO_LARGE,
 } from 'ui/src/assets'
-import MoonpayLogo from 'ui/src/assets/logos/moonpay.svg'
+import MoonpayLogo from 'ui/src/assets/logos/svg/moonpay.svg'
 import { theme } from 'ui/src/theme/restyle/theme'
 
 const ICON_SIZE = 90

@@ -1,13 +1,18 @@
 import { put } from 'typed-redux-saga'
 import { logger } from 'wallet/src/features/logger/logger'
 import { selectPendingAccounts } from 'wallet/src/features/wallet/selectors'
-import { markAsNonPending, removeAccounts } from 'wallet/src/features/wallet/slice'
+import {
+  removeAccounts,
+  setAccountAsActive,
+  setAccountsNonPending,
+} from 'wallet/src/features/wallet/slice'
 import { appSelect } from 'wallet/src/state'
-import { createMonitoredSaga } from 'wallet/src/utils/saga'
+import { createSaga } from 'wallet/src/utils/saga'
 
 export enum PendingAccountActions {
-  ACTIVATE = 'ACTIVATE',
-  DELETE = 'DELETE',
+  Activate = 'Activate',
+  ActivateAndSelect = 'ActivateAndSelect',
+  Delete = 'Delete',
 }
 
 /**
@@ -22,9 +27,14 @@ export function* managePendingAccounts(pendingAccountAction: PendingAccountActio
     logger.debug('pendingAccountsSaga', 'managePendingAccounts', 'No pending accounts found.')
     return
   }
-  if (pendingAccountAction === PendingAccountActions.ACTIVATE) {
-    yield* put(markAsNonPending(pendingAddresses))
-  } else if (pendingAccountAction === PendingAccountActions.DELETE) {
+  if (pendingAccountAction === PendingAccountActions.Activate) {
+    yield* put(setAccountsNonPending(pendingAddresses))
+  } else if (pendingAccountAction === PendingAccountActions.ActivateAndSelect) {
+    yield* put(setAccountsNonPending(pendingAddresses))
+    if (pendingAddresses[0]) {
+      yield* put(setAccountAsActive(pendingAddresses[0]))
+    }
+  } else if (pendingAccountAction === PendingAccountActions.Delete) {
     // TODO: [MOB-244] cleanup low level RS key storage.
     yield* put(removeAccounts(pendingAddresses))
   }
@@ -32,9 +42,7 @@ export function* managePendingAccounts(pendingAccountAction: PendingAccountActio
   logger.debug('pendingAccountsSaga', 'managePendingAccounts', 'Updated pending accounts.')
 }
 
-export const {
-  name: pendingAccountSagaName,
-  wrappedSaga: pendingAccountSaga,
-  reducer: pendingAccountReducer,
-  actions: pendingAccountActions,
-} = createMonitoredSaga(managePendingAccounts, 'managePendingAccounts')
+export const { wrappedSaga: pendingAccountSaga, actions: pendingAccountActions } = createSaga(
+  managePendingAccounts,
+  'managePendingAccounts'
+)

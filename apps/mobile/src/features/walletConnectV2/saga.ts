@@ -34,7 +34,7 @@ import serializeError from 'wallet/src/utils/serializeError'
 
 export let wcWeb3Wallet: IWeb3Wallet
 
-async function initializeWeb3Wallet(): Promise<void> {
+export async function initializeWeb3Wallet(): Promise<void> {
   const wcCore = new Core({
     projectId: config.walletConnectProjectId,
   })
@@ -51,7 +51,7 @@ async function initializeWeb3Wallet(): Promise<void> {
   })
 
   const clientId = await wcCore.crypto.getClientId()
-  registerWCv2ClientForPushNotifications(clientId)
+  await registerWCv2ClientForPushNotifications(clientId)
 }
 
 function createWalletConnectV2Channel(): EventChannel<AnyAction> {
@@ -152,7 +152,7 @@ function* handleSessionProposal(proposal: ProposalTypes.Struct) {
       const { chains } = namespace
       // EVM chain(s) are specified in either `eip155:CHAIN` or chains array
       const eip155Chains = key.includes(':') ? [key] : chains
-      proposalChainIds.push(...getSupportedWalletConnectChains(eip155Chains))
+      proposalChainIds.push(...(getSupportedWalletConnectChains(eip155Chains) ?? []))
     })
 
     yield* put(
@@ -173,7 +173,7 @@ function* handleSessionProposal(proposal: ProposalTypes.Struct) {
     )
   } catch (e) {
     // Reject pending session if required namespaces includes non-EVM chains or unsupported EVM chains
-    wcWeb3Wallet.rejectSession({
+    yield* call([wcWeb3Wallet, wcWeb3Wallet.rejectSession], {
       id: proposal.id,
       reason: getSdkError('UNSUPPORTED_CHAINS'),
     })
@@ -184,10 +184,13 @@ function* handleSessionProposal(proposal: ProposalTypes.Struct) {
 
     Alert.alert(
       i18n.t('Connection Error'),
-      i18n.t('Uniswap Wallet currently only supports {{ chains }}. \n\n {{ error }}', {
-        chains: chainLabels,
-        error: e,
-      }),
+      i18n.t(
+        `Uniswap Wallet currently supports {{ chains }}. Please only use "{{ dappName }}" on these chains`,
+        {
+          chains: chainLabels,
+          dappName: dapp.name,
+        }
+      ),
       [
         {
           text: 'OK',
@@ -263,7 +266,7 @@ function* handleSessionRequest(sessionRequest: PendingRequestTypes.Struct) {
         'sessionRequestHandler',
         `Session request method is unsupported: ${method}`
       )
-      wcWeb3Wallet.respondSessionRequest({
+      yield* call([wcWeb3Wallet, wcWeb3Wallet.respondSessionRequest], {
         topic,
         response: {
           id,
@@ -306,7 +309,7 @@ function* populateActiveSessions() {
     const chains: ChainId[] = []
     Object.entries(session.namespaces).forEach(([key, namespace]) => {
       const eip155Chains = key.includes(':') ? [key] : namespace.chains
-      chains.push(...getSupportedWalletConnectChains(eip155Chains))
+      chains.push(...(getSupportedWalletConnectChains(eip155Chains) ?? []))
     })
 
     yield* put(
@@ -346,7 +349,6 @@ function* fetchPendingSessionRequests() {
 }
 
 export function* walletConnectV2Saga() {
-  yield* call(initializeWeb3Wallet)
   yield* call(populateActiveSessions)
   yield* fork(fetchPendingSessionProposals)
   yield* fork(fetchPendingSessionRequests)

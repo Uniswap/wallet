@@ -5,19 +5,15 @@
  * @format
  */
 
-const path = require('path');
+process.env.TAMAGUI_TARGET = 'native'
+
+const path = require('path')
 const { getDefaultConfig } = require('metro-config')
 
 const mobileRoot = path.resolve(__dirname)
-const workspaceRoot = path.resolve(mobileRoot, '../..');
+const workspaceRoot = path.resolve(mobileRoot, '../..')
 
-const watchFolders = [
-  mobileRoot,
-  `${workspaceRoot}/node_modules`,
-  `${workspaceRoot}/packages`
-]
-
-const iosExtensions = ['ios.js', 'ios.jsx', 'ios.ts', 'ios.tsx']
+const watchFolders = [mobileRoot, `${workspaceRoot}/node_modules`, `${workspaceRoot}/packages`]
 
 module.exports = (async () => {
   const {
@@ -25,14 +21,9 @@ module.exports = (async () => {
   } = await getDefaultConfig()
   return {
     resolver: {
-      assetExts: assetExts.filter((ext) => ext !== 'svg'),
-      // allows replacing .js|ts files with their .e2e.js|ts equivalent in Detox
-      sourceExts: (process.env.RN_SRC_EXT || '')
-        .split(',')
-        .concat(iosExtensions)
-        .concat(sourceExts)
-        .concat(['svg', 'cjs']),
       nodeModulesPaths: [`${workspaceRoot}/node_modules`],
+      assetExts: assetExts.filter((ext) => ext !== 'svg'),
+      sourceExts: [...sourceExts, 'svg', 'cjs'],
     },
     transformer: {
       getTransformOptions: async () => ({

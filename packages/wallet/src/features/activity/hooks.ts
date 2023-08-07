@@ -1,6 +1,5 @@
 import { ApolloError, NetworkStatus } from '@apollo/client'
 import { useCallback, useMemo } from 'react'
-import { EMPTY_ARRAY } from 'wallet/src/constants/misc'
 import { isNonPollingRequestInFlight } from 'wallet/src/data/utils'
 import { useTransactionListQuery } from 'wallet/src/data/__generated__/types-and-hooks'
 import { usePersistedError } from 'wallet/src/features/dataApi/utils'
@@ -19,13 +18,13 @@ export function useFormattedTransactionDataForActivity(
   hideSpamTokens: boolean,
   mergeLocalFunction: (
     address: Address,
-    remoteTransactions: TransactionDetails[]
-  ) => TransactionDetails[]
+    remoteTransactions: TransactionDetails[] | undefined
+  ) => TransactionDetails[] | undefined
 ): {
   hasData: boolean
   isLoading: boolean
   isError: ApolloError | undefined
-  sectionData: Array<TransactionDetails | SectionHeader | LoadingItem>
+  sectionData: Array<TransactionDetails | SectionHeader | LoadingItem> | undefined
   keyExtractor: (item: TransactionDetails | SectionHeader | LoadingItem) => string
   onRetry: () => void
 } {
@@ -59,11 +58,12 @@ export function useFormattedTransactionDataForActivity(
   )
 
   const formattedTransactions = useMemo(() => {
-    if (!data) return EMPTY_ARRAY
+    if (!data) return
+
     return parseDataResponseToTransactionDetails(data, hideSpamTokens)
   }, [data, hideSpamTokens])
 
-  const transactions: TransactionDetails[] = mergeLocalFunction(address, formattedTransactions)
+  const transactions = mergeLocalFunction(address, formattedTransactions)
 
   // Format transactions for section list
   const { pending, last24hTransactionList, priorByMonthTransactionList } = useMemo(
@@ -71,7 +71,7 @@ export function useFormattedTransactionDataForActivity(
     [transactions]
   )
 
-  const hasTransactions = transactions?.length > 0
+  const hasTransactions = transactions && transactions.length > 0
 
   const hasData = !!data?.portfolios?.[0]?.assetActivities
   const isLoading = isNonPollingRequestInFlight(networkStatus)
@@ -81,14 +81,11 @@ export function useFormattedTransactionDataForActivity(
   const showLoading =
     (!hasData && isLoading) || (Boolean(isError) && networkStatus === NetworkStatus.refetch)
 
-  const sectionData: Array<TransactionDetails | SectionHeader | LoadingItem> = useMemo(() => {
-    if (showLoading) {
-      return LOADING_DATA
-    }
+  const sectionData = useMemo(() => {
+    if (showLoading) return LOADING_DATA
 
-    if (!hasTransactions) {
-      return EMPTY_ARRAY
-    }
+    if (!hasTransactions) return
+
     return [
       ...pending,
       ...last24hTransactionList,
@@ -106,8 +103,8 @@ export function useFormattedTransactionDataForActivity(
     ]
   }, [showLoading, hasTransactions, pending, last24hTransactionList, priorByMonthTransactionList])
 
-  const onRetry = useCallback(() => {
-    refetch({
+  const onRetry = useCallback(async () => {
+    await refetch({
       address,
     })
   }, [address, refetch])

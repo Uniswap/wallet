@@ -6,7 +6,6 @@ import { AccountDetails } from 'src/components/accounts/AccountDetails'
 import { Button, ButtonEmphasis } from 'src/components/buttons/Button'
 import { LinkButton } from 'src/components/buttons/LinkButton'
 import { TouchableArea } from 'src/components/buttons/TouchableArea'
-import { NetworkLogo } from 'src/components/CurrencyLogo/NetworkLogo'
 import { Chevron } from 'src/components/icons/Chevron'
 import { AnimatedFlex, Box, Flex } from 'src/components/layout'
 import { Separator } from 'src/components/layout/Separator'
@@ -30,6 +29,7 @@ import { wcWeb3Wallet } from 'src/features/walletConnectV2/saga'
 import { getSessionNamespaces } from 'src/features/walletConnectV2/utils'
 import Checkmark from 'ui/src/assets/icons/check.svg'
 import X from 'ui/src/assets/icons/x.svg'
+import { NetworkLogo } from 'wallet/src/components/CurrencyLogo/NetworkLogo'
 import { ChainId, CHAIN_INFO } from 'wallet/src/constants/chains'
 import { toSupportedChainId } from 'wallet/src/features/chains/utils'
 import { pushNotification } from 'wallet/src/features/notifications/slice'
@@ -39,7 +39,7 @@ import {
   useActiveAccountWithThrow,
   useSignerAccounts,
 } from 'wallet/src/features/wallet/hooks'
-import { activateAccount } from 'wallet/src/features/wallet/slice'
+import { setAccountAsActive } from 'wallet/src/features/wallet/slice'
 import {
   WalletConnectEvent,
   WCEventType,
@@ -114,7 +114,7 @@ const SwitchNetworkRow = ({ selectedChainId, setModalState }: SwitchNetworkProps
   }, [setModalState])
 
   return (
-    <TouchableArea m="none" name={ElementName.WCDappSwitchNetwork} p="none" onPress={onPress}>
+    <TouchableArea m="none" p="none" testID={ElementName.WCDappSwitchNetwork} onPress={onPress}>
       <Flex
         row
         shrink
@@ -172,8 +172,8 @@ const SwitchAccountRow = ({ activeAddress, setModalState }: SwitchAccountProps):
     <TouchableArea
       disabled={!accountIsSwitchable}
       m="none"
-      name={ElementName.WCDappSwitchAccount}
       p="spacing12"
+      testID={ElementName.WCDappSwitchAccount}
       onPress={onPress}>
       <AccountDetails address={activeAddress} chevron={accountIsSwitchable} />
     </TouchableArea>
@@ -260,7 +260,7 @@ export const PendingConnectionModal = ({ pendingSession, onClose }: Props): JSX.
           })
         )
       } else {
-        wcWeb3Wallet.rejectSession({
+        await wcWeb3Wallet.rejectSession({
           id: Number(pendingSession.id),
           reason: getSdkError('USER_REJECTED'),
         })
@@ -353,7 +353,7 @@ export const PendingConnectionModal = ({ pendingSession, onClose }: Props): JSX.
           activeAccount={activeAccount}
           onClose={(): void => setModalState(PendingConnectionModalState.Hidden)}
           onPressAccount={(account): void => {
-            dispatch(activateAccount(account.address))
+            dispatch(setAccountAsActive(account.address))
             setModalState(PendingConnectionModalState.Hidden)
           }}
         />

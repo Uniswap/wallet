@@ -7,23 +7,22 @@ import Svg, { Defs, RadialGradient, Rect, Stop } from 'react-native-svg'
 import { useAppDispatch, useAppSelector, useAppTheme } from 'src/app/hooks'
 import { AddressDisplay } from 'src/components/AddressDisplay'
 import { BackButton } from 'src/components/buttons/BackButton'
+import { FavoriteButton } from 'src/components/buttons/FavoriteButton'
 import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { AnimatedBox, Box } from 'src/components/layout/Box'
 import { Flex } from 'src/components/layout/Flex'
 import { Text } from 'src/components/Text'
 import { useUniconColors } from 'src/components/unicons/utils'
-import { useIsDarkMode } from 'src/features/appearance/hooks'
 import { ProfileContextMenu } from 'src/features/externalProfile/ProfileContextMenu'
 import { useToggleWatchedWalletCallback } from 'src/features/favorites/hooks'
 import { selectWatchedAddressSet } from 'src/features/favorites/selectors'
 import { openModal } from 'src/features/modals/modalSlice'
 import { ElementName, ModalName } from 'src/features/telemetry/constants'
-import { CurrencyField } from 'src/features/transactions/transactionState/transactionState'
 import { useExtractedColors } from 'src/utils/colors'
-import HeartIcon from 'ui/src/assets/icons/heart.svg'
 import SendIcon from 'ui/src/assets/icons/send-action.svg'
 import { iconSizes } from 'ui/src/theme/iconSizes'
 import { useENSAvatar } from 'wallet/src/features/ens/api'
+import { CurrencyField } from 'wallet/src/features/transactions/transactionState/types'
 
 const HEADER_GRADIENT_HEIGHT = 137
 const HEADER_ICON_SIZE = 72
@@ -38,9 +37,9 @@ export default function ProfileHeader({ address }: ProfileHeaderProps): JSX.Elem
   const isFavorited = useAppSelector(selectWatchedAddressSet).has(address)
 
   // ENS avatar and avatar colors
-  const { data: avatar, isLoading } = useENSAvatar(address)
+  const { data: avatar, loading } = useENSAvatar(address)
   const { colors: avatarColors } = useExtractedColors(avatar)
-  const hasAvatar = !!avatar && !isLoading
+  const hasAvatar = !!avatar && !loading
 
   // Unicon colors
   const { gradientStart: uniconGradientStart, gradientEnd: uniconGradientEnd } =
@@ -48,17 +47,17 @@ export default function ProfileHeader({ address }: ProfileHeaderProps): JSX.Elem
 
   // Wait for avatar, then render avatar extracted colors or unicon colors if no avatar
   const fixedGradientColors = useMemo(() => {
-    if (isLoading || (hasAvatar && !avatarColors)) {
+    if (loading || (hasAvatar && !avatarColors)) {
       return [theme.colors.background0, theme.colors.background0]
     }
-    if (hasAvatar && avatarColors) {
-      return [avatarColors.background, avatarColors.background]
+    if (hasAvatar && avatarColors && avatarColors.base) {
+      return [avatarColors.base, avatarColors.base]
     }
     return [uniconGradientStart, uniconGradientEnd]
   }, [
     avatarColors,
     hasAvatar,
-    isLoading,
+    loading,
     theme.colors.background0,
     uniconGradientEnd,
     uniconGradientStart,
@@ -143,10 +142,13 @@ export default function ProfileHeader({ address }: ProfileHeaderProps): JSX.Elem
               borderColor="backgroundOutline"
               borderRadius="rounded20"
               borderWidth={1}
-              name={ElementName.Favorite}
               padding="spacing12"
-              onPress={onPressFavorite}>
-              <DynamicHeartIcon isFavorited={isFavorited} size={iconSizes.icon20} />
+              testID={ElementName.Favorite}>
+              <FavoriteButton
+                isFavorited={isFavorited}
+                size={iconSizes.icon20}
+                onPress={onPressFavorite}
+              />
             </TouchableArea>
             <TouchableArea
               hapticFeedback
@@ -155,8 +157,8 @@ export default function ProfileHeader({ address }: ProfileHeaderProps): JSX.Elem
               borderColor="backgroundOutline"
               borderRadius="rounded20"
               borderWidth={1}
-              name={ElementName.Send}
               padding="spacing12"
+              testID={ElementName.Send}
               onPress={onPressSend}>
               <Flex row alignItems="center" gap="spacing8">
                 <SendIcon
@@ -174,19 +176,6 @@ export default function ProfileHeader({ address }: ProfileHeaderProps): JSX.Elem
       </Flex>
     </Flex>
   )
-}
-
-interface HeartIconProps {
-  isFavorited: boolean
-  size: number
-}
-
-export const DynamicHeartIcon = ({ isFavorited, size }: HeartIconProps): JSX.Element => {
-  const theme = useAppTheme()
-  const isDarkMode = useIsDarkMode()
-  const unfilledColor = isDarkMode ? theme.colors.textTertiary : theme.colors.backgroundOutline
-  const color = isFavorited ? theme.colors.accentAction : unfilledColor
-  return <HeartIcon color={color} height={size} width={size} />
 }
 
 function _HeaderRadial({ color }: { color: string }): JSX.Element {

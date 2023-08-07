@@ -7,15 +7,26 @@ import { i18n } from 'src/app/i18n'
 import { handleMoonpayReturnLink } from 'src/features/deepLinking/handleMoonpayReturnLinkSaga'
 import { handleSwapLink } from 'src/features/deepLinking/handleSwapLinkSaga'
 import { handleTransactionLink } from 'src/features/deepLinking/handleTransactionLinkSaga'
+import { openModal } from 'src/features/modals/modalSlice'
 import { sendAnalyticsEvent } from 'src/features/telemetry'
-import { MobileEventName } from 'src/features/telemetry/constants'
+import { MobileEventName, ModalName } from 'src/features/telemetry/constants'
 import { connectToApp, isValidWCUrl } from 'src/features/walletConnect/WalletConnect'
 import { setDidOpenFromDeepLink } from 'src/features/walletConnect/walletConnectSlice'
 import { pairWithWalletConnectURI } from 'src/features/walletConnectV2/utils'
+import { Screens } from 'src/screens/Screens'
+import { openUri, UNISWAP_APP_NATIVE_TOKEN } from 'src/utils/linking'
 import { call, fork, put, takeLatest } from 'typed-redux-saga'
+import { UNISWAP_APP_HOSTNAME } from 'wallet/src/constants/urls'
+import { fromUniswapWebAppLink } from 'wallet/src/features/chains/utils'
 import { logger } from 'wallet/src/features/logger/logger'
-import { selectAccounts, selectActiveAccount } from 'wallet/src/features/wallet/selectors'
-import { activateAccount } from 'wallet/src/features/wallet/slice'
+import {
+  selectAccounts,
+  selectActiveAccount,
+  selectActiveAccountAddress,
+  selectNonPendingAccounts,
+} from 'wallet/src/features/wallet/selectors'
+import { setAccountAsActive } from 'wallet/src/features/wallet/slice'
+import { buildCurrencyId, buildNativeCurrencyId } from 'wallet/src/utils/currencyId'
 import serializeError from 'wallet/src/utils/serializeError'
 
 export interface DeepLink {
@@ -26,22 +37,126 @@ export interface DeepLink {
 const UNISWAP_URL_SCHEME = 'uniswap://'
 const UNISWAP_URL_SCHEME_WALLETCONNECT = 'uniswap://wc?uri='
 
+const NFT_ITEM_SHARE_LINK_HASH_REGEX = /^#\/nfts\/asset\/(0x[a-fA-F0-9]{40})\/(\d+)$/
+const NFT_COLLECTION_SHARE_LINK_HASH_REGEX = /^#\/nfts\/collection\/(0x[a-fA-F0-9]{40})$/
+const TOKEN_SHARE_LINK_HASH_REGEX = RegExp(
+  // eslint-disable-next-line no-useless-escape
+  `^#\/tokens\/([\\w\\d]*)\/(0x[a-fA-F0-9]{40}|${UNISWAP_APP_NATIVE_TOKEN})$`
+)
+const ADDRESS_SHARE_LINK_HASH_REGEX = /^#\/address\/(0x[a-fA-F0-9]{40})$/
+
 export const openDeepLink = createAction<DeepLink>('deeplink/open')
 
 export function* deepLinkWatcher() {
   yield* takeLatest(openDeepLink.type, handleDeepLink)
 }
 
+export function* handleUniswapAppDeepLink(hash: string) {
+  // Handle NFT Item share (ex. https://app.uniswap.org/#/nfts/asset/0x.../123)
+  if (NFT_ITEM_SHARE_LINK_HASH_REGEX.test(hash)) {
+    const [, contractAddress, tokenId] = hash.match(NFT_ITEM_SHARE_LINK_HASH_REGEX) || []
+    if (!contractAddress || !tokenId) return
+    yield* put(
+      openModal({
+        name: ModalName.Explore,
+        initialState: {
+          screen: Screens.NFTItem,
+          params: {
+            address: contractAddress,
+            tokenId,
+            isSpam: false,
+          },
+        },
+      })
+    )
+    return
+  }
+
+  // Handle NFT collection share (ex. https://app.uniswap.org/#/nfts/collection/0x...)
+  if (NFT_COLLECTION_SHARE_LINK_HASH_REGEX.test(hash)) {
+    const [, contractAddress] = hash.match(NFT_COLLECTION_SHARE_LINK_HASH_REGEX) || []
+    if (!contractAddress) return
+    yield* put(
+      openModal({
+        name: ModalName.Explore,
+        initialState: {
+          screen: Screens.NFTCollection,
+          params: {
+            collectionAddress: contractAddress,
+          },
+        },
+      })
+    )
+
+    return
+  }
+
+  // Handle Token share (ex. https://app.uniswap.org/#/tokens/ethereum/0x...)
+  if (TOKEN_SHARE_LINK_HASH_REGEX.test(hash)) {
+    const [, network, contractAddress] = hash.match(TOKEN_SHARE_LINK_HASH_REGEX) || []
+    const chainId = network && fromUniswapWebAppLink(network)
+    if (!chainId || !contractAddress) return
+    const currencyId =
+      contractAddress === UNISWAP_APP_NATIVE_TOKEN
+        ? buildNativeCurrencyId(chainId)
+        : buildCurrencyId(chainId, contractAddress)
+    yield* put(
+      openModal({
+        name: ModalName.Explore,
+        initialState: {
+          screen: Screens.TokenDetails,
+          params: {
+            currencyId,
+          },
+        },
+      })
+    )
+    return
+  }
+
+  // Handle Address share (ex. https://app.uniswap.org/#/address/0x...)
+  if (ADDRESS_SHARE_LINK_HASH_REGEX.test(hash)) {
+    const [, accountAddress] = hash.match(ADDRESS_SHARE_LINK_HASH_REGEX) || []
+    if (!accountAddress) return
+    const accounts = yield* appSelect(selectNonPendingAccounts)
+    const activeAccountAddress = yield* appSelect(selectActiveAccountAddress)
+    if (accountAddress === activeAccountAddress) return
+
+    const isInternal = Boolean(accounts?.[accountAddress])
+    if (isInternal) {
+      yield* put(setAccountAsActive(accountAddress))
+    } else {
+      yield* put(
+        openModal({
+          name: ModalName.Explore,
+          initialState: {
+            screen: Screens.ExternalProfile,
+            params: {
+              address: accountAddress,
+            },
+          },
+        })
+      )
+    }
+    return
+  }
+}
+
 export function* handleDeepLink(action: ReturnType<typeof openDeepLink>) {
   const { coldStart } = action.payload
   try {
-    // Skip handling any deep links if user doesn't have an active account
+    const url = new URL(action.payload.url)
+
     const activeAccount = yield* appSelect(selectActiveAccount)
     if (!activeAccount) {
+      // For app.uniswap.org links it should open a browser with the link
+      // instead of handling it inside the app
+      if (url.hostname === UNISWAP_APP_HOSTNAME) {
+        yield* call(openUri, action.payload.url, /* openExternalBrowser */ true)
+      }
+      // Skip handling any other deep links
       return
     }
-
-    const url = new URL(action.payload.url)
 
     // Handle WC deep link via URL scheme connections (ex. uniswap://wc?uri=123))
     if (action.payload.url.startsWith(UNISWAP_URL_SCHEME_WALLETCONNECT)) {
@@ -70,12 +185,17 @@ export function* handleDeepLink(action: ReturnType<typeof openDeepLink>) {
       return
     }
 
+    if (url.hostname === UNISWAP_APP_HOSTNAME) {
+      yield* call(handleUniswapAppDeepLink, url.hash)
+      return
+    }
+
     const screen = url.searchParams.get('screen')
     const userAddress = url.searchParams.get('userAddress')
     const fiatOnRamp = url.searchParams.get('fiatOnRamp') === 'true'
 
     const validUserAddress = yield* call(parseAndValidateUserAddress, userAddress)
-    yield* put(activateAccount(validUserAddress))
+    yield* put(setAccountAsActive(validUserAddress))
 
     switch (screen) {
       case 'transaction':
@@ -116,7 +236,7 @@ export function* handleWalletConnectDeepLink(wcUri: string) {
 
   if (parseUri(wcUri).version === 2) {
     try {
-      pairWithWalletConnectURI(wcUri)
+      yield* call(pairWithWalletConnectURI, wcUri)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (errorMessage: any) {
       Alert.alert(

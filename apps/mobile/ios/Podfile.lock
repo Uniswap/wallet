@@ -354,7 +354,7 @@ PODS:
   - CryptoSwift (1.6.0)
   - DoubleConversion (1.1.6)
   - EthersRS (0.0.1)
-  - EXApplication (5.0.1):
+  - EXApplication (5.1.1):
     - ExpoModulesCore
   - EXAV (13.0.2):
     - ExpoModulesCore
@@ -364,20 +364,30 @@ PODS:
     - ExpoModulesCore
     - ZXingObjC/OneD
     - ZXingObjC/PDF417
+  - EXBlur (12.0.1):
+    - ExpoModulesCore
+  - EXConstants (14.3.0):
+    - ExpoModulesCore
+  - EXFileSystem (15.3.0):
+    - ExpoModulesCore
+  - EXFont (11.1.1):
+    - ExpoModulesCore
   - EXImageLoader (4.1.1):
     - ExpoModulesCore
     - React-Core
-  - EXLocalAuthentication (12.1.0):
+  - EXLocalAuthentication (13.0.2):
     - ExpoModulesCore
   - experiment-react-native-client (1.0.0):
     - React-Core
-  - Expo (47.0.11):
+  - Expo (48.0.19):
     - ExpoModulesCore
   - ExpoClipboard (4.1.2):
     - ExpoModulesCore
   - ExpoHaptics (12.0.1):
     - ExpoModulesCore
-  - ExpoLinearGradient (12.1.2):
+  - ExpoKeepAwake (12.0.1):
+    - ExpoModulesCore
+  - ExpoLinearGradient (12.0.1):
     - ExpoModulesCore
   - ExpoModulesCore (1.0.3):
     - React-Core
@@ -516,7 +526,16 @@ PODS:
     - nanopb/encode (= 2.30908.0)
   - nanopb/decode (2.30908.0)
   - nanopb/encode (2.30908.0)
-  - OneSignalXCFramework (3.10.1)
+  - OneSignalXCFramework (3.12.4):
+    - OneSignalXCFramework/OneSignalCore (= 3.12.4)
+    - OneSignalXCFramework/OneSignalExtension (= 3.12.4)
+    - OneSignalXCFramework/OneSignalOutcomes (= 3.12.4)
+  - OneSignalXCFramework/OneSignalCore (3.12.4)
+  - OneSignalXCFramework/OneSignalExtension (3.12.4):
+    - OneSignalXCFramework/OneSignalCore
+    - OneSignalXCFramework/OneSignalOutcomes
+  - OneSignalXCFramework/OneSignalOutcomes (3.12.4):
+    - OneSignalXCFramework/OneSignalCore
   - Permission-FaceID (3.6.0):
     - RNPermissions
   - Permission-Notifications (3.6.0):
@@ -767,8 +786,8 @@ PODS:
     - React-Core
   - react-native-netinfo (9.3.0):
     - React-Core
-  - react-native-onesignal (4.3.7):
-    - OneSignalXCFramework (= 3.10.1)
+  - react-native-onesignal (4.5.1):
+    - OneSignalXCFramework (= 3.12.4)
     - React (< 1.0.0, >= 0.13.0)
   - react-native-pager-view (6.0.1):
     - React-Core
@@ -809,7 +828,7 @@ PODS:
     - React
     - React-callinvoker
     - React-Core
-  - react-native-webview (11.14.3):
+  - react-native-webview (11.23.1):
     - React-Core
   - React-perflogger (0.70.8)
   - React-RCTActionSheet (0.70.8):
@@ -984,12 +1003,17 @@ DEPENDENCIES:
   - EXApplication (from `../../../node_modules/expo-application/ios`)
   - EXAV (from `../../../node_modules/expo-av/ios`)
   - EXBarCodeScanner (from `../../../node_modules/expo-barcode-scanner/ios`)
+  - EXBlur (from `../../../node_modules/expo-blur/ios`)
+  - EXConstants (from `../../../node_modules/expo-constants/ios`)
+  - EXFileSystem (from `../../../node_modules/expo-file-system/ios`)
+  - EXFont (from `../../../node_modules/expo-font/ios`)
   - EXImageLoader (from `../../../node_modules/expo-image-loader/ios`)
   - EXLocalAuthentication (from `../../../node_modules/expo-local-authentication/ios`)
   - "experiment-react-native-client (from `../../../node_modules/@amplitude/experiment-react-native-client`)"
   - Expo (from `../../../node_modules/expo`)
   - ExpoClipboard (from `../../../node_modules/expo-clipboard/ios`)
   - ExpoHaptics (from `../../../node_modules/expo-haptics/ios`)
+  - ExpoKeepAwake (from `../../../node_modules/expo-keep-awake/ios`)
   - ExpoLinearGradient (from `../../../node_modules/expo-linear-gradient/ios`)
   - ExpoModulesCore (from `../../../node_modules/expo-modules-core`)
   - ExpoWebBrowser (from `../../../node_modules/expo-web-browser/ios`)
@@ -1119,6 +1143,14 @@ EXTERNAL SOURCES:
     :path: "../../../node_modules/expo-av/ios"
   EXBarCodeScanner:
     :path: "../../../node_modules/expo-barcode-scanner/ios"
+  EXBlur:
+    :path: "../../../node_modules/expo-blur/ios"
+  EXConstants:
+    :path: "../../../node_modules/expo-constants/ios"
+  EXFileSystem:
+    :path: "../../../node_modules/expo-file-system/ios"
+  EXFont:
+    :path: "../../../node_modules/expo-font/ios"
   EXImageLoader:
     :path: "../../../node_modules/expo-image-loader/ios"
   EXLocalAuthentication:
@@ -1131,6 +1163,8 @@ EXTERNAL SOURCES:
     :path: "../../../node_modules/expo-clipboard/ios"
   ExpoHaptics:
     :path: "../../../node_modules/expo-haptics/ios"
+  ExpoKeepAwake:
+    :path: "../../../node_modules/expo-keep-awake/ios"
   ExpoLinearGradient:
     :path: "../../../node_modules/expo-linear-gradient/ios"
   ExpoModulesCore:
@@ -1284,16 +1318,21 @@ SPEC CHECKSUMS:
   CryptoSwift: 562f8eceb40e80796fffc668b0cad9313284cfa6
   DoubleConversion: 5189b271737e1565bdce30deb4a08d647e3f5f54
   EthersRS: fcaf94e30ebdd795bfe1f9332cec8175566ba066
-  EXApplication: 034b1c40a8e9fe1bff76a1e511ee90dff64ad834
+  EXApplication: d8f53a7eee90a870a75656280e8d4b85726ea903
   EXAV: 9a45d37772c5329294c054a041dcc39931fc5032
   EXBarCodeScanner: 8e23fae8d267dbef9f04817833a494200f1fce35
+  EXBlur: d87af64a1b4ae264059983bf54baca72be2cbc7d
+  EXConstants: 29269f841ed8786d483b753021953264ac04818f
+  EXFileSystem: 0b4a2c08c2dc92146849772145d61c1773144283
+  EXFont: 6ea3800df746be7233208d80fe379b8ed74f4272
   EXImageLoader: fd053169a8ee932dd83bf1fe5487a50c26d27c2b
-  EXLocalAuthentication: 4c7166ed3133d2c75586093833936652e7d2c7fc
+  EXLocalAuthentication: 78cc5a00b13745b41d16d189ab332b61a01299f9
   experiment-react-native-client: c2af8630b6209c5d4dcebdcd71ba7ad38abdcc38
-  Expo: dedd83acfd4d70cbec6ac2f1b4433462d95c70bc
+  Expo: 8448e3a2aa1b295f029c81551e1ab6d986517fdb
   ExpoClipboard: 9b87df0ad145e3aa841614fab6aea54b7a604850
   ExpoHaptics: 5a56d30a87ea213dd00b09566dc4b441a4dff97f
-  ExpoLinearGradient: 8eaab76b7f55c612ed8348c8be8c2a18a9b4529f
+  ExpoKeepAwake: 69f5f627670d62318410392d03e0b5db0f85759a
+  ExpoLinearGradient: b40c2133ad57ae105b1b12a319e314463c817f6b
   ExpoModulesCore: b5d21c8880afda6fb6ee95469f9ac2ec9b98e995
   ExpoWebBrowser: 073e50f16669d498fb49063b9b7fe780b24f7fda
   EXScreenCapture: cbee2204f313038a1819d31ad99a31e15f8e0f59
@@ -1322,7 +1361,7 @@ SPEC CHECKSUMS:
   MMKV: 7f34558bbb5a33b0eaefae2de4b6a20a2ffdad6f
   MMKVCore: ddf41b9d9262f058419f9ba7598719af56c02cd3
   nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
-  OneSignalXCFramework: fe027712118f2862ab193b72270487f11450ea63
+  OneSignalXCFramework: 087934ab0d4d7445fcf1c015c7c782359e26c020
   Permission-FaceID: aaf43b353c25aaa2c1a501f93fa33dcb0f76e6c8
   Permission-Notifications: 7f2a467ab97a130a847519705340830d52cfc5f0
   PromisesObjC: 09985d6d70fbe7878040aa746d78236e6946d2ef
@@ -1348,12 +1387,12 @@ SPEC CHECKSUMS:
   react-native-get-random-values: a6ea6a8a65dc93e96e24a11105b1a9c8cfe1d72a
   react-native-mmkv: 1265a348a4711097ba29c8bcefd5971f48220f2b
   react-native-netinfo: 129bd99f607a2dc5bb096168f3e5c150fd1f1c95
-  react-native-onesignal: 7643517fe655b94cfda8e697ec16f9b9135648b8
+  react-native-onesignal: 7bd44dbd031d8d57110c0203836ffc37ddead526
   react-native-pager-view: 3051346698a0ba0c4e13e40097cc11b00ee03cca
   react-native-restart: 45c8dca02491980f2958595333cbccd6877cb57e
   react-native-safe-area-context: 39c2d8be3328df5d437ac1700f4f3a4f75716acc
   react-native-skia: 7e0c4708449d4c07b5b5cc82390b2ffc54051747
-  react-native-webview: b83cf1aa6b4453fe53ffcc5896c36cdf37f0383f
+  react-native-webview: d33e2db8925d090871ffeb232dfa50cb3a727581
   React-perflogger: e9249a18e055cae96fdf685bf6145cbea62506c8
   React-RCTActionSheet: a6d2a544a4605a111ce80fa9319cc870ca3ea778
   React-RCTAnimation: 21b776b15aa5451a0b5bcb342fd2f346817c1101
@@ -1395,6 +1434,6 @@ SPEC CHECKSUMS:
   Yoga: d6133108734e69e8c0becc6ba587294b94829687
   ZXingObjC: fdbb269f25dd2032da343e06f10224d62f537bdb
 
-PODFILE CHECKSUM: 4a5627633c1e0cff017313d2b64f9afedd33e1d8
+PODFILE CHECKSUM: b004c3cab9f644b4dab21ef2f7263fcfad4dd80e
 
-COCOAPODS: 1.11.3
+COCOAPODS: 1.12.1

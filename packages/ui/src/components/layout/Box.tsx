@@ -1,3 +1,4 @@
-import { Stack } from 'tamagui'
+import { YStack, YStackProps } from 'tamagui'
 
-export const Box = Stack
+export type BoxProps = YStackProps
+export const Box = YStack

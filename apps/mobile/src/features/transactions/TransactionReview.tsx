@@ -8,7 +8,6 @@ import { useAppTheme } from 'src/app/hooks'
 import { AddressDisplay } from 'src/components/AddressDisplay'
 import { Button, ButtonEmphasis, ButtonSize } from 'src/components/buttons/Button'
 import { TransferArrowButton } from 'src/components/buttons/TransferArrowButton'
-import { CurrencyLogo } from 'src/components/CurrencyLogo'
 import { Arrow } from 'src/components/icons/Arrow'
 import { AmountInput } from 'src/components/input/AmountInput'
 import { RecipientPrevTransfers } from 'src/components/input/RecipientInputPanel'
@@ -20,6 +19,7 @@ import { GQLNftAsset } from 'src/features/nfts/hooks'
 import { ElementName } from 'src/features/telemetry/constants'
 import { iconSizes } from 'ui/src/theme/iconSizes'
 import { dimensions } from 'ui/src/theme/restyle/sizing'
+import { CurrencyLogo } from 'wallet/src/components/CurrencyLogo/CurrencyLogo'
 import { CurrencyInfo } from 'wallet/src/features/dataApi/types'
 import { formatNumberOrString, NumberType } from 'wallet/src/utils/format'
 
@@ -221,12 +221,12 @@ export function TransactionReview({
             fill
             disabled={actionButtonProps.disabled}
             label={actionButtonProps.label}
-            name={actionButtonProps.name}
             size={ButtonSize.Large}
-            onPress={(): void => {
-              notificationAsync()
+            testID={actionButtonProps.name}
+            onPress={async (): Promise<void> => {
+              await notificationAsync()
               if (requiredForTransactions) {
-                actionButtonTrigger()
+                await actionButtonTrigger()
               } else {
                 actionButtonProps.onPress()
               }
