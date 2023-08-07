@@ -8,6 +8,7 @@ import { useAppTheme } from 'src/app/hooks'
 import { AnimatedFlex, Flex } from 'src/components/layout'
 import { Screen } from 'src/components/layout/Screen'
 import { Text } from 'src/components/Text'
+import { IS_IOS } from 'src/constants/globals'
 import { Theme } from 'ui/src/theme/restyle/theme'
 
 type OnboardingScreenProps = {
@@ -57,7 +58,7 @@ export function OnboardingScreen({
   return (
     <Screen edges={['right', 'left']} style={{ paddingTop: responsiveHeaderHeight }}>
       <KeyboardAvoidingView
-        behavior="padding"
+        behavior={IS_IOS ? 'padding' : undefined}
         enabled={keyboardAvoidingViewEnabled}
         style={[WrapperStyle.base, { marginBottom: insets.bottom }]}>
         <AnimatedFlex

@@ -6,34 +6,32 @@ import ContextMenu from 'react-native-context-menu-view'
 import { FadeInDown, FadeOutDown } from 'react-native-reanimated'
 import { useAppDispatch, useAppSelector, useAppTheme } from 'src/app/hooks'
 import { AppStackScreenProp } from 'src/app/navigation/types'
-import { TokenLogo } from 'src/components/CurrencyLogo/TokenLogo'
 import { AnimatedBox, AnimatedFlex, Box, Flex } from 'src/components/layout'
 import { BaseCard } from 'src/components/layout/BaseCard'
 import { HeaderScrollScreen } from 'src/components/layout/screens/HeaderScrollScreen'
 import { PriceExplorer } from 'src/components/PriceExplorer/PriceExplorer'
 import { useTokenPriceHistory } from 'src/components/PriceExplorer/usePriceHistory'
-import { Trace } from 'src/components/telemetry/Trace'
 import { Text } from 'src/components/Text'
 import { useCrossChainBalances } from 'src/components/TokenDetails/hooks'
 import { TokenBalances } from 'src/components/TokenDetails/TokenBalances'
 import { TokenDetailsActionButtons } from 'src/components/TokenDetails/TokenDetailsActionButton'
 import { TokenDetailsFavoriteButton } from 'src/components/TokenDetails/TokenDetailsFavoriteButton'
 import { TokenDetailsHeader } from 'src/components/TokenDetails/TokenDetailsHeader'
+import { TokenDetailsLinks } from 'src/components/TokenDetails/TokenDetailsLinks'
 import { TokenDetailsStats } from 'src/components/TokenDetails/TokenDetailsStats'
 import TokenWarningModal from 'src/components/tokens/TokenWarningModal'
+import Trace from 'src/components/Trace/Trace'
+import { IS_IOS } from 'src/constants/globals'
 import { useIsDarkMode } from 'src/features/appearance/hooks'
-import { useTokenBalanceContextMenu } from 'src/features/balances/hooks'
+import { useTokenContextMenu } from 'src/features/balances/hooks'
 import { openModal, selectModalState } from 'src/features/modals/modalSlice'
 import { ModalName } from 'src/features/telemetry/constants'
 import { useTokenWarningDismissed } from 'src/features/tokens/safetyHooks'
-import {
-  CurrencyField,
-  TransactionState,
-} from 'src/features/transactions/transactionState/transactionState'
 import { Screens } from 'src/screens/Screens'
 import { useExtractedTokenColor } from 'src/utils/colors'
 import EllipsisIcon from 'ui/src/assets/icons/ellipsis.svg'
 import { iconSizes } from 'ui/src/theme/iconSizes'
+import { TokenLogo } from 'wallet/src/components/CurrencyLogo/TokenLogo'
 import { ChainId } from 'wallet/src/constants/chains'
 import { PollingInterval } from 'wallet/src/constants/misc'
 import { isError, isNonPollingRequestInFlight } from 'wallet/src/data/utils'
@@ -45,7 +43,10 @@ import {
 import { AssetType } from 'wallet/src/entities/assets'
 import { fromGraphQLChain } from 'wallet/src/features/chains/utils'
 import { currencyIdToContractInput } from 'wallet/src/features/dataApi/utils'
-import { useActiveAccountAddressWithThrow } from 'wallet/src/features/wallet/hooks'
+import {
+  CurrencyField,
+  TransactionState,
+} from 'wallet/src/features/transactions/transactionState/types'
 import { currencyIdToAddress, currencyIdToChain } from 'wallet/src/utils/currencyId'
 import { formatUSDPrice } from 'wallet/src/utils/format'
 
@@ -63,15 +64,24 @@ function HeaderPriceLabel({ price }: { price: Price }): JSX.Element {
   )
 }
 
-function HeaderTitleElement({ data }: { data: TokenDetailsScreenQuery | undefined }): JSX.Element {
+function HeaderTitleElement({
+  data,
+  ellipsisMenuVisible,
+}: {
+  data: TokenDetailsScreenQuery | undefined
+  ellipsisMenuVisible?: boolean
+}): JSX.Element {
   const { t } = useTranslation()
 
   const token = data?.token
   const tokenProject = token?.project
 
   return (
-    // ml="spacing32" is needed to compensate `...` menu, so the header is centered
-    <Flex alignItems="center" gap="none" justifyContent="space-between" ml="spacing32">
+    <Flex
+      alignItems="center"
+      gap="none"
+      justifyContent="space-between"
+      ml={ellipsisMenuVisible ? 'spacing32' : 'none'}>
       <HeaderPriceLabel price={tokenProject?.markets?.[0]?.price} />
       <Flex centered row gap="spacing4">
         <TokenLogo
@@ -107,8 +117,8 @@ export function TokenDetailsScreen({
     returnPartialData: true,
   })
 
-  const retry = useCallback(() => {
-    refetch(currencyIdToContractInput(_currencyId))
+  const retry = useCallback(async () => {
+    await refetch(currencyIdToContractInput(_currencyId))
   }, [_currencyId, refetch])
 
   const isLoading = !data && isNonPollingRequestInFlight(networkStatus)
@@ -159,8 +169,6 @@ function TokenDetails({
 }): JSX.Element {
   const dispatch = useAppDispatch()
   const theme = useAppTheme()
-
-  const activeAccountAddress = useActiveAccountAddressWithThrow()
 
   const currencyChainId = currencyIdToChain(_currencyId) ?? ChainId.Mainnet
   const currencyAddress = currencyIdToAddress(_currencyId)
@@ -275,13 +283,12 @@ function TokenDetails({
     }
   }, [activeTransactionType, dismissWarningCallback, navigateToSwapBuy, navigateToSwapSell])
 
-  const pb = useResponsiveProp({ xs: 'none', sm: 'spacing16' })
+  const pb = useResponsiveProp(IS_IOS ? { xs: 'none', sm: 'spacing16' } : 'none')
 
   const inModal = useAppSelector(selectModalState(ModalName.Explore)).isOpen
 
-  const { menuActions, onContextMenuPress } = useTokenBalanceContextMenu({
+  const { menuActions, onContextMenuPress } = useTokenContextMenu({
     currencyId: _currencyId,
-    owner: activeAccountAddress,
     isSpam: currentChainBalance?.currencyInfo.isSpam,
     isNative: currentChainBalance?.currencyInfo.currency.isNative,
     balanceUSD: currentChainBalance?.balanceUSD,
@@ -292,20 +299,24 @@ function TokenDetails({
   // shall be the same color as heart icon in not favorited state next to it
   const ellipsisColor = isDarkMode ? theme.colors.textTertiary : theme.colors.backgroundOutline
 
+  const ellipsisMenuVisible = menuActions.length > 0
+
   return (
     <Trace screen={Screens.TokenDetails}>
       <HeaderScrollScreen
-        centerElement={<HeaderTitleElement data={data} />}
+        centerElement={<HeaderTitleElement data={data} ellipsisMenuVisible={ellipsisMenuVisible} />}
         renderedInModal={inModal}
         rightElement={
           <Flex row alignItems="center">
-            <ContextMenu dropdownMenuMode actions={menuActions} onPress={onContextMenuPress}>
-              <EllipsisIcon
-                color={ellipsisColor}
-                height={iconSizes.icon16}
-                width={iconSizes.icon16}
-              />
-            </ContextMenu>
+            {ellipsisMenuVisible && (
+              <ContextMenu dropdownMenuMode actions={menuActions} onPress={onContextMenuPress}>
+                <EllipsisIcon
+                  color={ellipsisColor}
+                  height={iconSizes.icon16}
+                  width={iconSizes.icon16}
+                />
+              </ContextMenu>
+            )}
             <TokenDetailsFavoriteButton currencyId={_currencyId} />
           </Flex>
         }
@@ -332,15 +343,16 @@ function TokenDetails({
               <BaseCard.InlineErrorState onRetry={retry} />
             </AnimatedBox>
           ) : null}
-          <Flex gap="spacing24">
+          <Flex gap="spacing24" mb="spacing8">
             <TokenBalances
               currentChainBalance={currentChainBalance}
               otherChainBalances={otherChainBalances}
               onPressSend={onPressSend}
             />
-            <Box mb="spacing8" mx="spacing16">
-              <TokenDetailsStats currencyId={_currencyId} data={data} tokenColor={tokenColor} />
+            <Box mx="spacing16">
+              <TokenDetailsStats data={data} tokenColor={tokenColor} />
             </Box>
+            <TokenDetailsLinks currencyId={_currencyId} data={data} />
           </Flex>
         </Flex>
       </HeaderScrollScreen>

@@ -4,8 +4,9 @@ import { useOnboardingStackNavigation } from 'src/app/navigation/types'
 import { ImportType, OnboardingEntryPoint } from 'src/features/onboarding/utils'
 import { sendAnalyticsEvent } from 'src/features/telemetry'
 import { MobileEventName } from 'src/features/telemetry/constants'
-import { useTrace } from 'src/features/telemetry/hooks'
 import { Screens } from 'src/screens/Screens'
+import { useTrace } from 'wallet/src/features/telemetry/trace/TraceContext'
+import { Account, BackupType } from 'wallet/src/features/wallet/accounts/types'
 import {
   pendingAccountActions,
   PendingAccountActions,
@@ -21,36 +22,39 @@ import { setFinishedOnboarding } from 'wallet/src/features/wallet/slice'
 export function useCompleteOnboardingCallback(
   entryPoint: OnboardingEntryPoint,
   importType: ImportType
-): () => void {
+): () => Promise<void> {
   const dispatch = useAppDispatch()
   const pendingAccounts = usePendingAccounts()
+  const pendingWalletAddresses = Object.keys(pendingAccounts)
   const parentTrace = useTrace()
   const navigation = useOnboardingStackNavigation()
 
-  return () => {
+  return async () => {
     sendAnalyticsEvent(
       entryPoint === OnboardingEntryPoint.Sidebar
         ? MobileEventName.WalletAdded
         : MobileEventName.OnboardingCompleted,
       {
         wallet_type: importType,
-        accounts_imported_count: Object.entries(pendingAccounts).length,
-        wallets_imported: Object.keys(pendingAccounts),
+        accounts_imported_count: pendingWalletAddresses.length,
+        wallets_imported: pendingWalletAddresses,
+        cloud_backup_used: Object.values(pendingAccounts).some((acc: Account) =>
+          acc.backups?.includes(BackupType.Cloud)
+        ),
         ...parentTrace,
       }
     )
-
-    if (entryPoint === OnboardingEntryPoint.FreshInstallOrReplace) {
-      appsFlyer.logEvent('onboarding_complete', { importType })
-    }
-
     // Remove pending flag from all new accounts.
-    dispatch(pendingAccountActions.trigger(PendingAccountActions.ACTIVATE))
+    dispatch(pendingAccountActions.trigger(PendingAccountActions.Activate))
 
     // Exit flow
     dispatch(setFinishedOnboarding({ finishedOnboarding: true }))
     if (entryPoint === OnboardingEntryPoint.Sidebar) {
       navigation.navigate(Screens.Home)
+    }
+
+    if (entryPoint === OnboardingEntryPoint.FreshInstallOrReplace) {
+      await appsFlyer.logEvent('onboarding_complete', { importType })
     }
   }
 }

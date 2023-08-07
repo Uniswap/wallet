@@ -2,13 +2,12 @@ import { getSdkError } from '@walletconnect/utils'
 import { ImpactFeedbackStyle } from 'expo-haptics'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { StyleSheet } from 'react-native'
-import ContextMenu from 'react-native-context-menu-view'
+import { NativeSyntheticEvent, StyleSheet } from 'react-native'
+import ContextMenu, { ContextMenuOnPressNativeEvent } from 'react-native-context-menu-view'
 import 'react-native-reanimated'
 import { FadeIn, FadeOut } from 'react-native-reanimated'
 import { useAppDispatch, useAppTheme } from 'src/app/hooks'
 import { AnimatedTouchableArea, TouchableArea } from 'src/components/buttons/TouchableArea'
-import { NetworkLogo } from 'src/components/CurrencyLogo/NetworkLogo'
 import { Chevron } from 'src/components/icons/Chevron'
 import { Box, Flex } from 'src/components/layout'
 import { Text } from 'src/components/Text'
@@ -22,6 +21,7 @@ import {
   WalletConnectSessionV1,
 } from 'src/features/walletConnect/walletConnectSlice'
 import { wcWeb3Wallet } from 'src/features/walletConnectV2/saga'
+import { NetworkLogo } from 'wallet/src/components/CurrencyLogo/NetworkLogo'
 import { CHAIN_INFO } from 'wallet/src/constants/chains'
 import { toSupportedChainId } from 'wallet/src/features/chains/utils'
 import { logger } from 'wallet/src/features/logger/logger'
@@ -86,15 +86,14 @@ export function DappConnectionItem({
 
   const menuActions = [{ title: t('Disconnect'), systemIcon: 'trash', destructive: true }]
 
+  const onPress = async (e: NativeSyntheticEvent<ContextMenuOnPressNativeEvent>): Promise<void> => {
+    if (e.nativeEvent.index === 0) {
+      await onDisconnect()
+    }
+  }
+
   return (
-    <ContextMenu
-      actions={menuActions}
-      style={styles.container}
-      onPress={(e): void => {
-        if (e.nativeEvent.index === 0) {
-          onDisconnect()
-        }
-      }}>
+    <ContextMenu actions={menuActions} style={styles.container} onPress={onPress}>
       <Flex
         grow
         bg="background2"
@@ -150,6 +149,7 @@ export function DappConnectionItem({
           <TouchableArea
             hapticFeedback
             hapticStyle={ImpactFeedbackStyle.Medium}
+            testID={ElementName.WCDappSwitchNetwork}
             onPress={(): void => onPressChangeNetwork(session)}>
             <NetworkLogos
               showFirstChainLabel
@@ -179,9 +179,7 @@ function ChangeNetworkButton({
   const supportedChainId = toSupportedChainId(session.dapp.chain_id)
 
   return (
-    <TouchableArea
-      name={ElementName.WCDappSwitchNetwork}
-      onPress={(): void => onPressChangeNetwork(session)}>
+    <TouchableArea onPress={(): void => onPressChangeNetwork(session)}>
       <Flex
         row
         shrink

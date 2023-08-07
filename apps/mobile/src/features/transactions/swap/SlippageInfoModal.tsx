@@ -8,13 +8,13 @@ import { Flex } from 'src/components/layout'
 import { BottomSheetModal } from 'src/components/modals/BottomSheetModal'
 import { Text } from 'src/components/Text'
 import { ModalName } from 'src/features/telemetry/constants'
-import { Trade } from 'src/features/transactions/swap/useTrade'
 import { slippageToleranceToPercent } from 'src/features/transactions/swap/utils'
 import { openUri } from 'src/utils/linking'
 import AlertTriangleIcon from 'ui/src/assets/icons/alert-triangle.svg'
 import SettingsIcon from 'ui/src/assets/icons/settings.svg'
 import { opacify } from 'ui/src/theme/color/utils'
 import { SWAP_SLIPPAGE_HELP_PAGE_URL } from 'wallet/src/constants/urls'
+import { Trade } from 'wallet/src/features/transactions/swap/useTrade'
 import { formatCurrencyAmount, NumberType } from 'wallet/src/utils/format'
 
 export type SlippageInfoModalProps = {
@@ -33,8 +33,8 @@ export default function SlippageInfoModal({
   const { t } = useTranslation()
   const theme = useAppTheme()
 
-  const onPressLearnMore = (): void => {
-    openUri(SWAP_SLIPPAGE_HELP_PAGE_URL)
+  const onPressLearnMore = async (): Promise<void> => {
+    await openUri(SWAP_SLIPPAGE_HELP_PAGE_URL)
   }
 
   const { slippageTolerance, tradeType } = trade

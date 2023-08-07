@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 import { useAppTheme } from 'src/app/hooks'
 import { Button, ButtonEmphasis } from 'src/components/buttons/Button'
 import { TouchableArea } from 'src/components/buttons/TouchableArea'
-import { TokenLogo } from 'src/components/CurrencyLogo/TokenLogo'
 import { Flex } from 'src/components/layout'
 import { BottomSheetModal } from 'src/components/modals/BottomSheetModal'
 import { Text } from 'src/components/Text'
@@ -16,6 +15,7 @@ import { ExplorerDataType, getExplorerLink, openUri } from 'src/utils/linking'
 import ExternalLinkIcon from 'ui/src/assets/icons/external-link.svg'
 import { opacify } from 'ui/src/theme/color/utils'
 import { iconSizes } from 'ui/src/theme/iconSizes'
+import { TokenLogo } from 'wallet/src/components/CurrencyLogo/TokenLogo'
 import { TOKEN_WARNING_HELP_PAGE_URL } from 'wallet/src/constants/urls'
 import { SafetyLevel } from 'wallet/src/data/__generated__/types-and-hooks'
 import { currencyIdToAddress, currencyIdToChain } from 'wallet/src/utils/currencyId'
@@ -73,8 +73,8 @@ export default function TokenWarningModal({
 
   const closeButtonText = hideAcceptButton ? t('Close') : t('Back')
 
-  const onPressLearnMore = (): void => {
-    openUri(TOKEN_WARNING_HELP_PAGE_URL)
+  const onPressLearnMore = async (): Promise<void> => {
+    await openUri(TOKEN_WARNING_HELP_PAGE_URL)
   }
 
   const showWarningIcon =
@@ -139,7 +139,7 @@ export default function TokenWarningModal({
             fill
             emphasis={ButtonEmphasis.Tertiary}
             label={closeButtonText}
-            name={ElementName.Cancel}
+            testID={ElementName.Cancel}
             onPress={onClose}
           />
           {!hideAcceptButton && (
@@ -147,7 +147,7 @@ export default function TokenWarningModal({
               fill
               emphasis={getButtonEmphasis(safetyLevel)}
               label={showWarningIcon ? t('I understand') : t('Continue')}
-              name={ElementName.TokenWarningAccept}
+              testID={ElementName.TokenWarningAccept}
               onPress={onAccept}
             />
           )}

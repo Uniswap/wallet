@@ -9,8 +9,10 @@ import { useAppTheme } from 'src/app/hooks'
 import { AnimatedFlex, Flex } from 'src/components/layout'
 import { Screen } from 'src/components/layout/Screen'
 import { Text } from 'src/components/Text'
+import { IS_IOS } from 'src/constants/globals'
 import { useKeyboardLayout } from 'src/utils/useKeyboardLayout'
 import { opacify } from 'ui/src/theme/color/utils'
+import { flex } from 'ui/src/theme/restyle/flex'
 import { Theme } from 'ui/src/theme/restyle/theme'
 
 type OnboardingScreenProps = {
@@ -97,10 +99,13 @@ export function SafeKeyboardOnboardingScreen({
   return (
     <Screen edges={['right', 'left']}>
       <KeyboardAvoidingView
-        behavior="padding"
+        behavior={IS_IOS ? 'padding' : undefined}
         contentContainerStyle={containerStyle}
         style={[styles.base, { marginBottom: responsiveBottom }]}>
-        <ScrollView bounces={false} keyboardShouldPersistTaps="handled">
+        <ScrollView
+          bounces={false}
+          contentContainerStyle={flex.grow}
+          keyboardShouldPersistTaps="handled">
           <AnimatedFlex
             entering={FadeIn}
             exiting={FadeOut}

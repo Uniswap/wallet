@@ -1,10 +1,9 @@
-/* eslint-disable react-native/no-inline-styles */
 import React, { ComponentProps, useCallback, useReducer, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LayoutChangeEvent, NativeSyntheticEvent, TextLayoutEventData } from 'react-native'
 import Markdown from 'react-native-markdown-display'
 import { useAppTheme } from 'src/app/hooks'
-import { Flex } from 'src/components/layout'
+import { Box, Flex } from 'src/components/layout'
 import { Text } from 'src/components/Text'
 import { openUri } from 'src/utils/linking'
 import { Theme } from 'ui/src/theme/restyle/theme'
@@ -61,34 +60,22 @@ export function LongText(props: LongTextProps): JSX.Element {
 
   const onTextLayout = useCallback(
     (e: NativeSyntheticEvent<TextLayoutEventData>) => {
-      if (!renderAsMarkdown) {
-        setTextLengthExceedsLimit(e.nativeEvent.lines.length >= initialDisplayedLines)
-      }
+      setTextLengthExceedsLimit(e.nativeEvent.lines.length >= initialDisplayedLines)
     },
-    [renderAsMarkdown, initialDisplayedLines]
+    [initialDisplayedLines]
   )
 
   return (
     <Flex gap={gap}>
-      <Text
-        numberOfLines={expanded ? undefined : initialDisplayedLines}
-        style={
-          renderAsMarkdown
-            ? {
-                color,
-                height: !textLengthExceedsLimit || expanded ? 'auto' : maxVisibleHeight,
-                overflow: 'hidden',
-              }
-            : { color }
-        }
-        variant={variant}
-        onLayout={onLayout}
-        onTextLayout={onTextLayout}
-        {...rest}>
+      <Box onLayout={onLayout}>
         {renderAsMarkdown ? (
           <Markdown
             style={{
-              body: { color },
+              body: {
+                color,
+                height: !textLengthExceedsLimit || expanded ? 'auto' : maxVisibleHeight,
+                overflow: 'hidden',
+              },
               link: { color: linkColor },
               paragraph: {
                 marginBottom: 0,
@@ -99,16 +86,23 @@ export function LongText(props: LongTextProps): JSX.Element {
             }}
             onLinkPress={(url): false => {
               // add our own custom link handler since it has security checks that only open http/https links
-              openUri(url)
+              openUri(url).catch(() => undefined)
               return false
             }}
             // HACK: children prop no in TS definition
             {...{ children: text }}
           />
         ) : (
-          text
+          <Text
+            numberOfLines={expanded ? undefined : initialDisplayedLines}
+            style={{ color }}
+            variant={variant}
+            onTextLayout={onTextLayout}
+            {...rest}>
+            {text}
+          </Text>
         )}
-      </Text>
+      </Box>
 
       {/* Text is removed vs hidden using opacity to ensure spacing after the element is consistent in all cases.
       This will cause mild thrash as data loads into a page but will ensure consistent spacing */}

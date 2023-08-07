@@ -48,11 +48,11 @@ export function SettingsCloudBackupStatus({
   )
 
   const [showBackupDeleteWarning, setShowBackupDeleteWarning] = useState(false)
-  const onConfirmDeleteBackup = (): void => {
+  const onConfirmDeleteBackup = async (): Promise<void> => {
     if (requiredForTransactions) {
-      biometricTrigger()
+      await biometricTrigger()
     } else {
-      deleteBackup()
+      await deleteBackup()
     }
   }
 
@@ -87,9 +87,13 @@ export function SettingsCloudBackupStatus({
   const { requiredForTransactions } = useBiometricAppSettings()
   const { trigger: biometricTrigger } = useBiometricPrompt(deleteBackup)
 
+  const onPressBack = (): void => {
+    navigation.navigate(Screens.SettingsWallet, { address })
+  }
+
   return (
     <Screen mx="spacing16" my="spacing16">
-      <BackHeader alignment="center" mb="spacing16">
+      <BackHeader alignment="center" mb="spacing16" onPressBack={onPressBack}>
         <Text variant="bodyLarge">{t('iCloud backup')}</Text>
       </BackHeader>
 
@@ -115,7 +119,7 @@ export function SettingsCloudBackupStatus({
         <Button
           emphasis={ButtonEmphasis.Detrimental}
           label={t('Delete iCloud backup')}
-          name={ElementName.Remove}
+          testID={ElementName.Remove}
           onPress={(): void => {
             setShowBackupDeleteWarning(true)
           }}

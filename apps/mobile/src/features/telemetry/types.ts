@@ -1,14 +1,11 @@
 import { RenderPassReport } from '@shopify/react-native-performance'
 import { MoonpayEventName, SharedEventName, SwapEventName } from '@uniswap/analytics-events'
-import { TraceProps } from 'src/components/telemetry/Trace'
-import { TraceEventProps } from 'src/components/telemetry/TraceEvent'
 import { ImportType } from 'src/features/onboarding/utils'
 import { MobileEventName } from 'src/features/telemetry/constants'
-import { CurrencyField } from 'src/features/transactions/transactionState/transactionState'
 import { ChainId } from 'wallet/src/constants/chains'
+import { TraceProps } from 'wallet/src/features/telemetry/trace/Trace'
+import { CurrencyField } from 'wallet/src/features/transactions/transactionState/types'
 import { EthMethod, WCEventType, WCRequestOutcome } from 'wallet/src/features/walletConnect/types'
-
-type BaseEventProperty = Partial<TraceEventProps & TraceProps> | undefined
 
 export type SwapTradeBaseProperties = {
   allowed_slippage_basis_points?: number
@@ -21,7 +18,7 @@ export type SwapTradeBaseProperties = {
   chain_id: number
   token_in_amount: string
   token_out_amount: string
-} & BaseEventProperty
+} & TraceProps
 
 type SwapTransactionResultProperties = {
   address: string
@@ -43,7 +40,7 @@ type SwapTransactionResultProperties = {
 // Events related to Moonpay internal transactions
 // NOTE: we do not currently have access to the full life cycle of these txs
 // because we do not yet use Moonpay's webhook
-export type MoonpayTransactionEventProperties = BaseEventProperty &
+export type MoonpayTransactionEventProperties = TraceProps &
   // allow any object of strings for now
   Record<string, string>
 
@@ -61,7 +58,14 @@ export type SearchResultContextProperties = {
   isHistory?: boolean
 }
 
-export type EventProperties = {
+type OnboardingCompletedProps = {
+  wallet_type: ImportType
+  accounts_imported_count: number
+  wallets_imported: string[]
+  cloud_backup_used: boolean
+}
+
+export type MobileEventProperties = {
   [MobileEventName.BalancesReport]: {
     total_balances_usd: number
     wallets: string[]
@@ -88,18 +92,14 @@ export type EventProperties = {
   [MobileEventName.FavoriteItem]: AssetDetailsBaseProperties & {
     type: 'token' | 'wallet'
   }
-  [MobileEventName.FiatOnRampQuickActionButtonPressed]: BaseEventProperty
-  [MobileEventName.FiatOnRampBannerPressed]: BaseEventProperty
-  [MobileEventName.FiatOnRampAmountEntered]: BaseEventProperty & { source: 'chip' | 'textInput' }
-  [MobileEventName.FiatOnRampWidgetOpened]: BaseEventProperty & { externalTransactionId: string }
-  [MobileEventName.NetworkFilterSelected]: BaseEventProperty & {
+  [MobileEventName.FiatOnRampQuickActionButtonPressed]: TraceProps
+  [MobileEventName.FiatOnRampBannerPressed]: TraceProps
+  [MobileEventName.FiatOnRampAmountEntered]: TraceProps & { source: 'chip' | 'textInput' }
+  [MobileEventName.FiatOnRampWidgetOpened]: TraceProps & { externalTransactionId: string }
+  [MobileEventName.NetworkFilterSelected]: TraceProps & {
     chain: ChainId | 'All'
   }
-  [MobileEventName.OnboardingCompleted]: {
-    wallet_type: ImportType
-    accounts_imported_count: number
-    wallets_imported: string[]
-  } & BaseEventProperty
+  [MobileEventName.OnboardingCompleted]: OnboardingCompletedProps & TraceProps
   [MobileEventName.PerformanceReport]: RenderPassReport
   [MobileEventName.PerformanceGraphql]: {
     dataSize: number
@@ -114,17 +114,13 @@ export type EventProperties = {
   [MobileEventName.SwapSubmitted]: {
     transaction_hash: string
   } & SwapTradeBaseProperties
-  [MobileEventName.TokenDetailsOtherChainButtonPressed]: BaseEventProperty
-  [MobileEventName.TokenSelected]: BaseEventProperty &
+  [MobileEventName.TokenDetailsOtherChainButtonPressed]: TraceProps
+  [MobileEventName.TokenSelected]: TraceProps &
     AssetDetailsBaseProperties &
     SearchResultContextProperties & {
       field: CurrencyField
     }
-  [MobileEventName.WalletAdded]: {
-    wallet_type: ImportType
-    accounts_imported_count: number
-    wallets_imported: string[]
-  } & BaseEventProperty
+  [MobileEventName.WalletAdded]: OnboardingCompletedProps & TraceProps
   [MobileEventName.WalletConnectSheetCompleted]: {
     request_type: WCEventType
     eth_method?: EthMethod
@@ -137,11 +133,11 @@ export type EventProperties = {
   [MoonpayEventName.MOONPAY_GEOCHECK_COMPLETED]: {
     success: boolean
     networkError: boolean
-  } & BaseEventProperty
-  [SharedEventName.APP_LOADED]: BaseEventProperty
-  [SharedEventName.ELEMENT_CLICKED]: BaseEventProperty
-  [SharedEventName.PAGE_VIEWED]: BaseEventProperty
-  [SwapEventName.SWAP_DETAILS_EXPANDED]: BaseEventProperty
+  } & TraceProps
+  [SharedEventName.APP_LOADED]: TraceProps | undefined
+  [SharedEventName.ELEMENT_CLICKED]: TraceProps
+  [SharedEventName.PAGE_VIEWED]: TraceProps
+  [SwapEventName.SWAP_DETAILS_EXPANDED]: TraceProps | undefined
   [SwapEventName.SWAP_QUOTE_RECEIVED]: {
     quote_latency_milliseconds?: number
   } & SwapTradeBaseProperties
@@ -157,10 +153,3 @@ export type EventProperties = {
   [SwapEventName.SWAP_TRANSACTION_COMPLETED]: SwapTransactionResultProperties
   [SwapEventName.SWAP_TRANSACTION_FAILED]: SwapTransactionResultProperties
 }
-
-export type TelemetryEventProps = {
-  // Left this one as name as it's being used all over the app already
-  name?: TraceEventProps['elementName']
-} & Partial<Pick<TraceEventProps, 'eventName' | 'events' | 'properties'>>
-
-export type TelemetryTraceProps = Omit<TraceProps, 'logImpression' | 'startMark' | 'endMark'>

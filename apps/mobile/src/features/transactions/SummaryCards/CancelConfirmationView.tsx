@@ -8,10 +8,11 @@ import { Button, ButtonEmphasis } from 'src/components/buttons/Button'
 import { BoxProps, Flex } from 'src/components/layout'
 import { Text } from 'src/components/Text'
 import { useBiometricAppSettings, useBiometricPrompt } from 'src/features/biometrics/hooks'
-import { useCancelationGasFeeInfo, useUSDValue } from 'src/features/gas/hooks'
+import { useCancelationGasFeeInfo } from 'src/features/gas/hooks'
 import { ElementName } from 'src/features/telemetry/constants'
 import SlashCircleIcon from 'ui/src/assets/icons/slash-circle.svg'
 import { theme } from 'ui/src/theme/restyle/theme'
+import { useUSDValue } from 'wallet/src/features/gas/hooks'
 import { TransactionDetails, TransactionStatus } from 'wallet/src/features/transactions/types'
 import { useActiveAccount } from 'wallet/src/features/wallet/hooks'
 import { shortenAddress } from 'wallet/src/utils/addresses'
@@ -49,10 +50,10 @@ export function CancelConfirmationView({
   const { trigger: actionButtonTrigger } = useBiometricPrompt(onCancelConfirm)
   const { requiredForTransactions } = useBiometricAppSettings()
 
-  const onPressCancel = useCallback(() => {
-    notificationAsync()
+  const onPressCancel = useCallback(async () => {
+    await notificationAsync()
     if (requiredForTransactions) {
-      actionButtonTrigger()
+      await actionButtonTrigger()
     } else {
       onCancelConfirm()
     }
@@ -119,7 +120,7 @@ export function CancelConfirmationView({
           disabled={transactionDetails.status !== TransactionStatus.Pending}
           emphasis={ButtonEmphasis.Detrimental}
           label={t('Confirm')}
-          name={ElementName.Cancel}
+          testID={ElementName.Cancel}
           onPress={onPressCancel}
         />
       </Flex>

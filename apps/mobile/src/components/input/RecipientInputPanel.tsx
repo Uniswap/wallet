@@ -27,8 +27,8 @@ export function RecipientInputPanel({
 
   return (
     <TouchableArea
-      name={ElementName.SelectRecipient}
       p="spacing16"
+      testID={ElementName.SelectRecipient}
       onPress={onToggleShowRecipientSelector}>
       <Flex gap="spacing8">
         <Flex centered row gap="spacing4">
@@ -49,13 +49,14 @@ export function RecipientInputPanel({
 export function RecipientPrevTransfers({ recipient }: { recipient: string }): JSX.Element {
   const { t } = useTranslation()
   const activeAddress = useActiveAccountAddressWithThrow()
-  const prevTxns = useAllTransactionsBetweenAddresses(activeAddress, recipient).length
+  const previousTransactions = useAllTransactionsBetweenAddresses(activeAddress, recipient)
+  const prevTxnsCount = previousTransactions?.length ?? 0
 
   return (
     <Text color="textTertiary" textAlign="center" variant="subheadSmall">
-      {prevTxns === 1
-        ? t('{{ prevTxns }} previous transfer', { prevTxns })
-        : t('{{ prevTxns }} previous transfers', { prevTxns })}
+      {prevTxnsCount === 1
+        ? t('{{ prevTxnsCount }} previous transfer', { prevTxnsCount })
+        : t('{{ prevTxnsCount }} previous transfers', { prevTxnsCount })}
     </Text>
   )
 }

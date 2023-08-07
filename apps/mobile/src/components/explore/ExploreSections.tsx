@@ -20,7 +20,7 @@ import {
 import { selectHasFavoriteTokens, selectHasWatchedWallets } from 'src/features/favorites/selectors'
 import { usePollOnFocusOnly } from 'src/utils/hooks'
 import { ChainId } from 'wallet/src/constants/chains'
-import { EMPTY_ARRAY, PollingInterval } from 'wallet/src/constants/misc'
+import { PollingInterval } from 'wallet/src/constants/misc'
 import {
   Chain,
   ExploreTokensTabQuery,
@@ -66,7 +66,7 @@ export function ExploreSections({ listRef }: ExploreSectionsProps): JSX.Element 
   usePollOnFocusOnly(startPolling, stopPolling, PollingInterval.Fast)
 
   const topTokenItems = useMemo(() => {
-    if (!data || !data.topTokens) return EMPTY_ARRAY
+    if (!data || !data.topTokens) return
 
     // special case to replace weth with eth because the backend does not return eth data
     // eth will be defined only if all the required data is available
@@ -116,8 +116,8 @@ export function ExploreSections({ listRef }: ExploreSectionsProps): JSX.Element 
   const hasAllData = !!data?.topTokens
   const error = usePersistedError(requestLoading, requestError)
 
-  const onRetry = useCallback(() => {
-    refetch()
+  const onRetry = useCallback(async () => {
+    await refetch()
   }, [refetch])
 
   // Use showLoading for showing full screen loading state
@@ -164,7 +164,7 @@ export function ExploreSections({ listRef }: ExploreSectionsProps): JSX.Element 
           </Flex>
         </>
       }
-      data={showLoading ? EMPTY_ARRAY : topTokenItems}
+      data={showLoading ? undefined : topTokenItems}
       keyExtractor={tokenKey}
       renderItem={renderItem}
       showsHorizontalScrollIndicator={false}

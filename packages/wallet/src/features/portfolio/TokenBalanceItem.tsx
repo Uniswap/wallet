@@ -1,11 +1,11 @@
 import { memo } from 'react'
-import { Image } from 'tamagui'
+import { Image, Stack, YStack } from 'ui/src'
 import { Flex } from 'ui/src/components/layout/Flex'
 import { Text } from 'ui/src/components/text/Text'
 import { iconSizes } from 'ui/src/theme/iconSizes'
 import { PortfolioBalance } from 'wallet/src/features/dataApi/types'
 import { CurrencyId } from 'wallet/src/utils/currencyId'
-import { formatNumber, NumberType } from 'wallet/src/utils/format'
+import { formatNumber, formatUSDPrice, NumberType } from 'wallet/src/utils/format'
 
 interface TokenBalanceItemProps {
   portfolioBalance: PortfolioBalance
@@ -16,65 +16,66 @@ interface TokenBalanceItemProps {
 
 export const TOKEN_BALANCE_ITEM_HEIGHT = 56
 
-export const TokenBalanceItem = memo(
-  ({ portfolioBalance, onPressToken, loading }: TokenBalanceItemProps) => {
-    const { quantity, currencyInfo, relativeChange24 } = portfolioBalance
-    const { currency } = currencyInfo
+export const TokenBalanceItem = memo(function _TokenBalanceItem({
+  portfolioBalance,
+  onPressToken,
+  loading,
+}: TokenBalanceItemProps) {
+  const { quantity, currencyInfo } = portfolioBalance
+  const { currency } = currencyInfo
 
-    const onPress = (): void => {
-      onPressToken?.(currencyInfo.currencyId)
-    }
-
-    return (
-      <Flex
-        alignItems="flex-start"
-        flexDirection="row"
-        justifyContent="space-between"
-        minHeight={TOKEN_BALANCE_ITEM_HEIGHT}
-        paddingHorizontal="$spacing16"
-        paddingVertical="$spacing8"
-        width="100%"
-        onPress={onPress}>
-        {loading ? (
-          <Flex
-            backgroundColor="$textTertiary"
-            borderRadius="$rounded16"
-            paddingHorizontal="$spacing16"
-            paddingVertical="$spacing12"
-            width="100%"
-          />
-        ) : (
-          <Flex
-            alignItems="center"
-            flexDirection="row"
-            flexShrink={1}
-            gap="$spacing12"
-            overflow="hidden">
-            <Image
-              height={iconSizes.icon36}
-              src={currencyInfo.logoUrl ?? ''}
-              width={iconSizes.icon36}
-            />
-            <Flex alignItems="flex-start" flexShrink={1} gap="$none">
-              <Text ellipsizeMode="tail" numberOfLines={1} variant="bodyLarge">
-                {currency.name ?? currency.symbol}
-              </Text>
-              <Flex alignItems="center" flexDirection="row" gap="$spacing8" minHeight={20}>
-                <Text color="$textTertiary" numberOfLines={1} variant="subheadSmall">
-                  {`${formatNumber(quantity, NumberType.TokenNonTx)}`} {currency.symbol}
-                </Text>
-                <Text
-                  color={
-                    relativeChange24 && relativeChange24 > 0 ? '$accentSuccess' : '$accentCritical'
-                  }
-                  variant="subheadSmall">
-                  {relativeChange24 ? `${Math.abs(relativeChange24).toFixed(2)}%` : ''}
-                </Text>
-              </Flex>
-            </Flex>
-          </Flex>
-        )}
-      </Flex>
-    )
+  const onPress = (): void => {
+    onPressToken?.(currencyInfo.currencyId)
   }
-)
+
+  return (
+    <Flex
+      row
+      alignItems="flex-start"
+      justifyContent="space-between"
+      minHeight={TOKEN_BALANCE_ITEM_HEIGHT}
+      paddingHorizontal="$spacing16"
+      paddingVertical="$spacing8"
+      width="100%"
+      onPress={onPress}>
+      {loading ? (
+        <Flex
+          backgroundColor="$textTertiary"
+          borderRadius="$rounded16"
+          paddingHorizontal="$spacing16"
+          paddingVertical="$spacing12"
+        />
+      ) : (
+        <Flex row alignItems="center" gap="$spacing12" width="100%">
+          {/* Currency logo */}
+          <Image
+            height={iconSizes.icon36}
+            src={currencyInfo.logoUrl ?? ''}
+            width={iconSizes.icon36}
+          />
+
+          {/* Currency name */}
+          <Stack flex={1.5} flexBasis={0}>
+            <Text ellipsizeMode="tail" numberOfLines={1} variant="bodyLarge">
+              {currency.name ?? currency.symbol}
+            </Text>
+          </Stack>
+
+          {/* Portfolio balance */}
+          <YStack alignItems="flex-end" flex={1} justifyContent="flex-end" width={0}>
+            <Text ellipsizeMode="tail" numberOfLines={1} variant="bodyLarge">
+              {portfolioBalance.balanceUSD === 0
+                ? 'N/A'
+                : formatUSDPrice(portfolioBalance.balanceUSD, NumberType.FiatTokenQuantity)}
+            </Text>
+            <Flex maxWidth={100}>
+              <Text color="$textTertiary" numberOfLines={1} variant="subheadSmall">
+                {`${formatNumber(quantity, NumberType.TokenNonTx)}`} {currency.symbol}
+              </Text>
+            </Flex>
+          </YStack>
+        </Flex>
+      )}
+    </Flex>
+  )
+})

@@ -1,3 +1,4 @@
+import { impactAsync } from 'expo-haptics'
 import React, { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import ContextMenu from 'react-native-context-menu-view'
@@ -8,7 +9,7 @@ import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { Flex } from 'src/components/layout'
 import { NotificationBadge } from 'src/components/notifications/Badge'
 import { Text } from 'src/components/Text'
-import { closeModal } from 'src/features/modals/modalSlice'
+import { closeModal, openModal } from 'src/features/modals/modalSlice'
 import { useSelectAddressHasNotifications } from 'src/features/notifications/hooks'
 import { ModalName } from 'src/features/telemetry/constants'
 import { Screens } from 'src/screens/Screens'
@@ -77,8 +78,9 @@ export function AccountCardItem({
     )
   }, [address, avatar, isViewOnly])
 
-  const onPressCopyAddress = (): void => {
-    setClipboard(address)
+  const onPressCopyAddress = async (): Promise<void> => {
+    await impactAsync()
+    await setClipboard(address)
     dispatch(
       pushNotification({
         type: AppNotificationType.Copied,
@@ -95,25 +97,40 @@ export function AccountCardItem({
     })
   }
 
+  const onPressRemoveWallet = (): void => {
+    dispatch(closeModal({ name: ModalName.AccountSwitcher }))
+    dispatch(
+      openModal({
+        name: ModalName.RemoveWallet,
+        initialState: { address },
+      })
+    )
+  }
+
   const menuActions = useMemo(() => {
     return [
       { title: t('Copy wallet address'), systemIcon: 'doc.on.doc' },
       { title: t('Wallet settings'), systemIcon: 'gearshape' },
+      { title: t('Remove wallet'), systemIcon: 'trash', destructive: true },
     ]
   }, [t])
 
   return (
     <ContextMenu
       actions={menuActions}
-      onPress={(e): void => {
+      onPress={async (e): Promise<void> => {
         // Emitted index based on order of menu action array
         // Copy address
         if (e.nativeEvent.index === 0) {
-          onPressCopyAddress()
+          await onPressCopyAddress()
         }
         // Navigate to settings
         if (e.nativeEvent.index === 1) {
           onPressWalletSettings()
+        }
+        // Remove wallet
+        if (e.nativeEvent.index === 2) {
+          onPressRemoveWallet()
         }
       }}>
       <TouchableArea

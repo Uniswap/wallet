@@ -1,5 +1,4 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
-import { SharedEventName } from '@uniswap/analytics-events'
 import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Alert, Image, StyleSheet } from 'react-native'
@@ -11,6 +10,7 @@ import { Button } from 'src/components/buttons/Button'
 import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { Flex } from 'src/components/layout'
 import { Text } from 'src/components/Text'
+import Trace from 'src/components/Trace/Trace'
 import { useIsDarkMode } from 'src/features/appearance/hooks'
 import { useBiometricAppSettings } from 'src/features/biometrics/hooks'
 import { promptPushPermission } from 'src/features/notifications/Onesignal'
@@ -84,25 +84,21 @@ export function NotificationsSetupScreen({ navigation, route: { params } }: Prop
     }
   }, [navigation, params, renderBackButton])
 
-  const navigateToNextScreen = (): void => {
+  const navigateToNextScreen = useCallback(async () => {
     // Skip security setup if already enabled or already imported seed phrase
     if (
       isBiometricAuthEnabled ||
-      (params?.entryPoint === OnboardingEntryPoint.Sidebar && hasSeedPhrase)
+      (params.entryPoint === OnboardingEntryPoint.Sidebar && hasSeedPhrase)
     ) {
-      onCompleteOnboarding()
+      await onCompleteOnboarding()
     } else {
       navigation.navigate({ name: OnboardingScreens.Security, params, merge: true })
     }
-  }
+  }, [hasSeedPhrase, isBiometricAuthEnabled, navigation, onCompleteOnboarding, params])
 
-  const onPressNext = (): void => {
-    navigateToNextScreen()
-  }
-
-  const onPressEnableNotifications = (): void => {
+  const onPressEnableNotifications = useCallback(async () => {
     promptPushPermission(() => {
-      addresses.forEach((address) =>
+      addresses.forEach((address) => {
         dispatch(
           editAccountActions.trigger({
             type: EditAccountAction.TogglePushNotification,
@@ -110,11 +106,11 @@ export function NotificationsSetupScreen({ navigation, route: { params } }: Prop
             address,
           })
         )
-      )
+      })
     }, showNotificationSettingsAlert)
 
-    navigateToNextScreen()
-  }
+    await navigateToNextScreen()
+  }, [addresses, dispatch, navigateToNextScreen])
 
   return (
     <OnboardingScreen
@@ -124,20 +120,16 @@ export function NotificationsSetupScreen({ navigation, route: { params } }: Prop
         <NotificationsBackgroundImage />
       </Flex>
       <Flex gap="spacing24">
-        <TouchableArea
-          eventName={SharedEventName.ELEMENT_CLICKED}
-          name={ElementName.Skip}
-          onPress={onPressNext}>
-          <Text color="magentaVibrant" textAlign="center" variant="buttonLabelMedium">
-            {t('Maybe later')}
-          </Text>
-        </TouchableArea>
-        <Button
-          eventName={SharedEventName.ELEMENT_CLICKED}
-          label={t('Turn on notifications')}
-          name={ElementName.Enable}
-          onPress={onPressEnableNotifications}
-        />
+        <Trace logPress element={ElementName.Skip}>
+          <TouchableArea onPress={navigateToNextScreen}>
+            <Text color="magentaVibrant" textAlign="center" variant="buttonLabelMedium">
+              {t('Maybe later')}
+            </Text>
+          </TouchableArea>
+        </Trace>
+        <Trace logPress element={ElementName.Enable}>
+          <Button label={t('Turn on notifications')} onPress={onPressEnableNotifications} />
+        </Trace>
       </Flex>
     </OnboardingScreen>
   )

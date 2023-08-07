@@ -3,19 +3,15 @@ import { ImpactFeedbackStyle } from 'expo-haptics'
 import React, { memo, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import ContextMenu from 'react-native-context-menu-view'
-import { useSelector } from 'react-redux'
 import { useAppDispatch } from 'src/app/hooks'
-import { MobileState } from 'src/app/reducer'
 import { TouchableArea } from 'src/components/buttons/TouchableArea'
-import { TokenLogo } from 'src/components/CurrencyLogo/TokenLogo'
 import { Box } from 'src/components/layout/Box'
 import { AnimatedFlex, Flex } from 'src/components/layout/Flex'
 import { Text } from 'src/components/Text'
 import { RelativeChange } from 'src/components/text/RelativeChange'
 import { useTokenDetailsNavigation } from 'src/components/TokenDetails/hooks'
 import { TokenMetadata } from 'src/components/tokens/TokenMetadata'
-import { useToggleFavoriteCallback } from 'src/features/favorites/hooks'
-import { selectHasFavoriteToken } from 'src/features/favorites/selectors'
+import { useSelectHasTokenFavorited, useToggleFavoriteCallback } from 'src/features/favorites/hooks'
 import { openModal } from 'src/features/modals/modalSlice'
 import { sendAnalyticsEvent } from 'src/features/telemetry'
 import {
@@ -24,12 +20,13 @@ import {
   ModalName,
   SectionName,
 } from 'src/features/telemetry/constants'
+import { TokenLogo } from 'wallet/src/components/CurrencyLogo/TokenLogo'
+import { ChainId } from 'wallet/src/constants/chains'
+import { AssetType } from 'wallet/src/entities/assets'
 import {
   CurrencyField,
   TransactionState,
-} from 'src/features/transactions/transactionState/transactionState'
-import { ChainId } from 'wallet/src/constants/chains'
-import { AssetType } from 'wallet/src/entities/assets'
+} from 'wallet/src/features/transactions/transactionState/types'
 import { TokenMetadataDisplayType } from 'wallet/src/features/wallet/types'
 import {
   buildCurrencyId,
@@ -61,7 +58,11 @@ interface TokenItemProps {
   metadataDisplayType?: TokenMetadataDisplayType
 }
 
-export const TokenItem = memo(({ tokenItemData, index, metadataDisplayType }: TokenItemProps) => {
+export const TokenItem = memo(function _TokenItem({
+  tokenItemData,
+  index,
+  metadataDisplayType,
+}: TokenItemProps) {
   const { t } = useTranslation()
   const dispatch = useAppDispatch()
   const tokenDetailsNavigation = useTokenDetailsNavigation()
@@ -80,11 +81,7 @@ export const TokenItem = memo(({ tokenItemData, index, metadataDisplayType }: To
   } = tokenItemData
   const _currencyId = address ? buildCurrencyId(chainId, address) : buildNativeCurrencyId(chainId)
 
-  // Avoid referencing the entire favorite array, to minimize re-render to this token's inclusion only
-  const isFavorited = useSelector((state: MobileState) =>
-    selectHasFavoriteToken(state, _currencyId.toLocaleLowerCase())
-  )
-
+  const isFavorited = useSelectHasTokenFavorited(_currencyId)
   const toggleFavoriteToken = useToggleFavoriteCallback(_currencyId, isFavorited)
 
   const navigateToSwapSell = useCallback(() => {

@@ -14,7 +14,7 @@ import { addToSearchHistory, WalletSearchResult } from 'src/features/explore/sea
 import { useToggleWatchedWalletCallback } from 'src/features/favorites/hooks'
 import { selectWatchedAddressSet } from 'src/features/favorites/selectors'
 import { sendAnalyticsEvent } from 'src/features/telemetry'
-import { ElementName, MobileEventName } from 'src/features/telemetry/constants'
+import { MobileEventName } from 'src/features/telemetry/constants'
 import { useENSAvatar, useENSName } from 'wallet/src/features/ens/api'
 import { getCompletedENSName } from 'wallet/src/features/ens/useENS'
 import { sanitizeAddressText, shortenAddress } from 'wallet/src/utils/addresses'
@@ -42,7 +42,7 @@ export function SearchWalletItem({ wallet, searchContext }: SearchWalletItemProp
    * is `uniswap.eth`, then we should show "uni.eth | owned by uniswap.eth"
    */
   const completedENSName = getCompletedENSName(ensName ?? null)
-  const { data: fetchedPrimaryENSName, isFetching: isFetchingPrimaryENSName } = useENSName(
+  const { data: fetchedPrimaryENSName, loading: isFetchingPrimaryENSName } = useENSName(
     savedPrimaryENSName ? undefined : address
   )
 
@@ -54,8 +54,8 @@ export function SearchWalletItem({ wallet, searchContext }: SearchWalletItemProp
 
   const isFavorited = useAppSelector(selectWatchedAddressSet).has(address)
 
-  const onPress = (): void => {
-    preload(address)
+  const onPress = async (): Promise<void> => {
+    await preload(address)
     navigate(address)
     if (searchContext) {
       sendAnalyticsEvent(MobileEventName.ExploreSearchResultClicked, {
@@ -88,7 +88,6 @@ export function SearchWalletItem({ wallet, searchContext }: SearchWalletItemProp
       <TouchableArea
         hapticFeedback
         hapticStyle={ImpactFeedbackStyle.Light}
-        name={ElementName.SearchWalletItem}
         testID={`wallet-item-${address}`}
         onPress={onPress}>
         <Flex row alignItems="center" gap="spacing12" px="spacing8" py="spacing12">

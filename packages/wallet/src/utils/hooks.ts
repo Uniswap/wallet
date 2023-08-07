@@ -4,8 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 export function usePrevious<T>(value: T): T | undefined {
   // The ref object is a generic container whose current property is mutable ...
   // ... and can hold any value, similar to an instance property on a class
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const ref: any = useRef<T>()
+  const ref = useRef<T>()
 
   // Store current value in ref
   useEffect(() => {
@@ -43,7 +42,7 @@ export function useAsyncData<T>(asyncCallback: () => Promise<T> | undefined): {
       })
     }
 
-    runCallback()
+    runCallback().catch(() => undefined)
   }, [asyncCallback])
 
   return useMemo(() => {

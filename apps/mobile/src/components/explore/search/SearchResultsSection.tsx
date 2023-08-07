@@ -26,7 +26,6 @@ import {
 } from 'src/features/explore/searchHistorySlice'
 import { useIsSmartContractAddress } from 'src/features/transactions/transfer/hooks'
 import { ChainId } from 'wallet/src/constants/chains'
-import { EMPTY_ARRAY } from 'wallet/src/constants/misc'
 import { SafetyLevel, useExploreSearchQuery } from 'wallet/src/data/__generated__/types-and-hooks'
 import { useENS } from 'wallet/src/features/ens/useENS'
 import { logger } from 'wallet/src/features/logger/logger'
@@ -77,13 +76,15 @@ export function SearchResultsSection({ searchQuery }: { searchQuery: string }): 
     variables: { searchQuery, nftCollectionsFilter: { nameQuery: searchQuery } },
   })
 
-  const tokenResults = useMemo<TokenSearchResult[]>(() => {
-    if (!searchResultsData || !searchResultsData.searchTokens) return EMPTY_ARRAY
+  const tokenResults = useMemo<TokenSearchResult[] | undefined>(() => {
+    if (!searchResultsData || !searchResultsData.searchTokens) return
+
     return formatTokenSearchResults(searchResultsData.searchTokens, searchQuery)
   }, [searchQuery, searchResultsData])
 
-  const nftCollectionResults = useMemo<NFTCollectionSearchResult[]>(() => {
-    if (!searchResultsData || !searchResultsData.nftCollections) return EMPTY_ARRAY
+  const nftCollectionResults = useMemo<NFTCollectionSearchResult[] | undefined>(() => {
+    if (!searchResultsData || !searchResultsData.nftCollections) return
+
     return formatNFTCollectionSearchResults(searchResultsData.nftCollections)
   }, [searchResultsData])
 
@@ -104,8 +105,8 @@ export function SearchResultsSection({ searchQuery }: { searchQuery: string }): 
 
   const walletsLoading = ensLoading || loadingIsSmartContractAddress
 
-  const onRetry = useCallback(() => {
-    refetch()
+  const onRetry = useCallback(async () => {
+    await refetch()
   }, [refetch])
 
   const hasENSResult = ensName && ensAddress
@@ -131,33 +132,37 @@ export function SearchResultsSection({ searchQuery }: { searchQuery: string }): 
     return []
   }, [ensAddress, ensName, hasENSResult, hasEOAResult, validAddress])
 
-  const numTotalResults =
-    tokenResults.length + nftCollectionResults.length + (hasENSResult || hasEOAResult ? 1 : 0)
+  const countTokenResults = tokenResults?.length ?? 0
+  const countNftCollectionResults = nftCollectionResults?.length ?? 0
+  const countENSResults = hasENSResult || hasEOAResult ? 1 : 0
+  const countTotalResults = countTokenResults + countNftCollectionResults + countENSResults
 
   // Only consider queries with the .eth suffix as an exact ENS match
   const exactENSMatch =
     ensName?.toLowerCase() === searchQuery.toLowerCase() && searchQuery.includes('.eth')
 
-  const prefixTokenMatch = tokenResults.find((res: TokenSearchResult) =>
+  const prefixTokenMatch = tokenResults?.find((res: TokenSearchResult) =>
     isPrefixTokenMatch(res, searchQuery)
   )
 
-  const hasVerifiedTokenResults = tokenResults.some(
-    (res: TokenSearchResult) =>
-      res.safetyLevel === SafetyLevel.Verified || res.safetyLevel === SafetyLevel.MediumWarning
+  const hasVerifiedTokenResults = Boolean(
+    tokenResults?.some(
+      (res) =>
+        res.safetyLevel === SafetyLevel.Verified || res.safetyLevel === SafetyLevel.MediumWarning
+    )
   )
-  const hasVerifiedNFTResults = nftCollectionResults.some(
-    (res: NFTCollectionSearchResult) => res.isVerified
-  )
+
+  const hasVerifiedNFTResults = Boolean(nftCollectionResults?.some((res) => res.isVerified))
 
   const showWalletSectionFirst = exactENSMatch && !prefixTokenMatch
   const showNftCollectionsBeforeTokens = hasVerifiedNFTResults && !hasVerifiedTokenResults
 
   const sortedSearchResults: SearchResultOrHeader[] = useMemo(() => {
     // Format results arrays with header, and handle empty results
-    const nftsWithHeader =
-      nftCollectionResults.length > 0 ? [NFTHeaderItem, ...nftCollectionResults] : []
-    const tokensWithHeader = tokenResults.length > 0 ? [TokenHeaderItem, ...tokenResults] : []
+    const nftsWithHeader = nftCollectionResults?.length
+      ? [NFTHeaderItem, ...nftCollectionResults]
+      : []
+    const tokensWithHeader = tokenResults?.length ? [TokenHeaderItem, ...tokenResults] : []
     const walletsWithHeader =
       walletSearchResults.length > 0 ? [WalletHeaderItem, ...walletSearchResults] : []
 
@@ -236,7 +241,7 @@ export function SearchResultsSection({ searchQuery }: { searchQuery: string }): 
             ...props,
             searchContext: {
               query: searchQuery,
-              suggestionCount: numTotalResults,
+              suggestionCount: countTotalResults,
               position,
             },
           })

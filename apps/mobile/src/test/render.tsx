@@ -10,16 +10,14 @@ import {
   RenderOptions,
 } from '@testing-library/react-native'
 import React, { PropsWithChildren } from 'react'
-import { Provider } from 'react-redux'
 import { ReactTestRendererJSON } from 'react-test-renderer'
 import type { MobileState } from 'src/app/reducer'
 import type { AppStore } from 'src/app/store'
 import { persistedReducer } from 'src/app/store'
-import { routingApi } from 'src/features/routing/routingApi'
 import { theme } from 'ui/src/theme/restyle/theme'
 import { setupCache } from 'wallet/src/data/cache'
 import { getErrorLink } from 'wallet/src/data/links'
-import { ensApi } from 'wallet/src/features/ens/api'
+import { SharedProvider } from 'wallet/src/provider'
 
 // This type interface extends the default options for render from RTL, as well
 // as allows the user to specify other things such as initialState, store.
@@ -47,8 +45,8 @@ export function renderWithProviders(
       preloadedState,
       middleware: (getDefaultMiddleware) =>
         // TODO: fix typing
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        getDefaultMiddleware().concat(routingApi.middleware, ensApi.middleware) as any,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-return
+        getDefaultMiddleware() as any,
     }),
     ...renderOptions
   }: ExtendedRenderOptions = {}
@@ -63,11 +61,11 @@ Record<string, any> & {
 
     return (
       <MockedProvider addTypename={false} cache={setupCache()} link={link} mocks={mocks}>
-        <Provider store={store}>
+        <SharedProvider reduxStore={store}>
           <NavigationContainer>
             <ThemeProvider theme={theme}>{children}</ThemeProvider>
           </NavigationContainer>
-        </Provider>
+        </SharedProvider>
       </MockedProvider>
     )
   }
@@ -105,9 +103,9 @@ Record<string, any> & {
 
     return (
       <MockedProvider addTypename={false} cache={setupCache()} link={link} mocks={mocks}>
-        <Provider store={store}>
+        <SharedProvider reduxStore={store}>
           <ThemeProvider theme={theme}>{children}</ThemeProvider>
-        </Provider>
+        </SharedProvider>
       </MockedProvider>
     )
   }

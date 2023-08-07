@@ -20,7 +20,6 @@ import { useBiometricAppSettings, useBiometricPrompt } from 'src/features/biomet
 import { sendAnalyticsEvent } from 'src/features/telemetry'
 import { ElementName, MobileEventName, ModalName } from 'src/features/telemetry/constants'
 import { BlockedAddressWarning } from 'src/features/trm/BlockedAddressWarning'
-import { useIsBlocked } from 'src/features/trm/hooks'
 import { signWcRequestActions } from 'src/features/walletConnect/saga'
 import { selectDidOpenFromDeepLink } from 'src/features/walletConnect/selectors'
 import { rejectRequest, returnToPreviousApp } from 'src/features/walletConnect/WalletConnect'
@@ -37,6 +36,7 @@ import { useTransactionGasFee } from 'wallet/src/features/gas/hooks'
 import { GasSpeed } from 'wallet/src/features/gas/types'
 import { logger } from 'wallet/src/features/logger/logger'
 import { NativeCurrency } from 'wallet/src/features/tokens/NativeCurrency'
+import { useIsBlocked } from 'wallet/src/features/trm/hooks'
 import { useSignerAccounts } from 'wallet/src/features/wallet/hooks'
 import {
   EthMethod,
@@ -166,11 +166,11 @@ export function WalletConnectRequestModal({ onClose, request }: Props): JSX.Elem
    */
   const rejectOnCloseRef = useRef(true)
 
-  const onReject = (): void => {
+  const onReject = async (): Promise<void> => {
     if (request.version === '1') {
       rejectRequest(request.internalId)
     } else {
-      wcWeb3Wallet.respondSessionRequest({
+      await wcWeb3Wallet.respondSessionRequest({
         topic: request.sessionId,
         response: {
           id: Number(request.internalId),
@@ -259,9 +259,9 @@ export function WalletConnectRequestModal({ onClose, request }: Props): JSX.Elem
     return null
   }
 
-  const handleClose = (): void => {
+  const handleClose = async (): Promise<void> => {
     if (rejectOnCloseRef.current) {
-      onReject()
+      await onReject()
     } else {
       onClose()
     }
@@ -344,21 +344,21 @@ export function WalletConnectRequestModal({ onClose, request }: Props): JSX.Elem
               fill
               emphasis={ButtonEmphasis.Tertiary}
               label={t('Cancel')}
-              name={ElementName.Cancel}
               size={ButtonSize.Medium}
+              testID={ElementName.Cancel}
               onPress={onReject}
             />
             <Button
               fill
               disabled={!confirmEnabled}
               label={isTransactionRequest(request) ? t('Accept') : t('Sign')}
-              name={ElementName.Confirm}
               size={ButtonSize.Medium}
-              onPress={(): void => {
+              testID={ElementName.Confirm}
+              onPress={async (): Promise<void> => {
                 if (requiredForTransactions) {
-                  actionButtonTrigger()
+                  await actionButtonTrigger()
                 } else {
-                  onConfirm()
+                  await onConfirm()
                 }
               }}
             />

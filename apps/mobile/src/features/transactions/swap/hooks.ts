@@ -8,23 +8,12 @@ import { UNIVERSAL_ROUTER_ADDRESS } from '@uniswap/universal-router-sdk'
 import { providers } from 'ethers'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AnyAction } from 'redux'
-import { useAppDispatch } from 'src/app/hooks'
+import { useAppDispatch, useAppSelector } from 'src/app/hooks'
 import { CurrencyInfo } from 'src/features/dataApi/types'
-import { FEATURE_FLAGS } from 'src/features/experiments/constants'
-import { useFeatureFlag } from 'src/features/experiments/hooks'
-import { useSimulatedGasLimit } from 'src/features/routing/hooks'
-import {
-  STABLECOIN_AMOUNT_OUT,
-  useUSDCPrice,
-  useUSDCValue,
-} from 'src/features/routing/useUSDCPrice'
 import { sendAnalyticsEvent } from 'src/features/telemetry'
-import { PERMITTABLE_TOKENS } from 'src/features/transactions/permit/permittableTokens'
-import { usePermitSignature } from 'src/features/transactions/permit/usePermitSignature'
+import { selectTransactions } from 'src/features/transactions/selectors'
 import { getBaseTradeAnalyticsProperties } from 'src/features/transactions/swap/analytics'
 import { swapActions } from 'src/features/transactions/swap/swapSaga'
-import { usePermit2Signature } from 'src/features/transactions/swap/usePermit2Signature'
-import { Trade, useSetTradeSlippage, useTrade } from 'src/features/transactions/swap/useTrade'
 import {
   getSwapMethodParameters,
   getWrapType,
@@ -37,16 +26,14 @@ import {
   WrapType,
 } from 'src/features/transactions/swap/wrapSaga'
 import {
-  CurrencyField,
-  TransactionState,
   updateExactAmountToken,
   updateExactAmountUSD,
 } from 'src/features/transactions/transactionState/transactionState'
 import { BaseDerivedInfo } from 'src/features/transactions/transactionState/types'
 import { toStringish } from 'src/utils/number'
+import { flattenObjectOfObjects } from 'src/utils/objects'
 import ERC20_ABI from 'wallet/src/abis/erc20.json'
 import { Erc20 } from 'wallet/src/abis/types'
-import { SWAP_ROUTER_ADDRESSES } from 'wallet/src/constants/addresses'
 import { ChainId } from 'wallet/src/constants/chains'
 import { ContractManager } from 'wallet/src/features/contracts/ContractManager'
 import { useTransactionGasFee } from 'wallet/src/features/gas/hooks'
@@ -55,13 +42,29 @@ import { logger } from 'wallet/src/features/logger/logger'
 import { pushNotification } from 'wallet/src/features/notifications/slice'
 import { AppNotificationType } from 'wallet/src/features/notifications/types'
 import { useOnChainCurrencyBalance } from 'wallet/src/features/portfolio/api'
+import { useSimulatedGasLimit } from 'wallet/src/features/routing/hooks'
+import {
+  STABLECOIN_AMOUNT_OUT,
+  useUSDCPrice,
+  useUSDCValue,
+} from 'wallet/src/features/routing/useUSDCPrice'
 import { useCurrencyInfo } from 'wallet/src/features/tokens/useCurrencyInfo'
+import { usePermit2Signature } from 'wallet/src/features/transactions/swap/usePermit2Signature'
+import {
+  Trade,
+  useSetTradeSlippage,
+  useTrade,
+} from 'wallet/src/features/transactions/swap/useTrade'
+import {
+  CurrencyField,
+  TransactionState,
+} from 'wallet/src/features/transactions/transactionState/types'
+import { TransactionDetails, TransactionType } from 'wallet/src/features/transactions/types'
 import { useContractManager, useProvider } from 'wallet/src/features/wallet/context'
 import {
   useActiveAccount,
   useActiveAccountAddressWithThrow,
 } from 'wallet/src/features/wallet/hooks'
-import { areAddressesEqual } from 'wallet/src/utils/addresses'
 import { buildCurrencyId } from 'wallet/src/utils/currencyId'
 import { formatCurrencyAmount, NumberType } from 'wallet/src/utils/format'
 import { getCurrencyAmount, ValueType } from 'wallet/src/utils/getCurrencyAmount'
@@ -390,23 +393,18 @@ export function useTokenApprovalInfo(
   const address = useActiveAccountAddressWithThrow()
   const provider = useProvider(chainId)
   const contractManager = useContractManager()
-  const permit2Enabled = useFeatureFlag(FEATURE_FLAGS.SwapPermit2)
 
   const transactionFetcher = useCallback(() => {
     if (!provider || !currencyInAmount || !currencyInAmount.currency) return
 
-    if (permit2Enabled) {
-      return getTokenPermit2ApprovalInfo(
-        provider,
-        contractManager,
-        address,
-        wrapType,
-        currencyInAmount
-      )
-    }
-
-    return getTokenApprovalInfo(provider, contractManager, address, wrapType, currencyInAmount)
-  }, [address, contractManager, currencyInAmount, provider, wrapType, permit2Enabled])
+    return getTokenPermit2ApprovalInfo(
+      provider,
+      contractManager,
+      address,
+      wrapType,
+      currencyInAmount
+    )
+  }, [address, contractManager, currencyInAmount, provider, wrapType])
 
   return useAsyncData(transactionFetcher).data
 }
@@ -463,66 +461,6 @@ const getTokenPermit2ApprovalInfo = async (
   }
 }
 
-const getTokenApprovalInfo = async (
-  provider: providers.Provider,
-  contractManager: ContractManager,
-  address: Address,
-  wrapType: WrapType,
-  currencyInAmount: CurrencyAmount<Currency>
-): Promise<TokenApprovalInfo | undefined> => {
-  // wrap/unwraps do not need approval
-  if (wrapType !== WrapType.NotApplicable) return { action: ApprovalAction.None, txRequest: null }
-
-  const currencyIn = currencyInAmount.currency
-  // native tokens do not need approvals
-  if (currencyIn.isNative) return { action: ApprovalAction.None, txRequest: null }
-
-  const currencyInAmountRaw = currencyInAmount.quotient.toString()
-  const chainId = currencyInAmount.currency.chainId as ChainId
-  const spender = SWAP_ROUTER_ADDRESSES[chainId]
-  const tokenContract = contractManager.getOrCreateContract<Erc20>(
-    chainId,
-    currencyIn.address,
-    provider,
-    ERC20_ABI
-  )
-  const allowance = await tokenContract.callStatic.allowance(address, spender)
-  if (!allowance.lt(currencyInAmountRaw)) {
-    return { action: ApprovalAction.None, txRequest: null }
-  }
-
-  const permittableTokens = PERMITTABLE_TOKENS[chainId]
-
-  const isPermittable = permittableTokens
-    ? Object.keys(permittableTokens).some((pemittableTokenAddress) =>
-        areAddressesEqual(pemittableTokenAddress, currencyIn.address)
-      )
-    : false
-
-  if (isPermittable) {
-    return { action: ApprovalAction.Permit, txRequest: null }
-  }
-
-  let baseTransaction
-  try {
-    baseTransaction = await tokenContract.populateTransaction.approve(spender, MAX_APPROVE_AMOUNT, {
-      from: address,
-    })
-  } catch {
-    // above call errors when token restricts max approvals
-    baseTransaction = await tokenContract.populateTransaction.approve(
-      spender,
-      currencyInAmountRaw,
-      { from: address }
-    )
-  }
-
-  return {
-    txRequest: { ...baseTransaction, from: address, chainId },
-    action: ApprovalAction.Approve,
-  }
-}
-
 export function useSwapTransactionRequest(
   derivedSwapInfo: DerivedSwapInfo,
   tokenApprovalInfo?: TokenApprovalInfo
@@ -536,20 +474,10 @@ export function useSwapTransactionRequest(
     currencyAmounts,
   } = derivedSwapInfo
 
-  const permit2Enabled = useFeatureFlag(FEATURE_FLAGS.SwapPermit2)
   const address = useActiveAccountAddressWithThrow()
 
-  const { data: permitInfo, isLoading: permitInfoLoading } = usePermitSignature(
-    chainId,
-    currencyAmounts[CurrencyField.INPUT],
-    wrapType,
-    // skips if tokenApprovalInfo.action is not ApprovalAction.Permit
-    tokenApprovalInfo?.action
-  )
-
   const { data: permit2Signature, isLoading: permit2InfoLoading } = usePermit2Signature(
-    currencyAmounts[CurrencyField.INPUT],
-    !permit2Enabled
+    currencyAmounts[CurrencyField.INPUT]
   )
 
   const [otherCurrency, tradeType] =
@@ -583,7 +511,6 @@ export function useSwapTransactionRequest(
       !currencyAmountIn ||
       !tokenApprovalInfo ||
       (!simulatedGasLimit && simulatedGasLimitLoading) ||
-      permitInfoLoading ||
       permit2InfoLoading ||
       !trade
     ) {
@@ -595,15 +522,13 @@ export function useSwapTransactionRequest(
     const gasLimit = shouldFetchSimulatedGasLimit ? simulatedGasLimit : undefined
     const { calldata, value } = getSwapMethodParameters({
       permit2Signature,
-      permitInfo,
       trade,
       address,
-      universalRouterEnabled: permit2Enabled,
     })
 
     const transactionRequest = {
       from: address,
-      to: permit2Enabled ? UNIVERSAL_ROUTER_ADDRESS(chainId) : SWAP_ROUTER_ADDRESSES[chainId],
+      to: UNIVERSAL_ROUTER_ADDRESS(chainId),
       gasLimit,
       chainId,
       data: calldata,
@@ -618,14 +543,11 @@ export function useSwapTransactionRequest(
     gasFallbackUsed,
     permit2InfoLoading,
     permit2Signature,
-    permitInfo,
-    permitInfoLoading,
     shouldFetchSimulatedGasLimit,
     simulatedGasLimit,
     simulatedGasLimitLoading,
     tokenApprovalInfo,
     trade,
-    permit2Enabled,
     wrapType,
   ])
 }
@@ -848,4 +770,14 @@ export function useShowSwapNetworkNotification(chainId?: ChainId): void {
       pushNotification({ type: AppNotificationType.SwapNetwork, chainId, hideDelay: 2000 })
     )
   }, [chainId, prevChainId, appDispatch])
+}
+
+export function useMostRecentSwapTx(address: Address): TransactionDetails | undefined {
+  const transactions = useAppSelector(selectTransactions)
+  const addressTransactions = transactions[address]
+  if (addressTransactions) {
+    return flattenObjectOfObjects(addressTransactions)
+      .filter((tx) => tx.typeInfo.type === TransactionType.Swap)
+      .sort((a, b) => b.addedTime - a.addedTime)[0]
+  }
 }

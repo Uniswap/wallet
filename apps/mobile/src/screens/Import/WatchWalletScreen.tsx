@@ -10,8 +10,6 @@ import { Button } from 'src/components/buttons/Button'
 import { Flex } from 'src/components/layout'
 import { Text } from 'src/components/Text'
 import { GenericImportForm } from 'src/features/import/GenericImportForm'
-import { importAccountActions } from 'src/features/import/importAccountSaga'
-import { ImportAccountType } from 'src/features/import/types'
 import { useCompleteOnboardingCallback } from 'src/features/onboarding/hooks'
 import { SafeKeyboardOnboardingScreen } from 'src/features/onboarding/SafeKeyboardOnboardingScreen'
 import { sendAnalyticsEvent } from 'src/features/telemetry'
@@ -22,6 +20,8 @@ import { useAddBackButton } from 'src/utils/useAddBackButton'
 import { ChainId } from 'wallet/src/constants/chains'
 import { useENS } from 'wallet/src/features/ens/useENS'
 import { useAccounts } from 'wallet/src/features/wallet/hooks'
+import { importAccountActions } from 'wallet/src/features/wallet/import/importAccountSaga'
+import { ImportAccountType } from 'wallet/src/features/wallet/import/types'
 import { getValidAddress } from 'wallet/src/utils/addresses'
 import { normalizeTextInput } from 'wallet/src/utils/string'
 
@@ -67,7 +67,7 @@ export function WatchWalletScreen({ navigation, route: { params } }: Props): JSX
     errorText = t('Address does not exist')
   }
 
-  const onSubmit = useCallback(() => {
+  const onSubmit = useCallback(async () => {
     if (isValid && value) {
       if (resolvedAddress) {
         dispatch(
@@ -88,7 +88,7 @@ export function WatchWalletScreen({ navigation, route: { params } }: Props): JSX
         screen: OnboardingScreens.WatchWallet,
         element: ElementName.Continue,
       })
-      onCompleteOnboarding()
+      await onCompleteOnboarding()
     }
   }, [dispatch, isValid, normalizedValue, onCompleteOnboarding, resolvedAddress, value])
 
@@ -161,7 +161,7 @@ export function WatchWalletScreen({ navigation, route: { params } }: Props): JSX
       <Button
         disabled={!isValid}
         label={t('Continue')}
-        name={ElementName.Next}
+        testID={ElementName.Next}
         onPress={onSubmit}
       />
     </SafeKeyboardOnboardingScreen>

@@ -32,7 +32,6 @@ const restyleFunctions = [
 ]
 type RestyleProps = TypographyProps<Theme> &
   SpacingProps<Theme> &
-  SpacingShorthandProps<Theme> &
   LayoutProps<Theme> &
   SpacingShorthandProps<Theme> &
   BorderProps<Theme> &
@@ -42,30 +41,32 @@ type RestyleProps = TypographyProps<Theme> &
 
 export type TextInputProps = RestyleProps & BaseTextInputProps
 
-export const TextInput = forwardRef<TextInputBase, TextInputProps>(
-  ({ onChangeText, onBlur, ...rest }, ref) => {
-    const theme = useTheme<Theme>()
+export const TextInput = forwardRef<TextInputBase, TextInputProps>(function _TextInput(
+  { onChangeText, onBlur, ...rest },
+  ref
+) {
+  const theme = useTheme<Theme>()
 
-    // Set defaults for style values
-    rest.backgroundColor ??= 'background0'
-    rest.px ??= 'spacing16'
-    rest.py ??= 'spacing12'
-    rest.color ??= 'textPrimary'
-    rest.borderRadius ??= 'rounded12'
+  // Set defaults for style values
+  rest.backgroundColor ??= 'background0'
+  rest.px ??= 'spacing16'
+  rest.py ??= 'spacing12'
+  rest.color ??= 'textPrimary'
+  rest.borderRadius ??= 'rounded12'
 
-    // restyle doesn't parse placeholderTextColorCorrectly
-    rest.placeholderTextColor ??= theme.colors.textTertiary
-    const transformedProps = useRestyle(restyleFunctions, rest)
+  // restyle doesn't parse placeholderTextColorCorrectly
+  rest.placeholderTextColor ??= theme.colors.textTertiary
 
-    return (
-      <TextInputBase
-        ref={ref}
-        autoComplete="off"
-        selectionColor={theme.colors.textTertiary}
-        onBlur={onBlur}
-        onChangeText={onChangeText}
-        {...transformedProps}
-      />
-    )
-  }
-)
+  const transformedProps = useRestyle(restyleFunctions, rest)
+
+  return (
+    <TextInputBase
+      ref={ref}
+      autoComplete="off"
+      selectionColor={theme.colors.textTertiary}
+      onBlur={onBlur}
+      onChangeText={onChangeText}
+      {...transformedProps}
+    />
+  )
+})

@@ -8,14 +8,11 @@ import { Button } from 'src/components/buttons/Button'
 import { Box, Flex } from 'src/components/layout'
 import { BaseCard } from 'src/components/layout/BaseCard'
 import { Loader } from 'src/components/loading'
-import { importAccountActions } from 'src/features/import/importAccountSaga'
-import { ImportAccountType } from 'src/features/import/types'
 import WalletPreviewCard from 'src/features/import/WalletPreviewCard'
 import { OnboardingScreen } from 'src/features/onboarding/OnboardingScreen'
 import { ImportType } from 'src/features/onboarding/utils'
 import { ElementName } from 'src/features/telemetry/constants'
 import { OnboardingScreens } from 'src/screens/Screens'
-import { EMPTY_ARRAY } from 'wallet/src/constants/misc'
 import { useSelectWalletScreenQuery } from 'wallet/src/data/__generated__/types-and-hooks'
 import {
   EditAccountAction,
@@ -31,16 +28,29 @@ import {
   pendingAccountActions,
 } from 'wallet/src/features/wallet/create/pendingAccountsSaga'
 import { useAccounts, usePendingAccounts } from 'wallet/src/features/wallet/hooks'
+import { importAccountActions } from 'wallet/src/features/wallet/import/importAccountSaga'
+import { ImportAccountType } from 'wallet/src/features/wallet/import/types'
 import { NUMBER_OF_WALLETS_TO_IMPORT } from 'wallet/src/features/wallet/import/utils'
-import { activateAccount } from 'wallet/src/features/wallet/slice'
+import { setAccountAsActive } from 'wallet/src/features/wallet/slice'
 import { ONE_SECOND_MS } from 'wallet/src/utils/time'
 import { useTimeout } from 'wallet/src/utils/timing'
 
 const FORCED_LOADING_DURATION = 3 * ONE_SECOND_MS // 3s
 
+interface ImportableAccount {
+  ownerAddress: string
+  balance: number | undefined
+}
+
+function isImportableAccount(account: {
+  ownerAddress: string | undefined
+  balance: Maybe<number>
+}): account is ImportableAccount {
+  return (account as ImportableAccount).ownerAddress !== undefined
+}
+
 type Props = NativeStackScreenProps<OnboardingStackParamList, OnboardingScreens.SelectWallet>
 
-const FALLBACK_ID = 'fallback'
 export function SelectWalletScreen({ navigation, route: { params } }: Props): JSX.Element {
   const { t } = useTranslation()
   const dispatch = useAppDispatch()
@@ -74,48 +84,53 @@ export function SelectWalletScreen({ navigation, route: { params } }: Props): JS
 
   const allAddressBalances = data?.portfolios
 
-  const initialShownAccounts = useMemo(() => {
-    const filtered = allAddressBalances?.filter(
-      (portfolio) =>
-        portfolio?.tokensTotalDenominatedValue?.value &&
-        portfolio.tokensTotalDenominatedValue.value > 0
+  const initialShownAccounts = useMemo<ImportableAccount[] | undefined>(() => {
+    const filteredAccounts = allAddressBalances
+      ?.map((address) => ({
+        ownerAddress: address?.ownerAddress,
+        balance: address?.tokensTotalDenominatedValue?.value,
+      }))
+      .filter(isImportableAccount)
+
+    const accountsWithBalance = filteredAccounts?.filter(
+      (address) => address.balance && address.balance > 0
     )
 
-    if (filtered?.length) {
-      return filtered
-    }
+    if (accountsWithBalance?.length) return accountsWithBalance
 
     // if all addresses have 0 total token value, show the first address
-    if (allAddressBalances?.length) {
-      return [allAddressBalances?.[0]]
-    }
+    const firstFilteredAccount = filteredAccounts?.[0]
+    if (firstFilteredAccount) return [firstFilteredAccount]
 
     // if query for address balances returned null, show the first address
-    if (addresses.length) {
-      return [{ id: FALLBACK_ID, ownerAddress: addresses[0], tokensTotalDenominatedValue: null }]
-    }
-
-    return EMPTY_ARRAY
+    const firstPendingAddress = addresses[0]
+    if (firstPendingAddress) return [{ ownerAddress: firstPendingAddress, balance: undefined }]
   }, [addresses, allAddressBalances])
 
-  const isOnlyOneAccount = initialShownAccounts.length === 1
+  const initialSelectedAddresses = useMemo(
+    () =>
+      initialShownAccounts
+        ?.map((account) => account?.ownerAddress)
+        .filter((address): address is string => typeof address === 'string') ?? [],
+    [initialShownAccounts]
+  )
 
-  const showError = error && !initialShownAccounts.length
+  const isOnlyOneAccount = initialShownAccounts?.length === 1
+
+  const showError = error && !initialShownAccounts?.length
 
   const [selectedAddresses, setSelectedAddresses] = useReducer(
     (currentAddresses: string[], addressToProcess: string) =>
       currentAddresses.includes(addressToProcess)
-        ? currentAddresses.filter((a: string) => a !== addressToProcess)
+        ? currentAddresses.filter((address) => address !== addressToProcess)
         : [...currentAddresses, addressToProcess],
-    initialShownAccounts
-      ?.filter((a) => a != null && a?.ownerAddress != null)
-      .map((a) => a.ownerAddress) ?? []
+    initialSelectedAddresses
   )
 
   useEffect(() => {
     const beforeRemoveListener = (): void => {
       // Remove all pending signer accounts when navigating back
-      dispatch(pendingAccountActions.trigger(PendingAccountActions.DELETE))
+      dispatch(pendingAccountActions.trigger(PendingAccountActions.Delete))
       /**
        * When we go back and exit onboarding, we re-add any initial view-only wallets
        * that were overwritten during the import flow. (Due to how our redux account store is setup,
@@ -131,7 +146,7 @@ export function SelectWalletScreen({ navigation, route: { params } }: Props): JS
               address: viewOnlyWallet.address,
             })
           )
-          dispatch(pendingAccountActions.trigger(PendingAccountActions.ACTIVATE))
+          dispatch(pendingAccountActions.trigger(PendingAccountActions.Activate))
         }
       }
     }
@@ -146,10 +161,8 @@ export function SelectWalletScreen({ navigation, route: { params } }: Props): JS
      */
     if (isImportingAccounts || loading || selectedAddresses.length > 0) return
 
-    initialShownAccounts
-      ?.filter((a) => a != null && a?.ownerAddress != null)
-      .map((a) => setSelectedAddresses(a.ownerAddress))
-  }, [initialShownAccounts, isImportingAccounts, loading, selectedAddresses.length])
+    initialSelectedAddresses.forEach((address) => setSelectedAddresses(address))
+  }, [initialSelectedAddresses, isImportingAccounts, loading, selectedAddresses.length])
 
   const onPress = (address: string): void => {
     if (initialShownAccounts?.length === 1 && selectedAddresses.length === 1) return
@@ -170,7 +183,7 @@ export function SelectWalletScreen({ navigation, route: { params } }: Props): JS
         )
       } else {
         if (!isFirstAccountActive.current) {
-          dispatch(activateAccount(address))
+          dispatch(setAccountAsActive(address))
           isFirstAccountActive.current = true
         }
         const account = pendingAccounts[address]
@@ -231,13 +244,13 @@ export function SelectWalletScreen({ navigation, route: { params } }: Props): JS
         ) : (
           <ScrollView>
             <Flex gap="spacing12">
-              {initialShownAccounts?.map((portfolio, i) => {
-                const { ownerAddress, tokensTotalDenominatedValue } = portfolio
+              {initialShownAccounts?.map((account, i) => {
+                const { ownerAddress, balance } = account
                 return (
                   <WalletPreviewCard
                     key={ownerAddress}
                     address={ownerAddress}
-                    balance={tokensTotalDenominatedValue?.value}
+                    balance={balance}
                     hideSelectionCircle={isOnlyOneAccount}
                     name={ElementName.WalletCard}
                     selected={selectedAddresses.includes(ownerAddress)}
@@ -255,7 +268,7 @@ export function SelectWalletScreen({ navigation, route: { params } }: Props): JS
               isImportingAccounts || isLoading || !!showError || selectedAddresses.length === 0
             }
             label={t('Continue')}
-            name={ElementName.Next}
+            testID={ElementName.Next}
             onPress={onSubmit}
           />
         </Box>

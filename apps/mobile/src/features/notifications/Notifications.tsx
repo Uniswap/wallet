@@ -6,12 +6,6 @@ import { useTranslation } from 'react-i18next'
 import { useAppDispatch, useAppSelector, useAppTheme } from 'src/app/hooks'
 import { useEagerActivityNavigation } from 'src/app/navigation/hooks'
 import { store } from 'src/app/store'
-import {
-  DappLogoWithTxStatus,
-  LogoWithTxStatus,
-} from 'src/components/CurrencyLogo/LogoWithTxStatus'
-import { NetworkLogo } from 'src/components/CurrencyLogo/NetworkLogo'
-import { SplitLogo } from 'src/components/CurrencyLogo/SplitLogo'
 import { ScannerModalState } from 'src/components/QRCodeScanner/constants'
 import { closeAllModals, closeModal, openModal } from 'src/features/modals/modalSlice'
 import { useNFT } from 'src/features/nfts/hooks'
@@ -31,6 +25,12 @@ import CheckCircle from 'ui/src/assets/icons/check-circle.svg'
 import EyeOffIcon from 'ui/src/assets/icons/eye-off.svg'
 import EyeIcon from 'ui/src/assets/icons/eye.svg'
 import { iconSizes } from 'ui/src/theme/iconSizes'
+import {
+  DappLogoWithTxStatus,
+  LogoWithTxStatus,
+} from 'wallet/src/components/CurrencyLogo/LogoWithTxStatus'
+import { NetworkLogo } from 'wallet/src/components/CurrencyLogo/NetworkLogo'
+import { SplitLogo } from 'wallet/src/components/CurrencyLogo/SplitLogo'
 import { CHAIN_INFO } from 'wallet/src/constants/chains'
 import { AssetType } from 'wallet/src/entities/assets'
 import { toSupportedChainId } from 'wallet/src/features/chains/utils'
@@ -66,14 +66,14 @@ export const NOTIFICATION_ICON_SIZE = iconSizes.icon36
 const useNavigateToProfileTab = (
   address: string | undefined
 ): {
-  onPressIn: () => void
+  onPressIn: () => Promise<void>
   onPress: () => void
 } => {
   const { preload, navigate } = useEagerActivityNavigation()
 
-  const onPressIn = (): void => {
+  const onPressIn = async (): Promise<void> => {
     if (!address) return
-    preload(address)
+    await preload(address)
   }
 
   const onPress = (): void => {

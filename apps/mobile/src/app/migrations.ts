@@ -7,11 +7,10 @@ import dayjs from 'dayjs'
 import { AccountToNftData } from 'src/features/favorites/slice'
 import { getNFTAssetKey } from 'src/features/nfts/utils'
 import { ModalName } from 'src/features/telemetry/constants'
-import { TransactionState } from 'src/features/transactions/slice'
+import { TransactionStateMap } from 'src/features/transactions/slice'
 import { ChainId } from 'wallet/src/constants/chains'
 import { ChainsState } from 'wallet/src/features/chains/slice'
 import { toSupportedChainId } from 'wallet/src/features/chains/utils'
-import { ensApi } from 'wallet/src/features/ens/api'
 import {
   ChainIdToTxIdToDetails,
   TransactionStatus,
@@ -270,8 +269,8 @@ export const migrations = {
       { byChainId: {} }
     )
 
-    const transactionState: TransactionState | undefined = newState?.transactions
-    const newTransactionState = Object.keys(transactionState ?? {}).reduce<TransactionState>(
+    const transactionState: TransactionStateMap | undefined = newState?.transactions
+    const newTransactionState = Object.keys(transactionState ?? {}).reduce<TransactionStateMap>(
       (tempState, address) => {
         const txs = transactionState?.[address]
         if (!txs) return tempState
@@ -462,7 +461,7 @@ export const migrations = {
   32: function resetEnsApi(state: any) {
     const newState = { ...state }
 
-    delete newState[ensApi.reducerPath]
+    delete newState.ENS
 
     return newState
   },
@@ -625,6 +624,19 @@ export const migrations = {
       ...state.favorites,
       tokensVisibility: {},
     }
+    return newState
+  },
+
+  46: function deleteRTKQuerySlices(state: any) {
+    const newState = { ...state }
+
+    delete newState.ENS
+    delete newState.ens
+    delete newState.gasApi
+    delete newState.onChainBalanceApi
+    delete newState.routingApi
+    delete newState.trmApi
+
     return newState
   },
 }

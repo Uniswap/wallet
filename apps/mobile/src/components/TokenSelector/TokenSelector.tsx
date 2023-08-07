@@ -5,18 +5,19 @@ import { useAppTheme } from 'src/app/hooks'
 import { SearchContext } from 'src/components/explore/search/SearchResultsSection'
 import { Box, Flex } from 'src/components/layout'
 import { BottomSheetModal } from 'src/components/modals/BottomSheetModal'
-import { Trace } from 'src/components/telemetry/Trace'
 import { useFilterCallbacks } from 'src/components/TokenSelector/hooks'
 import { NetworkFilter } from 'src/components/TokenSelector/NetworkFilter'
 import { SearchBar } from 'src/components/TokenSelector/SearchBar'
-import { TokenSection } from 'src/components/TokenSelector/TokenSelectorList'
+import { SuggestedTokenSection, TokenSection } from 'src/components/TokenSelector/TokenSelectorList'
 import { TokenSelectorSearchResultsList } from 'src/components/TokenSelector/TokenSelectorSearchResultsList'
 import { TokenSelectorSendList } from 'src/components/TokenSelector/TokenSelectorSendList'
 import { TokenSelectorSwapInputList } from 'src/components/TokenSelector/TokenSelectorSwapInputList'
 import { TokenSelectorSwapOutputList } from 'src/components/TokenSelector/TokenSelectorSwapOutputList'
+import Trace from 'src/components/Trace/Trace'
+import { IS_IOS } from 'src/constants/globals'
 import { ElementName, ModalName, SectionName } from 'src/features/telemetry/constants'
-import { CurrencyField } from 'src/features/transactions/transactionState/transactionState'
 import { ChainId } from 'wallet/src/constants/chains'
+import { CurrencyField } from 'wallet/src/features/transactions/transactionState/types'
 
 export enum TokenSelectorVariation {
   // used for Send flow, only show currencies with a balance
@@ -83,7 +84,7 @@ function _TokenSelectorModal({
       : undefined
 
   const onSelectCurrencyCallback = useCallback(
-    (currency: Currency, section: TokenSection, index: number): void => {
+    (currency: Currency, section: SuggestedTokenSection | TokenSection, index: number): void => {
       const searchContext: SearchContext = {
         category: section.title,
         query: searchFilter ?? undefined,
@@ -106,7 +107,7 @@ function _TokenSelectorModal({
       snapPoints={['65%', 'CONTENT_HEIGHT']}
       onClose={onClose}>
       <Trace logImpression element={currencyFieldName} section={SectionName.TokenSelector}>
-        <Flex grow pb="spacing16" px="spacing16">
+        <Flex grow pb={IS_IOS ? 'spacing16' : 'none'} px="spacing16">
           <SearchBar
             backgroundColor="background2"
             placeholder={t('Search tokens')}

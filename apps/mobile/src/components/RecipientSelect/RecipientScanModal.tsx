@@ -36,7 +36,7 @@ export function RecipientScanModal({ onSelectRecipient, onClose }: Props): JSX.E
   const onScanCode = async (uri: string): Promise<void> => {
     // don't scan any QR codes if there is an error popup open or camera is frozen
     if (hasScanError || shouldFreezeCamera) return
-    selectionAsync()
+    await selectionAsync()
     const supportedURI = await getSupportedURI(uri)
     if (supportedURI?.type === URIType.Address) {
       setShouldFreezeCamera(true)
@@ -85,10 +85,10 @@ export function RecipientScanModal({ onSelectRecipient, onClose }: Props): JSX.E
           borderColor={isDarkMode ? 'none' : 'backgroundOutline'}
           borderRadius="roundedFull"
           borderWidth={1}
-          name={ElementName.QRCodeModalToggle}
           p="spacing16"
           paddingEnd="spacing24"
           style={{ backgroundColor: theme.colors.backgroundOverlay }}
+          testID={ElementName.QRCodeModalToggle}
           onPress={onPressBottomToggle}>
           <Flex row alignItems="center" gap="spacing12">
             {currentScreenState === ScannerModalState.ScanQr ? (

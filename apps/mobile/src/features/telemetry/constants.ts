@@ -1,13 +1,42 @@
+import { RootParamList } from 'src/app/navigation/types'
+import { AppScreen, Screens } from 'src/screens/Screens'
+
+export function getAuthMethod(
+  isSettingEnabled: boolean,
+  isTouchIdSupported: boolean,
+  isFaceIdSupported: boolean
+): AuthMethod {
+  if (!isSettingEnabled) return AuthMethod.None
+
+  // both cannot be true since no iOS device supports both
+  if (isFaceIdSupported) return AuthMethod.FaceId
+  if (isTouchIdSupported) return AuthMethod.TouchId
+
+  return AuthMethod.None
+}
+
+export function getEventParams(
+  screen: AppScreen,
+  params: RootParamList[AppScreen]
+): Record<string, unknown> | undefined {
+  switch (screen) {
+    case Screens.SettingsWallet:
+      return {
+        address: (params as RootParamList[Screens.SettingsWallet]).address,
+      }
+    case Screens.SettingsWalletEdit:
+      return {
+        address: (params as RootParamList[Screens.SettingsWalletEdit]).address,
+      }
+    default:
+      return undefined
+  }
+}
+
 /**
- * Event names that can occur in this application
- *
- * Subject to change as new features are added and new events are defined and logged.
+ * Event names that occur in this specific application
  */
 export enum MobileEventName {
-  // keep these alphabetized or else you will go to JAIL!
-
-  // some of these values are Title Cased to match shared repo event format:
-  // https://github.com/Uniswap/analytics-events/blob/main/src/primitives.ts
   BalancesReport = 'Balances Report',
   DeepLinkOpened = 'Deep Link Opened',
   ExploreFilterSelected = 'Explore Filter Selected',
@@ -15,7 +44,6 @@ export enum MobileEventName {
   ExploreSearchCancel = 'Explore Search Cancel',
   ExploreTokenItemSelected = 'Explore Token Item Selected',
   FavoriteItem = 'Favorite Item',
-  // General fiat onramp events like in-app buttons and modals
   FiatOnRampBannerPressed = 'Fiat OnRamp Banner Pressed',
   FiatOnRampQuickActionButtonPressed = 'Fiat OnRamp QuickAction Button Pressed',
   FiatOnRampAmountEntered = 'Fiat OnRamp Amount Entered',
@@ -30,13 +58,11 @@ export enum MobileEventName {
   TokenSelected = 'Token Selected',
   WalletAdded = 'Wallet Added',
   WalletConnectSheetCompleted = 'Wallet Connect Sheet Completed',
+  // alphabetize additional values.
 }
 
 /**
- * Known sections to provide telemetry context.
- * Can help disambiguate low-level elements that may share a name.
- * For example, a `back` button in a modal will have the same
- * `elementName`, but a different `section`.
+ * Possible names for the section property in TraceContext
  */
 export const enum SectionName {
   CurrencyInputPanel = 'currency-input-panel',
@@ -62,7 +88,9 @@ export const enum SectionName {
   // alphabetize additional values.
 }
 
-/** Known modals for telemetry purposes. */
+/**
+ * Possible names for the modal property in TraceContext
+ */
 export const enum ModalName {
   AccountEdit = 'account-edit-modal',
   AccountSwitcher = 'account-switcher-modal',
@@ -78,6 +106,7 @@ export const enum ModalName {
   NftCollection = 'nft-collection',
   RecoveryWarning = 'recovery-warning',
   RemoveWallet = 'remove-wallet-modal',
+  RestoreWallet = 'restore-wallet-modal',
   RemoveSeedPhraseWarningModal = 'remove-seed-phrase-warning-modal',
   ReimportUninstall = 'reimport-uninstall-modal',
   ScreenshotWarning = 'screenshot-warning',
@@ -113,10 +142,8 @@ export const enum ManualPageViewScreen {
 }
 
 /**
- * Known element names for telemetry purposes.
- * Use to identify low-level components given a TraceContext
+ * Possible names for the element property in TraceContext
  */
-
 export const enum ElementName {
   AcceptNewRate = 'accept-new-rate',
   AccountCard = 'account-card',
@@ -163,6 +190,7 @@ export const enum ElementName {
   RecoveryHelpButton = 'recovery-help-button',
   Remove = 'remove',
   RestoreFromICloud = 'restore-from-icloud',
+  RestoreWallet = 'restore-wallet',
   ReviewSwap = 'review-swap',
   ReviewTransfer = 'review-transfer',
   SearchEtherscanItem = 'search-etherscan-item',
@@ -204,10 +232,10 @@ export const enum ElementName {
   // alphabetize additional values.
 }
 
-export const enum MarkNames {}
-
+/**
+ * User properties tied to user rather than events
+ */
 export enum UserPropertyName {
-  AppearanceSetting = 'appearance_setting',
   ActiveWalletAddress = 'active_wallet_address',
   ActiveWalletType = 'active_wallet_type',
   AppOpenAuthMethod = 'app_open_auth_method',
@@ -224,23 +252,9 @@ export enum UserPropertyName {
   // alphabetize additional values.
 }
 
-// could add PIN in the future
 export enum AuthMethod {
   FaceId = 'FaceId',
   None = 'None',
   TouchId = 'TouchId',
-  // alphabetize additional values.
-}
-
-/**
- * Known components' events that trigger callbacks.
- *
- * e.g OnFocus, OnLongPress, OnSubmit, etc.
- *
- * @example
- *  <TraceEvent events={[ReactNativeEvent.onPress]} element={name}>
- */
-export enum ReactNativeEvent {
-  OnPress = 'onPress',
   // alphabetize additional values.
 }

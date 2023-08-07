@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useAppTheme } from 'src/app/hooks'
 import { Warning, WarningAction, WarningSeverity } from 'src/components/modals/WarningModal/types'
 import WarningModal from 'src/components/modals/WarningModal/WarningModal'
-import { Trace } from 'src/components/telemetry/Trace'
+import Trace from 'src/components/Trace/Trace'
 import { ModalName, SectionName } from 'src/features/telemetry/constants'
 import {
   DerivedSwapInfo,
@@ -22,8 +22,8 @@ import {
 } from 'src/features/transactions/swap/utils'
 import { TransactionDetails } from 'src/features/transactions/TransactionDetails'
 import { TransactionReview } from 'src/features/transactions/TransactionReview'
-import { CurrencyField } from 'src/features/transactions/transactionState/transactionState'
 import InfoCircleSVG from 'ui/src/assets/icons/info-circle.svg'
+import { CurrencyField } from 'wallet/src/features/transactions/transactionState/types'
 import { AccountType } from 'wallet/src/features/wallet/accounts/types'
 import { useActiveAccountWithThrow } from 'wallet/src/features/wallet/hooks'
 import { formatCurrencyAmount, formatNumberOrString, NumberType } from 'wallet/src/utils/format'

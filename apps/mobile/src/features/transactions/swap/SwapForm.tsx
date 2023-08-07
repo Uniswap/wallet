@@ -15,11 +15,9 @@ import { Box } from 'src/components/layout/Box'
 import { SpinningLoader } from 'src/components/loading/SpinningLoader'
 import { Warning, WarningAction, WarningSeverity } from 'src/components/modals/WarningModal/types'
 import WarningModal, { getAlertColor } from 'src/components/modals/WarningModal/WarningModal'
-import { Trace } from 'src/components/telemetry/Trace'
-import { TracePressEvent } from 'src/components/telemetry/TraceEvent'
 import { Text } from 'src/components/Text'
 import { TokenSelectorFlow } from 'src/components/TokenSelector/TokenSelector'
-import { useUSDCPrice } from 'src/features/routing/useUSDCPrice'
+import Trace from 'src/components/Trace/Trace'
 import { ElementName, ModalName, SectionName } from 'src/features/telemetry/constants'
 import {
   useShouldShowNativeKeyboard,
@@ -38,12 +36,13 @@ import {
   getReviewActionName,
   isWrapAction,
 } from 'src/features/transactions/swap/utils'
-import { CurrencyField } from 'src/features/transactions/transactionState/transactionState'
 import { createTransactionId } from 'src/features/transactions/utils'
 import { BlockedAddressWarning } from 'src/features/trm/BlockedAddressWarning'
-import { useIsBlockedActiveAddress } from 'src/features/trm/hooks'
 import AlertTriangleIcon from 'ui/src/assets/icons/alert-triangle.svg'
 import InfoCircle from 'ui/src/assets/icons/info.svg'
+import { useUSDCPrice } from 'wallet/src/features/routing/useUSDCPrice'
+import { CurrencyField } from 'wallet/src/features/transactions/transactionState/types'
+import { useIsBlockedActiveAddress } from 'wallet/src/features/trm/hooks'
 import { formatCurrencyAmount, formatPrice, NumberType } from 'wallet/src/utils/format'
 
 interface SwapFormProps {
@@ -102,7 +101,10 @@ function _SwapForm({
   const actionButtonDisabled =
     noValidSwap || blockingWarning || swapDataRefreshing || isBlocked || isBlockedLoading
 
-  const swapWarning = warnings.find((warning) => warning.severity >= WarningSeverity.Low)
+  // We clear swap warnings while refreshing in order to show the loading indicator
+  const swapWarning = swapDataRefreshing
+    ? null
+    : warnings.find((warning) => warning.severity >= WarningSeverity.Low)
   const swapWarningColor = getAlertColor(swapWarning?.severity)
 
   const onSwapWarningClick = (): void => {
@@ -264,13 +266,13 @@ function _SwapForm({
                   ) / 2
                 }
                 position="absolute">
-                <TracePressEvent element={ElementName.SwitchCurrenciesButton}>
+                <Trace logPress element={ElementName.SwitchCurrenciesButton}>
                   <SwapArrowButton
                     bg="background2"
                     size={SWAP_DIRECTION_BUTTON_SIZE}
                     onPress={onSwitchCurrencies}
                   />
-                </TracePressEvent>
+                </Trace>
               </Box>
             </Box>
           </Box>
@@ -425,8 +427,8 @@ function _SwapForm({
           <Button
             disabled={actionButtonDisabled}
             label={getReviewActionName(t, wrapType)}
-            name={ElementName.ReviewSwap}
             size={ButtonSize.Large}
+            testID={ElementName.ReviewSwap}
             onPress={onReview}
           />
         </AnimatedFlex>

@@ -1,6 +1,5 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { useResponsiveProp } from '@shopify/restyle'
-import { SharedEventName } from '@uniswap/analytics-events'
 import React, { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAppDispatch } from 'src/app/hooks'
@@ -9,16 +8,17 @@ import { Button } from 'src/components/buttons/Button'
 import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { Flex } from 'src/components/layout'
 import { Text } from 'src/components/Text'
+import Trace from 'src/components/Trace/Trace'
 import { RECOVERY_PHRASE_HELP_URL } from 'src/constants/urls'
 import { useLockScreenOnBlur } from 'src/features/authentication/lockScreenContext'
 import { GenericImportForm } from 'src/features/import/GenericImportForm'
-import { importAccountActions } from 'src/features/import/importAccountSaga'
-import { ImportAccountType } from 'src/features/import/types'
 import { SafeKeyboardOnboardingScreen } from 'src/features/onboarding/SafeKeyboardOnboardingScreen'
 import { ElementName } from 'src/features/telemetry/constants'
 import { OnboardingScreens } from 'src/screens/Screens'
 import { openUri } from 'src/utils/linking'
 import { useAddBackButton } from 'src/utils/useAddBackButton'
+import { importAccountActions } from 'wallet/src/features/wallet/import/importAccountSaga'
+import { ImportAccountType } from 'wallet/src/features/wallet/import/types'
 import { NUMBER_OF_WALLETS_TO_IMPORT } from 'wallet/src/features/wallet/import/utils'
 import {
   MnemonicValidationError,
@@ -128,27 +128,25 @@ export function SeedPhraseInputScreen({ navigation, route: { params } }: Props):
           errorMessage={errorMessage}
           placeholderLabel={t('recovery phrase')}
           showSuccess={showSuccess}
+          textAlign="center" // Fixes iOS text input issue where right align trims trailing whitespace
           value={value}
           onBlur={onBlur}
           onChange={onChange}
         />
         <Flex centered>
-          <TouchableArea
-            eventName={SharedEventName.ELEMENT_CLICKED}
-            name={ElementName.RecoveryHelpButton}
-            onPress={onPressRecoveryHelpButton}>
-            <Text color="accentAction" variant={subtitleSize}>
-              {t('How do I find my recovery phrase?')}
-            </Text>
-          </TouchableArea>
+          <Trace logPress element={ElementName.RecoveryHelpButton}>
+            <TouchableArea onPress={onPressRecoveryHelpButton}>
+              <Text color="accentAction" variant={subtitleSize}>
+                {t('How do I find my recovery phrase?')}
+              </Text>
+            </TouchableArea>
+          </Trace>
         </Flex>
       </Flex>
-      <Button
-        disabled={!!errorMessage || !value}
-        label={t('Continue')}
-        name={ElementName.Next}
-        onPress={onSubmit}
-      />
+
+      <Trace logPress element={ElementName.Next}>
+        <Button disabled={!!errorMessage || !value} label={t('Continue')} onPress={onSubmit} />
+      </Trace>
     </SafeKeyboardOnboardingScreen>
   )
 }

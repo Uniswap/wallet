@@ -12,8 +12,8 @@ import { BottomSheetModal } from 'src/components/modals/BottomSheetModal'
 import { ScannerModalState } from 'src/components/QRCodeScanner/constants'
 import { QRCodeScanner } from 'src/components/QRCodeScanner/QRCodeScanner'
 import { WalletQRCode } from 'src/components/QRCodeScanner/WalletQRCode'
-import { Trace } from 'src/components/telemetry/Trace'
 import { Text } from 'src/components/Text'
+import Trace from 'src/components/Trace/Trace'
 import { ConnectedDappsList } from 'src/components/WalletConnect/ConnectedDapps/ConnectedDappsList'
 import { getSupportedURI, URIType } from 'src/components/WalletConnect/ScanSheet/util'
 import { useIsDarkMode } from 'src/features/appearance/hooks'
@@ -62,7 +62,7 @@ export function WalletConnectModal({
     async (uri: string) => {
       // don't scan any QR codes if there is an error popup open or camera is frozen
       if (!activeAddress || hasScanError || shouldFreezeCamera) return
-      selectionAsync()
+      await selectionAsync()
 
       const supportedURI = await getSupportedURI(uri)
       if (!supportedURI) {
@@ -86,8 +86,8 @@ export function WalletConnectModal({
       }
 
       if (supportedURI.type === URIType.Address) {
-        preload(supportedURI.value)
-        navigate(supportedURI.value, onClose)
+        await preload(supportedURI.value)
+        await navigate(supportedURI.value, onClose)
         return
       }
 
@@ -196,16 +196,16 @@ export function WalletConnectModal({
             <WalletQRCode address={activeAddress} />
           </Trace>
         )}
-        <Flex centered mb="spacing36" mt="spacing16" mx="spacing16">
+        <Flex centered mb="spacing48" mt="spacing16" mx="spacing16">
           <TouchableArea
             hapticFeedback
             borderColor={isDarkMode ? 'none' : 'backgroundOutline'}
             borderRadius="roundedFull"
             borderWidth={1}
-            name={ElementName.QRCodeModalToggle}
             p="spacing16"
             paddingEnd="spacing24"
             style={{ backgroundColor: theme.colors.backgroundOverlay }}
+            testID={ElementName.QRCodeModalToggle}
             onPress={onPressBottomToggle}>
             <Flex row alignItems="center" gap="spacing12">
               {currentScreenState === ScannerModalState.ScanQr ? (

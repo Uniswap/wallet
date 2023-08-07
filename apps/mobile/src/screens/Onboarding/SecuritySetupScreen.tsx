@@ -1,6 +1,5 @@
 import { BlurView } from '@react-native-community/blur'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
-import { SharedEventName } from '@uniswap/analytics-events'
 import React, { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Alert, Image, StyleSheet } from 'react-native'
@@ -11,6 +10,7 @@ import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { Box, Flex } from 'src/components/layout'
 import { BiometricAuthWarningModal } from 'src/components/Settings/BiometricAuthWarningModal'
 import { Text } from 'src/components/Text'
+import Trace from 'src/components/Trace/Trace'
 import { useIsDarkMode } from 'src/features/appearance/hooks'
 import { BiometricAuthenticationStatus, tryLocalAuthenticate } from 'src/features/biometrics'
 import {
@@ -43,14 +43,14 @@ export function SecuritySetupScreen({ route: { params } }: Props): JSX.Element {
 
   const onCompleteOnboarding = useCompleteOnboardingCallback(params.entryPoint, params.importType)
 
-  const onPressNext = useCallback(() => {
+  const onPressNext = useCallback(async () => {
     setShowWarningModal(false)
-    onCompleteOnboarding()
+    await onCompleteOnboarding()
   }, [onCompleteOnboarding])
 
-  const onMaybeLaterPressed = useCallback(() => {
+  const onMaybeLaterPressed = useCallback(async () => {
     if (params?.importType === ImportType.Watch) {
-      onPressNext()
+      await onPressNext()
     } else {
       setShowWarningModal(true)
     }
@@ -76,7 +76,7 @@ export function SecuritySetupScreen({ route: { params } }: Props): JSX.Element {
 
     if (biometricAuthenticationSuccessful(authStatus)) {
       dispatch(setRequiredForTransactions(true))
-      onPressNext()
+      await onPressNext()
     }
   }, [t, authenticationTypeName, dispatch, onPressNext])
 
@@ -136,23 +136,22 @@ export function SecuritySetupScreen({ route: { params } }: Props): JSX.Element {
           </Box>
         </Flex>
         <Flex gap="spacing24">
-          <TouchableArea
-            eventName={SharedEventName.ELEMENT_CLICKED}
-            name={ElementName.Skip}
-            onPress={onMaybeLaterPressed}>
-            <Text color="magentaVibrant" textAlign="center" variant="buttonLabelMedium">
-              {t('Maybe later')}
-            </Text>
-          </TouchableArea>
-          <Button
-            emphasis={ButtonEmphasis.Primary}
-            eventName={SharedEventName.ELEMENT_CLICKED}
-            label={t('Turn on {{authenticationTypeName}} ID', {
-              authenticationTypeName,
-            })}
-            name={ElementName.Enable}
-            onPress={onPressEnableSecurity}
-          />
+          <Trace logPress element={ElementName.Skip}>
+            <TouchableArea onPress={onMaybeLaterPressed}>
+              <Text color="magentaVibrant" textAlign="center" variant="buttonLabelMedium">
+                {t('Maybe later')}
+              </Text>
+            </TouchableArea>
+          </Trace>
+          <Trace logPress element={ElementName.Enable}>
+            <Button
+              emphasis={ButtonEmphasis.Primary}
+              label={t('Turn on {{authenticationTypeName}} ID', {
+                authenticationTypeName,
+              })}
+              onPress={onPressEnableSecurity}
+            />
+          </Trace>
         </Flex>
       </OnboardingScreen>
     </>

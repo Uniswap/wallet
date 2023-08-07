@@ -7,6 +7,10 @@ import mockRNCNetInfo from '@react-native-community/netinfo/jest/netinfo-mock.js
 import 'cross-fetch/polyfill'
 import mockRNDeviceInfo from 'react-native-device-info/jest/react-native-device-info-mock'
 
+// NOTE: I tried adding this to jest.config.js globals, but it doesn't seem to pass it
+// so added it here and it works. This fixes the "Must set TAMAGUI_TARGET" warnings during tests
+process.env.TAMAGUI_TARGET = 'native'
+
 // avoids polutting console in test runs, while keeping important log levels
 global.console = {
   ...console,
@@ -62,6 +66,7 @@ jest.mock('expo-clipboard', () => ({
 }))
 jest.mock('@react-native-community/blur', () => ({ BlurView: {} }))
 jest.mock('expo-barcode-scanner', () => ({}))
+jest.mock('expo-blur', () => ({ BlurView: {} }))
 jest.mock('expo-av', () => ({}))
 jest.mock('expo-haptics', () => ({ impactAsync: jest.fn(), ImpactFeedbackStyle: jest.fn() }))
 jest.mock('expo-linear-gradient', () => ({ LinearGradient: () => 'ExpoLinearGradient' }))
@@ -105,6 +110,7 @@ jest.mock('react-native-onesignal', () => {
     promptForPushNotificationsWithUserResponse: jest.fn(),
     setNotificationWillShowInForegroundHandler: jest.fn(),
     setNotificationOpenedHandler: jest.fn(),
+    getDeviceState: () => ({ userId: 'dummyUserId' }),
   }
 })
 
@@ -158,31 +164,6 @@ jest.mock('@amplitude/experiment-react-native-client', () => {
   return {
     Experiment: mockExperimentClient,
   }
-})
-
-jest.mock('statsig-react-native', () => {
-  const StatsigMock = {
-    useGate: () => {
-      return {
-        isLoading: false,
-        value: false,
-      }
-    },
-    useConfig: () => {
-      return {}
-    },
-
-    Statsig: {
-      checkGate: () => false,
-      getConfig: () => {
-        return {
-          get: (_name, fallback) => fallback,
-          getValue: (_name, fallback) => fallback,
-        }
-      },
-    },
-  }
-  return StatsigMock
 })
 
 jest.mock('react-native-safe-area-context', () => ({
