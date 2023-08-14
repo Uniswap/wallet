@@ -74,7 +74,7 @@ export function WalletQRCode({ address }: Props): JSX.Element | null {
         />
         <Text color="textSecondary" textAlign="center" variant="bodySmall">
           {t(
-            'Only send tokens on Ethereum, Optimism, Polygon, and Arbitrum networks to this address.'
+            'Only send tokens on Ethereum, Arbitrum, Optimism, Polygon, Base networks to this address.'
           )}{' '}
           <TouchableArea height={18} onPress={onPressLearnMore}>
             <Text color="accentActive" variant="buttonLabelSmall">

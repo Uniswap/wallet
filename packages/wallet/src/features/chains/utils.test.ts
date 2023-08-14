@@ -8,7 +8,6 @@ import {
   fromUniswapWebAppLink,
   getPollingIntervalByBlocktime,
   isTestnet,
-  parseActiveChains,
   toGraphQLChain,
   toSupportedChainId,
   toUniswapWebAppLink,
@@ -25,24 +24,6 @@ describe(toSupportedChainId, () => {
 
   it('handles supported chain ID', () => {
     expect(toSupportedChainId(ChainId.Polygon)).toEqual(137)
-  })
-})
-
-describe(parseActiveChains, () => {
-  it('handles empty string', () => {
-    expect(parseActiveChains('')).toEqual([])
-  })
-
-  it('handles single chain ID', () => {
-    expect(parseActiveChains('1')).toEqual([1])
-  })
-
-  it('handles multiple chain IDs', () => {
-    expect(parseActiveChains('1,137')).toEqual([1, 137])
-  })
-
-  it('handles invalid characters', () => {
-    expect(parseActiveChains('1,test')).toEqual([1])
   })
 })
 
@@ -86,6 +67,7 @@ describe(fromMoonpayNetwork, () => {
     expect(fromMoonpayNetwork(Chain.Arbitrum.toLowerCase())).toEqual(ChainId.ArbitrumOne)
     expect(fromMoonpayNetwork(Chain.Optimism.toLowerCase())).toEqual(ChainId.Optimism)
     expect(fromMoonpayNetwork(Chain.Polygon.toLowerCase())).toEqual(ChainId.Polygon)
+    // TODO: add Base test once Chain includes Base (GQL reliant)
   })
 
   it('handle unsupported chain', () => {
@@ -111,6 +93,7 @@ describe(fromUniswapWebAppLink, () => {
     expect(fromUniswapWebAppLink(Chain.Arbitrum.toLowerCase())).toEqual(ChainId.ArbitrumOne)
     expect(fromUniswapWebAppLink(Chain.Optimism.toLowerCase())).toEqual(ChainId.Optimism)
     expect(fromUniswapWebAppLink(Chain.Polygon.toLowerCase())).toEqual(ChainId.Polygon)
+    // TODO: add Base test once Chain includes Base (GQL reliant)
   })
 
   it('handle unsupported chain', () => {
@@ -124,6 +107,7 @@ describe(toUniswapWebAppLink, () => {
     expect(toUniswapWebAppLink(ChainId.ArbitrumOne)).toEqual(Chain.Arbitrum.toLowerCase())
     expect(toUniswapWebAppLink(ChainId.Optimism)).toEqual(Chain.Optimism.toLowerCase())
     expect(toUniswapWebAppLink(ChainId.Polygon)).toEqual(Chain.Polygon.toLowerCase())
+    // TODO: add Base test once Chain includes Base (GQL reliant)
   })
 
   it('handle unsupported chain', () => {

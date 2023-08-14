@@ -3,12 +3,14 @@
 import { ImageSourcePropType } from 'react-native'
 import {
   ARBITRUM_LOGO,
+  BASE_LOGO,
   ETHEREUM_LOGO,
   GOERLI_LOGO,
   MUMBAI_LOGO,
   OPTIMISM_LOGO,
   POLYGON_LOGO,
 } from 'ui/src/assets'
+import { chainListToStateMap } from 'wallet/src/features/chains/utils'
 
 export interface ChainState {
   isActive: boolean
@@ -25,10 +27,13 @@ export enum ChainId {
   Goerli = 5,
 
   ArbitrumOne = 42161,
+  Base = 8453,
   Optimism = 10,
   Polygon = 137,
   PolygonMumbai = 80001,
 }
+
+export const ALL_SUPPORTED_CHAINS: string[] = Object.values(ChainId).map((c) => c.toString())
 
 // DON'T CHANGE - order here determines ordering of networks in app
 // TODO: [MOB-250] Add back in testnets once our endpoints support them
@@ -37,7 +42,10 @@ export const ALL_SUPPORTED_CHAIN_IDS: ChainId[] = [
   ChainId.Polygon,
   ChainId.ArbitrumOne,
   ChainId.Optimism,
+  ChainId.Base,
 ]
+
+export const ACTIVE_CHAINS = chainListToStateMap(ALL_SUPPORTED_CHAIN_IDS)
 
 export const TESTNET_CHAIN_IDS = [ChainId.Goerli, ChainId.PolygonMumbai]
 
@@ -48,6 +56,7 @@ export type L1ChainId = (typeof L1_CHAIN_IDS)[number]
 
 export const L2_CHAIN_IDS = [
   ChainId.ArbitrumOne,
+  ChainId.Base,
   ChainId.Optimism,
   ChainId.Polygon,
   ChainId.PolygonMumbai,
@@ -116,6 +125,17 @@ export const CHAIN_INFO: ChainInfo = {
     logo: GOERLI_LOGO,
     nativeCurrency: { name: 'Görli ETH', symbol: 'görETH', decimals: 18 },
   },
+  [ChainId.Base]: {
+    blockWaitMsBeforeWarning: 600000,
+    bridge: 'https://bridge.base.org/',
+    docs: 'https://base.org/',
+    explorer: 'https://basescan.org/',
+    infoLink: 'https://info.uniswap.org/#/base',
+    label: 'Base',
+    logo: BASE_LOGO,
+    nativeCurrency: { name: 'Base ETH', symbol: 'ETH', decimals: 18 },
+    rpcUrls: ['https://mainnet.base.org'],
+  },
   [ChainId.Optimism]: {
     blockWaitMsBeforeWarning: 1200000, // 20 minutes
     bridge: 'https://gateway.optimism.io/',
@@ -171,6 +191,8 @@ export function getChainIdFromString(input: string): ChainId | undefined {
       return ChainId.Goerli
     case ChainId.ArbitrumOne:
       return ChainId.ArbitrumOne
+    case ChainId.Base:
+      return ChainId.Base
     case ChainId.Optimism:
       return ChainId.Optimism
     case ChainId.Polygon:
