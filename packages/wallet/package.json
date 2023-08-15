@@ -11,7 +11,7 @@
     "@tamagui/shorthands": "1.39.7",
     "@tamagui/theme-base": "1.39.7",
     "@uniswap/analytics": "1.4.0",
-    "@uniswap/sdk-core": "3.2.2",
+    "@uniswap/sdk-core": "4.0.6",
     "apollo-link-rest": "0.9.0",
     "dayjs": "1.11.7",
     "ethers": "5.7.2",

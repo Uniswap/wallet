@@ -2,8 +2,7 @@ import { PayloadAction } from '@reduxjs/toolkit'
 import { providers as ethersProviders } from 'ethers'
 import { REHYDRATE } from 'redux-persist'
 import { call, fork, join, take, takeEvery } from 'typed-redux-saga'
-import { config } from 'wallet/src/config'
-import { ChainId } from 'wallet/src/constants/chains'
+import { ACTIVE_CHAINS, ChainId } from 'wallet/src/constants/chains'
 import { setChainActiveStatus } from 'wallet/src/features/chains/slice'
 import { getSortedActiveChainIds } from 'wallet/src/features/chains/utils'
 import { logger } from 'wallet/src/features/logger/logger'
@@ -16,7 +15,7 @@ import serializeError from 'wallet/src/utils/serializeError'
 export function* initProviders() {
   // Wait for rehydration so we know which networks are enabled
   const persisted = yield* take<PayloadAction<RootState>>(REHYDRATE)
-  const chains = persisted.payload?.chains?.byChainId ?? config.activeChains
+  const chains = persisted.payload?.chains?.byChainId ?? ACTIVE_CHAINS
   const activeChains = getSortedActiveChainIds(chains)
 
   logger.debug('providerSaga', 'initProviders', 'Initializing providers')
