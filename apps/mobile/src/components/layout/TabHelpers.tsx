@@ -15,7 +15,7 @@ import { Route } from 'react-native-tab-view/lib/typescript/types'
 import { Flex } from 'src/components/layout/Flex'
 import { Text } from 'src/components/Text'
 import { PendingNotificationBadge } from 'src/features/notifications/PendingNotificationBadge'
-import { theme as FixedTheme } from 'ui/src/theme/restyle/theme'
+import { theme as FixedTheme } from 'ui/src/theme/restyle'
 
 export const TAB_VIEW_SCROLL_THROTTLE = 16
 export const TAB_BAR_HEIGHT = 48
@@ -23,7 +23,7 @@ export const SWIPE_THRESHOLD = 5
 
 export const TAB_STYLES = StyleSheet.create({
   activeTabIndicator: {
-    backgroundColor: FixedTheme.colors.userThemeMagenta,
+    backgroundColor: FixedTheme.colors.accent1,
     bottom: 0,
     height: 0,
     position: 'absolute',
@@ -81,10 +81,10 @@ export type TabProps = {
   owner: string
   containerProps?: TabContentProps
   scrollHandler?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
-  headerHeight?: number
   isExternalProfile?: boolean
   refreshing?: boolean
   onRefresh?: () => void
+  headerHeight?: number
 }
 
 export type TabContentProps = Partial<FlatListProps<unknown>> & {
@@ -108,7 +108,7 @@ export const renderTabLabel = ({
 }): JSX.Element => {
   return (
     <Flex row alignItems="center" gap="spacing4">
-      <Text color={focused ? 'textPrimary' : 'textTertiary'} fontSize={18} variant="bodyLarge">
+      <Text color={focused ? 'neutral1' : 'neutral2'} variant="bodyLarge">
         {route.title}
       </Text>
       {/* Streamline UI by hiding the Activity tab spinner when focused

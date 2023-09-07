@@ -255,11 +255,12 @@ exports[`AccountDetails renders without error 1`] = `
             style={
               [
                 {
-                  "color": "#0E1524",
+                  "color": "#222222",
                   "display": "flex",
-                  "fontFamily": "Inter-Medium",
-                  "fontSize": 15,
-                  "lineHeight": 20,
+                  "fontFamily": "Basel-Book",
+                  "fontSize": 17,
+                  "fontWeight": "400",
+                  "lineHeight": 24,
                 },
               ]
             }
@@ -305,11 +306,12 @@ exports[`AccountDetails renders without error 1`] = `
       style={
         [
           {
-            "color": "#5D6785",
+            "color": "#7D7D7D",
             "display": "flex",
-            "fontFamily": "Inter-Medium",
-            "fontSize": 15,
-            "lineHeight": 20,
+            "fontFamily": "Basel-Book",
+            "fontSize": 17,
+            "fontWeight": "400",
+            "lineHeight": 24,
           },
         ]
       }
@@ -575,11 +577,12 @@ exports[`AccountDetails renders without error with chevron 1`] = `
             style={
               [
                 {
-                  "color": "#0E1524",
+                  "color": "#222222",
                   "display": "flex",
-                  "fontFamily": "Inter-Medium",
-                  "fontSize": 15,
-                  "lineHeight": 20,
+                  "fontFamily": "Basel-Book",
+                  "fontSize": 17,
+                  "fontWeight": "400",
+                  "lineHeight": 24,
                 },
               ]
             }
@@ -625,11 +628,12 @@ exports[`AccountDetails renders without error with chevron 1`] = `
       style={
         [
           {
-            "color": "#5D6785",
+            "color": "#7D7D7D",
             "display": "flex",
-            "fontFamily": "Inter-Medium",
-            "fontSize": 15,
-            "lineHeight": 20,
+            "fontFamily": "Basel-Book",
+            "fontSize": 17,
+            "fontWeight": "400",
+            "lineHeight": 24,
           },
         ]
       }
@@ -721,7 +725,7 @@ exports[`AccountDetails renders without error with chevron 1`] = `
             }
             stroke={
               {
-                "payload": 4284311429,
+                "payload": 4286414205,
                 "type": 0,
               }
             }

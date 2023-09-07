@@ -11,9 +11,11 @@ import { Flex } from 'src/components/layout/Flex'
 import { Screen } from 'src/components/layout/Screen'
 import { BottomSheetModal } from 'src/components/modals/BottomSheetModal'
 import { Text } from 'src/components/Text'
+import { IS_ANDROID } from 'src/constants/globals'
 import { CloudBackupPasswordForm } from 'src/features/CloudBackup/CloudBackupPasswordForm'
 import { ElementName, ModalName } from 'src/features/telemetry/constants'
 import { Screens } from 'src/screens/Screens'
+import { Icons } from 'ui/src'
 import CloudIcon from 'ui/src/assets/icons/cloud.svg'
 
 type Props = NativeStackScreenProps<
@@ -49,34 +51,54 @@ export function SettingsCloudBackupPasswordCreateScreen({
       <BackHeader mb="spacing16" />
       <ScrollView bounces={false} keyboardShouldPersistTaps="handled">
         <Flex alignItems="center" justifyContent="space-between" mb="spacing24" mx="spacing12">
-          <Text variant="headlineSmall">{t('Back up to iCloud')}</Text>
-          <Text color="textSecondary" textAlign="center" variant="bodySmall">
-            {t(
-              'Setting a password will encrypt your recovery phrase backup, adding an extra level of protection if your iCloud account is ever compromised.'
-            )}
+          <Text variant="headlineSmall">
+            {IS_ANDROID ? t('Back up to Google Drive') : t('Back up to iCloud')}
+          </Text>
+          <Text color="neutral2" textAlign="center" variant="bodySmall">
+            {IS_ANDROID
+              ? t(
+                  'Setting a password will encrypt your recovery phrase backup, adding an extra level of protection if your Google Drive account is ever compromised.'
+                )
+              : t(
+                  'Setting a password will encrypt your recovery phrase backup, adding an extra level of protection if your iCloud account is ever compromised.'
+                )}
           </Text>
         </Flex>
         <CloudBackupPasswordForm navigateToNextScreen={navigateToNextScreen} />
         {showCloudBackupInfoModal && (
           <BottomSheetModal
-            backgroundColor={theme.colors.background1}
-            name={ModalName.ICloudBackupInfo}>
+            backgroundColor={theme.colors.surface2}
+            name={ModalName.CloudBackupInfo}>
             <Flex gap="none" mb="spacing36" px="spacing16" py="spacing12">
               <Flex centered gap="spacing16">
                 <Box
-                  borderColor="accentAction"
+                  borderColor="accent1"
                   borderRadius="rounded12"
                   borderWidth={1}
                   padding="spacing12">
-                  <CloudIcon color={theme.colors.accentAction} />
+                  {IS_ANDROID ? (
+                    <Icons.GoogleDrive
+                      color={theme.colors.accent1}
+                      height={theme.iconSizes.icon20}
+                      width={theme.iconSizes.icon20}
+                    />
+                  ) : (
+                    <CloudIcon color={theme.colors.accent1} />
+                  )}
                 </Box>
                 <Text textAlign="center" variant="buttonLabelMedium">
-                  {t('Back up recovery phrase to iCloud?')}
+                  {IS_ANDROID
+                    ? t('Back up recovery phrase to Google Drive?')
+                    : t('Back up recovery phrase to iCloud?')}
                 </Text>
-                <Text color="textSecondary" textAlign="center" variant="bodySmall">
-                  {t(
-                    'It looks like you haven’t backed up your recovery phrase to iCloud yet. By doing so, you can recover your wallet just by being logged into iCloud on any device.'
-                  )}
+                <Text color="neutral2" textAlign="center" variant="bodySmall">
+                  {IS_ANDROID
+                    ? t(
+                        'It looks like you haven’t backed up your recovery phrase to Google Drive yet. By doing so, you can recover your wallet just by being logged into Google Drive on any device.'
+                      )
+                    : t(
+                        'It looks like you haven’t backed up your recovery phrase to iCloud yet. By doing so, you can recover your wallet just by being logged into iCloud on any device.'
+                      )}
                 </Text>
               </Flex>
               <Flex centered row gap="spacing12" pt="spacing24">

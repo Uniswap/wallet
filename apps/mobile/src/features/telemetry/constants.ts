@@ -52,12 +52,14 @@ export enum MobileEventName {
   OnboardingCompleted = 'Onboarding Completed',
   PerformanceReport = 'Performance Report',
   PerformanceGraphql = 'Performance GraphQL',
-  PortfolioBalanceFreshnessLag = 'Portfolio Balance Freshness Lag',
-  SwapSubmitted = 'Swap Submitted to Provider',
+  ShareButtonClicked = 'Share Button Clicked',
+  ShareLinkOpened = 'Share Link Opened',
   TokenDetailsOtherChainButtonPressed = 'Token Details Other Chain Button Pressed',
   TokenSelected = 'Token Selected',
   WalletAdded = 'Wallet Added',
   WalletConnectSheetCompleted = 'Wallet Connect Sheet Completed',
+  WidgetConfigurationUpdated = 'Widget Configuration Updated',
+  WidgetClicked = 'Widget Clicked',
   // alphabetize additional values.
 }
 
@@ -101,7 +103,7 @@ export const enum ModalName {
   FaceIDWarning = 'face-id-warning',
   FiatOnRamp = 'fiat-on-ramp',
   ForceUpgradeModal = 'force-upgrade-modal',
-  ICloudBackupInfo = 'icloud-backup-info-modal',
+  CloudBackupInfo = 'cloud-backup-info-modal',
   NetworkSelector = 'network-selector-modal',
   NftCollection = 'nft-collection',
   RecoveryWarning = 'recovery-warning',
@@ -117,6 +119,7 @@ export const enum ModalName {
   Swap = 'swap-modal',
   SwapSettings = 'swap-settings-modal',
   SwapWarning = 'swap-warning-modal',
+  SwapProtection = 'swap-protection-modal',
   GasEstimateWarning = 'gas-estimate-warning-modal',
   TokenSelector = 'token-selector',
   TokenWarningModal = 'token-warning-modal',
@@ -127,7 +130,6 @@ export const enum ModalName {
   WCDappConnectedNetworks = 'wc-dapp-connected-networks-modal',
   WCPendingConnection = 'wc-pending-connection-modal',
   WCSignRequest = 'wc-sign-request-modal',
-  WCSwitchChainRequest = 'wc-switch-chain-request-modal',
   WCViewOnlyWarning = 'wc-view-only-warning-modal',
   // alphabetize additional values.
 }
@@ -149,7 +151,7 @@ export const enum ElementName {
   AccountCard = 'account-card',
   AddManualBackup = 'add-manual-backup',
   AddViewOnlyWallet = 'add-view-only-wallet',
-  AddiCloudBackup = 'add-icloud-backup',
+  AddCloudBackup = 'add-cloud-backup',
   AddBackupNone = 'add-backup-none',
   Back = 'back',
   Buy = 'buy',
@@ -189,7 +191,7 @@ export const enum ElementName {
   Receive = 'receive',
   RecoveryHelpButton = 'recovery-help-button',
   Remove = 'remove',
-  RestoreFromICloud = 'restore-from-icloud',
+  RestoreFromCloud = 'restore-from-cloud',
   RestoreWallet = 'restore-wallet',
   ReviewSwap = 'review-swap',
   ReviewTransfer = 'review-transfer',
@@ -222,7 +224,7 @@ export const enum ElementName {
   TokenWarningAccept = 'token-warning-accept',
   Unwrap = 'unwrap',
   WCDappSwitchAccount = 'wc-dapp-switch-account',
-  WCDappSwitchNetwork = 'wc-dapp-switch-network',
+  WCDappNetworks = 'wc-dapp-networks',
   WCOpenDapp = 'wc-open-dapp',
   WalletCard = 'wallet-card',
   WalletConnectScan = 'wallet-connect-scan',
@@ -248,6 +250,7 @@ export enum UserPropertyName {
   TransactionAuthMethod = 'transaction_auth_method',
   WalletSignerAccounts = `wallet_signer_accounts`,
   WalletSignerCount = 'wallet_signer_count',
+  WalletSwapProtectionSetting = 'wallet_swap_protection_setting',
   WalletViewOnlyCount = 'wallet_view_only_count',
   // alphabetize additional values.
 }
@@ -257,4 +260,11 @@ export enum AuthMethod {
   None = 'None',
   TouchId = 'TouchId',
   // alphabetize additional values.
+}
+
+export enum ShareableEntity {
+  NftItem = 'NftItem',
+  NftCollection = 'NftCollection',
+  Token = 'Token',
+  Wallet = 'Wallet',
 }

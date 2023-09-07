@@ -7,36 +7,34 @@ import { SpinningLoader } from 'src/components/loading/SpinningLoader'
 import { InlineNetworkPill } from 'src/components/Network/NetworkPill'
 import { Text } from 'src/components/Text'
 import InfoCircleSVG from 'ui/src/assets/icons/info-circle.svg'
+import { formatUSDPrice, NumberType } from 'utilities/src/format/format'
 import { ChainId } from 'wallet/src/constants/chains'
-import { useUSDValue } from 'wallet/src/features/gas/hooks'
-import { formatUSDPrice, NumberType } from 'wallet/src/utils/format'
 
 export function NetworkFee({
   chainId,
-  gasFee,
+  gasFeeUSD,
   gasFallbackUsed,
   onShowGasWarning,
 }: {
   chainId: ChainId
-  gasFee?: string
+  gasFeeUSD?: string
   gasFallbackUsed?: boolean
   onShowGasWarning?: () => void
 }): JSX.Element {
   const { t } = useTranslation()
   const theme = useAppTheme()
-  const gasFeeUSD = useUSDValue(chainId, gasFee)
 
   const feeSectionContent = (
     <>
       <Text
-        color={gasFallbackUsed && gasFeeUSD ? 'accentWarning' : 'textPrimary'}
+        color={gasFallbackUsed && gasFeeUSD ? 'DEP_accentWarning' : 'neutral1'}
         variant="subheadSmall">
         {formatUSDPrice(gasFeeUSD, NumberType.FiatGasPrice)}
       </Text>
       {gasFallbackUsed && gasFeeUSD && (
         <Box ml="spacing4">
           <InfoCircleSVG
-            color={theme.colors.accentWarning}
+            color={theme.colors.DEP_accentWarning}
             height={theme.iconSizes.icon20}
             width={theme.iconSizes.icon20}
           />

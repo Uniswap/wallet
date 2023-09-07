@@ -15,7 +15,7 @@ import Trace from 'src/components/Trace/Trace'
 import InputWithSuffix from 'src/features/import/InputWithSuffix'
 import { SectionName } from 'src/features/telemetry/constants'
 import AlertTriangle from 'ui/src/assets/icons/alert-triangle.svg'
-import { Theme } from 'ui/src/theme/restyle/theme'
+import { Theme } from 'ui/src/theme/restyle'
 
 interface Props {
   value: string | undefined
@@ -88,13 +88,13 @@ export function GenericImportForm({
       <Flex gap="spacing16" onTouchEnd={handleFocus}>
         <Flex
           centered
-          backgroundColor="background1"
+          backgroundColor="surface2"
           borderColor={
             showSuccess
-              ? 'accentSuccess'
+              ? 'statusSuccess'
               : errorMessage && (liveCheck || !focused) && value
-              ? 'accentCritical'
-              : 'background2'
+              ? 'statusCritical'
+              : 'surface2'
           }
           borderRadius="rounded20"
           borderWidth={1}
@@ -133,7 +133,7 @@ export function GenericImportForm({
               onLayout={(event: LayoutChangeEvent): void => setLayout(event.nativeEvent.layout)}>
               <Text
                 adjustsFontSizeToFit
-                color="textSecondary"
+                color="neutral2"
                 maxFontSizeMultiplier={INPUT_MAX_FONT_SIZE_MULTIPLIER}
                 numberOfLines={1}
                 style={styles.placeholderLabelStyle}
@@ -148,7 +148,7 @@ export function GenericImportForm({
               {placeholderLabel && (
                 <Text
                   adjustsFontSizeToFit
-                  color="textSecondary"
+                  color="neutral2"
                   numberOfLines={1}
                   style={styles.placeholderLabelStyle}
                   variant="bodyLarge">
@@ -161,8 +161,8 @@ export function GenericImportForm({
         <Flex>
           {errorMessage && value && (liveCheck || !focused) && (
             <Flex centered row gap="spacing12">
-              <AlertTriangle color={theme.colors.accentCritical} />
-              <Text color="accentCritical" variant="bodyLarge">
+              <AlertTriangle color={theme.colors.statusCritical} />
+              <Text color="statusCritical" variant="bodyLarge">
                 {errorMessage}
               </Text>
             </Flex>

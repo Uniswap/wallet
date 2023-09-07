@@ -12,8 +12,7 @@ import { Box, Flex } from 'src/components/layout'
 import { BaseCard } from 'src/components/layout/BaseCard'
 import { Text } from 'src/components/Text'
 import { removeWatchedAddress } from 'src/features/favorites/slice'
-import { flex } from 'ui/src/theme/restyle/flex'
-import { theme } from 'ui/src/theme/restyle/theme'
+import { flex, theme } from 'ui/src/theme/restyle'
 import { useENSAvatar } from 'wallet/src/features/ens/api'
 import { useDisplayName } from 'wallet/src/features/wallet/hooks'
 
@@ -81,15 +80,22 @@ export default function FavoriteWalletCard({
         borderRadius="rounded16"
         hapticStyle={ImpactFeedbackStyle.Light}
         m="spacing4"
-        onPress={async (): Promise<void> => {
-          await preload(address)
+        onPress={(): void => {
           navigate(address)
+        }}
+        onPressIn={async (): Promise<void> => {
+          await preload(address)
         }}>
         <BaseCard.Shadow>
           <Flex row gap="spacing4" justifyContent="space-between">
             <Flex row shrink alignItems="center" gap="spacing8">
               {icon}
-              <Text color="textPrimary" numberOfLines={1} style={flex.shrink} variant="bodyLarge">
+              <Text
+                adjustsFontSizeToFit={displayName?.type === 'address'}
+                color="neutral1"
+                numberOfLines={1}
+                style={flex.shrink}
+                variant="bodyLarge">
                 {displayName?.name}
               </Text>
             </Flex>

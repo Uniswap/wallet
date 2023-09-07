@@ -86,7 +86,7 @@ interface TokenSelectorListProps {
   onSelectCurrency: OnSelectCurrency
   sections?: TokenSelectorListSections
   chainFilter: ChainId | null
-  showTokenWarnings?: boolean
+  showTokenWarnings: boolean
   refetch?: () => void
   loading?: boolean
   hasError?: boolean
@@ -139,7 +139,7 @@ function _TokenSelectorList({
             chainFilter={chainFilter}
             index={index}
             section={section}
-            showWarnings={Boolean(showTokenWarnings)}
+            showWarnings={showTokenWarnings}
             tokenOption={item}
             onSelectCurrency={onSelectCurrency}
           />
@@ -211,8 +211,8 @@ function _TokenSelectorList({
 
 export function SectionHeader({ title }: { title: string }): JSX.Element {
   return (
-    <Flex backgroundColor="background1" py="spacing16">
-      <Text color="textSecondary" variant="subheadSmall">
+    <Flex backgroundColor="surface1" py="spacing16">
+      <Text color="neutral2" variant="subheadSmall">
         {title}
       </Text>
     </Flex>

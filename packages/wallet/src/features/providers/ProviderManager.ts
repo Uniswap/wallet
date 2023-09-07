@@ -1,14 +1,23 @@
 import { providers as ethersProviders } from 'ethers'
 import { Task } from 'redux-saga'
+import { serializeError } from 'utilities/src/errors'
+import { logger } from 'utilities/src/logger/logger'
+import { isStale } from 'utilities/src/time/time'
 import { config } from 'wallet/src/config'
-import { ChainId, CHAIN_INFO, L1ChainInfo, L2ChainInfo } from 'wallet/src/constants/chains'
-import { logger } from 'wallet/src/features/logger/logger'
+import {
+  AlternativeRpcType,
+  ALT_RPC_URLS_BY_CHAIN,
+  ChainId,
+  CHAIN_INFO,
+  L1ChainInfo,
+  L2ChainInfo,
+} from 'wallet/src/constants/chains'
+
 import {
   getEthersProvider,
   getEthersProviderFromRpcUrl,
 } from 'wallet/src/features/providers/getEthersProvider'
 import { getInfuraChainName } from 'wallet/src/features/providers/utils'
-import serializeError from 'wallet/src/utils/serializeError'
 
 enum ProviderStatus {
   Disconnected,
@@ -100,7 +109,13 @@ export class ProviderManager {
     return provider.provider
   }
 
-  getProvider(chainId: ChainId): ethersProviders.JsonRpcProvider {
+  getProvider(
+    chainId: ChainId,
+    alternativeRpcType?: AlternativeRpcType
+  ): ethersProviders.JsonRpcProvider {
+    if (alternativeRpcType) {
+      return this.getAlternativeRpcProvider(chainId, alternativeRpcType)
+    }
     if (!this._providers[chainId]) {
       throw new Error(`No provider initialized for chain: ${chainId}`)
     }
@@ -162,15 +177,20 @@ export class ProviderManager {
     }
   }
 
+  private getAlternativeRpcProvider(
+    chainId: ChainId,
+    alternativeRpcType: AlternativeRpcType
+  ): ethersProviders.JsonRpcProvider {
+    const rpcUrl = ALT_RPC_URLS_BY_CHAIN[chainId]?.[alternativeRpcType]
+    if (!rpcUrl) throw new Error(`${chainId} is not supported by rpc type: ${alternativeRpcType}`)
+    return new ethersProviders.JsonRpcProvider(rpcUrl)
+  }
+
   private isProviderSynced(
     chainId: ChainId,
     block?: ethersProviders.Block,
     network?: ethersProviders.Network
   ): boolean {
-    function isStale(lastUpdated: number | null, staleTime: number): boolean {
-      return !lastUpdated || Date.now() - lastUpdated > staleTime
-    }
-
     const chainDetails = getChainDetails(chainId)
     const staleTime = chainDetails.blockWaitMsBeforeWarning ?? 600_000 // 10 minutes
     if (!(block && block.number && block.timestamp && network && network.chainId === chainId)) {

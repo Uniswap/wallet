@@ -1,12 +1,12 @@
 import { Image } from 'react-native'
 import { useTheme } from 'tamagui'
-import { Box } from 'ui/src/components/layout'
-import { Text } from 'ui/src/components/text/Text'
-import { iconSizes } from 'ui/src/theme/iconSizes'
+import { Box, Text } from 'ui/src'
+import { iconSizes } from 'ui/src/theme'
+import { isSVGUri, uriToHttp } from 'utilities/src/format/urls'
 import { STATUS_RATIO } from 'wallet/src/components/CurrencyLogo/CurrencyLogo'
 import { SHADOW_OFFSET, style, THIN_BORDER } from 'wallet/src/components/CurrencyLogo/styles'
 import { ChainId } from 'wallet/src/constants/chains'
-import { uriToHttp } from 'wallet/src/utils/uriToHttp'
+import { RemoteSvg } from 'wallet/src/features/images/RemoteSvg'
 import { NetworkLogo } from './NetworkLogo'
 
 interface TokenLogoProps {
@@ -28,27 +28,49 @@ export function TokenLogo({
   const showNetworkLogo = !hideNetworkLogo && chainId && chainId !== ChainId.Mainnet
   const httpUri = url ? uriToHttp(url)[0] : null
 
-  return (
-    <Box alignItems="center" height={size} justifyContent="center" width={size}>
-      {httpUri ? (
+  let tokenImage = null
+
+  if (httpUri) {
+    if (isSVGUri(httpUri)) {
+      tokenImage = (
+        <Box borderRadius={size / 2} overflow="hidden">
+          <RemoteSvg
+            backgroundColor={theme.surface3.get()}
+            borderRadius={size / 2}
+            height={size}
+            imageHttpUrl={httpUri}
+            width={size}
+          />
+        </Box>
+      )
+    } else {
+      tokenImage = (
         <Image
           source={{ uri: httpUri }}
           style={[
             style.image,
             {
-              backgroundColor: theme.backgroundOutline.get(),
+              backgroundColor: theme.surface3.get(),
               width: size,
               height: size,
               borderRadius: size / 2,
-              borderColor: theme.backgroundOutline.get(),
+              borderColor: theme.surface3.get(),
               borderWidth: THIN_BORDER,
             },
           ]}
         />
+      )
+    }
+  }
+
+  return (
+    <Box alignItems="center" height={size} justifyContent="center" width={size}>
+      {httpUri ? (
+        tokenImage
       ) : (
         <Box
           alignItems="center"
-          bg="$backgroundOutline"
+          bg="$surface3"
           borderRadius="$roundedFull"
           height={size}
           justifyContent="center"
@@ -56,7 +78,7 @@ export function TokenLogo({
           width={size}>
           <Text
             adjustsFontSizeToFit
-            color="$textPrimary"
+            color="$neutral1"
             flex={0}
             numberOfLines={1}
             textAlign="center">

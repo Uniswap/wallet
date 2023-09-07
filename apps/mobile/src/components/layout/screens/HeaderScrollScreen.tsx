@@ -9,8 +9,7 @@ import { HorizontalEdgeGestureTarget } from 'src/components/layout/screens/EdgeG
 import { ScrollHeader } from 'src/components/layout/screens/ScrollHeader'
 import { VirtualizedList } from 'src/components/layout/VirtualizedList'
 import { HandleBar } from 'src/components/modals/HandleBar'
-import { flex } from 'ui/src/theme/restyle/flex'
-import { theme as FixedTheme } from 'ui/src/theme/restyle/theme'
+import { flex, theme as FixedTheme } from 'ui/src/theme/restyle'
 
 // Distance to scroll to show scrolled state header elements
 const SHOW_HEADER_SCROLL_Y_DISTANCE = 50
@@ -33,7 +32,7 @@ export function HeaderScrollScreen({
   fullScreen = false,
   renderedInModal = false,
   showHandleBar = false,
-  backgroundColor = 'background0',
+  backgroundColor = 'surface1',
   backButtonColor,
   children,
 }: PropsWithChildren<HeaderScrollScreenProps>): JSX.Element {
@@ -60,7 +59,7 @@ export function HeaderScrollScreen({
 
   return (
     <Screen bg={backgroundColor} edges={['top', 'left', 'right']} noInsets={fullScreen}>
-      {showHandleBar ? <HandleBar backgroundColor={theme.colors.background0} /> : null}
+      {showHandleBar ? <HandleBar backgroundColor={theme.colors.surface1} /> : null}
       <ScrollHeader
         alwaysShowCenterElement={alwaysShowCenterElement}
         backButtonColor={backButtonColor}

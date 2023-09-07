@@ -3,7 +3,7 @@ import { ColorValue, FlexStyle } from 'react-native'
 import { useAppTheme } from 'src/app/hooks'
 import { Box, Flex } from 'src/components/layout'
 import { IS_ANDROID } from 'src/constants/globals'
-import { theme as FixedTheme } from 'ui/src/theme/restyle/theme'
+import { theme as FixedTheme } from 'ui/src/theme/restyle'
 
 const HANDLEBAR_HEIGHT = FixedTheme.spacing.spacing4
 const HANDLEBAR_WIDTH = FixedTheme.spacing.spacing36
@@ -19,7 +19,7 @@ export const HandleBar = ({
   containerFlexStyles?: FlexStyle
 }): JSX.Element => {
   const theme = useAppTheme()
-  const bg = hidden ? 'transparent' : backgroundColor ?? theme.colors.background0
+  const bg = hidden ? 'transparent' : backgroundColor ?? theme.colors.surface1
 
   return (
     <Box mt={IS_ANDROID ? 'spacing4' : 'none'}>
@@ -33,7 +33,7 @@ export const HandleBar = ({
         }}>
         <Box
           alignSelf="center"
-          backgroundColor={hidden ? 'none' : 'backgroundOutline'}
+          backgroundColor={hidden ? 'none' : 'surface3'}
           borderRadius="rounded24"
           height={HANDLEBAR_HEIGHT}
           overflow="hidden"

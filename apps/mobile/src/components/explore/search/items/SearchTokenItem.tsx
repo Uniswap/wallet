@@ -12,7 +12,7 @@ import {
   SearchResultType,
   TokenSearchResult,
 } from 'src/features/explore/searchHistorySlice'
-import { sendAnalyticsEvent } from 'src/features/telemetry'
+import { sendMobileAnalyticsEvent } from 'src/features/telemetry'
 import { ElementName, MobileEventName } from 'src/features/telemetry/constants'
 import { TokenLogo } from 'wallet/src/components/CurrencyLogo/TokenLogo'
 import { SafetyLevel } from 'wallet/src/data/__generated__/types-and-hooks'
@@ -35,7 +35,7 @@ export function SearchTokenItem({ token, searchContext }: SearchTokenItemProps):
     tokenDetailsNavigation.preload(currencyId)
     tokenDetailsNavigation.navigate(currencyId)
     if (searchContext) {
-      sendAnalyticsEvent(MobileEventName.ExploreSearchResultClicked, {
+      sendMobileAnalyticsEvent(MobileEventName.ExploreSearchResultClicked, {
         query: searchContext.query,
         name: name ?? '',
         chain: token.chainId,
@@ -72,7 +72,7 @@ export function SearchTokenItem({ token, searchContext }: SearchTokenItemProps):
         <Flex shrink alignItems="flex-start" gap="none">
           <Flex centered row gap="spacing8">
             <Flex shrink>
-              <Text color="textPrimary" numberOfLines={1} variant="bodyLarge">
+              <Text color="neutral1" numberOfLines={1} variant="bodyLarge">
                 {name}
               </Text>
             </Flex>
@@ -80,13 +80,13 @@ export function SearchTokenItem({ token, searchContext }: SearchTokenItemProps):
               <WarningIcon
                 height={theme.iconSizes.icon16}
                 safetyLevel={safetyLevel}
-                strokeColorOverride="textTertiary"
+                strokeColorOverride="neutral3"
                 width={theme.iconSizes.icon16}
               />
             )}
           </Flex>
           <Flex centered row gap="spacing8">
-            <Text color="textSecondary" numberOfLines={1} variant="subheadSmall">
+            <Text color="neutral2" numberOfLines={1} variant="subheadSmall">
               {symbol}
             </Text>
           </Flex>

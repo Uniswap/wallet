@@ -1,4 +1,4 @@
-import React, { forwardRef, useCallback } from 'react'
+import React, { forwardRef, useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Keyboard, LayoutChangeEvent, TextInput as NativeTextInput, ViewStyle } from 'react-native'
 import { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated'
@@ -9,11 +9,11 @@ import { AnimatedBox, AnimatedFlex, Box } from 'src/components/layout'
 import { SHADOW_OFFSET_SMALL } from 'src/components/layout/BaseCard'
 import { Text } from 'src/components/Text'
 import { useIsDarkMode } from 'src/features/appearance/hooks'
-import { sendAnalyticsEvent } from 'src/features/telemetry'
+import { sendMobileAnalyticsEvent } from 'src/features/telemetry'
 import { MobileEventName } from 'src/features/telemetry/constants'
 import SearchIcon from 'ui/src/assets/icons/search.svg'
 import X from 'ui/src/assets/icons/x.svg'
-import { dimensions } from 'ui/src/theme/restyle/sizing'
+import { dimensions, Theme } from 'ui/src/theme/restyle'
 
 export const springConfig = {
   stiffness: 1000,
@@ -30,9 +30,10 @@ export type SearchTextInputProps = TextInputProps & {
   onCancel?: () => void
   clearIcon?: JSX.Element
   disableClearable?: boolean
-  endAdornment?: JSX.Element
+  endAdornment?: JSX.Element | null
   showCancelButton?: boolean
   showShadow?: boolean
+  py?: keyof Theme['spacing']
 }
 
 export const SearchTextInput = forwardRef<NativeTextInput, SearchTextInputProps>(
@@ -50,25 +51,30 @@ export const SearchTextInput = forwardRef<NativeTextInput, SearchTextInputProps>
       onChangeText,
       onFocus,
       placeholder,
+      py = 'spacing12',
       showCancelButton,
       showShadow,
       value,
     } = props
 
     const isFocus = useSharedValue(false)
-    const showClearButton = useSharedValue(value.length > 0 && !disableClearable)
     const cancelButtonWidth = useSharedValue(showCancelButton ? 40 : 0)
+    const showClearButton = useSharedValue(value.length > 0 && !disableClearable)
+    // Required to update React view hierarchy when show/hiding the clear button
+    const [showClearButtonJS, setShowClearButtonJS] = useState(
+      value.length > 0 && !disableClearable
+    )
 
     const onPressCancel = (): void => {
       isFocus.value = false
       showClearButton.value = false
       Keyboard.dismiss()
-      sendAnalyticsEvent(MobileEventName.ExploreSearchCancel, { query: value })
+      sendMobileAnalyticsEvent(MobileEventName.ExploreSearchCancel, { query: value })
       onChangeText?.('')
       onCancel?.()
     }
 
-    const backgroundColorValue = backgroundColor ?? 'background1'
+    const backgroundColorValue = backgroundColor ?? 'surface2'
 
     const onCancelLayout = useCallback(
       (event: LayoutChangeEvent) => {
@@ -80,6 +86,7 @@ export const SearchTextInput = forwardRef<NativeTextInput, SearchTextInputProps>
     const onClear = (): void => {
       onChangeText?.('')
       showClearButton.value = false
+      setShowClearButtonJS(false)
     }
 
     const onTextInputFocus = (): void => {
@@ -96,8 +103,10 @@ export const SearchTextInput = forwardRef<NativeTextInput, SearchTextInputProps>
         onChangeText?.(text)
         if (text.length > 0) {
           showClearButton.value = true
+          setShowClearButtonJS(true)
         } else {
           showClearButton.value = false
+          setShowClearButtonJS(false)
         }
       },
       [showClearButton, onChangeText]
@@ -142,7 +151,7 @@ export const SearchTextInput = forwardRef<NativeTextInput, SearchTextInputProps>
 
     const shadowProps = showShadow
       ? {
-          shadowColor: isDarkMode ? 'black' : 'brandedAccentSoft',
+          shadowColor: isDarkMode ? 'sporeBlack' : 'DEP_brandedAccentSoft',
           shadowOffset: SHADOW_OFFSET_SMALL,
           shadowOpacity: 0.25,
           shadowRadius: 6,
@@ -161,12 +170,12 @@ export const SearchTextInput = forwardRef<NativeTextInput, SearchTextInputProps>
           gap="spacing8"
           minHeight={48}
           px="spacing16"
-          py="spacing12"
+          py={py}
           style={textInputStyle}
           {...shadowProps}>
           <Box py="spacing4">
             <SearchIcon
-              color={isDarkMode ? theme.colors.textSecondary : theme.colors.textTertiary}
+              color={theme.colors.neutral2}
               height={theme.iconSizes.icon20}
               width={theme.iconSizes.icon20}
             />
@@ -183,9 +192,7 @@ export const SearchTextInput = forwardRef<NativeTextInput, SearchTextInputProps>
             fontSize={theme.textVariants.bodyLarge.fontSize}
             maxFontSizeMultiplier={theme.textVariants.bodyLarge.maxFontSizeMultiplier}
             placeholder={placeholder}
-            placeholderTextColor={
-              isDarkMode ? theme.colors.textSecondary : theme.colors.textTertiary
-            }
+            placeholderTextColor={theme.colors.neutral2}
             px="none"
             py="none"
             returnKeyType="done"
@@ -195,7 +202,8 @@ export const SearchTextInput = forwardRef<NativeTextInput, SearchTextInputProps>
             onFocus={onTextInputFocus}
             onSubmitEditing={onTextInputSubmitEditing}
           />
-          {showClearButton.value ? (
+
+          {showClearButtonJS ? (
             <AnimatedBox style={[clearButtonStyle]}>
               <ClearButton clearIcon={clearIcon} onPress={onClear} />
             </AnimatedBox>
@@ -230,12 +238,11 @@ interface ClearButtonProps {
 function ClearButton(props: ClearButtonProps): JSX.Element {
   const theme = useAppTheme()
 
-  const { onPress, clearIcon = <X color={theme.colors.textSecondary} height={16} width={16} /> } =
-    props
+  const { onPress, clearIcon = <X color={theme.colors.neutral2} height={16} width={16} /> } = props
 
   return (
     <TouchableArea
-      backgroundColor="backgroundOutline"
+      backgroundColor="surface3"
       borderRadius="roundedFull"
       p="spacing4"
       onPress={onPress}>

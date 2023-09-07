@@ -6,20 +6,23 @@ import { OnboardingStackParamList } from 'src/app/navigation/types'
 import { Box } from 'src/components/layout'
 import { BaseCard } from 'src/components/layout/BaseCard'
 import { Loader } from 'src/components/loading'
+import { IS_ANDROID } from 'src/constants/globals'
 import { useCloudBackups } from 'src/features/CloudBackup/hooks'
 import {
-  startFetchingICloudBackups,
-  stopFetchingICloudBackups,
-} from 'src/features/CloudBackup/RNICloudBackupsManager'
+  startFetchingCloudStorageBackups,
+  stopFetchingCloudStorageBackups,
+} from 'src/features/CloudBackup/RNCloudStorageBackupsManager'
 import { OnboardingScreen } from 'src/features/onboarding/OnboardingScreen'
 import { ImportType } from 'src/features/onboarding/utils'
 import { OnboardingScreens } from 'src/screens/Screens'
 import { useAddBackButton } from 'src/utils/useAddBackButton'
+import { Icons } from 'ui/src'
 import CloudIcon from 'ui/src/assets/icons/cloud.svg'
-import { logger } from 'wallet/src/features/logger/logger'
-import { useAsyncData } from 'wallet/src/utils/hooks'
-import { ONE_SECOND_MS } from 'wallet/src/utils/time'
-import { useTimeout } from 'wallet/src/utils/timing'
+import { logger } from 'utilities/src/logger/logger'
+import { useAsyncData } from 'utilities/src/react/hooks'
+import { ONE_SECOND_MS } from 'utilities/src/time/time'
+import { useTimeout } from 'utilities/src/time/timing'
+import { useNonPendingSignerAccounts } from 'wallet/src/features/wallet/hooks'
 
 type Props = NativeStackScreenProps<
   OnboardingStackParamList,
@@ -37,43 +40,51 @@ export function RestoreCloudBackupLoadingScreen({
   const { t } = useTranslation()
   const theme = useAppTheme()
   const entryPoint = params.entryPoint
+  const importType = params.importType
+
+  const isRestoringMnemonic = importType === ImportType.RestoreMnemonic
 
   const [isLoading, setIsLoading] = useState(true)
-  const backups = useCloudBackups()
+
+  // when we are restoring after phone migration
+  const signerAccounts = useNonPendingSignerAccounts()
+  const mnemonicId = (isRestoringMnemonic && signerAccounts[0]?.mnemonicId) || undefined
+
+  const backups = useCloudBackups(mnemonicId)
 
   useAddBackButton(navigation)
 
-  // Starts query for iCloud backup files, backup files found are streamed into Redux
-  const fetchICloudBackupsWithTimeout = useCallback(async () => {
+  // Starts query for cloud backup files, backup files found are streamed into Redux
+  const fetchCloudStorageBackupsWithTimeout = useCallback(async () => {
     // Show loading state for max 10s, then show no backups found
     setIsLoading(true)
-    await startFetchingICloudBackups()
+    await startFetchingCloudStorageBackups()
 
     setTimeout(async () => {
       logger.debug(
         'RestoreCloudBackupLoadingScreen',
-        'fetchICloudBackupsWithTimeout',
-        `Timed out fetching iCloud backups after ${MAX_LOADING_TIMEOUT_MS}ms`
+        'fetchCloudStorageBackupsWithTimeout',
+        `Timed out fetching cloud backups after ${MAX_LOADING_TIMEOUT_MS}ms`
       )
       setIsLoading(false)
-      await stopFetchingICloudBackups()
+      await stopFetchingCloudStorageBackups()
     }, MAX_LOADING_TIMEOUT_MS)
   }, [])
 
-  useAsyncData(fetchICloudBackupsWithTimeout)
+  useAsyncData(fetchCloudStorageBackupsWithTimeout)
   // After finding backups, show loading state for minimum 1s to prevent screen changing too quickly
   useTimeout(
     backups.length > 0
       ? (): void => {
           if (backups.length === 1 && backups[0]) {
             navigation.replace(OnboardingScreens.RestoreCloudBackupPassword, {
-              importType: ImportType.Restore,
+              importType,
               entryPoint,
               mnemonicId: backups[0].mnemonicId,
             })
           } else {
             navigation.replace(OnboardingScreens.RestoreCloudBackup, {
-              importType: ImportType.Restore,
+              importType,
               entryPoint,
             })
           }
@@ -84,23 +95,42 @@ export function RestoreCloudBackupLoadingScreen({
 
   // Handle no backups found error state
   if (!isLoading && backups.length === 0) {
-    return (
-      <Box alignSelf="center" px="spacing16">
-        <BaseCard.ErrorState
-          description={t(`It looks like you haven't backed up any of your seed phrases to iCloud.`)}
-          icon={
-            <CloudIcon
-              color={theme.colors.textTertiary}
-              height={theme.imageSizes.image48}
-              width={theme.imageSizes.image48}
-            />
-          }
-          retryButtonLabel={t('Retry')}
-          title={t('0 backups found')}
-          onRetry={fetchICloudBackupsWithTimeout}
-        />
-      </Box>
-    )
+    if (isRestoringMnemonic) {
+      navigation.replace(OnboardingScreens.SeedPhraseInput, {
+        importType,
+        entryPoint,
+      })
+    } else {
+      return (
+        <Box alignSelf="center" px="spacing16">
+          <BaseCard.ErrorState
+            description={
+              IS_ANDROID
+                ? t(`It looks like you haven't backed up any of your seed phrases to Google Drive.`)
+                : t(`It looks like you haven't backed up any of your seed phrases to iCloud.`)
+            }
+            icon={
+              IS_ANDROID ? (
+                <Icons.GoogleDrive
+                  color={theme.colors.neutral3}
+                  height={theme.imageSizes.image48}
+                  width={theme.imageSizes.image48}
+                />
+              ) : (
+                <CloudIcon
+                  color={theme.colors.neutral3}
+                  height={theme.imageSizes.image48}
+                  width={theme.imageSizes.image48}
+                />
+              )
+            }
+            retryButtonLabel={t('Retry')}
+            title={t('0 backups found')}
+            onRetry={fetchCloudStorageBackupsWithTimeout}
+          />
+        </Box>
+      )
+    }
   }
 
   return (

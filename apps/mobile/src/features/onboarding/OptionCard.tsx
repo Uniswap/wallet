@@ -46,8 +46,8 @@ export function OptionCard({
   return (
     <Trace logPress element={elementName}>
       <TouchableArea
-        backgroundColor="background1"
-        borderColor={isDarkMode ? 'none' : 'backgroundScrim'}
+        backgroundColor="surface2"
+        borderColor={isDarkMode ? 'none' : 'surface3'}
         borderRadius="rounded20"
         borderWidth={1}
         disabled={disabled}
@@ -59,7 +59,7 @@ export function OptionCard({
         <Flex row alignContent="center" alignItems="center" gap="spacing16">
           <Box
             alignItems="center"
-            backgroundColor="magentaDark"
+            backgroundColor="DEP_magentaDark"
             borderRadius="roundedFull"
             height={iconSize}
             justifyContent="center"
@@ -76,16 +76,16 @@ export function OptionCard({
                 {badgeText && (
                   <Flex
                     centered
-                    backgroundColor="magentaDark"
+                    backgroundColor="DEP_magentaDark"
                     borderRadius="rounded8"
                     px="spacing8">
-                    <Text color="magentaVibrant" variant="buttonLabelMicro">
+                    <Text color="accent1" variant="buttonLabelMicro">
                       {badgeText}
                     </Text>
                   </Flex>
                 )}
               </Flex>
-              <Text allowFontScaling={false} color="textSecondary" variant="bodySmall">
+              <Text allowFontScaling={false} color="neutral2" variant="bodySmall">
                 {blurb}
               </Text>
             </Flex>

@@ -55,12 +55,12 @@ exports[`PortfolioBalance renders without error 1`] = `
               style={
                 [
                   {
-                    "color": "#0E1524",
+                    "color": "#222222",
                     "display": "flex",
-                    "fontFamily": "Inter-SemiBold",
-                    "fontSize": 48,
-                    "fontWeight": "600",
-                    "lineHeight": 48,
+                    "fontFamily": "Basel-Book",
+                    "fontSize": 53,
+                    "fontWeight": "400",
+                    "lineHeight": 60,
                     "opacity": 0,
                   },
                 ]
@@ -73,7 +73,7 @@ exports[`PortfolioBalance renders without error 1`] = `
             style={
               [
                 {
-                  "backgroundColor": "#E8ECFB",
+                  "backgroundColor": "#2222220D",
                   "borderRadius": 4,
                   "bottom": "5%",
                   "display": "flex",
@@ -149,10 +149,11 @@ exports[`PortfolioBalance renders without error 1`] = `
                 style={
                   [
                     {
-                      "color": "#5D6785",
+                      "color": "#7D7D7D",
                       "display": "flex",
-                      "fontFamily": "Inter-Medium",
-                      "fontSize": 17,
+                      "fontFamily": "Basel-Book",
+                      "fontSize": 19,
+                      "fontWeight": "400",
                       "lineHeight": 24,
                       "opacity": 0,
                     },
@@ -166,7 +167,7 @@ exports[`PortfolioBalance renders without error 1`] = `
               style={
                 [
                   {
-                    "backgroundColor": "#E8ECFB",
+                    "backgroundColor": "#2222220D",
                     "borderRadius": 4,
                     "bottom": "5%",
                     "display": "flex",
@@ -211,12 +212,12 @@ exports[`PortfolioBalance renders without error 2`] = `
       style={
         [
           {
-            "color": "#0E1524",
+            "color": "#222222",
             "display": "flex",
-            "fontFamily": "Inter-SemiBold",
-            "fontSize": 48,
-            "fontWeight": "600",
-            "lineHeight": 48,
+            "fontFamily": "Basel-Book",
+            "fontSize": 53,
+            "fontWeight": "400",
+            "lineHeight": 60,
           },
         ]
       }
@@ -228,11 +229,12 @@ exports[`PortfolioBalance renders without error 2`] = `
         style={
           [
             {
-              "color": "#888FAB",
+              "color": "#CECECE",
               "display": "flex",
-              "fontFamily": "Inter-SemiBold",
-              "fontSize": 40,
-              "lineHeight": 48,
+              "fontFamily": "Basel-Book",
+              "fontSize": 53,
+              "fontWeight": "400",
+              "lineHeight": 60,
             },
           ]
         }
@@ -301,10 +303,11 @@ exports[`PortfolioBalance renders without error 2`] = `
         style={
           [
             {
-              "color": "#5D6785",
+              "color": "#7D7D7D",
               "display": "flex",
-              "fontFamily": "Inter-Medium",
-              "fontSize": 17,
+              "fontFamily": "Basel-Book",
+              "fontSize": 19,
+              "fontWeight": "400",
               "lineHeight": 24,
             },
           ]

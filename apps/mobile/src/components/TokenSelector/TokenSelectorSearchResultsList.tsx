@@ -14,19 +14,19 @@ import {
 } from 'src/components/TokenSelector/TokenSelectorList'
 import { formatSearchResults, getTokenOptionsSection } from 'src/components/TokenSelector/utils'
 import { useSearchTokens } from 'src/features/dataApi/searchTokens'
+import { useDebounce } from 'utilities/src/time/timing'
 import { ChainId } from 'wallet/src/constants/chains'
 import { GqlResult } from 'wallet/src/features/dataApi/types'
 import { useActiveAccountAddressWithThrow } from 'wallet/src/features/wallet/hooks'
-import { useDebounce } from 'wallet/src/utils/timing'
 
 function EmptyResults({ searchFilter }: { searchFilter: string }): JSX.Element {
   const { t } = useTranslation()
   return (
     <Flex>
       <SectionHeader title={t('Search results')} />
-      <Text color="textTertiary" textAlign="center" variant="subheadSmall">
+      <Text color="neutral3" textAlign="center" variant="subheadSmall">
         <Trans t={t}>
-          No results found for <Text color="textPrimary">"{searchFilter}"</Text>
+          No results found for <Text color="neutral1">"{searchFilter}"</Text>
         </Trans>
       </Text>
     </Flex>
@@ -129,6 +129,7 @@ function _TokenSelectorSearchResultsList({
       loading={loading}
       refetch={refetch}
       sections={sections}
+      showTokenWarnings={true}
       onSelectCurrency={onSelectCurrency}
     />
   )

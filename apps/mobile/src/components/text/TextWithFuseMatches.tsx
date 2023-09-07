@@ -1,14 +1,13 @@
 import Fuse from 'fuse.js'
 import React from 'react'
-import { TextProps } from 'react-native'
+
 import { Flex } from 'src/components/layout'
-import { Text } from 'src/components/Text'
-import { Theme } from 'ui/src/theme/restyle/theme'
+import { Text, TextProps } from 'src/components/Text'
 
 interface TextWithFuseMatchesProps {
   text: string
   matches?: readonly Fuse.FuseResultMatch[]
-  variant?: keyof Theme['textVariants']
+  variant?: TextProps['variant']
   numberOfLines?: TextProps['numberOfLines']
 }
 
@@ -20,7 +19,7 @@ export function TextWithFuseMatches({
 }: TextWithFuseMatchesProps & TextProps): JSX.Element {
   if (!matches || matches.length === 0) {
     return (
-      <Text color="textPrimary" numberOfLines={numberOfLines} variant={variant}>
+      <Text color="neutral1" numberOfLines={numberOfLines} variant={variant}>
         {text}
       </Text>
     )
@@ -50,13 +49,13 @@ export function TextWithFuseMatches({
       {pieces.map((p, i) => {
         if (p[1])
           return (
-            <Text key={`${i}${p[0]}`} color="textPrimary" variant={variant}>
+            <Text key={`${i}${p[0]}`} color="neutral1" variant={variant}>
               {p[0]}
             </Text>
           )
         else
           return (
-            <Text key={`${i}${p[0]}`} color="textTertiary" variant={variant}>
+            <Text key={`${i}${p[0]}`} color="neutral3" variant={variant}>
               {p[0]}
             </Text>
           )

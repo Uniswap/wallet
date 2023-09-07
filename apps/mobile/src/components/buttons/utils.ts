@@ -1,40 +1,40 @@
 import { withSequence, withSpring, WithSpringConfig } from 'react-native-reanimated'
 import { ButtonEmphasis, ButtonSize } from 'src/components/buttons/Button'
-import { Theme } from 'ui/src/theme/restyle/theme'
+import { Theme } from 'ui/src/theme/restyle'
 
 function getButtonColor(emphasis: ButtonEmphasis): keyof Theme['colors'] {
   switch (emphasis) {
     case ButtonEmphasis.Primary:
-      return 'userThemeMagenta'
+      return 'accent1'
     case ButtonEmphasis.Secondary:
-      return 'background3'
+      return 'surface2'
     case ButtonEmphasis.Tertiary:
       return 'none'
     case ButtonEmphasis.Detrimental:
-      return 'accentCriticalSoft'
+      return 'DEP_accentCriticalSoft'
     case ButtonEmphasis.Warning:
-      return 'accentWarningSoft'
+      return 'DEP_accentWarningSoft'
   }
 }
 
 function getButtonTextColor(emphasis: ButtonEmphasis): keyof Theme['colors'] {
   switch (emphasis) {
     case ButtonEmphasis.Primary:
-      return 'white'
+      return 'sporeWhite'
     case ButtonEmphasis.Secondary:
     case ButtonEmphasis.Tertiary:
-      return 'textPrimary'
+      return 'neutral1'
     case ButtonEmphasis.Detrimental:
-      return 'accentCritical'
+      return 'statusCritical'
     case ButtonEmphasis.Warning:
-      return 'accentWarning'
+      return 'DEP_accentWarning'
   }
 }
 
 function getButtonBorderColor(emphasis: ButtonEmphasis): keyof Theme['colors'] {
   switch (emphasis) {
     case ButtonEmphasis.Tertiary:
-      return 'backgroundOutline'
+      return 'surface3'
     default:
       return 'none'
   }

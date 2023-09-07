@@ -11,7 +11,7 @@ import { useAppTheme } from 'src/app/hooks'
 import { AnimatedBox } from 'src/components/layout'
 import Loader from 'ui/src/assets/icons/circle-spinner.svg'
 import EmptySpinner from 'ui/src/assets/icons/empty-spinner.svg'
-import { Theme } from 'ui/src/theme/restyle/theme'
+import { Theme } from 'ui/src/theme/restyle'
 
 export function SpinningLoader({
   size = 20,
@@ -47,11 +47,11 @@ export function SpinningLoader({
   }, [rotation])
 
   if (disabled) {
-    return <EmptySpinner color={theme.colors.textTertiary} height={size} width={size} />
+    return <EmptySpinner color={theme.colors.neutral3} height={size} width={size} />
   }
   return (
     <AnimatedBox sentry-label="SpinningLoader" style={[animatedStyles]}>
-      <Loader color={theme.colors[color ?? 'textPrimary']} height={size} width={size} />
+      <Loader color={theme.colors[color ?? 'neutral1']} height={size} width={size} />
     </AnimatedBox>
   )
 }

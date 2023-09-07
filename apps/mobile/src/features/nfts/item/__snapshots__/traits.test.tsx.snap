@@ -7,7 +7,7 @@ exports[`renders trait card 1`] = `
     [
       {
         "alignItems": "stretch",
-        "backgroundColor": "#0D111C73",
+        "backgroundColor": "#2222220D",
         "borderRadius": 16,
         "display": "flex",
         "flexDirection": "column",
@@ -24,14 +24,14 @@ exports[`renders trait card 1`] = `
     style={
       [
         {
-          "color": "#0E1524",
+          "color": "#222222",
           "display": "flex",
-          "fontFamily": "Inter-SemiBold",
-          "fontSize": 12,
-          "lineHeight": 17,
+          "fontFamily": "Basel-Medium",
+          "fontSize": 14,
+          "lineHeight": 16,
         },
         {
-          "color": "#5D6785",
+          "color": "#7D7D7D",
         },
       ]
     }
@@ -56,11 +56,12 @@ exports[`renders trait card 1`] = `
     style={
       [
         {
-          "color": "#FFFFFF",
+          "color": "#222222",
           "display": "flex",
-          "fontFamily": "Inter-Medium",
-          "fontSize": 15,
-          "lineHeight": 20,
+          "fontFamily": "Basel-Book",
+          "fontSize": 17,
+          "fontWeight": "400",
+          "lineHeight": 24,
         },
       ]
     }

@@ -9,10 +9,10 @@ import { SheetScreen } from 'src/components/layout/SheetScreen'
 import { Text } from 'src/components/Text'
 import { resetDismissedWarnings } from 'src/features/tokens/tokensSlice'
 import { Screens } from 'src/screens/Screens'
+import { logger } from 'utilities/src/logger/logger'
 import { ChainId } from 'wallet/src/constants/chains'
 import { useActiveChainIds } from 'wallet/src/features/chains/hooks'
 import { setChainActiveStatus } from 'wallet/src/features/chains/slice'
-import { logger } from 'wallet/src/features/logger/logger'
 import { pushNotification } from 'wallet/src/features/notifications/slice'
 import { AppNotificationType } from 'wallet/src/features/notifications/types'
 import { createAccountActions } from 'wallet/src/features/wallet/create/createAccountSaga'
@@ -81,7 +81,7 @@ export function DevScreen(): JSX.Element {
       </Box>
       <ScrollView>
         <Box alignItems="center">
-          <Text color="textPrimary" textAlign="center" variant="headlineSmall">
+          <Text color="neutral1" textAlign="center" variant="headlineSmall">
             {`Your Account: ${activeAccount?.address || 'none'}`}
           </Text>
           <Text mt="spacing16" textAlign="center" variant="headlineSmall">
@@ -94,7 +94,7 @@ export function DevScreen(): JSX.Element {
                 m="spacing8"
                 testID={`dev_screen/${s}`}
                 onPress={(): void => activateWormhole(s)}>
-                <Text color="textPrimary">{s}</Text>
+                <Text color="neutral1">{s}</Text>
               </TouchableArea>
             ))}
           </Box>
@@ -102,24 +102,24 @@ export function DevScreen(): JSX.Element {
             🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀
           </Text>
           <TouchableArea mt="spacing16" onPress={onPressCreate}>
-            <Text color="textPrimary">Create account</Text>
+            <Text color="neutral1">Create account</Text>
           </TouchableArea>
           <TouchableArea mt="spacing12" onPress={onPressToggleTestnets}>
-            <Text color="textPrimary">Toggle testnets</Text>
+            <Text color="neutral1">Toggle testnets</Text>
           </TouchableArea>
           <TouchableArea mt="spacing12" onPress={onPressResetTokenWarnings}>
-            <Text color="textPrimary">Reset token warnings</Text>
+            <Text color="neutral1">Reset token warnings</Text>
           </TouchableArea>
           <TouchableArea mt="spacing12" onPress={onPressShowError}>
-            <Text color="textPrimary">Show global error</Text>
+            <Text color="neutral1">Show global error</Text>
           </TouchableArea>
           <TouchableArea mt="spacing12" onPress={onPressResetOnboarding}>
-            <Text color="textPrimary">Reset onboarding</Text>
+            <Text color="neutral1">Reset onboarding</Text>
           </TouchableArea>
-          <Text color="textPrimary" mt="spacing36" textAlign="center">
+          <Text color="neutral1" mt="spacing36" textAlign="center">
             {`Active Chains: ${activeChains}`}
           </Text>
-          <Text color="textPrimary" mt="spacing12" textAlign="center">
+          <Text color="neutral1" mt="spacing12" textAlign="center">
             {`Current Chain: ${currentChain}`}
           </Text>
         </Box>

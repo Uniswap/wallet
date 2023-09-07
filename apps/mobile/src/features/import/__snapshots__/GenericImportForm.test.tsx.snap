@@ -21,8 +21,8 @@ exports[`GenericImportForm renders a placeholder when there is no value 1`] = `
       [
         {
           "alignItems": "center",
-          "backgroundColor": "#FFFFFF",
-          "borderColor": "#F5F6FC",
+          "backgroundColor": "#F9F9F9",
+          "borderColor": "#F9F9F9",
           "borderRadius": 20,
           "borderWidth": 1,
           "display": "flex",
@@ -62,20 +62,20 @@ exports[`GenericImportForm renders a placeholder when there is no value 1`] = `
         onChangeText={[Function]}
         onFocus={[Function]}
         onSubmitEditing={[Function]}
-        placeholderTextColor="#888FAB"
+        placeholderTextColor="#CECECE"
         returnKeyType="done"
         scrollEnabled={false}
-        selectionColor="#0E1524"
+        selectionColor="#222222"
         spellCheck={false}
         style={
           [
             {
               "backgroundColor": "transparent",
               "borderRadius": 12,
-              "color": "#0E1524",
-              "fontSize": 17,
+              "color": "#222222",
+              "fontSize": 19,
               "justifyContent": "center",
-              "lineHeight": 17,
+              "lineHeight": 19,
               "paddingHorizontal": 0,
               "paddingVertical": 0,
               "textAlign": "left",
@@ -124,10 +124,11 @@ exports[`GenericImportForm renders a placeholder when there is no value 1`] = `
         style={
           [
             {
-              "color": "#5D6785",
+              "color": "#7D7D7D",
               "display": "flex",
-              "fontFamily": "Inter-Medium",
-              "fontSize": 17,
+              "fontFamily": "Basel-Book",
+              "fontSize": 19,
+              "fontWeight": "400",
               "lineHeight": 24,
             },
             {
@@ -154,7 +155,19 @@ exports[`GenericImportForm renders a placeholder when there is no value 1`] = `
       <View
         accessibilityState={
           {
+            "busy": undefined,
+            "checked": undefined,
             "disabled": false,
+            "expanded": undefined,
+            "selected": undefined,
+          }
+        }
+        accessibilityValue={
+          {
+            "max": undefined,
+            "min": undefined,
+            "now": undefined,
+            "text": undefined,
           }
         }
         accessible={true}
@@ -178,8 +191,8 @@ exports[`GenericImportForm renders a placeholder when there is no value 1`] = `
         style={
           {
             "alignItems": "center",
-            "backgroundColor": "#E8ECFB",
-            "borderColor": "transparent",
+            "backgroundColor": "transparent",
+            "borderColor": "#2222220D",
             "borderRadius": 8,
             "borderWidth": 1,
             "display": "flex",
@@ -192,7 +205,7 @@ exports[`GenericImportForm renders a placeholder when there is no value 1`] = `
           style={
             [
               {
-                "alignItems": "stretch",
+                "alignItems": "center",
                 "display": "flex",
                 "flexDirection": "row",
                 "justifyContent": "flex-start",
@@ -203,7 +216,7 @@ exports[`GenericImportForm renders a placeholder when there is no value 1`] = `
           }
         >
           <svg
-            color="#0E1524"
+            color="#222222"
             data-file-name="SvgPaste"
             height={16}
             strokeWidth={2}
@@ -228,11 +241,12 @@ exports[`GenericImportForm renders a placeholder when there is no value 1`] = `
             style={
               [
                 {
-                  "color": "#0E1524",
+                  "color": "#222222",
                   "display": "flex",
-                  "fontFamily": "Inter-SemiBold",
-                  "fontSize": 15,
-                  "lineHeight": 20,
+                  "fontFamily": "Basel-Medium",
+                  "fontSize": 17,
+                  "fontWeight": "500",
+                  "lineHeight": 24,
                   "textAlign": "center",
                 },
               ]
@@ -263,10 +277,11 @@ exports[`GenericImportForm renders a placeholder when there is no value 1`] = `
         style={
           [
             {
-              "color": "#5D6785",
+              "color": "#7D7D7D",
               "display": "flex",
-              "fontFamily": "Inter-Medium",
-              "fontSize": 17,
+              "fontFamily": "Basel-Book",
+              "fontSize": 19,
+              "fontWeight": "400",
               "lineHeight": 24,
             },
             {

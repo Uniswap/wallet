@@ -6,7 +6,7 @@ import { Flex } from 'src/components/layout'
 import { Box } from 'src/components/layout/Box'
 import { Text } from 'src/components/Text'
 import DeadLuni from 'ui/src/assets/graphics/dead-luni.svg'
-import { logger } from 'wallet/src/features/logger/logger'
+import { logger } from 'utilities/src/logger/logger'
 
 interface ErrorBoundaryState {
   error: Error | null
@@ -24,13 +24,18 @@ export class ErrorBoundary extends React.Component<PropsWithChildren<unknown>, E
     return { error }
   }
 
-  componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
+  componentDidCatch(error: Error & { cause?: Error }, errorInfo: ErrorInfo): void {
+    // Based on https://github.com/getsentry/sentry-javascript/blob/develop/packages/react/src/errorboundary.tsx
+    const errorBoundaryError = new Error(error.message)
+    errorBoundaryError.name = `React ErrorBoundary ${errorBoundaryError.name}`
+    errorBoundaryError.stack = errorInfo.componentStack
+    error.cause = errorBoundaryError
+
     logger.error(error, {
       level: 'fatal',
       tags: {
         file: 'ErrorBoundary',
         function: 'componentDidCatch',
-        componentStack: errorInfo.componentStack,
       },
     })
   }

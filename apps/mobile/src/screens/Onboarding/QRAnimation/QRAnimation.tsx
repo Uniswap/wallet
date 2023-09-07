@@ -49,8 +49,8 @@ import {
 } from 'src/screens/Onboarding/QRAnimation/animations'
 import { ONBOARDING_QR_ETCHING_VIDEO_DARK, ONBOARDING_QR_ETCHING_VIDEO_LIGHT } from 'ui/src/assets'
 import LockIcon from 'ui/src/assets/icons/lock.svg'
-import { opacify } from 'ui/src/theme/color/utils'
-import { flex } from 'ui/src/theme/restyle/flex'
+import { opacify } from 'ui/src/theme'
+import { flex } from 'ui/src/theme/restyle'
 
 export function QRAnimation({
   activeAddress,
@@ -184,7 +184,7 @@ export function QRAnimation({
           <UniconThemedGradient
             borderRadius="rounded16"
             gradientEndColor={uniconColors.glow}
-            gradientStartColor={theme.colors.background0}
+            gradientStartColor={theme.colors.surface1}
             opacity={isDarkMode ? 0.3 : 0.2}
           />
         </GradientBackground>
@@ -212,8 +212,8 @@ export function QRAnimation({
                 </Animated.View>
                 <Animated.View entering={qrScaleIn}>
                   <Box
-                    bg="background0"
-                    borderColor="backgroundOutline"
+                    bg="surface1"
+                    borderColor="surface3"
                     borderRadius="rounded20"
                     borderWidth={2}
                     height={QR_CONTAINER_SIZE}
@@ -223,11 +223,11 @@ export function QRAnimation({
                       <QRCodeDisplay
                         hideOutline
                         address={activeAddress}
-                        backgroundColor="background0"
-                        containerBackgroundColor="background0"
+                        backgroundColor="surface1"
+                        containerBackgroundColor="surface1"
                         logoSize={UNICON_SIZE}
                         overlayOpacityPercent={10}
-                        safeAreaColor="background0"
+                        safeAreaColor="surface1"
                         size={QR_CODE_SIZE}
                       />
                     </Animated.View>
@@ -275,7 +275,7 @@ export function QRAnimation({
                     <AddressDisplay
                       showCopy
                       address={activeAddress}
-                      captionTextColor="textTertiary"
+                      captionTextColor="neutral3"
                       captionVariant="subheadSmall"
                       showAccountIcon={false}
                       variant="headlineSmall"
@@ -294,7 +294,7 @@ export function QRAnimation({
               {t('Welcome to your new wallet')}
             </Text>
             <Text
-              color="textSecondary"
+              color="neutral2"
               maxFontSizeMultiplier={finalBodyMaxFontSizeMultiplier}
               textAlign="center"
               variant={bodySize}>
@@ -315,18 +315,22 @@ export function QRAnimation({
                     <Box
                       borderRadius="roundedFull"
                       padding="spacing8"
-                      style={{ backgroundColor: opacify(10, theme.colors.white) }}>
+                      style={{ backgroundColor: opacify(10, theme.colors.sporeWhite) }}>
                       <LockIcon
-                        color={theme.colors.white}
+                        color={theme.colors.sporeWhite}
                         height={theme.iconSizes.icon16}
                         width={theme.iconSizes.icon16}
                       />
                     </Box>
-                    <Text color="white" variant="buttonLabelMedium">
+                    <Text color="sporeWhite" variant="buttonLabelMedium">
                       {t('Let’s keep it safe')}
                     </Text>
                   </Flex>
-                  <Arrow color={theme.colors.white} direction="e" size={theme.iconSizes.icon24} />
+                  <Arrow
+                    color={theme.colors.sporeWhite}
+                    direction="e"
+                    size={theme.iconSizes.icon24}
+                  />
                 </Flex>
               }
               onPress={onPressNext}

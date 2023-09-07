@@ -10,9 +10,8 @@ import { AnimatedFlex, Box, Flex } from 'src/components/layout'
 import { Text } from 'src/components/Text'
 import { DappConnectedNetworkModal } from 'src/components/WalletConnect/ConnectedDapps/DappConnectedNetworksModal'
 import { DappConnectionItem } from 'src/components/WalletConnect/ConnectedDapps/DappConnectionItem'
-import { DappSwitchNetworkModal } from 'src/components/WalletConnect/ConnectedDapps/DappSwitchNetworkModal'
 import { WalletConnectSession } from 'src/features/walletConnect/walletConnectSlice'
-import { dimensions } from 'ui/src/theme/restyle/sizing'
+import { dimensions } from 'ui/src/theme/restyle'
 
 type ConnectedDappsProps = {
   sessions: WalletConnectSession[]
@@ -30,7 +29,7 @@ export function ConnectedDappsList({ backButton, sessions }: ConnectedDappsProps
       <AnimatedFlex fill entering={FadeIn} exiting={FadeOut} pt="spacing12">
         <Flex row alignItems="center" justifyContent="space-between" px="spacing24">
           <Box width={theme.iconSizes.icon40}>{backButton ?? <BackButton />}</Box>
-          <Text color="textPrimary" variant="bodyLarge">
+          <Text color="neutral1" variant="bodyLarge">
             {t('Manage connections')}
           </Text>
           <TouchableArea
@@ -39,7 +38,7 @@ export function ConnectedDappsList({ backButton, sessions }: ConnectedDappsProps
               setIsEditing(!isEditing)
             }}>
             <Text
-              color={isEditing ? 'accentActive' : 'textTertiary'}
+              color={isEditing ? 'accent1' : 'neutral2'}
               textAlign="right"
               variant="subheadSmall">
               {isEditing ? t('Done') : t('Edit')}
@@ -64,27 +63,21 @@ export function ConnectedDappsList({ backButton, sessions }: ConnectedDappsProps
           />
         ) : (
           <Flex fill alignItems="center" gap="spacing8" px="spacing24" style={emptyCardStyle}>
-            <Text color="textPrimary" variant="subheadLarge">
+            <Text color="neutral1" variant="subheadLarge">
               {t('No apps connected')}
             </Text>
-            <Text color="textSecondary" textAlign="center" variant="bodySmall">
+            <Text color="neutral2" textAlign="center" variant="bodySmall">
               {t('Connect to an app by scanning a code via WalletConnect')}
             </Text>
           </Flex>
         )}
       </AnimatedFlex>
-      {selectedSession &&
-        (selectedSession.version === '1' ? (
-          <DappSwitchNetworkModal
-            selectedSession={selectedSession}
-            onClose={(): void => setSelectedSession(undefined)}
-          />
-        ) : (
-          <DappConnectedNetworkModal
-            session={selectedSession}
-            onClose={(): void => setSelectedSession(undefined)}
-          />
-        ))}
+      {selectedSession && (
+        <DappConnectedNetworkModal
+          session={selectedSession}
+          onClose={(): void => setSelectedSession(undefined)}
+        />
+      )}
     </>
   )
 }

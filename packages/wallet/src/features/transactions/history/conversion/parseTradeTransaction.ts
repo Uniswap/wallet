@@ -1,7 +1,7 @@
 // TODO(MOB-203): reduce component complexity
 /* eslint-disable complexity */
 import { TradeType } from '@uniswap/sdk-core'
-import { ChainId } from 'wallet/src/constants/chains'
+import { fromGraphQLChain } from 'wallet/src/features/chains/utils'
 import {
   deriveCurrencyAmountFromAssetResponse,
   parseUSDValueFromAssetChange,
@@ -21,19 +21,22 @@ import {
 } from 'wallet/src/utils/currencyId'
 
 export default function parseTradeTransaction(
-  transaction: TransactionListQueryResponse
+  transaction: NonNullable<TransactionListQueryResponse>
 ): ExactInputSwapTransactionInfo | NFTTradeTransactionInfo | WrapTransactionInfo | undefined {
-  // for detecting wraps
-  const nativeCurrencyID = buildNativeCurrencyId(ChainId.Mainnet).toLocaleLowerCase()
-  const wrappedCurrencyID = buildWrappedNativeCurrencyId(ChainId.Mainnet).toLocaleLowerCase()
+  const chainId = fromGraphQLChain(transaction.chain)
+  if (!chainId) return undefined
 
-  const sent = transaction?.assetChanges.find((t) => {
+  // for detecting wraps
+  const nativeCurrencyID = buildNativeCurrencyId(chainId).toLocaleLowerCase()
+  const wrappedCurrencyID = buildWrappedNativeCurrencyId(chainId).toLocaleLowerCase()
+
+  const sent = transaction.assetChanges.find((t) => {
     return (
       (t?.__typename === 'TokenTransfer' && t.direction === 'OUT') ||
       (t?.__typename === 'NftTransfer' && t.direction === 'OUT')
     )
   })
-  const received = transaction?.assetChanges.find((t) => {
+  const received = transaction.assetChanges.find((t) => {
     return (
       (t?.__typename === 'TokenTransfer' && t.direction === 'IN') ||
       (t?.__typename === 'NftTransfer' && t.direction === 'IN')
@@ -56,15 +59,15 @@ export default function parseTradeTransaction(
   if (onlyERC20Tokens) {
     const inputCurrencyId =
       sent.tokenStandard === 'NATIVE'
-        ? buildNativeCurrencyId(ChainId.Mainnet)
+        ? buildNativeCurrencyId(chainId)
         : sent.asset.address
-        ? buildCurrencyId(ChainId.Mainnet, sent.asset.address)
+        ? buildCurrencyId(chainId, sent.asset.address)
         : null
     const outputCurrencyId =
       received.tokenStandard === 'NATIVE'
-        ? buildNativeCurrencyId(ChainId.Mainnet)
+        ? buildNativeCurrencyId(chainId)
         : received.asset.address
-        ? buildCurrencyId(ChainId.Mainnet, received.asset.address)
+        ? buildCurrencyId(chainId, received.asset.address)
         : null
     const inputCurrencyAmountRaw = deriveCurrencyAmountFromAssetResponse(
       sent.tokenStandard,
@@ -126,9 +129,9 @@ export default function parseTradeTransaction(
     const tokenId = nftChange.asset?.name
     const purchaseCurrencyId =
       tokenChange.tokenStandard === 'NATIVE'
-        ? buildNativeCurrencyId(ChainId.Mainnet)
+        ? buildNativeCurrencyId(chainId)
         : tokenChange.asset?.address
-        ? buildCurrencyId(ChainId.Mainnet, tokenChange.asset.address)
+        ? buildCurrencyId(chainId, tokenChange.asset.address)
         : undefined
     const purchaseCurrencyAmountRaw = deriveCurrencyAmountFromAssetResponse(
       tokenChange.tokenStandard,

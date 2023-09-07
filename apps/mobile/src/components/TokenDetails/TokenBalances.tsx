@@ -9,13 +9,13 @@ import { Text } from 'src/components/Text'
 import { useTokenDetailsNavigation } from 'src/components/TokenDetails/hooks'
 import Trace from 'src/components/Trace/Trace'
 import { MobileEventName } from 'src/features/telemetry/constants'
-import { iconSizes } from 'ui/src/theme/iconSizes'
+import { iconSizes } from 'ui/src/theme'
+import { formatNumber, NumberType } from 'utilities/src/format/format'
 import { TokenLogo } from 'wallet/src/components/CurrencyLogo/TokenLogo'
 import { PortfolioBalance } from 'wallet/src/features/dataApi/types'
 import { AccountType } from 'wallet/src/features/wallet/accounts/types'
 import { useActiveAccount, useDisplayName } from 'wallet/src/features/wallet/hooks'
 import { CurrencyId } from 'wallet/src/utils/currencyId'
-import { formatNumber, NumberType } from 'wallet/src/utils/format'
 import { SendButton } from './SendButton'
 
 /**
@@ -53,18 +53,21 @@ export function TokenBalances({
   if (!hasCurrentChainBalances && !hasOtherChainBalances) return null
 
   return (
-    <Flex borderRadius="rounded8" gap="spacing24" px="spacing16">
+    <Flex borderRadius="rounded8" gap="spacing24">
       {currentChainBalance && (
-        <CurrentChainBalance
-          balance={currentChainBalance}
-          displayName={displayName}
-          isReadonly={isReadonly}
-          onPressSend={onPressSend}
-        />
+        <Flex gap="spacing24">
+          <Separator />
+          <CurrentChainBalance
+            balance={currentChainBalance}
+            displayName={displayName}
+            isReadonly={isReadonly}
+            onPressSend={onPressSend}
+          />
+        </Flex>
       )}
       {hasOtherChainBalances && otherChainBalances ? (
         <Flex>
-          <Text color="textTertiary" variant="subheadSmall">
+          <Text color="neutral2" variant="subheadSmall">
             {t('Balances on other networks')}
           </Text>
           <Flex gap="spacing12">
@@ -80,7 +83,6 @@ export function TokenBalances({
           </Flex>
         </Flex>
       ) : null}
-      <Separator />
     </Flex>
   )
 }
@@ -102,19 +104,19 @@ export function CurrentChainBalance({
   return (
     <Flex row>
       <Flex fill gap="spacing4">
-        <Text color="textTertiary" variant="subheadSmall">
+        <Text color="neutral2" variant="subheadSmall">
           {isReadonly ? t("{{owner}}'s balance", { owner: displayName }) : t('Your balance')}
         </Text>
         <Text variant="subheadLarge">
           {formatNumber(balance.balanceUSD, NumberType.FiatTokenDetails)}
         </Text>
-        <Text color="textSecondary" variant="bodySmall">
+        <Text color="neutral2" variant="bodySmall">
           {formatNumber(balance.quantity, NumberType.TokenNonTx)}{' '}
           {balance.currencyInfo.currency.symbol}
         </Text>
       </Flex>
       <Flex alignItems="flex-end" justifyContent="center">
-        <SendButton color={theme.colors.textPrimary} onPress={onPressSend} />
+        <SendButton color={theme.colors.neutral1} size={28} onPress={onPressSend} />
       </Flex>
     </Flex>
   )
@@ -149,7 +151,7 @@ function OtherChainBalance({
               />
             </Box>
           </Flex>
-          <Text color="textSecondary" variant="bodyLarge">
+          <Text color="neutral2" variant="bodyLarge">
             {formatNumber(balance.quantity, NumberType.TokenNonTx)}{' '}
             {balance.currencyInfo.currency.symbol}
           </Text>

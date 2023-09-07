@@ -17,19 +17,21 @@ import { EducationContentType } from 'src/components/education'
 import { Flex } from 'src/components/layout'
 import { Text } from 'src/components/Text'
 import Trace from 'src/components/Trace/Trace'
-import { isICloudAvailable } from 'src/features/CloudBackup/RNICloudBackupsManager'
+import { IS_ANDROID } from 'src/constants/globals'
+import { isCloudStorageAvailable } from 'src/features/CloudBackup/RNCloudStorageBackupsManager'
 import { OnboardingScreen } from 'src/features/onboarding/OnboardingScreen'
 import { OptionCard } from 'src/features/onboarding/OptionCard'
 import { ImportType } from 'src/features/onboarding/utils'
 import { ElementName } from 'src/features/telemetry/constants'
 import { OnboardingScreens, Screens } from 'src/screens/Screens'
 import { openSettings } from 'src/utils/linking'
+import { Icons } from 'ui/src'
 import CloudIcon from 'ui/src/assets/icons/cloud.svg'
 import InfoCircle from 'ui/src/assets/icons/info-circle.svg'
 import PaperIcon from 'ui/src/assets/icons/paper-stack.svg'
+import { useAsyncData } from 'utilities/src/react/hooks'
 import { BackupType } from 'wallet/src/features/wallet/accounts/types'
 import { useActiveAccount } from 'wallet/src/features/wallet/hooks'
-import { useAsyncData } from 'wallet/src/utils/hooks'
 
 type Props = CompositeScreenProps<
   StackScreenProps<OnboardingStackParamList, OnboardingScreens.Backup>,
@@ -41,7 +43,7 @@ export function BackupScreen({ navigation, route: { params } }: Props): JSX.Elem
   const theme = useAppTheme()
   const { navigate } = useOnboardingStackNavigation()
 
-  const { data: iCloudAvailable } = useAsyncData(isICloudAvailable)
+  const { data: cloudStorageAvailable } = useAsyncData(isCloudStorageAvailable)
 
   const activeAccount = useActiveAccount()
   const activeAccountBackups = activeAccount?.backups
@@ -78,13 +80,17 @@ export function BackupScreen({ navigation, route: { params } }: Props): JSX.Elem
     })
   }
 
-  const onPressICloudBackup = (): void => {
-    if (!iCloudAvailable) {
+  const onPressCloudBackup = (): void => {
+    if (!cloudStorageAvailable) {
       Alert.alert(
-        t('iCloud Drive not available'),
-        t(
-          'Please verify that you are logged in to an Apple ID with iCloud Drive enabled on this device and try again.'
-        ),
+        IS_ANDROID ? t('Google Drive not available') : t('iCloud Drive not available'),
+        IS_ANDROID
+          ? t(
+              'Please verify that you are logged in to a Google account with Google Drive enabled on this device and try again.'
+            )
+          : t(
+              'Please verify that you are logged in to an Apple ID with iCloud Drive enabled on this device and try again.'
+            ),
         [
           { text: t('Go to settings'), onPress: openSettings, style: 'default' },
           { text: t('Not now'), style: 'cancel' },
@@ -127,16 +133,26 @@ export function BackupScreen({ navigation, route: { params } }: Props): JSX.Elem
           <OptionCard
             blurb={t('Safe, simple, and all you need to save is your password.')}
             disabled={hasCloudBackup}
-            elementName={ElementName.AddiCloudBackup}
-            icon={<CloudIcon color={theme.colors.magentaVibrant} height={theme.iconSizes.icon16} />}
-            title={t('Backup with iCloud')}
-            onPress={onPressICloudBackup}
+            elementName={ElementName.AddCloudBackup}
+            icon={
+              IS_ANDROID ? (
+                <Icons.GoogleDrive
+                  color={theme.colors.accent1}
+                  height={theme.iconSizes.icon16}
+                  width={theme.iconSizes.icon16}
+                />
+              ) : (
+                <CloudIcon color={theme.colors.accent1} height={theme.iconSizes.icon16} />
+              )
+            }
+            title={IS_ANDROID ? t('Backup with Google Drive') : t('Backup with iCloud')}
+            onPress={onPressCloudBackup}
           />
           <OptionCard
             blurb={t("Top-notch security with no third parties. You're in control.")}
             disabled={hasManualBackup}
             elementName={ElementName.AddManualBackup}
-            icon={<PaperIcon color={theme.colors.magentaVibrant} height={theme.iconSizes.icon16} />}
+            icon={<PaperIcon color={theme.colors.accent1} height={theme.iconSizes.icon16} />}
             title={t('Backup with recovery phrase')}
             onPress={onPressManualBackup}
           />
@@ -145,11 +161,11 @@ export function BackupScreen({ navigation, route: { params } }: Props): JSX.Elem
           <TouchableArea alignSelf="center" py="none" onPress={onPressEducationButton}>
             <Flex centered row gap="spacing4">
               <InfoCircle
-                color={theme.colors.textSecondary}
+                color={theme.colors.neutral2}
                 height={theme.iconSizes.icon24}
                 width={theme.iconSizes.icon24}
               />
-              <Text color="textPrimary" variant="subheadSmall">
+              <Text color="neutral1" variant="subheadSmall">
                 {t('Learn about wallet safety and recovery')}
               </Text>
             </Flex>

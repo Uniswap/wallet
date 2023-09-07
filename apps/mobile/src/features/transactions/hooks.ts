@@ -6,23 +6,23 @@ import { LayoutChangeEvent } from 'react-native'
 import { useAppSelector } from 'src/app/hooks'
 import { SearchContext } from 'src/components/explore/search/SearchResultsSection'
 import { flowToModalName, TokenSelectorFlow } from 'src/components/TokenSelector/TokenSelector'
-import { sendAnalyticsEvent } from 'src/features/telemetry'
+import { sendMobileAnalyticsEvent } from 'src/features/telemetry'
 import { MobileEventName } from 'src/features/telemetry/constants'
-import {
-  makeSelectAddressTransactions,
-  makeSelectLocalTxCurrencyIds,
-  makeSelectTransaction,
-} from 'src/features/transactions/selectors'
-import { finalizeTransaction } from 'src/features/transactions/slice'
 import {
   createSwapFormFromTxDetails,
   createWrapFormFromTxDetails,
 } from 'src/features/transactions/swap/createSwapFormFromTxDetails'
 import { transactionStateActions } from 'src/features/transactions/transactionState/transactionState'
-import { theme } from 'ui/src/theme/restyle/theme'
+import { theme } from 'ui/src/theme/restyle'
 import { ChainId } from 'wallet/src/constants/chains'
 import { AssetType } from 'wallet/src/entities/assets'
 import { useCurrencyInfo } from 'wallet/src/features/tokens/useCurrencyInfo'
+import {
+  makeSelectAddressTransactions,
+  makeSelectLocalTxCurrencyIds,
+  makeSelectTransaction,
+} from 'wallet/src/features/transactions/selectors'
+import { finalizeTransaction } from 'wallet/src/features/transactions/slice'
 import {
   CurrencyField,
   TransactionState,
@@ -181,7 +181,7 @@ export function useTokenSelectorActionHandlers(
       )
 
       // log event that a currency was selected
-      sendAnalyticsEvent(MobileEventName.TokenSelected, {
+      sendMobileAnalyticsEvent(MobileEventName.TokenSelected, {
         name: currency.name,
         address: currencyAddress(currency),
         chain: currency.chainId,

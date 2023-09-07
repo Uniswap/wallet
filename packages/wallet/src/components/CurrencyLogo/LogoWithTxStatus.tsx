@@ -1,11 +1,11 @@
 import type { IconProps } from '@tamagui/helpers-icon'
 import React, { useEffect } from 'react'
 import { StyleSheet } from 'react-native'
-import { Icons, useTheme } from 'ui/src'
+import { Box, Icons, useTheme } from 'ui/src'
 import WalletConnectLogo from 'ui/src/assets/icons/walletconnect.svg'
 import MoonpayLogo from 'ui/src/assets/logos/svg/moonpay.svg'
-import { Box } from 'ui/src/components/layout'
-import { borderRadii } from 'ui/src/theme/borderRadii'
+import { borderRadii } from 'ui/src/theme'
+import { logger } from 'utilities/src/logger/logger'
 import { CurrencyLogo, STATUS_RATIO } from 'wallet/src/components/CurrencyLogo/CurrencyLogo'
 import { TransactionSummaryNetworkLogo } from 'wallet/src/components/CurrencyLogo/NetworkLogo'
 import { DappIconPlaceholder } from 'wallet/src/components/WalletConnect/DappIconPlaceholder'
@@ -15,7 +15,6 @@ import { CurrencyInfo } from 'wallet/src/features/dataApi/types'
 import { ImageUri } from 'wallet/src/features/images/ImageUri'
 import { NFTViewer } from 'wallet/src/features/images/NFTViewer'
 import { RemoteImage } from 'wallet/src/features/images/RemoteImage'
-import { logger } from 'wallet/src/features/logger/logger'
 import {
   NFTTradeType,
   TransactionStatus,
@@ -64,7 +63,7 @@ export function LogoWithTxStatus(props: CurrencyStatusProps | NFTStatusProps): J
     ) : (
       <Box
         alignItems="center"
-        backgroundColor="$background2"
+        backgroundColor="$surface2"
         borderRadius="$rounded4"
         height={size}
         justifyContent="center"
@@ -74,8 +73,8 @@ export function LogoWithTxStatus(props: CurrencyStatusProps | NFTStatusProps): J
       </Box>
     )
 
-  const fill = txStatus === TransactionStatus.Success ? theme.accentSuccess : theme.textSecondary
-  const color = theme.background1
+  const fill = txStatus === TransactionStatus.Success ? theme.statusSuccess : theme.neutral2
+  const color = theme.surface2
 
   let icon: JSX.Element | undefined
   if (chainId && chainId !== ChainId.Mainnet) {
@@ -145,9 +144,9 @@ export function DappLogoWithTxStatus({
   chainId,
 }: DappLogoWithTxStatusProps): JSX.Element | null {
   const theme = useTheme()
-  const green = theme.accentSuccess.get()
-  const yellow = theme.accentWarning.get()
-  const fill = theme.background0.get()
+  const green = theme.statusSuccess.get()
+  const yellow = theme.DEP_accentWarning.get()
+  const fill = theme.surface1.get()
 
   const dappImageSize = size
   const statusSize = dappImageSize * (1 / 2)
@@ -250,8 +249,8 @@ export function DappLogoWithWCBadge({
         </Box>
       ) : (
         <Box
-          backgroundColor="$background1"
-          borderColor="$background0"
+          backgroundColor="$surface2"
+          borderColor="$surface1"
           borderRadius="$roundedFull"
           borderWidth={2}
           bottom={-2}

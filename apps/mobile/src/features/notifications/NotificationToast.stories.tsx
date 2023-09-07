@@ -4,18 +4,21 @@ import { Provider } from 'react-redux'
 import { setupStore } from 'src/app/store'
 import { Box } from 'src/components/layout'
 import { NotificationToastRouter } from 'src/features/notifications/NotificationToastWrapper'
-import { account } from 'src/test/fixtures'
 import { config } from 'wallet/src/config'
 import { ChainId } from 'wallet/src/constants/chains'
 import { AppNotificationType } from 'wallet/src/features/notifications/types'
+import { SwapProtectionSetting } from 'wallet/src/features/wallet/slice'
 import { WalletConnectEvent } from 'wallet/src/features/walletConnect/types'
+import { account } from 'wallet/src/test/fixtures'
 
 const store = setupStore({
   wallet: {
     activeAccountAddress: account.address,
     accounts: { [account.address]: account },
     isUnlocked: true,
-    settings: {},
+    settings: {
+      swapProtection: SwapProtectionSetting.On,
+    },
   },
   notifications: {
     notificationQueue: [

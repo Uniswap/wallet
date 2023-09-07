@@ -24,7 +24,7 @@ import { useCreateSwapFormState, useCreateWrapFormState } from 'src/features/tra
 import CheckCircle from 'ui/src/assets/icons/check-circle.svg'
 import EyeOffIcon from 'ui/src/assets/icons/eye-off.svg'
 import EyeIcon from 'ui/src/assets/icons/eye.svg'
-import { iconSizes } from 'ui/src/theme/iconSizes'
+import { iconSizes } from 'ui/src/theme'
 import {
   DappLogoWithTxStatus,
   LogoWithTxStatus,
@@ -455,13 +455,36 @@ export function DefaultNotification({
   return <NotificationToast address={address} hideDelay={hideDelay} title={title} />
 }
 
+export function SuccessNotification({
+  notification: { hideDelay = 2000, title },
+}: {
+  notification: Pick<AppNotificationDefault, 'title' | 'hideDelay'>
+}): JSX.Element | null {
+  const theme = useAppTheme()
+
+  return (
+    <NotificationToast
+      useSmallDisplay
+      hideDelay={hideDelay}
+      icon={
+        <CheckCircle
+          color={theme.colors.statusSuccess}
+          height={iconSizes.icon24}
+          strokeWidth={1.5}
+          width={iconSizes.icon24}
+        />
+      }
+      title={title}
+    />
+  )
+}
+
 export function CopiedNotification({
   notification: { hideDelay = 2000, copyType },
 }: {
   notification: CopyNotification
 }): JSX.Element | null {
   const { t } = useTranslation()
-  const theme = useAppTheme()
 
   let title
   switch (copyType) {
@@ -476,21 +499,7 @@ export function CopiedNotification({
       break
   }
 
-  return (
-    <NotificationToast
-      useSmallDisplay
-      hideDelay={hideDelay}
-      icon={
-        <CheckCircle
-          color={theme.colors.accentSuccess}
-          height={iconSizes.icon24}
-          strokeWidth={1.5}
-          width={iconSizes.icon24}
-        />
-      }
-      title={title}
-    />
-  )
+  return <SuccessNotification notification={{ title, hideDelay }} />
 }
 
 export function SwapNetworkNotification({
@@ -526,13 +535,13 @@ export function ChangeAssetVisibilityNotification({
       icon={
         visible ? (
           <EyeOffIcon
-            color={theme.colors.textPrimary}
+            color={theme.colors.neutral1}
             height={theme.iconSizes.icon24}
             width={theme.iconSizes.icon24}
           />
         ) : (
           <EyeIcon
-            color={theme.colors.textPrimary}
+            color={theme.colors.neutral1}
             height={theme.iconSizes.icon24}
             width={theme.iconSizes.icon24}
           />

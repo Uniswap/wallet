@@ -7,16 +7,17 @@ import dayjs from 'dayjs'
 import { AccountToNftData } from 'src/features/favorites/slice'
 import { getNFTAssetKey } from 'src/features/nfts/utils'
 import { ModalName } from 'src/features/telemetry/constants'
-import { TransactionStateMap } from 'src/features/transactions/slice'
 import { ACTIVE_CHAINS, ChainId } from 'wallet/src/constants/chains'
 import { ChainsState } from 'wallet/src/features/chains/slice'
 import { toSupportedChainId } from 'wallet/src/features/chains/utils'
+import { TransactionStateMap } from 'wallet/src/features/transactions/slice'
 import {
   ChainIdToTxIdToDetails,
   TransactionStatus,
   TransactionType,
 } from 'wallet/src/features/transactions/types'
 import { Account, AccountType } from 'wallet/src/features/wallet/accounts/types'
+import { SwapProtectionSetting } from 'wallet/src/features/wallet/slice'
 
 export const OLD_DEMO_ACCOUNT_ADDRESS = '0xdd0E380579dF30E38524F9477808d9eE37E2dEa6'
 
@@ -645,6 +646,23 @@ export const migrations = {
 
     newState.chains.byChainId = ACTIVE_CHAINS
 
+    return newState
+  },
+
+  48: function addTweakStartingState(state: any) {
+    const newState = { ...state }
+
+    newState.tweaks = {}
+
+    return newState
+  },
+
+  49: function addSwapProtectionSetting(state: any) {
+    const newState = { ...state }
+    newState.wallet.settings = {
+      ...state.wallet.settings,
+      swapProtection: SwapProtectionSetting.On,
+    }
     return newState
   },
 }

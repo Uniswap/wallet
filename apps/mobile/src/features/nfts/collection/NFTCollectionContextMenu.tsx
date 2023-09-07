@@ -7,10 +7,12 @@ import { TripleDot } from 'src/components/icons/TripleDot'
 import { Box } from 'src/components/layout'
 import { Flex } from 'src/components/layout/Flex'
 import { NFTCollectionData } from 'src/features/nfts/collection/NFTCollectionHeader'
+import { sendMobileAnalyticsEvent } from 'src/features/telemetry'
+import { MobileEventName, ShareableEntity } from 'src/features/telemetry/constants'
 import { getNftCollectionUrl, getTwitterLink, openUri } from 'src/utils/linking'
-import { theme as FixedTheme, Theme } from 'ui/src/theme/restyle/theme'
-import { logger } from 'wallet/src/features/logger/logger'
-import serializeError from 'wallet/src/utils/serializeError'
+import { theme as FixedTheme, Theme } from 'ui/src/theme/restyle'
+import { serializeError } from 'utilities/src/errors'
+import { logger } from 'utilities/src/logger/logger'
 
 type MenuOption = {
   title: string
@@ -24,7 +26,7 @@ export function NFTCollectionContextMenu({
   data,
   collectionAddress,
   showButtonOutline = false,
-  iconColor = 'textSecondary',
+  iconColor = 'neutral2',
 }: {
   data: NFTCollectionData
   collectionAddress?: Maybe<string>
@@ -52,6 +54,10 @@ export function NFTCollectionContextMenu({
     try {
       await Share.share({
         message: shareURL,
+      })
+      sendMobileAnalyticsEvent(MobileEventName.ShareButtonClicked, {
+        entity: ShareableEntity.NftCollection,
+        url: shareURL,
       })
     } catch (error) {
       logger.error('Unable to share NFT Collection url', {
@@ -99,7 +105,7 @@ export function NFTCollectionContextMenu({
       }}>
       <TouchableArea
         hapticFeedback
-        backgroundColor={showButtonOutline ? 'textOnDimTertiary' : 'none'}
+        backgroundColor={showButtonOutline ? 'sporeBlack' : 'none'}
         borderRadius="roundedFull"
         style={{ padding: ICON_PADDING }}>
         <Flex centered grow height={ICON_SIZE} width={ICON_SIZE}>

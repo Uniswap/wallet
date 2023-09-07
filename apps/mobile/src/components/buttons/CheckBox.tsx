@@ -31,8 +31,8 @@ export function CheckBox({ text, checked, onCheckPressed }: CheckBoxProps): JSX.
       <Flex row gap="spacing12">
         <Box
           alignItems="center"
-          backgroundColor={checked ? 'textPrimary' : 'background1'}
-          borderColor={checked ? 'textPrimary' : 'backgroundOutline'}
+          backgroundColor={checked ? 'neutral1' : 'surface2'}
+          borderColor={checked ? 'neutral1' : 'neutral3'}
           borderRadius="roundedFull"
           borderWidth={1.5}
           height={theme.iconSizes.icon24}
@@ -42,14 +42,14 @@ export function CheckBox({ text, checked, onCheckPressed }: CheckBoxProps): JSX.
           width={theme.iconSizes.icon24}>
           {checked ? (
             <Check
-              color={isDarkMode ? theme.colors.black : theme.colors.white}
+              color={isDarkMode ? theme.colors.sporeBlack : theme.colors.sporeWhite}
               height={theme.iconSizes.icon16}
               width={theme.iconSizes.icon16}
             />
           ) : null}
         </Box>
         <Box flexShrink={1}>
-          <Text variant={fontSize}>{text}</Text>
+          {typeof text === 'string' ? <Text variant={fontSize}>{text}</Text> : text}
         </Box>
       </Flex>
     </TouchableArea>

@@ -12,14 +12,15 @@ import { Screen } from 'src/components/layout/Screen'
 import { ActionSheetModal, MenuItemProp } from 'src/components/modals/ActionSheetModal'
 import { BottomSheetModal } from 'src/components/modals/BottomSheetModal'
 import { Text } from 'src/components/Text'
-import { isICloudAvailable } from 'src/features/CloudBackup/RNICloudBackupsManager'
+import { IS_ANDROID } from 'src/constants/globals'
+import { isCloudStorageAvailable } from 'src/features/CloudBackup/RNCloudStorageBackupsManager'
 import { closeModal, openModal, selectModalState } from 'src/features/modals/modalSlice'
 import { ImportType, OnboardingEntryPoint } from 'src/features/onboarding/utils'
 import { ElementName, ModalName } from 'src/features/telemetry/constants'
 import { OnboardingScreens, Screens } from 'src/screens/Screens'
 import { openSettings } from 'src/utils/linking'
 import PlusIcon from 'ui/src/assets/icons/plus.svg'
-import { dimensions } from 'ui/src/theme/restyle/sizing'
+import { dimensions } from 'ui/src/theme/restyle'
 import { createAccountActions } from 'wallet/src/features/wallet/create/createAccountSaga'
 import {
   PendingAccountActions,
@@ -36,10 +37,10 @@ export function AccountSwitcherModal(): JSX.Element {
   return (
     <BottomSheetModal
       disableSwipe
-      backgroundColor={theme.colors.background1}
+      backgroundColor={theme.colors.surface1}
       name={ModalName.AccountSwitcher}
       onClose={(): Action => dispatch(closeModal({ name: ModalName.AccountSwitcher }))}>
-      <Screen bg="background1" noInsets={true}>
+      <Screen bg="surface1" noInsets={true}>
         <AccountSwitcher
           onClose={(): void => {
             dispatch(closeModal({ name: ModalName.AccountSwitcher }))
@@ -134,14 +135,18 @@ export function AccountSwitcher({ onClose }: { onClose: () => void }): JSX.Eleme
     }
 
     const onPressRestore = async (): Promise<void> => {
-      const iCloudAvailable = await isICloudAvailable()
+      const cloudStorageAvailable = await isCloudStorageAvailable()
 
-      if (!iCloudAvailable) {
+      if (!cloudStorageAvailable) {
         Alert.alert(
-          t('iCloud Drive not available'),
-          t(
-            'Please verify that you are logged in to an Apple ID with iCloud Drive enabled on this device and try again.'
-          ),
+          IS_ANDROID ? t('Google Drive not available') : t('iCloud Drive not available'),
+          IS_ANDROID
+            ? t(
+                'Please verify that you are logged in to a Google account with Google Drive enabled on this device and try again.'
+              )
+            : t(
+                'Please verify that you are logged in to an Apple ID with iCloud Drive enabled on this device and try again.'
+              ),
           [
             { text: t('Go to settings'), onPress: openSettings, style: 'default' },
             { text: t('Not now'), style: 'cancel' },
@@ -163,11 +168,7 @@ export function AccountSwitcher({ onClose }: { onClose: () => void }): JSX.Eleme
         key: ElementName.CreateAccount,
         onPress: onPressCreateNewWallet,
         render: () => (
-          <Box
-            alignItems="center"
-            borderBottomColor="backgroundOutline"
-            borderBottomWidth={1}
-            p="spacing16">
+          <Box alignItems="center" borderBottomColor="surface3" borderBottomWidth={1} p="spacing16">
             <Text variant="bodyLarge">{t('Create a new wallet')}</Text>
           </Box>
         ),
@@ -185,11 +186,7 @@ export function AccountSwitcher({ onClose }: { onClose: () => void }): JSX.Eleme
         key: ElementName.ImportAccount,
         onPress: onPressImportWallet,
         render: () => (
-          <Box
-            alignItems="center"
-            borderTopColor="backgroundOutline"
-            borderTopWidth={1}
-            p="spacing16">
+          <Box alignItems="center" borderTopColor="surface3" borderTopWidth={1} p="spacing16">
             <Text variant="bodyLarge">{t('Import a new wallet')}</Text>
           </Box>
         ),
@@ -198,15 +195,13 @@ export function AccountSwitcher({ onClose }: { onClose: () => void }): JSX.Eleme
 
     if (!hasImportedSeedPhrase) {
       options.push({
-        key: ElementName.RestoreFromICloud,
+        key: ElementName.RestoreFromCloud,
         onPress: onPressRestore,
         render: () => (
-          <Box
-            alignItems="center"
-            borderTopColor="backgroundOutline"
-            borderTopWidth={1}
-            p="spacing16">
-            <Text variant="bodyLarge">{t('Restore from iCloud')}</Text>
+          <Box alignItems="center" borderTopColor="surface3" borderTopWidth={1} p="spacing16">
+            <Text variant="bodyLarge">
+              {IS_ANDROID ? t('Restore from Google Drive') : t('Restore from iCloud')}
+            </Text>
           </Box>
         ),
       })
@@ -223,9 +218,9 @@ export function AccountSwitcher({ onClose }: { onClose: () => void }): JSX.Eleme
 
   return (
     <Flex fill gap="none" maxHeight={fullScreenContentHeight} mb="spacing12">
-      <Flex row alignItems="center" borderBottomColor="backgroundOutline" mb="spacing16">
+      <Flex row alignItems="center" mb="spacing16">
         <Box flex={1} pl="spacing24">
-          <Text color="textPrimary" textAlign="left" variant="bodyLarge">
+          <Text color="neutral1" textAlign="left" variant="bodyLarge">
             {t('Your wallets')}
           </Text>
         </Box>
@@ -233,19 +228,15 @@ export function AccountSwitcher({ onClose }: { onClose: () => void }): JSX.Eleme
       <AccountList accounts={accounts} isVisible={modalState.isOpen} onPress={onPressAccount} />
       <TouchableArea hapticFeedback my="spacing24" onPress={onPressAddWallet}>
         <Flex row alignItems="center" ml="spacing24">
-          <Box
-            borderColor="backgroundOutline"
-            borderRadius="roundedFull"
-            borderWidth={1}
-            p="spacing12">
+          <Box borderColor="surface3" borderRadius="roundedFull" borderWidth={1} p="spacing12">
             <PlusIcon
-              color={theme.colors.textPrimary}
+              color={theme.colors.neutral1}
               height={theme.iconSizes.icon16}
               strokeWidth={2}
               width={theme.iconSizes.icon16}
             />
           </Box>
-          <Text color="textPrimary" variant="bodyLarge">
+          <Text color="neutral1" variant="bodyLarge">
             {t('Add wallet')}
           </Text>
         </Flex>

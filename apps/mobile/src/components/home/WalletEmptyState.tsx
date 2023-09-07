@@ -15,8 +15,7 @@ import BookIcon from 'ui/src/assets/icons/book.svg'
 import DollarSign from 'ui/src/assets/icons/dollar.svg'
 import PaperStackIcon from 'ui/src/assets/icons/paper-stack.svg'
 import ScanIcon from 'ui/src/assets/icons/scan-receive.svg'
-import { colors } from 'ui/src/theme/color'
-import { iconSizes } from 'ui/src/theme/iconSizes'
+import { colors, iconSizes } from 'ui/src/theme'
 import { AccountType } from 'wallet/src/features/wallet/accounts/types'
 import { useActiveAccount } from 'wallet/src/features/wallet/hooks'
 
@@ -110,7 +109,7 @@ export function WalletEmptyState(): JSX.Element {
             backgroundColor={colors.blue300}
             icon={
               <BookIcon
-                color={theme.colors.blue300}
+                color={theme.colors.DEP_blue300}
                 height={iconSizes.icon16}
                 width={iconSizes.icon16}
               />
@@ -164,7 +163,7 @@ const ActionCard = ({
   elementName,
 }: ActionCardItem): JSX.Element => (
   <Trace logPress element={elementName}>
-    <TouchableArea backgroundColor="background2" borderRadius="rounded20" onPress={onPress}>
+    <TouchableArea backgroundColor="surface2" borderRadius="rounded20" onPress={onPress}>
       <Flex centered row p="spacing16">
         {icon}
         <Flex flexShrink={1} gap="spacing4">
@@ -173,17 +172,17 @@ const ActionCard = ({
             {badgeText && (
               <Flex
                 centered
-                backgroundColor="magentaDark"
+                backgroundColor="DEP_magentaDark"
                 borderRadius="rounded8"
                 px="spacing8"
                 py="spacing4">
-                <Text color="magentaVibrant" variant="buttonLabelMicro">
+                <Text color="accent1" variant="buttonLabelMicro">
                   {badgeText}
                 </Text>
               </Flex>
             )}
           </Flex>
-          <Text color="textSecondary" variant="bodySmall">
+          <Text color="neutral2" variant="bodySmall">
             {blurb}
           </Text>
         </Flex>

@@ -6,7 +6,7 @@ import { BottomSheetDetachedModal } from 'src/components/modals/BottomSheetModal
 import { Text } from 'src/components/Text'
 import { ModalName } from 'src/features/telemetry/constants'
 import InfoCircle from 'ui/src/assets/icons/info-circle.svg'
-import { Theme } from 'ui/src/theme/restyle/theme'
+import { Theme } from 'ui/src/theme/restyle'
 
 const DEFAULT_ICON_SIZE = 20
 
@@ -23,14 +23,14 @@ export function TooltipInfoButton({ size, content, ...rest }: InfoButtonProps): 
     <>
       <TouchableArea onPress={(): void => setShowModal(true)} {...rest}>
         <InfoCircle
-          color={theme.colors.textSecondary}
+          color={theme.colors.neutral2}
           height={size ?? DEFAULT_ICON_SIZE}
           width={size ?? DEFAULT_ICON_SIZE}
         />
       </TouchableArea>
       {showModal && (
         <BottomSheetDetachedModal
-          backgroundColor={theme.colors.background1}
+          backgroundColor={theme.colors.surface2}
           name={ModalName.TooltipContent}
           onClose={(): void => setShowModal(false)}>
           <Text p="spacing16" variant="bodyLarge">

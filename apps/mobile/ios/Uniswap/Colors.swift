@@ -8,11 +8,10 @@
 import SwiftUI
 
 struct Colors {
-  static let background3 = Color("background3")
-  static let background1 = Color("background1")
-  static let textPrimary = Color("textPrimary")
-  static let textTertiary = Color("textTertiary")
-  static let accentActive = Color("accentActive")
-  static let accentCritical = Color("accentCritical")
+  static let surface2 = Color("surface2")
+  static let neutral1 = Color("neutral1")
+  static let neutral3 = Color("neutral3")
+  static let accent1 = Color("accent1")
+  static let statusCritical = Color("statusCritical")
   static let onboardingBlue = Color("onboardingBlue")
 }

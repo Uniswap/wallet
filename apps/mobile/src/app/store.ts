@@ -5,12 +5,12 @@ import { MMKV } from 'react-native-mmkv'
 import { persistReducer, persistStore, Storage } from 'redux-persist'
 import createMigrate from 'src/app/createMigrate'
 import { migrations } from 'src/app/migrations'
-import { fiatOnRampApi } from 'src/features/fiatOnRamp/api'
-import { logger } from 'wallet/src/features/logger/logger'
+import { isNonJestDev } from 'utilities/src/environment'
+import { logger } from 'utilities/src/logger/logger'
+import { fiatOnRampApi } from 'wallet/src/features/fiatOnRamp/api'
 import { importAccountSagaName } from 'wallet/src/features/wallet/import/importAccountSaga'
 import { createStore } from 'wallet/src/state'
 import { RootReducerNames } from 'wallet/src/state/reducer'
-import { isNonJestDev } from 'wallet/src/utils/environment'
 import { mobileReducer, MobileState, ReducerNames } from './reducer'
 import { mobileSaga } from './saga'
 
@@ -65,6 +65,7 @@ const whitelist: Array<ReducerNames | RootReducerNames> = [
   'telemetry',
   'tokens',
   'transactions',
+  'tweaks',
   'wallet',
 ]
 
@@ -72,7 +73,7 @@ export const persistConfig = {
   key: 'root',
   storage: reduxStorage,
   whitelist,
-  version: 47,
+  version: 49,
   migrate: createMigrate(migrations),
 }
 

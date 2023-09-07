@@ -4,7 +4,7 @@ import {
   addDismissedWarningToken,
   dismissedWarningTokensSelector,
 } from 'src/features/tokens/tokensSlice'
-import { Theme } from 'ui/src/theme/restyle/theme'
+import { Theme } from 'ui/src/theme/restyle'
 import { SafetyLevel } from 'wallet/src/data/__generated__/types-and-hooks'
 import { CurrencyId } from 'wallet/src/utils/currencyId'
 
@@ -34,11 +34,11 @@ export function useTokenWarningDismissed(currencyId: Maybe<CurrencyId>): {
 export function useTokenSafetyLevelColors(safetyLevel: Maybe<SafetyLevel>): keyof Theme['colors'] {
   switch (safetyLevel) {
     case SafetyLevel.MediumWarning:
-      return 'accentWarning'
+      return 'DEP_accentWarning'
     case SafetyLevel.StrongWarning:
-      return 'accentCritical'
+      return 'statusCritical'
     case SafetyLevel.Blocked:
     default:
-      return 'textSecondary'
+      return 'neutral2'
   }
 }

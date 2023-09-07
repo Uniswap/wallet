@@ -51,14 +51,15 @@ exports[`renders a Pill with border 1`] = `
     style={
       [
         {
-          "color": "#0E1524",
+          "color": "#222222",
           "display": "flex",
-          "fontFamily": "Inter-Regular",
-          "fontSize": 15,
-          "lineHeight": 20,
+          "fontFamily": "Basel-Book",
+          "fontSize": 17,
+          "lineHeight": 24,
         },
         {
           "color": undefined,
+          "paddingTop": 1,
         },
       ]
     }
@@ -75,7 +76,7 @@ exports[`renders a Pill without image 1`] = `
     [
       {
         "alignItems": "center",
-        "backgroundColor": "#FFFFFF",
+        "backgroundColor": "#F9F9F9",
         "borderColor": "transparent",
         "borderRadius": 999999,
         "borderWidth": 1,
@@ -95,14 +96,15 @@ exports[`renders a Pill without image 1`] = `
     style={
       [
         {
-          "color": "#0E1524",
+          "color": "#222222",
           "display": "flex",
-          "fontFamily": "Inter-Regular",
-          "fontSize": 15,
-          "lineHeight": 20,
+          "fontFamily": "Basel-Book",
+          "fontSize": 17,
+          "lineHeight": 24,
         },
         {
-          "color": "accentActive",
+          "color": "accent1",
+          "paddingTop": 1,
         },
       ]
     }

@@ -10,10 +10,10 @@ import { WarmLoadingShimmer } from 'src/components/loading/WarmLoadingShimmer'
 import { Text } from 'src/components/Text'
 import { RelativeChange } from 'src/components/text/RelativeChange'
 import { useTokenContextMenu } from 'src/features/balances/hooks'
+import { formatNumber, formatUSDPrice, NumberType } from 'utilities/src/format/format'
 import { TokenLogo } from 'wallet/src/components/CurrencyLogo/TokenLogo'
 import { PortfolioBalance } from 'wallet/src/features/dataApi/types'
 import { CurrencyId } from 'wallet/src/utils/currencyId'
-import { formatNumber, formatUSDPrice, NumberType } from 'wallet/src/utils/format'
 
 interface TokenBalanceItemProps {
   portfolioBalance: PortfolioBalance
@@ -83,7 +83,7 @@ export const TokenBalanceItem = memo(function _TokenBalanceItem({
               {currency.name ?? currency.symbol}
             </Text>
             <Flex row alignItems="center" gap="spacing8" minHeight={20}>
-              <Text color="textSecondary" numberOfLines={1} variant="subheadSmall">
+              <Text color="neutral2" numberOfLines={1} variant="subheadSmall">
                 {`${formatNumber(quantity)}`} {currency.symbol}
               </Text>
             </Flex>
@@ -93,22 +93,22 @@ export const TokenBalanceItem = memo(function _TokenBalanceItem({
           <WarmLoadingShimmer isWarmLoading={isWarmLoading}>
             {!portfolioBalance.balanceUSD ? (
               <Flex centered flex={1}>
-                <Text color="textSecondary">{t('N/A')}</Text>
+                <Text color="neutral2">{t('N/A')}</Text>
               </Flex>
             ) : (
               <Flex alignItems="flex-end" gap="spacing4" pl="spacing8">
                 <Text
-                  color={isWarmLoading ? 'textSecondary' : 'textPrimary'}
+                  color={isWarmLoading ? 'neutral2' : 'neutral1'}
                   numberOfLines={1}
                   variant="bodyLarge">
                   {formatUSDPrice(portfolioBalance.balanceUSD, NumberType.FiatTokenQuantity)}
                 </Text>
-                <Text color="textSecondary">
+                <Text color="neutral2">
                   <RelativeChange
                     alignRight
                     change={relativeChange24 ?? undefined}
-                    negativeChangeColor={isWarmLoading ? 'textSecondary' : 'accentCritical'}
-                    positiveChangeColor={isWarmLoading ? 'textSecondary' : 'accentSuccess'}
+                    negativeChangeColor={isWarmLoading ? 'neutral2' : 'statusCritical'}
+                    positiveChangeColor={isWarmLoading ? 'neutral2' : 'statusSuccess'}
                     variant="subheadSmall"
                   />
                 </Text>

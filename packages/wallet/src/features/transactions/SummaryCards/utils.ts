@@ -1,8 +1,10 @@
 import dayjs from 'dayjs'
 import { createElement, useMemo, useState } from 'react'
-import { TXN_HISTORY_LOADER_ICON_SIZE } from 'ui/src/components/loading/TransactionLoader'
 import { AppTFunction } from 'ui/src/i18n/types'
-import { iconSizes } from 'ui/src/theme/iconSizes'
+import { TXN_HISTORY_LOADER_ICON_SIZE } from 'ui/src/loading/TransactionLoader'
+import { iconSizes } from 'ui/src/theme'
+import { ONE_MINUTE_MS } from 'utilities/src/time/time'
+import { useInterval } from 'utilities/src/time/timing'
 import {
   isLoadingItem,
   isSectionHeader,
@@ -15,8 +17,6 @@ import {
   TransactionStatus,
   TransactionType,
 } from 'wallet/src/features/transactions/types'
-import { ONE_MINUTE_MS } from 'wallet/src/utils/time'
-import { useInterval } from 'wallet/src/utils/timing'
 import { ApproveSummaryItem } from './SummaryItems/ApproveSummaryItem'
 import { FiatPurchaseSummaryItem } from './SummaryItems/FiatPurchaseSummaryItem'
 import { NFTApproveSummaryItem } from './SummaryItems/NFTApproveSummaryItem'
@@ -145,7 +145,6 @@ function getTransactionTypeVerbs(
   }
 }
 
-// TODO EXT-260: Add dynamic translation for web to be able to share translation
 export function getTransactionSummaryTitle(
   tx: TransactionDetails,
   t: AppTFunction
@@ -155,14 +154,11 @@ export function getTransactionSummaryTitle(
     case TransactionStatus.Pending:
       return inProgress
     case TransactionStatus.Cancelling:
-      // return t('Cancelling {{action}}', { action })
-      return `Cancelling ${action}`
+      return t('Cancelling {{action}}', { action })
     case TransactionStatus.Cancelled:
-      // return t('Cancelled {{action}}', { action })
-      return `Cancelled ${action}`
+      return t('Cancelled {{action}}', { action })
     case TransactionStatus.Failed:
-      // return t('Failed to {{action}}', { action })
-      return `Failed to ${action}`
+      return t('Failed to {{action}}', { action })
     case TransactionStatus.Success:
       return completed
     default:

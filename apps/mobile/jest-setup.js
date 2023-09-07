@@ -31,15 +31,6 @@ jest.mock('@amplitude/analytics-react-native', () => ({
   track: () => jest.fn(),
 }))
 
-jest.mock('@amplitude/experiment-react-native-client', () => ({
-  Experiment: {
-    initialize: () => ({
-      fetch: jest.fn(),
-      all: jest.fn(),
-    }),
-  },
-}))
-
 // Mock Sentry crash reporting
 jest.mock('@sentry/react-native', () => ({
   init: () => jest.fn(),
@@ -64,9 +55,8 @@ jest.mock('expo-clipboard', () => ({
   setStringAsync: jest.fn(),
   getStringAsync: () => Promise.resolve(),
 }))
-jest.mock('@react-native-community/blur', () => ({ BlurView: {} }))
-jest.mock('expo-barcode-scanner', () => ({}))
 jest.mock('expo-blur', () => ({ BlurView: {} }))
+jest.mock('expo-barcode-scanner', () => ({}))
 jest.mock('expo-av', () => ({}))
 jest.mock('expo-haptics', () => ({ impactAsync: jest.fn(), ImpactFeedbackStyle: jest.fn() }))
 jest.mock('expo-linear-gradient', () => ({ LinearGradient: () => 'ExpoLinearGradient' }))
@@ -142,28 +132,7 @@ jest.mock('@react-native-community/netinfo', () => ({ ...mockRNCNetInfo, NetInfo
 jest.mock('react-native', () => {
   const RN = jest.requireActual('react-native') // use original implementation, which comes with mocks out of the box
 
-  // mock modules/components created by assigning to NativeModules
-  RN.NativeModules.RNWalletConnect = {
-    initialize: jest.fn(),
-    reconnectAccountSessions: jest.fn(),
-  }
-
   return RN
-})
-
-jest.mock('@amplitude/experiment-react-native-client', () => {
-  const mockExperimentClient = {
-    initialize: jest.fn(() => ({
-      fetch: () => Promise.resolve('123'),
-      all: () => {
-        return {}
-      },
-    })),
-  }
-
-  return {
-    Experiment: mockExperimentClient,
-  }
 })
 
 jest.mock('react-native-safe-area-context', () => ({

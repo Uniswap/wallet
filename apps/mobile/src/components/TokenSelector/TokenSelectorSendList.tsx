@@ -12,13 +12,13 @@ import {
   TokenSelectorList,
 } from 'src/components/TokenSelector/TokenSelectorList'
 import { getTokenOptionsSection } from 'src/components/TokenSelector/utils'
-import { useFiatOnRampIpAddressQuery } from 'src/features/fiatOnRamp/api'
+import { useFiatOnRampIpAddressQuery } from 'wallet/src/features/fiatOnRamp/api'
 
 import { SpinningLoader } from 'src/components/loading/SpinningLoader'
 import { ScannerModalState } from 'src/components/QRCodeScanner/constants'
 import { closeModal, openModal } from 'src/features/modals/modalSlice'
 import { ModalName } from 'src/features/telemetry/constants'
-import { iconSizes } from 'ui/src/theme/iconSizes'
+import { iconSizes } from 'ui/src/theme'
 import { ChainId } from 'wallet/src/constants/chains'
 import { GqlResult } from 'wallet/src/features/dataApi/types'
 import { useActiveAccountAddressWithThrow } from 'wallet/src/features/wallet/hooks'
@@ -79,7 +79,7 @@ function EmptyList({ onClose }: { onClose: () => void }): JSX.Element {
       <Box paddingHorizontal="spacing16" paddingTop="spacing16">
         {isLoading ? (
           <Flex centered row flexDirection="row" gap="spacing4" mt="spacing60" p="spacing4">
-            <SpinningLoader color="textTertiary" size={iconSizes.icon64} />
+            <SpinningLoader color="neutral3" size={iconSizes.icon64} />
           </Flex>
         ) : (
           <BaseCard.EmptyState
@@ -118,6 +118,7 @@ function _TokenSelectorSendList({
       loading={loading}
       refetch={refetch}
       sections={sections}
+      showTokenWarnings={false}
       onSelectCurrency={onSelectCurrency}
     />
   )

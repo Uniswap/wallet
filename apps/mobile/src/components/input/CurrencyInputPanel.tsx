@@ -17,10 +17,10 @@ import { Warning, WarningLabel } from 'src/components/modals/WarningModal/types'
 import { Text } from 'src/components/Text'
 import { SelectTokenButton } from 'src/components/TokenSelector/SelectTokenButton'
 import { useDynamicFontSizing } from 'src/features/transactions/hooks'
-import { Theme } from 'ui/src/theme/restyle/theme'
+import { Theme } from 'ui/src/theme/restyle'
+import { formatCurrencyAmount, formatNumberOrString, NumberType } from 'utilities/src/format/format'
+import { useMemoCompare } from 'utilities/src/react/hooks'
 import { CurrencyInfo } from 'wallet/src/features/dataApi/types'
-import { formatCurrencyAmount, formatNumberOrString, NumberType } from 'wallet/src/utils/format'
-import { useMemoCompare } from 'wallet/src/utils/hooks'
 
 const restyleFunctions = [backgroundColor]
 type RestyleProps = BackgroundColorProps<Theme>
@@ -50,8 +50,8 @@ type CurrentInputPanelProps = {
   isOnScreen?: boolean
 } & RestyleProps
 
-const MAX_INPUT_FONT_SIZE = 36
-const MIN_INPUT_FONT_SIZE = 32
+const MAX_INPUT_FONT_SIZE = 42
+const MIN_INPUT_FONT_SIZE = 28
 
 // if font changes from `fontFamily.sansSerif.regular` or `MAX_INPUT_FONT_SIZE`
 // changes from 36 then width value must be adjusted
@@ -244,7 +244,7 @@ export function _CurrencyInputPanel(props: CurrentInputPanelProps): JSX.Element 
               minHeight={2 * MAX_INPUT_FONT_SIZE}
               overflow="visible"
               placeholder="0"
-              placeholderTextColor={theme.colors.textTertiary}
+              placeholderTextColor={theme.colors.neutral3}
               px="none"
               py="none"
               returnKeyType={showSoftInputOnFocus ? 'done' : undefined}
@@ -270,13 +270,13 @@ export function _CurrencyInputPanel(props: CurrentInputPanelProps): JSX.Element 
       {currencyInfo && (
         <Flex row alignItems="center" gap="spacing8" justifyContent="space-between" mb="spacing4">
           <Flex shrink>
-            <Text color="textSecondary" numberOfLines={1} variant="subheadSmall">
+            <Text color="neutral2" numberOfLines={1} variant="subheadSmall">
               {!isUSDInput ? formattedUSDValue : formattedCurrencyAmount}
             </Text>
           </Flex>
           <Flex row alignItems="center" gap="spacing8" justifyContent="flex-end">
             <Text
-              color={showInsufficientBalanceWarning ? 'accentWarning' : 'textSecondary'}
+              color={showInsufficientBalanceWarning ? 'DEP_accentWarning' : 'neutral2'}
               variant="subheadSmall">
               {t('Balance')}: {formatCurrencyAmount(currencyBalance, NumberType.TokenNonTx)}
             </Text>

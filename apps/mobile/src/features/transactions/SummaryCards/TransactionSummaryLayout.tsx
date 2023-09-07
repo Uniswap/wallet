@@ -10,12 +10,12 @@ import { BottomSheetModal } from 'src/components/modals/BottomSheetModal'
 import { Text } from 'src/components/Text'
 import { ModalName } from 'src/features/telemetry/constants'
 import { useLowestPendingNonce } from 'src/features/transactions/hooks'
-import { cancelTransaction } from 'src/features/transactions/slice'
 import { CancelConfirmationView } from 'src/features/transactions/SummaryCards/CancelConfirmationView'
 import TransactionActionsModal from 'src/features/transactions/SummaryCards/TransactionActionsModal'
 import { openMoonpayTransactionLink, openTransactionLink } from 'src/utils/linking'
 import AlertTriangle from 'ui/src/assets/icons/alert-triangle.svg'
 import SlashCircleIcon from 'ui/src/assets/icons/slash-circle.svg'
+import { cancelTransaction } from 'wallet/src/features/transactions/slice'
 import { TransactionSummaryLayoutProps } from 'wallet/src/features/transactions/SummaryCards/types'
 import {
   getTransactionSummaryTitle,
@@ -94,11 +94,11 @@ function TransactionSummaryLayout({
 
   const formattedAddedTime = useFormattedTime(transaction.addedTime)
 
-  const statusIconFill = theme.colors.background0
+  const statusIconFill = theme.colors.surface1
 
   const rightBlock = inCancelling ? (
     <SlashCircleIcon
-      color={theme.colors.accentCritical}
+      color={theme.colors.statusCritical}
       fill={statusIconFill}
       fillOpacity={1}
       height={TXN_STATUS_ICON_SIZE}
@@ -107,14 +107,14 @@ function TransactionSummaryLayout({
   ) : status === TransactionStatus.Failed ? (
     <Box alignItems="flex-end" flexGrow={1} justifyContent="space-between">
       <AlertTriangle
-        color={theme.colors.accentWarning}
+        color={theme.colors.DEP_accentWarning}
         fill={statusIconFill}
         height={TXN_STATUS_ICON_SIZE}
         width={TXN_STATUS_ICON_SIZE}
       />
     </Box>
   ) : (
-    <Text color="textTertiary" variant="bodyMicro">
+    <Text color="neutral3" variant="bodyMicro">
       {formattedAddedTime}
     </Text>
   )
@@ -122,7 +122,7 @@ function TransactionSummaryLayout({
   return (
     <>
       <TouchableArea mb="spacing24" overflow="hidden" onPress={onPress}>
-        <Flex grow row bg="background0" gap="spacing12">
+        <Flex grow row bg="surface1" gap="spacing12">
           {icon && (
             <Flex centered width={TXN_HISTORY_ICON_SIZE}>
               {icon}
@@ -131,20 +131,20 @@ function TransactionSummaryLayout({
           <Flex grow shrink gap="none">
             <Flex grow gap="none">
               <Flex grow row alignItems="center" gap="spacing4" justifyContent="space-between">
-                <Text color="textSecondary" numberOfLines={1} variant="bodyLarge">
+                <Text color="neutral2" numberOfLines={1} variant="bodyLarge">
                   {title}
                 </Text>
                 {!inProgress && rightBlock}
               </Flex>
               <Flex grow row>
                 <Box flexGrow={1} flexShrink={1}>
-                  <Text color="textPrimary" variant="subheadSmall">
+                  <Text color="neutral1" variant="subheadSmall">
                     {caption}
                   </Text>
                 </Box>
                 {status === TransactionStatus.Failed && onRetry && (
                   <Box flexShrink={0}>
-                    <Text color="accentActive" variant="buttonLabelSmall" onPress={onRetry}>
+                    <Text color="accent1" variant="buttonLabelSmall" onPress={onRetry}>
                       {t('Retry')}
                     </Text>
                   </Box>

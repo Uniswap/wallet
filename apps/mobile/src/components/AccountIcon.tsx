@@ -5,9 +5,8 @@ import { useAppTheme } from 'src/app/hooks'
 import { Box } from 'src/components/layout'
 import { Unicon } from 'src/components/unicons/Unicon'
 import { useUniconColors } from 'src/components/unicons/utils'
-import { useIsDarkMode } from 'src/features/appearance/hooks'
 import Eye from 'ui/src/assets/icons/eye.svg'
-import { theme as FixedTheme } from 'ui/src/theme/restyle/theme'
+import { theme as FixedTheme } from 'ui/src/theme/restyle'
 import { RemoteImage } from 'wallet/src/features/images/RemoteImage'
 
 interface Props {
@@ -42,8 +41,6 @@ export function AccountIcon({
   const iconEyeContainerSize = size * 0.45
   const iconEyeSize = iconEyeContainerSize - iconPadding
 
-  const isDarkMode = useIsDarkMode()
-
   const defaultImage = (
     <>
       <Unicon address={address} size={adjustedIconSize} />
@@ -53,8 +50,8 @@ export function AccountIcon({
 
   return (
     <Box
-      backgroundColor={showBackground ? 'background0' : 'none'}
-      borderColor={showBackground ? 'background0' : 'none'}
+      backgroundColor={showBackground ? 'surface1' : 'none'}
+      borderColor={showBackground ? 'surface1' : 'none'}
       borderRadius="roundedFull"
       borderWidth={showBackground ? 2 : 0}
       position="relative"
@@ -76,7 +73,7 @@ export function AccountIcon({
         <Box
           alignContent="center"
           alignItems="center"
-          backgroundColor={isDarkMode ? 'background3' : 'background1'}
+          backgroundColor="surface2"
           borderRadius="roundedFull"
           bottom={0}
           height={iconEyeContainerSize}
@@ -84,12 +81,12 @@ export function AccountIcon({
           p="spacing4"
           position="absolute"
           right={0}
-          shadowColor="black"
+          shadowColor="sporeBlack"
           shadowOffset={{ width: 0, height: 0 }}
           shadowOpacity={0.2}
           shadowRadius={10}
           width={iconEyeContainerSize}>
-          <Eye color={theme.colors.textTertiary} width={iconEyeSize} />
+          <Eye color={theme.colors.neutral2} width={iconEyeSize} />
         </Box>
       )}
     </Box>

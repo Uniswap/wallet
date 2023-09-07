@@ -30,26 +30,24 @@ import Trace from 'src/components/Trace/Trace'
 import { FiatOnRampConnectingView } from 'src/features/fiatOnRamp/FiatOnRampConnecting'
 import { useMoonpayFiatOnRamp } from 'src/features/fiatOnRamp/hooks'
 import { closeModal } from 'src/features/modals/modalSlice'
-import { sendAnalyticsEvent } from 'src/features/telemetry'
+import { sendMobileAnalyticsEvent } from 'src/features/telemetry'
 import { ElementName, MobileEventName, ModalName } from 'src/features/telemetry/constants'
 import { MobileEventProperties } from 'src/features/telemetry/types'
 import { useDynamicFontSizing, useShouldShowNativeKeyboard } from 'src/features/transactions/hooks'
-import { ANIMATE_SPRING_CONFIG } from 'src/features/transactions/utils'
 import { openUri } from 'src/utils/linking'
 import InformationIcon from 'ui/src/assets/icons/i-icon.svg'
-import { iconSizes } from 'ui/src/theme/iconSizes'
-import { dimensions } from 'ui/src/theme/restyle/sizing'
-import { Theme } from 'ui/src/theme/restyle/theme'
-import { spacing } from 'ui/src/theme/spacing'
+import { iconSizes, spacing } from 'ui/src/theme'
+import { dimensions, Theme } from 'ui/src/theme/restyle'
+import { formatUSDPrice } from 'utilities/src/format/format'
+import { useTimeout } from 'utilities/src/time/timing'
 import { CurrencyLogo } from 'wallet/src/components/CurrencyLogo/CurrencyLogo'
 import { NATIVE_ADDRESS } from 'wallet/src/constants/addresses'
 import { ChainId } from 'wallet/src/constants/chains'
 import { CurrencyInfo } from 'wallet/src/features/dataApi/types'
 import { MoonpayCurrency } from 'wallet/src/features/fiatOnRamp/types'
 import { useCurrencyInfo } from 'wallet/src/features/tokens/useCurrencyInfo'
+import { ANIMATE_SPRING_CONFIG } from 'wallet/src/features/transactions/utils'
 import { buildCurrencyId } from 'wallet/src/utils/currencyId'
-import { formatUSDPrice } from 'wallet/src/utils/format'
-import { useTimeout } from 'wallet/src/utils/timing'
 
 export type FiatOnRampCurrency = {
   currencyInfo: Maybe<CurrencyInfo>
@@ -161,7 +159,7 @@ export function FiatOnRampModal(): JSX.Element {
   const onChangeValue =
     (source: MobileEventProperties[MobileEventName.FiatOnRampAmountEntered]['source']) =>
     (newAmount: string): void => {
-      sendAnalyticsEvent(MobileEventName.FiatOnRampAmountEntered, { source })
+      sendMobileAnalyticsEvent(MobileEventName.FiatOnRampAmountEntered, { source })
       onSetFontSize(newAmount)
       setValue(newAmount)
     }
@@ -198,7 +196,7 @@ export function FiatOnRampModal(): JSX.Element {
     <BottomSheetModal
       fullScreen
       hideKeyboardOnDismiss
-      backgroundColor={theme.colors.background1}
+      backgroundColor={theme.colors.surface1}
       name={ModalName.FiatOnRamp}
       onClose={onClose}>
       {!showConnectingToMoonpayScreen && (
@@ -212,7 +210,7 @@ export function FiatOnRampModal(): JSX.Element {
             style={{ marginBottom: insets.bottom }}
             width="100%">
             <Flex style={{ height: maxContentHeight }} onLayout={onInputPanelLayout}>
-              <Text color="textPrimary" variant="subheadLarge">
+              <Text color="neutral1" variant="subheadLarge">
                 {t('Buy')}
               </Text>
               <AnimatedFlex
@@ -235,7 +233,7 @@ export function FiatOnRampModal(): JSX.Element {
                   mt="spacing48"
                   overflow="visible"
                   placeholder="$0"
-                  placeholderTextColor={theme.colors.background3}
+                  placeholderTextColor={theme.colors.neutral3}
                   px="none"
                   py="none"
                   returnKeyType={showSoftInputOnFocus ? 'done' : undefined}
@@ -359,9 +357,9 @@ function MoonpayCtaButton({
       <Button
         CustomIcon={
           isLoading ? (
-            <SpinningLoader color="textOnBrightPrimary" />
+            <SpinningLoader color="sporeWhite" />
           ) : !eligible ? (
-            <InformationIcon color={theme.colors.textPrimary} width={theme.iconSizes.icon20} />
+            <InformationIcon color={theme.colors.neutral1} width={theme.iconSizes.icon20} />
           ) : undefined
         }
         disabled={disabled}
@@ -394,8 +392,8 @@ function PredefinedAmount({
   return (
     <TouchableOpacity onPress={(): void => onPress(amount)}>
       <Pill
-        backgroundColor={highlighted ? 'backgroundActionButton' : 'background2'}
-        foregroundColor={theme.colors[highlighted ? 'accentAction' : 'textSecondary']}
+        backgroundColor={highlighted ? 'DEP_backgroundActionButton' : 'surface2'}
+        foregroundColor={theme.colors[highlighted ? 'accent1' : 'neutral2']}
         label={`$${amount}`}
         px="spacing16"
         textVariant="buttonLabelMedium"
@@ -421,7 +419,7 @@ function SelectTokenButton({
 }: SelectTokenButtonProps): JSX.Element {
   const theme = useTheme<Theme>()
 
-  const textColor = disabled ? 'textTertiary' : 'textSecondary'
+  const textColor = disabled ? 'neutral3' : 'neutral2'
 
   return (
     <TouchableArea

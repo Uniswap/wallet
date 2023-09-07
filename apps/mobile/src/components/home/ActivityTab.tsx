@@ -4,16 +4,16 @@ import { useTranslation } from 'react-i18next'
 import { RefreshControl } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useAppDispatch, useAppTheme } from 'src/app/hooks'
-import { useAdaptiveFooterHeight } from 'src/components/home/hooks'
+import { useAdaptiveFooter } from 'src/components/home/hooks'
 import { NoTransactions } from 'src/components/icons/NoTransactions'
 import { Box, Flex } from 'src/components/layout'
 import { AnimatedFlashList } from 'src/components/layout/AnimatedFlashList'
 import { BaseCard } from 'src/components/layout/BaseCard'
-import { TabProps } from 'src/components/layout/TabHelpers'
+import { TabProps, TAB_BAR_HEIGHT } from 'src/components/layout/TabHelpers'
 import { Loader } from 'src/components/loading'
 import { ScannerModalState } from 'src/components/QRCodeScanner/constants'
 import { Text } from 'src/components/Text'
-import { GQLQueries } from 'src/data/queries'
+import { IS_ANDROID } from 'src/constants/globals'
 import { openModal } from 'src/features/modals/modalSlice'
 import { ModalName } from 'src/features/telemetry/constants'
 import {
@@ -23,6 +23,7 @@ import {
 import TransactionSummaryLayout from 'src/features/transactions/SummaryCards/TransactionSummaryLayout'
 import { useMostRecentSwapTx } from 'src/features/transactions/swap/hooks'
 import { removePendingSession } from 'src/features/walletConnect/walletConnectSlice'
+import { GQLQueries } from 'wallet/src/data/queries'
 import { useFormattedTransactionDataForActivity } from 'wallet/src/features/activity/hooks'
 import { getActivityItemType } from 'wallet/src/features/activity/utils'
 import { SwapSummaryCallbacks } from 'wallet/src/features/transactions/SummaryCards/types'
@@ -39,7 +40,7 @@ const ESTIMATED_ITEM_SIZE = 92
 
 const SectionTitle = ({ title }: { title: string }): JSX.Element => (
   <Box pb="spacing12">
-    <Text color="textSecondary" variant="subheadSmall">
+    <Text color="neutral2" variant="subheadSmall">
       {title}
     </Text>
   </Box>
@@ -62,9 +63,9 @@ export const ActivityTab = forwardRef<FlashList<unknown>, TabProps>(function _Ac
   const theme = useAppTheme()
   const insets = useSafeAreaInsets()
 
-  const { onContentSizeChange, footerHeight } = useAdaptiveFooterHeight({
-    headerHeight,
-  })
+  const { onContentSizeChange, adaptiveFooter } = useAdaptiveFooter(
+    containerProps?.contentContainerStyle
+  )
 
   // Hide all spam transactions if active wallet has enabled setting.
   const activeAccount = useActiveAccountWithThrow()
@@ -119,13 +120,15 @@ export const ActivityTab = forwardRef<FlashList<unknown>, TabProps>(function _Ac
   const refreshControl = useMemo(() => {
     return (
       <RefreshControl
-        progressViewOffset={insets.top}
+        progressViewOffset={
+          insets.top + (IS_ANDROID && headerHeight ? headerHeight + TAB_BAR_HEIGHT : 0)
+        }
         refreshing={refreshing ?? false}
-        tintColor={theme.colors.textTertiary}
+        tintColor={theme.colors.neutral3}
         onRefresh={onRefresh}
       />
     )
-  }, [refreshing, onRefresh, theme.colors.textTertiary, insets.top])
+  }, [refreshing, headerHeight, onRefresh, theme.colors.neutral3, insets.top])
 
   if (!hasData && isError) {
     return errorCard
@@ -164,7 +167,7 @@ export const ActivityTab = forwardRef<FlashList<unknown>, TabProps>(function _Ac
         ListFooterComponent={
           <>
             {isLoading && <Loader.Transaction repeat={4} />}
-            <Box height={footerHeight} />
+            {adaptiveFooter}
           </>
         }
         data={sectionData}

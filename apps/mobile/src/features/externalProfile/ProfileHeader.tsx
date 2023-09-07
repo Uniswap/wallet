@@ -7,8 +7,8 @@ import Svg, { Defs, RadialGradient, Rect, Stop } from 'react-native-svg'
 import { useAppDispatch, useAppSelector, useAppTheme } from 'src/app/hooks'
 import { AddressDisplay } from 'src/components/AddressDisplay'
 import { BackButton } from 'src/components/buttons/BackButton'
-import { FavoriteButton } from 'src/components/buttons/FavoriteButton'
 import { TouchableArea } from 'src/components/buttons/TouchableArea'
+import { Favorite } from 'src/components/icons/Favorite'
 import { AnimatedBox, Box } from 'src/components/layout/Box'
 import { Flex } from 'src/components/layout/Flex'
 import { Text } from 'src/components/Text'
@@ -20,7 +20,7 @@ import { openModal } from 'src/features/modals/modalSlice'
 import { ElementName, ModalName } from 'src/features/telemetry/constants'
 import { useExtractedColors } from 'src/utils/colors'
 import SendIcon from 'ui/src/assets/icons/send-action.svg'
-import { iconSizes } from 'ui/src/theme/iconSizes'
+import { iconSizes } from 'ui/src/theme'
 import { useENSAvatar } from 'wallet/src/features/ens/api'
 import { CurrencyField } from 'wallet/src/features/transactions/transactionState/types'
 
@@ -48,7 +48,7 @@ export default function ProfileHeader({ address }: ProfileHeaderProps): JSX.Elem
   // Wait for avatar, then render avatar extracted colors or unicon colors if no avatar
   const fixedGradientColors = useMemo(() => {
     if (loading || (hasAvatar && !avatarColors)) {
-      return [theme.colors.background0, theme.colors.background0]
+      return [theme.colors.surface1, theme.colors.surface1]
     }
     if (hasAvatar && avatarColors && avatarColors.base) {
       return [avatarColors.base, avatarColors.base]
@@ -58,7 +58,7 @@ export default function ProfileHeader({ address }: ProfileHeaderProps): JSX.Elem
     avatarColors,
     hasAvatar,
     loading,
-    theme.colors.background0,
+    theme.colors.surface1,
     uniconGradientEnd,
     uniconGradientStart,
   ])
@@ -87,7 +87,7 @@ export default function ProfileHeader({ address }: ProfileHeaderProps): JSX.Elem
 
   const { t } = useTranslation()
   return (
-    <Flex bg="background0" gap="spacing16" pt="spacing36" px="spacing24">
+    <Flex bg="surface1" gap="spacing16" pt="spacing36" px="spacing24">
       {/* fixed gradient */}
       <AnimatedBox
         bottom={0}
@@ -109,12 +109,12 @@ export default function ProfileHeader({ address }: ProfileHeaderProps): JSX.Elem
       {/* header row */}
       <Flex row alignItems="center" justifyContent="space-between" mx="spacing4">
         <TouchableArea
-          backgroundColor="textOnDimTertiary"
+          backgroundColor="sporeBlack"
           borderRadius="roundedFull"
           opacity={0.8}
           padding="spacing8">
           <Flex centered grow height={theme.iconSizes.icon16} width={theme.iconSizes.icon16}>
-            <BackButton color="white" size={theme.iconSizes.icon24} />
+            <BackButton color="sporeWhite" size={theme.iconSizes.icon24} />
           </Flex>
         </TouchableArea>
         <ProfileContextMenu address={address} />
@@ -138,35 +138,34 @@ export default function ProfileHeader({ address }: ProfileHeaderProps): JSX.Elem
             <TouchableArea
               hapticFeedback
               activeOpacity={1}
-              backgroundColor="background0"
-              borderColor="backgroundOutline"
+              backgroundColor="surface1"
+              borderColor="surface3"
               borderRadius="rounded20"
               borderWidth={1}
+              height={46}
               padding="spacing12"
-              testID={ElementName.Favorite}>
-              <FavoriteButton
-                isFavorited={isFavorited}
-                size={iconSizes.icon20}
-                onPress={onPressFavorite}
-              />
+              testID={ElementName.Favorite}
+              onPress={onPressFavorite}>
+              <Favorite isFavorited={isFavorited} size={iconSizes.icon20} />
             </TouchableArea>
             <TouchableArea
               hapticFeedback
               activeOpacity={1}
-              backgroundColor="background0"
-              borderColor="backgroundOutline"
+              backgroundColor="surface1"
+              borderColor="surface3"
               borderRadius="rounded20"
               borderWidth={1}
+              height={46}
               padding="spacing12"
               testID={ElementName.Send}
               onPress={onPressSend}>
               <Flex row alignItems="center" gap="spacing8">
                 <SendIcon
-                  color={theme.colors.textSecondary}
+                  color={theme.colors.neutral2}
                   height={theme.iconSizes.icon20}
                   width={theme.iconSizes.icon20}
                 />
-                <Text color="textSecondary" variant="buttonLabelMedium">
+                <Text color="neutral2" lineHeight={20} variant="buttonLabelMedium">
                   {t('Send')}
                 </Text>
               </Flex>

@@ -12,8 +12,8 @@ import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { AnimatedBox, Flex } from 'src/components/layout'
 import { Text } from 'src/components/Text'
 import { selectActiveAccountNotifications } from 'src/features/notifications/selectors'
+import { useTimeout } from 'utilities/src/time/timing'
 import { popNotification } from 'wallet/src/features/notifications/slice'
-import { useTimeout } from 'wallet/src/utils/timing'
 
 const NOTIFICATION_HEIGHT = 64
 
@@ -104,7 +104,7 @@ export function NotificationToast({
   return (
     <FlingGestureHandler direction={Directions.UP} onHandlerStateChange={onFling}>
       <AnimatedBox
-        borderColor={useSmallDisplay ? 'none' : 'background3'}
+        borderColor={useSmallDisplay ? 'none' : 'surface2'}
         borderRadius="rounded16"
         borderWidth={1}
         left={0}
@@ -147,7 +147,7 @@ export function NotificationContent({
   return (
     <TouchableArea
       alignItems="center"
-      bg="background1"
+      bg="surface2"
       borderRadius="rounded16"
       flex={1}
       flexDirection="row"
@@ -174,7 +174,7 @@ export function NotificationContent({
         {actionButton && (
           <Flex shrink alignItems="flex-end" flexBasis="25%" gap="spacing4">
             <TouchableArea p="spacing8" onPress={actionButton.onPress}>
-              <Text color="accentActive">{actionButton.title}</Text>
+              <Text color="accent1">{actionButton.title}</Text>
             </TouchableArea>
           </Flex>
         )}
@@ -192,8 +192,8 @@ export function NotificationContentSmall({
   return (
     <Flex row flexShrink={1} justifyContent="center" pointerEvents="box-none">
       <TouchableArea
-        bg="background1"
-        borderColor="background3"
+        bg="surface2"
+        borderColor="surface2"
         borderRadius="roundedFull"
         borderWidth={1}
         p="spacing12"

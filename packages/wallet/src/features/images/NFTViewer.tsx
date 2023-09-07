@@ -1,9 +1,8 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { StyleSheet } from 'react-native'
-import { Box } from 'ui/src/components/layout'
-import { Text } from 'ui/src/components/text/Text'
-import { uriToHttp } from 'wallet/src/utils/uriToHttp'
+import { Box, Text } from 'ui/src'
+import { isSVGUri, uriToHttp } from 'utilities/src/format/urls'
 import { ImageUri, ImageUriProps } from './ImageUri'
 import { WebSvgUri } from './WebSvgUri'
 
@@ -37,11 +36,11 @@ export function NFTViewer({
       <Box
         alignItems="center"
         aspectRatio={1}
-        bg="$background3"
+        bg="$surface2"
         justifyContent="center"
         maxHeight={maxHeight ?? '100%'}
         width="100%">
-        <Text color="$textSecondary" flex={0} variant="subheadSmall">
+        <Text color="$neutral2" flex={0} variant="subheadSmall">
           {placeholderContent || t('Content not available')}
         </Text>
       </Box>
@@ -54,7 +53,7 @@ export function NFTViewer({
     return fallback
   }
 
-  if (imageHttpUri.includes('.svg')) {
+  if (isSVGUri(imageHttpUri)) {
     return squareGridView ? (
       <WebSvgUri autoplay={autoplay} uri={imageHttpUri} />
     ) : (

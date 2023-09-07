@@ -32,14 +32,16 @@ import {
   useOnToggleShowRecipientSelector,
 } from 'src/features/transactions/transfer/hooks'
 import { TransferFormSpeedbumps } from 'src/features/transactions/transfer/TransferFormWarnings'
-import { createTransactionId } from 'src/features/transactions/utils'
 import { BlockedAddressWarning } from 'src/features/trm/BlockedAddressWarning'
+import { useWalletRestore } from 'src/features/wallet/hooks'
 import AlertTriangleIcon from 'ui/src/assets/icons/alert-triangle.svg'
-import { dimensions } from 'ui/src/theme/restyle/sizing'
+import InfoCircleFilled from 'ui/src/assets/icons/info-circle-filled.svg'
+import { dimensions } from 'ui/src/theme/restyle'
+import { usePrevious } from 'utilities/src/react/hooks'
 import { useUSDCValue } from 'wallet/src/features/routing/useUSDCPrice'
 import { CurrencyField } from 'wallet/src/features/transactions/transactionState/types'
+import { createTransactionId } from 'wallet/src/features/transactions/utils'
 import { useIsBlockedActiveAddress } from 'wallet/src/features/trm/hooks'
-import { usePrevious } from 'wallet/src/utils/hooks'
 
 interface TransferTokenProps {
   dispatch: React.Dispatch<AnyAction>
@@ -104,11 +106,19 @@ export function TransferTokenForm({
 
   const { isBlocked, isBlockedLoading } = useIsBlockedActiveAddress()
 
+  const { walletNeedsRestore, openWalletRestoreModal } = useWalletRestore()
+
+  const onRestorePress = (): void => {
+    setCurrencyFieldFocused(false)
+    openWalletRestoreModal()
+  }
+
   const actionButtonDisabled =
     warnings.some((warning) => warning.action === WarningAction.DisableReview) ||
     transferSpeedbump.loading ||
     isBlocked ||
-    isBlockedLoading
+    isBlockedLoading ||
+    walletNeedsRestore
 
   const goToNext = useCallback(() => {
     const txId = createTransactionId()
@@ -232,7 +242,7 @@ export function TransferTokenForm({
           {nftIn ? (
             <NFTTransfer asset={nftIn} nftSize={dimensions.fullHeight / 4} />
           ) : (
-            <Box backgroundColor="background2" borderRadius="rounded20" justifyContent="center">
+            <Box backgroundColor="surface2" borderRadius="rounded20" justifyContent="center">
               <CurrencyInputPanel
                 currencyAmount={currencyAmounts[CurrencyField.INPUT]}
                 currencyBalance={currencyBalances[CurrencyField.INPUT]}
@@ -277,7 +287,7 @@ export function TransferTokenForm({
                 position="absolute">
                 <TransferArrowButton
                   disabled
-                  bg={recipient ? 'background2' : 'background1'}
+                  bg={recipient ? 'surface2' : 'surface2'}
                   padding="spacing8"
                 />
               </Box>
@@ -286,19 +296,44 @@ export function TransferTokenForm({
 
           <Box>
             <Flex
-              backgroundColor={recipient ? 'background2' : 'none'}
+              backgroundColor={recipient ? 'surface2' : 'none'}
               borderBottomLeftRadius={transferWarning || isBlocked ? 'none' : 'rounded20'}
               borderBottomRightRadius={transferWarning || isBlocked ? 'none' : 'rounded20'}
               borderTopLeftRadius="rounded20"
               borderTopRightRadius="rounded20"
-              justifyContent="center"
-              px="spacing16"
-              py="spacing24">
+              gap="none"
+              justifyContent="center">
               {recipient && (
                 <RecipientInputPanel
                   recipientAddress={recipient}
                   onToggleShowRecipientSelector={onToggleShowRecipientSelector}
                 />
+              )}
+              {walletNeedsRestore && (
+                <TouchableArea onPress={onRestorePress}>
+                  <Flex
+                    row
+                    alignItems="center"
+                    alignSelf="stretch"
+                    backgroundColor="surface2"
+                    borderBottomLeftRadius="rounded16"
+                    borderBottomRightRadius="rounded16"
+                    borderTopColor="surface1"
+                    borderTopWidth={1}
+                    flexGrow={1}
+                    gap="spacing8"
+                    px="spacing12"
+                    py="spacing12">
+                    <InfoCircleFilled
+                      color={theme.colors.DEP_accentWarning}
+                      height={theme.iconSizes.icon20}
+                      width={theme.iconSizes.icon20}
+                    />
+                    <Text color="DEP_accentWarning" variant="subheadSmall">
+                      {t('Restore your wallet to send')}
+                    </Text>
+                  </Flex>
+                </TouchableArea>
               )}
             </Flex>
             {transferWarning && !isBlocked ? (
@@ -331,7 +366,7 @@ export function TransferTokenForm({
                 row
                 alignItems="center"
                 alignSelf="stretch"
-                backgroundColor="background2"
+                backgroundColor="surface2"
                 borderBottomLeftRadius="rounded16"
                 borderBottomRightRadius="rounded16"
                 flexGrow={1}

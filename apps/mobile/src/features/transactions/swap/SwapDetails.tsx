@@ -11,15 +11,17 @@ import Trace from 'src/components/Trace/Trace'
 import { ElementName } from 'src/features/telemetry/constants'
 import { getRateToDisplay } from 'src/features/transactions/swap/utils'
 import { TransactionDetails } from 'src/features/transactions/TransactionDetails'
+import { Icons } from 'ui/src'
 import InfoCircle from 'ui/src/assets/icons/info-circle.svg'
+import { formatPrice, NumberType } from 'utilities/src/format/format'
 import { useUSDCPrice } from 'wallet/src/features/routing/useUSDCPrice'
+import { useShouldUseMEVBlocker } from 'wallet/src/features/transactions/swap/customRpc'
 import { Trade } from 'wallet/src/features/transactions/swap/useTrade'
-import { formatPrice, NumberType } from 'wallet/src/utils/format'
 
 interface SwapDetailsProps {
   acceptedTrade: Trade<Currency, Currency, TradeType>
   trade: Trade<Currency, Currency, TradeType>
-  gasFee?: string
+  gasFeeUSD?: string
   gasFallbackUsed?: boolean
   customSlippageTolerance?: number
   autoSlippageTolerance?: number
@@ -29,11 +31,12 @@ interface SwapDetailsProps {
   onShowWarning?: () => void
   onShowGasWarning: () => void
   onShowSlippageModal: () => void
+  onShowSwapProtectionModal: () => void
 }
 
 export function SwapDetails({
   acceptedTrade,
-  gasFee,
+  gasFeeUSD,
   gasFallbackUsed,
   newTradeToAccept,
   customSlippageTolerance,
@@ -44,6 +47,7 @@ export function SwapDetails({
   onShowWarning,
   onShowGasWarning,
   onShowSlippageModal,
+  onShowSwapProtectionModal,
 }: SwapDetailsProps): JSX.Element {
   const theme = useAppTheme()
   const { t } = useTranslation()
@@ -59,6 +63,8 @@ export function SwapDetails({
     ? acceptedTrade.slippageTolerance > autoSlippageTolerance
     : false
 
+  const shouldUseMevBlocker = useShouldUseMEVBlocker(trade?.inputAmount.currency.chainId)
+
   return (
     <TransactionDetails
       banner={
@@ -66,7 +72,7 @@ export function SwapDetails({
           <Flex
             row
             alignItems="center"
-            backgroundColor="background2"
+            backgroundColor="surface2"
             borderRadius="rounded16"
             flexShrink={1}
             gap="spacing12"
@@ -74,7 +80,7 @@ export function SwapDetails({
             px="spacing12"
             py="spacing12">
             <Flex centered row gap="none">
-              <Text color="accentActive" variant="subheadSmall">
+              <Text color="accent1" variant="subheadSmall">
                 {t('New rate')}
               </Text>
             </Flex>
@@ -82,7 +88,7 @@ export function SwapDetails({
               <TouchableOpacity onPress={(): void => setShowInverseRate(!showInverseRate)}>
                 <Text
                   adjustsFontSizeToFit
-                  color="accentActive"
+                  color="accent1"
                   numberOfLines={1}
                   textAlign="center"
                   variant="subheadSmall">
@@ -93,12 +99,12 @@ export function SwapDetails({
             <Flex centered row gap="none">
               <Trace logPress element={ElementName.AcceptNewRate}>
                 <TouchableArea
-                  backgroundColor="accentActive"
+                  backgroundColor="accent1"
                   borderRadius="rounded8"
                   px="spacing8"
                   py="spacing4"
                   onPress={onAcceptTrade}>
-                  <Text color="textOnBrightPrimary" variant="buttonLabelSmall">
+                  <Text color="sporeWhite" variant="buttonLabelSmall">
                     {t('Accept')}
                   </Text>
                 </TouchableArea>
@@ -109,7 +115,7 @@ export function SwapDetails({
       }
       chainId={acceptedTrade.inputAmount.currency.chainId}
       gasFallbackUsed={gasFallbackUsed}
-      gasFee={gasFee}
+      gasFeeUSD={gasFeeUSD}
       showExpandedChildren={!!customSlippageTolerance}
       showWarning={warning && !newTradeToAccept}
       warning={warning}
@@ -121,19 +127,43 @@ export function SwapDetails({
           <TouchableOpacity onPress={(): void => setShowInverseRate(!showInverseRate)}>
             <Text adjustsFontSizeToFit numberOfLines={1} variant="subheadSmall">
               {acceptedRate}
-              <Text color="textSecondary" variant="subheadSmall">
+              <Text color="neutral2" variant="subheadSmall">
                 {usdcPrice && ` (${formatPrice(usdcPrice, NumberType.FiatTokenPrice)})`}
               </Text>
             </Text>
           </TouchableOpacity>
         </Flex>
       </Flex>
+      {shouldUseMevBlocker && (
+        <Flex row alignItems="center" justifyContent="space-between">
+          <TouchableArea onPress={onShowSwapProtectionModal}>
+            <Flex row gap="spacing4">
+              <Text variant="subheadSmall">{t('Swap protection')}</Text>
+              <InfoCircle
+                color={theme.colors.neutral1}
+                height={theme.iconSizes.icon20}
+                width={theme.iconSizes.icon20}
+              />
+            </Flex>
+          </TouchableArea>
+          <Flex row gap="spacing8">
+            <Icons.ShieldCheck
+              color={theme.colors.neutral3}
+              height={theme.iconSizes.icon16}
+              width={theme.iconSizes.icon16}
+            />
+            <Text color="neutral1" variant="subheadSmall">
+              {t('On')}
+            </Text>
+          </Flex>
+        </Flex>
+      )}
       <Flex row alignItems="center" justifyContent="space-between">
         <TouchableArea onPress={onShowSlippageModal}>
           <Flex row gap="spacing4">
             <Text variant="subheadSmall">{t('Max slippage')}</Text>
             <InfoCircle
-              color={theme.colors.textPrimary}
+              color={theme.colors.neutral1}
               height={theme.iconSizes.icon20}
               width={theme.iconSizes.icon20}
             />
@@ -141,14 +171,14 @@ export function SwapDetails({
         </TouchableArea>
         <Flex row gap="spacing8">
           {!customSlippageTolerance ? (
-            <Flex centered bg="accentActionSoft" borderRadius="roundedFull" px="spacing8">
-              <Text color="accentAction" variant="buttonLabelMicro">
+            <Flex centered bg="accent2" borderRadius="roundedFull" px="spacing8">
+              <Text color="accent1" variant="buttonLabelMicro">
                 {t('Auto')}
               </Text>
             </Flex>
           ) : null}
           <Text
-            color={showSlippageWarning ? 'accentWarning' : 'textPrimary'}
+            color={showSlippageWarning ? 'DEP_accentWarning' : 'neutral1'}
             variant="subheadSmall">
             {`${acceptedTrade.slippageTolerance.toFixed(2).toString()}%`}
           </Text>

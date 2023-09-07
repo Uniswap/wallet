@@ -36,14 +36,16 @@ import {
   getReviewActionName,
   isWrapAction,
 } from 'src/features/transactions/swap/utils'
-import { createTransactionId } from 'src/features/transactions/utils'
 import { BlockedAddressWarning } from 'src/features/trm/BlockedAddressWarning'
+import { useWalletRestore } from 'src/features/wallet/hooks'
 import AlertTriangleIcon from 'ui/src/assets/icons/alert-triangle.svg'
-import InfoCircle from 'ui/src/assets/icons/info.svg'
+import InfoCircleFilled from 'ui/src/assets/icons/info-circle-filled.svg'
+import InfoCircle from 'ui/src/assets/icons/info-circle.svg'
+import { formatCurrencyAmount, formatPrice, NumberType } from 'utilities/src/format/format'
 import { useUSDCPrice } from 'wallet/src/features/routing/useUSDCPrice'
 import { CurrencyField } from 'wallet/src/features/transactions/transactionState/types'
+import { createTransactionId } from 'wallet/src/features/transactions/utils'
 import { useIsBlockedActiveAddress } from 'wallet/src/features/trm/hooks'
-import { formatCurrencyAmount, formatPrice, NumberType } from 'wallet/src/utils/format'
 
 interface SwapFormProps {
   dispatch: Dispatch<AnyAction>
@@ -89,6 +91,13 @@ function _SwapForm({
 
   useShowSwapNetworkNotification(chainId)
 
+  const { walletNeedsRestore, openWalletRestoreModal } = useWalletRestore()
+
+  const onRestorePress = (): void => {
+    Keyboard.dismiss()
+    openWalletRestoreModal()
+  }
+
   const { isBlocked, isBlockedLoading } = useIsBlockedActiveAddress()
 
   const [showWarningModal, setShowWarningModal] = useState(false)
@@ -99,7 +108,12 @@ function _SwapForm({
   const blockingWarning = warnings.some((warning) => warning.action === WarningAction.DisableReview)
 
   const actionButtonDisabled =
-    noValidSwap || blockingWarning || swapDataRefreshing || isBlocked || isBlockedLoading
+    noValidSwap ||
+    blockingWarning ||
+    swapDataRefreshing ||
+    isBlocked ||
+    isBlockedLoading ||
+    walletNeedsRestore
 
   // We clear swap warnings while refreshing in order to show the loading indicator
   const swapWarning = swapDataRefreshing
@@ -227,7 +241,7 @@ function _SwapForm({
           gap="spacing2"
           onLayout={onInputPanelLayout}>
           <Trace section={SectionName.CurrencyInputPanel}>
-            <Flex backgroundColor="background2" borderRadius="rounded20">
+            <Flex backgroundColor="surface2" borderRadius="rounded20">
               <CurrencyInputPanel
                 currencyAmount={currencyAmounts[CurrencyField.INPUT]}
                 currencyBalance={currencyBalances[CurrencyField.INPUT]}
@@ -268,7 +282,7 @@ function _SwapForm({
                 position="absolute">
                 <Trace logPress element={ElementName.SwitchCurrenciesButton}>
                   <SwapArrowButton
-                    bg="background2"
+                    bg="surface2"
                     size={SWAP_DIRECTION_BUTTON_SIZE}
                     onPress={onSwitchCurrencies}
                   />
@@ -280,7 +294,7 @@ function _SwapForm({
           <Trace section={SectionName.CurrencyOutputPanel}>
             <Box>
               <Flex
-                backgroundColor="background2"
+                backgroundColor="surface2"
                 borderBottomLeftRadius={swapWarning || showRate || isBlocked ? 'none' : 'rounded20'}
                 borderBottomRightRadius={
                   swapWarning || showRate || isBlocked ? 'none' : 'rounded20'
@@ -310,6 +324,32 @@ function _SwapForm({
                   onSetExactAmount={onSetExactAmountOutput}
                   onShowTokenSelector={onShowTokenSelectorOutput}
                 />
+                {walletNeedsRestore && (
+                  <TouchableArea onPress={onRestorePress}>
+                    <Flex
+                      row
+                      alignItems="center"
+                      alignSelf="stretch"
+                      backgroundColor="surface2"
+                      borderBottomLeftRadius="rounded16"
+                      borderBottomRightRadius="rounded16"
+                      borderTopColor="surface1"
+                      borderTopWidth={1}
+                      flexGrow={1}
+                      gap="spacing8"
+                      px="spacing12"
+                      py="spacing12">
+                      <InfoCircleFilled
+                        color={theme.colors.DEP_accentWarning}
+                        height={theme.iconSizes.icon20}
+                        width={theme.iconSizes.icon20}
+                      />
+                      <Text color="DEP_accentWarning" variant="subheadSmall">
+                        {t('Restore your wallet to swap')}
+                      </Text>
+                    </Flex>
+                  </TouchableArea>
+                )}
               </Flex>
               {swapWarning && !isBlocked ? (
                 <TouchableArea mt="spacing1" onPress={onSwapWarningClick}>
@@ -317,7 +357,7 @@ function _SwapForm({
                     row
                     alignItems="center"
                     alignSelf="stretch"
-                    backgroundColor="background2"
+                    backgroundColor="surface2"
                     borderBottomLeftRadius="rounded16"
                     borderBottomRightRadius="rounded16"
                     flexGrow={1}
@@ -337,7 +377,7 @@ function _SwapForm({
                           : swapWarning.title}
                       </Text>
                       {isPriceImpactWarning(swapWarning) && (
-                        <Text color="textSecondary" variant="bodySmall">
+                        <Text color="neutral2" variant="bodySmall">
                           {rateUnitPrice &&
                             ` (${formatPrice(rateUnitPrice, NumberType.FiatTokenPrice)})`}
                         </Text>
@@ -351,7 +391,7 @@ function _SwapForm({
                   row
                   alignItems="center"
                   alignSelf="stretch"
-                  backgroundColor="background2"
+                  backgroundColor="surface2"
                   borderBottomLeftRadius="rounded16"
                   borderBottomRightRadius="rounded16"
                   flexGrow={1}
@@ -366,10 +406,10 @@ function _SwapForm({
                     row
                     alignItems="center"
                     alignSelf="stretch"
-                    backgroundColor="background2"
+                    backgroundColor="surface2"
                     borderBottomLeftRadius="rounded16"
                     borderBottomRightRadius="rounded16"
-                    borderTopColor="background0"
+                    borderTopColor="surface1"
                     borderTopWidth={1}
                     flexGrow={1}
                     gap="spacing8"
@@ -379,21 +419,21 @@ function _SwapForm({
                       <SpinningLoader size={theme.iconSizes.icon20} />
                     ) : (
                       <InfoCircle
-                        color={theme.colors.textPrimary}
+                        color={theme.colors.neutral1}
                         height={theme.iconSizes.icon20}
                         width={theme.iconSizes.icon20}
                       />
                     )}
                     <Flex row gap="none">
                       <Text
-                        color={swapDataRefreshing ? 'textTertiary' : undefined}
+                        color={swapDataRefreshing ? 'neutral3' : undefined}
                         variant="subheadSmall">
                         {trade.trade
                           ? getRateToDisplay(trade.trade, showInverseRate)
                           : t('Fetching price...')}
                       </Text>
                       <Text
-                        color={swapDataRefreshing ? 'textTertiary' : 'textSecondary'}
+                        color={swapDataRefreshing ? 'neutral3' : 'neutral2'}
                         variant="subheadSmall">
                         {rateUnitPrice &&
                           ` (${formatPrice(rateUnitPrice, NumberType.FiatTokenPrice)})`}

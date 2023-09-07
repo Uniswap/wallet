@@ -1,6 +1,6 @@
 import React from 'react'
 import { Box, Flex } from 'src/components/layout'
-import { Theme, theme } from 'ui/src/theme/restyle/theme'
+import { Theme, theme } from 'ui/src/theme/restyle'
 
 interface SelectionCircleProps {
   selected: boolean
@@ -12,8 +12,8 @@ interface SelectionCircleProps {
 export function SelectionCircle({
   selected,
   size,
-  unselectedColor = 'textSecondary',
-  selectedColor = 'magentaVibrant',
+  unselectedColor = 'neutral2',
+  selectedColor = 'accent1',
 }: SelectionCircleProps): JSX.Element {
   return (
     <Flex

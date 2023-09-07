@@ -9,7 +9,7 @@ import React, { memo } from 'react'
 import { useAppTheme } from 'src/app/hooks'
 import { Box } from 'src/components/layout/Box'
 import Checkmark from 'ui/src/assets/icons/checkmark.svg'
-import { Theme } from 'ui/src/theme/restyle/theme'
+import { Theme } from 'ui/src/theme/restyle'
 
 type Props = {
   size: number
@@ -32,7 +32,7 @@ function _CheckmarkCircle({ color, checkmarkStrokeWidth = 3, size, ...rest }: Pr
       width={size}
       {...rest}>
       <Checkmark
-        color={color ?? theme.colors.white}
+        color={color ?? theme.colors.sporeWhite}
         height={size / 2}
         strokeWidth={checkmarkStrokeWidth}
         width={size / 2}

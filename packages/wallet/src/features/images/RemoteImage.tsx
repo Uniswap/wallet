@@ -1,11 +1,11 @@
 import { Image, ImageResizeMode } from 'react-native'
-import { logger } from 'wallet/src/features/logger/logger'
-import { uriToHttp } from 'wallet/src/utils/uriToHttp'
+import { isSVGUri, uriToHttp } from 'utilities/src/format/urls'
+import { logger } from 'utilities/src/logger/logger'
 import { RemoteSvg } from './RemoteSvg'
 
 type Props = {
   backgroundColor?: string
-  borderRadius: number
+  borderRadius?: number
   uri: string
   height: number
   width: number
@@ -16,7 +16,7 @@ const RESIZE_MODE_CONTAIN: ImageResizeMode = 'contain'
 
 export function RemoteImage({
   backgroundColor,
-  borderRadius,
+  borderRadius = 0,
   uri,
   height,
   width,
@@ -29,7 +29,7 @@ export function RemoteImage({
     return fallback ?? null
   }
 
-  if (imageHttpUrl.includes('.svg')) {
+  if (isSVGUri(imageHttpUrl)) {
     return (
       <RemoteSvg
         backgroundColor={backgroundColor}

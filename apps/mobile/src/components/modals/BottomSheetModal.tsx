@@ -5,8 +5,8 @@ import {
   BottomSheetView,
   useBottomSheetDynamicSnapPoints,
 } from '@gorhom/bottom-sheet'
-import { BlurView } from '@react-native-community/blur'
 import { useResponsiveProp } from '@shopify/restyle'
+import { BlurView } from 'expo-blur'
 import React, { ComponentProps, PropsWithChildren, useCallback, useEffect, useRef } from 'react'
 import { Keyboard, StyleSheet } from 'react-native'
 import Animated, {
@@ -17,15 +17,15 @@ import Animated, {
 } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useAppTheme } from 'src/app/hooks'
+import { Box } from 'src/components/layout'
 import { HandleBar } from 'src/components/modals/HandleBar'
 import Trace from 'src/components/Trace/Trace'
-import { IS_ANDROID } from 'src/constants/globals'
+import { IS_ANDROID, IS_IOS } from 'src/constants/globals'
 import { useIsDarkMode } from 'src/features/appearance/hooks'
 import { ModalName } from 'src/features/telemetry/constants'
 import { useKeyboardLayout } from 'src/utils/useKeyboardLayout'
-import { dimensions } from 'ui/src/theme/restyle/sizing'
-import { theme as FixedTheme } from 'ui/src/theme/restyle/theme'
-import { spacing } from 'ui/src/theme/spacing'
+import { spacing } from 'ui/src/theme'
+import { dimensions, theme as FixedTheme } from 'ui/src/theme/restyle'
 
 type Props = PropsWithChildren<{
   disableSwipe?: boolean
@@ -81,13 +81,18 @@ export function BottomSheetModal({
 }: Props): JSX.Element {
   const insets = useSafeAreaInsets()
   const modalRef = useRef<BaseModal>(null)
-
   const keyboard = useKeyboardLayout()
+
   useEffect(() => {
     if (extendOnKeyboardVisible && keyboard.isVisible) {
       modalRef.current?.expand()
     }
   }, [extendOnKeyboardVisible, keyboard.isVisible])
+
+  useEffect(() => {
+    // Close modal when it is unmounted
+    return modalRef.current?.close
+  }, [])
 
   const { animatedHandleHeight, animatedSnapPoints, animatedContentHeight, handleContentLayout } =
     useBottomSheetDynamicSnapPoints(snapPoints)
@@ -97,7 +102,7 @@ export function BottomSheetModal({
 
   const backgroundColorValue = blurredBackground
     ? theme.colors.none
-    : backgroundColor ?? theme.colors.background1
+    : backgroundColor ?? theme.colors.surface1
 
   const renderBackdrop = useCallback(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -150,6 +155,11 @@ export function BottomSheetModal({
     sm: theme.borderRadii.rounded24,
   })
 
+  const hiddenHandlebarStyle = {
+    borderTopLeftRadius: borderRadius,
+    borderTopRightRadius: borderRadius,
+  }
+
   const animatedBorderRadius = useAnimatedStyle(() => {
     const interpolatedRadius = interpolate(
       animatedPosition.value,
@@ -163,12 +173,15 @@ export function BottomSheetModal({
   const renderBlurredBg = useCallback(
     () => (
       <Animated.View style={[BlurViewStyle.base, animatedBorderRadius]}>
-        <BlurView
-          blurAmount={5}
-          blurType={isDarkMode ? 'dark' : 'xlight'}
-          reducedTransparencyFallbackColor={isDarkMode ? 'black' : 'white'}
-          style={BlurViewStyle.base}
-        />
+        {IS_IOS ? (
+          <BlurView
+            intensity={90}
+            style={BlurViewStyle.base}
+            tint={isDarkMode ? 'dark' : 'light'}
+          />
+        ) : (
+          <Box bg="surface2" flex={1} />
+        )}
       </Animated.View>
     ),
     [isDarkMode, animatedBorderRadius]
@@ -226,7 +239,11 @@ export function BottomSheetModal({
               backgroundColor: backgroundColorValue,
             },
             BottomSheetStyle.view,
-            ...(renderBehindInset ? [BottomSheetStyle.behindInset, animatedBorderRadius] : []),
+            ...(renderBehindInset
+              ? [BottomSheetStyle.behindInset, animatedBorderRadius]
+              : hideHandlebar
+              ? [hiddenHandlebarStyle]
+              : []),
           ]}
           onLayout={handleContentLayout}>
           {children}
@@ -278,7 +295,7 @@ export function BottomSheetDetachedModal({
         hideHandlebar
           ? BottomSheetStyle.modalTransparent
           : {
-              backgroundColor: backgroundColor ?? theme.colors.background0,
+              backgroundColor: backgroundColor ?? theme.colors.surface1,
             }
       }
       bottomInset={theme.spacing.spacing48}

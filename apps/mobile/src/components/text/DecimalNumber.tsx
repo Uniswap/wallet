@@ -1,6 +1,6 @@
 import React from 'react'
 import { Text, TextProps } from 'src/components/Text'
-import { Theme } from 'ui/src/theme/restyle/theme'
+import { Theme } from 'ui/src/theme/restyle'
 
 type DecimalNumberProps = TextProps & {
   number?: number
@@ -25,13 +25,17 @@ export function DecimalNumber({
   const [pre, post] = formattedNumber.split(separator)
 
   const decimalPartColor =
-    number === undefined || number >= decimalThreshold ? 'textTertiary' : 'textPrimary'
+    number === undefined || number >= decimalThreshold ? 'neutral3' : 'neutral1'
 
   return (
     <Text loading={loading} loadingPlaceholderText="$000.00" variant={variant} {...rest}>
       {pre}
       {post && (
-        <Text color={decimalPartColor} variant={variant}>
+        <Text
+          color={decimalPartColor}
+          fontSize={rest.fontSize}
+          fontWeight={rest.fontWeight}
+          variant={variant}>
           {separator}
           {post}
         </Text>

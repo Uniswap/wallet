@@ -1,12 +1,14 @@
+import { Protocol } from '@uniswap/router-sdk'
 import { Currency, Percent, TradeType } from '@uniswap/sdk-core'
 import {
   SwapOptions as UniversalRouterSwapOptions,
   SwapRouter as UniversalSwapRouter,
 } from '@uniswap/universal-router-sdk'
 import { BigNumber } from 'ethers'
-import { TFunction } from 'i18next'
 import { ElementName } from 'src/features/telemetry/constants'
 import { WrapType } from 'src/features/transactions/swap/wrapSaga'
+import { AppTFunction } from 'ui/src/i18n/types'
+import { formatPrice, NumberType } from 'utilities/src/format/format'
 import { ChainId } from 'wallet/src/constants/chains'
 import { AssetType } from 'wallet/src/entities/assets'
 import { PermitSignatureInfo } from 'wallet/src/features/transactions/swap/usePermit2Signature'
@@ -28,7 +30,6 @@ import {
   currencyIdToAddress,
   currencyIdToChain,
 } from 'wallet/src/utils/currencyId'
-import { formatPrice, NumberType } from 'wallet/src/utils/format'
 
 export function getWrapType(
   inputCurrency: Currency | null | undefined,
@@ -74,6 +75,7 @@ export function tradeToTransactionInfo(
     quoteId,
     gasUseEstimate,
     routeString,
+    protocol: getProtocolVersionFromTrade(trade),
   }
 
   return trade.tradeType === TradeType.EXACT_INPUT
@@ -112,7 +114,7 @@ export const getRateToDisplay = (trade: Trade, showInverseRate: boolean): string
   return showInverseRate ? rate : inverseRate
 }
 
-export const getActionName = (t: TFunction, wrapType: WrapType): string => {
+export const getActionName = (t: AppTFunction, wrapType: WrapType): string => {
   switch (wrapType) {
     case WrapType.Unwrap:
       return t('Unwrap')
@@ -134,7 +136,7 @@ export const getActionElementName = (wrapType: WrapType): ElementName => {
   }
 }
 
-export const getReviewActionName = (t: TFunction, wrapType: WrapType): string => {
+export const getReviewActionName = (t: AppTFunction, wrapType: WrapType): string => {
   switch (wrapType) {
     case WrapType.Unwrap:
       return t('Review unwrap')
@@ -203,4 +205,10 @@ export const getSwapMethodParameters = ({
       }
     : baseOptions
   return UniversalSwapRouter.swapERC20CallParameters(trade, universalRouterSwapOptions)
+}
+
+export function getProtocolVersionFromTrade(trade: Trade): Protocol {
+  if (trade.routes.every((r) => r.protocol === Protocol.V2)) return Protocol.V2
+  if (trade.routes.every((r) => r.protocol === Protocol.V3)) return Protocol.V3
+  return Protocol.MIXED
 }

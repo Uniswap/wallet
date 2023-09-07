@@ -121,13 +121,6 @@ export type Dimensions = {
   width?: Maybe<Scalars['Float']>;
 };
 
-export type EnsEntry = {
-  __typename?: 'EnsEntry';
-  address: Scalars['String'];
-  ensDomainName: Scalars['String'];
-  id: Scalars['ID'];
-};
-
 export enum HighLow {
   High = 'HIGH',
   Low = 'LOW'
@@ -714,7 +707,6 @@ export type PortfolioTokensTotalDenominatedValueChangeArgs = {
 
 export type Query = {
   __typename?: 'Query';
-  ensEntry?: Maybe<EnsEntry>;
   nftActivity?: Maybe<NftActivityConnection>;
   nftAssets?: Maybe<NftAssetConnection>;
   nftBalances?: Maybe<NftBalanceConnection>;
@@ -728,12 +720,6 @@ export type Query = {
   tokens?: Maybe<Array<Maybe<Token>>>;
   topCollections?: Maybe<NftCollectionConnection>;
   topTokens?: Maybe<Array<Maybe<Token>>>;
-};
-
-
-export type QueryEnsEntryArgs = {
-  chain: Chain;
-  ensDomainName: Scalars['String'];
 };
 
 
@@ -1209,6 +1195,13 @@ export type PortfolioBalancesQueryVariables = Exact<{
 
 export type PortfolioBalancesQuery = { __typename?: 'Query', portfolios?: Array<{ __typename?: 'Portfolio', id: string, tokensTotalDenominatedValue?: { __typename?: 'Amount', id: string, value: number } | null, tokensTotalDenominatedValueChange?: { __typename?: 'AmountChange', absolute?: { __typename?: 'Amount', id: string, value: number } | null, percentage?: { __typename?: 'Amount', id: string, value: number } | null } | null, tokenBalances?: Array<{ __typename?: 'TokenBalance', id: string, quantity?: number | null, denominatedValue?: { __typename?: 'Amount', id: string, currency?: Currency | null, value: number } | null, token?: { __typename?: 'Token', chain: Chain, address?: string | null, symbol?: string | null, decimals?: number | null, project?: { __typename?: 'TokenProject', id: string, name?: string | null, logoUrl?: string | null, safetyLevel?: SafetyLevel | null, isSpam?: boolean | null } | null } | null, tokenProjectMarket?: { __typename?: 'TokenProjectMarket', relativeChange24?: { __typename?: 'Amount', id: string, value: number } | null } | null } | null> | null } | null> | null };
 
+export type MultiplePortfolioBalancesQueryVariables = Exact<{
+  ownerAddresses: Array<Scalars['String']> | Scalars['String'];
+}>;
+
+
+export type MultiplePortfolioBalancesQuery = { __typename?: 'Query', portfolios?: Array<{ __typename?: 'Portfolio', id: string, tokensTotalDenominatedValue?: { __typename?: 'Amount', id: string, value: number } | null, tokensTotalDenominatedValueChange?: { __typename?: 'AmountChange', absolute?: { __typename?: 'Amount', id: string, value: number } | null, percentage?: { __typename?: 'Amount', id: string, value: number } | null } | null, tokenBalances?: Array<{ __typename?: 'TokenBalance', id: string, quantity?: number | null, denominatedValue?: { __typename?: 'Amount', id: string, currency?: Currency | null, value: number } | null, token?: { __typename?: 'Token', chain: Chain, address?: string | null, symbol?: string | null, decimals?: number | null, project?: { __typename?: 'TokenProject', id: string, name?: string | null, logoUrl?: string | null, safetyLevel?: SafetyLevel | null, isSpam?: boolean | null } | null } | null, tokenProjectMarket?: { __typename?: 'TokenProjectMarket', relativeChange24?: { __typename?: 'Amount', id: string, value: number } | null } | null } | null> | null } | null> | null };
+
 export type SelectWalletScreenQueryVariables = Exact<{
   ownerAddresses: Array<Scalars['String']> | Scalars['String'];
 }>;
@@ -1251,7 +1244,7 @@ export type TransactionListQueryVariables = Exact<{
 }>;
 
 
-export type TransactionListQuery = { __typename?: 'Query', portfolios?: Array<{ __typename?: 'Portfolio', id: string, assetActivities?: Array<{ __typename?: 'AssetActivity', id: string, timestamp: number, type: ActivityType, transaction: { __typename?: 'Transaction', id: string, hash: string, status: TransactionStatus, to: string, from: string }, assetChanges: Array<{ __typename: 'NftApproval' } | { __typename: 'NftApproveForAll' } | { __typename: 'NftTransfer', id: string, nftStandard: NftStandard, sender: string, recipient: string, direction: TransactionDirection, asset: { __typename?: 'NftAsset', id: string, name?: string | null, tokenId: string, nftContract?: { __typename?: 'NftContract', id: string, chain: Chain, address: string } | null, image?: { __typename?: 'Image', id: string, url: string } | null, collection?: { __typename?: 'NftCollection', id: string, name?: string | null } | null } } | { __typename: 'TokenApproval', id: string, tokenStandard: TokenStandard, approvedAddress: string, quantity: string, asset: { __typename?: 'Token', id: string, symbol?: string | null, decimals?: number | null, address?: string | null, chain: Chain } } | { __typename: 'TokenTransfer', id: string, tokenStandard: TokenStandard, quantity: string, sender: string, recipient: string, direction: TransactionDirection, asset: { __typename?: 'Token', id: string, symbol?: string | null, address?: string | null, decimals?: number | null, chain: Chain, project?: { __typename?: 'TokenProject', id: string, isSpam?: boolean | null, spamCode?: number | null } | null }, transactedValue?: { __typename?: 'Amount', id: string, currency?: Currency | null, value: number } | null } | null> } | null> | null } | null> | null };
+export type TransactionListQuery = { __typename?: 'Query', portfolios?: Array<{ __typename?: 'Portfolio', id: string, assetActivities?: Array<{ __typename?: 'AssetActivity', id: string, timestamp: number, type: ActivityType, chain: Chain, transaction: { __typename?: 'Transaction', id: string, hash: string, status: TransactionStatus, to: string, from: string }, assetChanges: Array<{ __typename: 'NftApproval' } | { __typename: 'NftApproveForAll' } | { __typename: 'NftTransfer', id: string, nftStandard: NftStandard, sender: string, recipient: string, direction: TransactionDirection, asset: { __typename?: 'NftAsset', id: string, name?: string | null, isSpam?: boolean | null, tokenId: string, nftContract?: { __typename?: 'NftContract', id: string, chain: Chain, address: string } | null, image?: { __typename?: 'Image', id: string, url: string } | null, collection?: { __typename?: 'NftCollection', id: string, name?: string | null } | null } } | { __typename: 'TokenApproval', id: string, tokenStandard: TokenStandard, approvedAddress: string, quantity: string, asset: { __typename?: 'Token', id: string, symbol?: string | null, decimals?: number | null, address?: string | null, chain: Chain } } | { __typename: 'TokenTransfer', id: string, tokenStandard: TokenStandard, quantity: string, sender: string, recipient: string, direction: TransactionDirection, asset: { __typename?: 'Token', id: string, symbol?: string | null, address?: string | null, decimals?: number | null, chain: Chain, project?: { __typename?: 'TokenProject', id: string, isSpam?: boolean | null, spamCode?: number | null } | null }, transactedValue?: { __typename?: 'Amount', id: string, currency?: Currency | null, value: number } | null } | null> } | null> | null } | null> | null };
 
 export type TopTokensQueryVariables = Exact<{
   chain?: InputMaybe<Chain>;
@@ -1301,6 +1294,13 @@ export type FavoriteTokenCardQueryVariables = Exact<{
 
 
 export type FavoriteTokenCardQuery = { __typename?: 'Query', token?: { __typename?: 'Token', symbol?: string | null, chain: Chain, address?: string | null, project?: { __typename?: 'TokenProject', id: string, name?: string | null, logoUrl?: string | null, markets?: Array<{ __typename?: 'TokenProjectMarket', id: string, price?: { __typename?: 'Amount', id: string, value: number } | null, pricePercentChange24h?: { __typename?: 'Amount', id: string, value: number } | null } | null> | null } | null } | null };
+
+export type TokensQueryVariables = Exact<{
+  contracts: Array<ContractInput> | ContractInput;
+}>;
+
+
+export type TokensQuery = { __typename?: 'Query', tokens?: Array<{ __typename?: 'Token', symbol?: string | null, chain: Chain, address?: string | null, project?: { __typename?: 'TokenProject', name?: string | null } | null } | null> | null };
 
 export type PortfolioBalanceQueryVariables = Exact<{
   owner: Scalars['String'];
@@ -1418,7 +1418,7 @@ export const AccountListDocument = gql`
     query AccountList($addresses: [String!]!) {
   portfolios(
     ownerAddresses: $addresses
-    chains: [ETHEREUM, POLYGON, ARBITRUM, OPTIMISM]
+    chains: [ETHEREUM, POLYGON, ARBITRUM, OPTIMISM, BASE]
   ) {
     id
     ownerAddress
@@ -2056,11 +2056,91 @@ export function usePortfolioBalancesLazyQuery(baseOptions?: Apollo.LazyQueryHook
 export type PortfolioBalancesQueryHookResult = ReturnType<typeof usePortfolioBalancesQuery>;
 export type PortfolioBalancesLazyQueryHookResult = ReturnType<typeof usePortfolioBalancesLazyQuery>;
 export type PortfolioBalancesQueryResult = Apollo.QueryResult<PortfolioBalancesQuery, PortfolioBalancesQueryVariables>;
+export const MultiplePortfolioBalancesDocument = gql`
+    query MultiplePortfolioBalances($ownerAddresses: [String!]!) {
+  portfolios(
+    ownerAddresses: $ownerAddresses
+    chains: [ETHEREUM, POLYGON, ARBITRUM, OPTIMISM, BASE]
+  ) {
+    id
+    tokensTotalDenominatedValue {
+      id
+      value
+    }
+    tokensTotalDenominatedValueChange(duration: DAY) {
+      absolute {
+        id
+        value
+      }
+      percentage {
+        id
+        value
+      }
+    }
+    tokenBalances {
+      id
+      quantity
+      denominatedValue {
+        id
+        currency
+        value
+      }
+      token {
+        chain
+        address
+        symbol
+        decimals
+        project {
+          id
+          name
+          logoUrl
+          safetyLevel
+          isSpam
+        }
+      }
+      tokenProjectMarket {
+        relativeChange24: pricePercentChange(duration: DAY) {
+          id
+          value
+        }
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useMultiplePortfolioBalancesQuery__
+ *
+ * To run a query within a React component, call `useMultiplePortfolioBalancesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMultiplePortfolioBalancesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMultiplePortfolioBalancesQuery({
+ *   variables: {
+ *      ownerAddresses: // value for 'ownerAddresses'
+ *   },
+ * });
+ */
+export function useMultiplePortfolioBalancesQuery(baseOptions: Apollo.QueryHookOptions<MultiplePortfolioBalancesQuery, MultiplePortfolioBalancesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<MultiplePortfolioBalancesQuery, MultiplePortfolioBalancesQueryVariables>(MultiplePortfolioBalancesDocument, options);
+      }
+export function useMultiplePortfolioBalancesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MultiplePortfolioBalancesQuery, MultiplePortfolioBalancesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<MultiplePortfolioBalancesQuery, MultiplePortfolioBalancesQueryVariables>(MultiplePortfolioBalancesDocument, options);
+        }
+export type MultiplePortfolioBalancesQueryHookResult = ReturnType<typeof useMultiplePortfolioBalancesQuery>;
+export type MultiplePortfolioBalancesLazyQueryHookResult = ReturnType<typeof useMultiplePortfolioBalancesLazyQuery>;
+export type MultiplePortfolioBalancesQueryResult = Apollo.QueryResult<MultiplePortfolioBalancesQuery, MultiplePortfolioBalancesQueryVariables>;
 export const SelectWalletScreenDocument = gql`
     query SelectWalletScreen($ownerAddresses: [String!]!) {
   portfolios(
     ownerAddresses: $ownerAddresses
-    chains: [ETHEREUM, POLYGON, ARBITRUM, OPTIMISM]
+    chains: [ETHEREUM, POLYGON, ARBITRUM, OPTIMISM, BASE]
   ) {
     id
     ownerAddress
@@ -2103,7 +2183,7 @@ export const TransactionHistoryUpdaterDocument = gql`
     query TransactionHistoryUpdater($addresses: [String!]!) {
   portfolios(
     ownerAddresses: $addresses
-    chains: [ETHEREUM, POLYGON, ARBITRUM, OPTIMISM]
+    chains: [ETHEREUM, POLYGON, ARBITRUM, OPTIMISM, BASE]
   ) {
     id
     ownerAddress
@@ -2317,13 +2397,18 @@ export const TransactionListDocument = gql`
     query TransactionList($address: String!) {
   portfolios(
     ownerAddresses: [$address]
-    chains: [ETHEREUM, POLYGON, ARBITRUM, OPTIMISM]
+    chains: [ETHEREUM, POLYGON, ARBITRUM, OPTIMISM, BASE]
   ) {
     id
-    assetActivities(pageSize: 50, page: 1) {
+    assetActivities(
+      pageSize: 100
+      page: 1
+      chains: [ETHEREUM, POLYGON, ARBITRUM, OPTIMISM, BASE]
+    ) {
       id
       timestamp
       type
+      chain
       transaction {
         id
         hash
@@ -2363,6 +2448,7 @@ export const TransactionListDocument = gql`
           asset {
             id
             name
+            isSpam
             nftContract {
               id
               chain
@@ -2530,7 +2616,7 @@ export const ExploreSearchDocument = gql`
     decimals
     symbol
     market {
-      volume(duration: YEAR) {
+      volume(duration: DAY) {
         id
         value
       }
@@ -2730,11 +2816,51 @@ export function useFavoriteTokenCardLazyQuery(baseOptions?: Apollo.LazyQueryHook
 export type FavoriteTokenCardQueryHookResult = ReturnType<typeof useFavoriteTokenCardQuery>;
 export type FavoriteTokenCardLazyQueryHookResult = ReturnType<typeof useFavoriteTokenCardLazyQuery>;
 export type FavoriteTokenCardQueryResult = Apollo.QueryResult<FavoriteTokenCardQuery, FavoriteTokenCardQueryVariables>;
+export const TokensDocument = gql`
+    query Tokens($contracts: [ContractInput!]!) {
+  tokens(contracts: $contracts) {
+    symbol
+    chain
+    address
+    project {
+      name
+    }
+  }
+}
+    `;
+
+/**
+ * __useTokensQuery__
+ *
+ * To run a query within a React component, call `useTokensQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTokensQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTokensQuery({
+ *   variables: {
+ *      contracts: // value for 'contracts'
+ *   },
+ * });
+ */
+export function useTokensQuery(baseOptions: Apollo.QueryHookOptions<TokensQuery, TokensQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TokensQuery, TokensQueryVariables>(TokensDocument, options);
+      }
+export function useTokensLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TokensQuery, TokensQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TokensQuery, TokensQueryVariables>(TokensDocument, options);
+        }
+export type TokensQueryHookResult = ReturnType<typeof useTokensQuery>;
+export type TokensLazyQueryHookResult = ReturnType<typeof useTokensLazyQuery>;
+export type TokensQueryResult = Apollo.QueryResult<TokensQuery, TokensQueryVariables>;
 export const PortfolioBalanceDocument = gql`
     query PortfolioBalance($owner: String!) {
   portfolios(
     ownerAddresses: [$owner]
-    chains: [ETHEREUM, POLYGON, ARBITRUM, OPTIMISM]
+    chains: [ETHEREUM, POLYGON, ARBITRUM, OPTIMISM, BASE]
   ) {
     id
     tokensTotalDenominatedValue {
@@ -2786,7 +2912,7 @@ export const PortfolioTokenBalancesDocument = gql`
     query PortfolioTokenBalances($ownerAddress: String!) {
   portfolios(
     ownerAddresses: [$ownerAddress]
-    chains: [ETHEREUM, POLYGON, ARBITRUM, OPTIMISM]
+    chains: [ETHEREUM, POLYGON, ARBITRUM, OPTIMISM, BASE]
   ) {
     id
     tokenBalances {

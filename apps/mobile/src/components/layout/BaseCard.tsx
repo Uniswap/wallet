@@ -9,8 +9,8 @@ import { Text } from 'src/components/Text'
 import Trace from 'src/components/Trace/Trace'
 import { useIsDarkMode } from 'src/features/appearance/hooks'
 import AlertTriangle from 'ui/src/assets/icons/alert-triangle.svg'
-import { opacify } from 'ui/src/theme/color/utils'
-import { Theme } from 'ui/src/theme/restyle/theme'
+import { opacify } from 'ui/src/theme'
+import { Theme } from 'ui/src/theme/restyle'
 
 const SHADOW_OFFSET: ShadowProps<Theme>['shadowOffset'] = { width: 4, height: 8 }
 export const SHADOW_OFFSET_SMALL: ShadowProps<Theme>['shadowOffset'] = { width: 0, height: 2 }
@@ -23,12 +23,12 @@ export function Container({
   return (
     <Trace {...trace}>
       <Box
-        bg="background1"
-        borderColor="backgroundOutline"
+        bg="surface2"
+        borderColor="surface3"
         borderRadius="rounded16"
         borderWidth={0.25}
         overflow="visible"
-        shadowColor="black"
+        shadowColor="sporeBlack"
         shadowOffset={SHADOW_OFFSET}
         shadowOpacity={0.05}
         shadowRadius={10}>
@@ -41,16 +41,16 @@ export function Container({
 export function Shadow({ children, ...rest }: BoxProps): JSX.Element {
   const isDarkMode = useIsDarkMode()
   const theme = useAppTheme()
+
   return (
     <Box
-      // bg={rest?.bg ?? isDarkMode ? 'backgroundOutline' : 'background1'}
       borderRadius="rounded16"
       p="spacing12"
-      shadowColor={isDarkMode ? 'black' : 'none'}
+      shadowColor={isDarkMode ? 'sporeBlack' : 'none'}
       shadowOffset={SHADOW_OFFSET_SMALL}
       shadowOpacity={0.4}
       shadowRadius={6}
-      style={{ backgroundColor: opacify(isDarkMode ? 10 : 100, theme.colors.white) }}
+      style={{ backgroundColor: opacify(isDarkMode ? 10 : 100, theme.colors.sporeWhite) }}
       {...rest}>
       {children}
     </Box>
@@ -70,7 +70,7 @@ function Header({ title, subtitle, onPress, icon, ...buttonProps }: HeaderProps)
 
   return (
     <TouchableArea
-      borderBottomColor="backgroundOutline"
+      borderBottomColor="surface3"
       borderBottomWidth={0.25}
       px="spacing16"
       py="spacing12"
@@ -81,7 +81,7 @@ function Header({ title, subtitle, onPress, icon, ...buttonProps }: HeaderProps)
           <Flex row alignItems="center" gap="spacing8">
             {icon}
             {typeof title === 'string' ? (
-              <Text color="textSecondary" variant="subheadSmall">
+              <Text color="neutral2" variant="subheadSmall">
                 {title}
               </Text>
             ) : (
@@ -96,7 +96,7 @@ function Header({ title, subtitle, onPress, icon, ...buttonProps }: HeaderProps)
             )
           ) : null}
         </Flex>
-        <Chevron color={theme.colors.textSecondary} direction="e" height={20} />
+        <Chevron color={theme.colors.neutral2} direction="e" height={20} />
       </Flex>
     </TouchableArea>
   )
@@ -132,7 +132,7 @@ function EmptyState({
               {title}
             </Text>
           )}
-          <Text color="textSecondary" textAlign="center" variant="bodySmall">
+          <Text color="neutral2" textAlign="center" variant="bodySmall">
             {description}
           </Text>
         </Flex>
@@ -140,14 +140,14 @@ function EmptyState({
       <Flex row>
         {buttonLabel && (
           <TouchableArea hapticFeedback onPress={onPress}>
-            <Text color="magentaVibrant" variant="buttonLabelSmall">
+            <Text color="accent1" variant="buttonLabelMedium">
               {buttonLabel}
             </Text>
           </TouchableArea>
         )}
         {additionalButtonLabel && (
           <TouchableArea onPress={onPressAdditional}>
-            <Text color="magentaVibrant" variant="buttonLabelSmall">
+            <Text color="accent1" variant="buttonLabelMedium">
               {additionalButtonLabel}
             </Text>
           </TouchableArea>
@@ -179,7 +179,7 @@ function ErrorState(props: ErrorStateProps): JSX.Element {
               {title}
             </Text>
           ) : null}
-          <Text color="textSecondary" textAlign="center" variant="bodySmall">
+          <Text color="neutral2" textAlign="center" variant="bodySmall">
             {description}
           </Text>
         </Flex>
@@ -187,7 +187,7 @@ function ErrorState(props: ErrorStateProps): JSX.Element {
       <Flex row>
         {retryButtonLabel ? (
           <TouchableArea hapticFeedback onPress={onRetry}>
-            <Text color="magentaVibrant" variant="buttonLabelSmall">
+            <Text color="accent1" variant="buttonLabelSmall">
               {retryButtonLabel}
             </Text>
           </TouchableArea>
@@ -206,14 +206,14 @@ function InlineErrorState(props: InlineErrorStateProps): JSX.Element {
   const theme = useAppTheme()
   const { t } = useTranslation()
   const {
-    backgroundColor = 'background2',
-    textColor = 'textPrimary',
+    backgroundColor = 'surface2',
+    textColor = 'neutral1',
     title = t('Oops! Something went wrong.'),
     onRetry: retry,
     retryButtonLabel = t('Retry'),
     icon = (
       <AlertTriangle
-        color={theme.colors.textTertiary}
+        color={theme.colors.neutral3}
         height={theme.iconSizes.icon16}
         width={theme.iconSizes.icon16}
       />
@@ -244,7 +244,7 @@ function InlineErrorState(props: InlineErrorStateProps): JSX.Element {
       </Flex>
       {retry ? (
         <TouchableArea hapticFeedback onPress={retry}>
-          <Text color="accentActive" variant="buttonLabelSmall">
+          <Text color="accent1" variant="buttonLabelSmall">
             {retryButtonLabel}
           </Text>
         </TouchableArea>

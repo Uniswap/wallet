@@ -9,22 +9,19 @@ import { BottomSheetModal } from 'src/components/modals/BottomSheetModal'
 import { Text } from 'src/components/Text'
 import { DappHeaderIcon } from 'src/components/WalletConnect/DappHeaderIcon'
 import { ModalName } from 'src/features/telemetry/constants'
-import {
-  removeSession,
-  WalletConnectSessionV2,
-} from 'src/features/walletConnect/walletConnectSlice'
-import { wcWeb3Wallet } from 'src/features/walletConnectV2/saga'
+import { wcWeb3Wallet } from 'src/features/walletConnect/saga'
+import { removeSession, WalletConnectSession } from 'src/features/walletConnect/walletConnectSlice'
+import { serializeError } from 'utilities/src/errors'
+import { logger } from 'utilities/src/logger/logger'
+import { ONE_SECOND_MS } from 'utilities/src/time/time'
 import { NetworkLogo } from 'wallet/src/components/CurrencyLogo/NetworkLogo'
 import { CHAIN_INFO } from 'wallet/src/constants/chains'
-import { logger } from 'wallet/src/features/logger/logger'
 import { pushNotification } from 'wallet/src/features/notifications/slice'
 import { AppNotificationType } from 'wallet/src/features/notifications/types'
 import { useActiveAccountAddressWithThrow } from 'wallet/src/features/wallet/hooks'
 import { WalletConnectEvent } from 'wallet/src/features/walletConnect/types'
-import serializeError from 'wallet/src/utils/serializeError'
-import { ONE_SECOND_MS } from 'wallet/src/utils/time'
 interface DappConnectedNetworkModalProps {
-  session: WalletConnectSessionV2
+  session: WalletConnectSession
   onClose: () => void
 }
 
@@ -71,23 +68,19 @@ export function DappConnectedNetworkModal({
     <BottomSheetModal name={ModalName.WCDappConnectedNetworks} onClose={onClose}>
       <Flex centered gap="spacing16" mb="spacing24" px="spacing24" py="spacing12">
         <Flex alignItems="center" gap="spacing8">
-          <DappHeaderIcon dapp={dapp} showChain={false} />
+          <DappHeaderIcon dapp={dapp} />
           <Text textAlign="center" variant="buttonLabelMedium">
             <Text variant="bodyLarge">{t('Connected to ')}</Text>
             {dapp.name || dapp.url}
           </Text>
-          <Text
-            color="accentActive"
-            numberOfLines={1}
-            textAlign="center"
-            variant="buttonLabelMicro">
+          <Text color="accent1" numberOfLines={1} textAlign="center" variant="buttonLabelMicro">
             {dapp.url}
           </Text>
         </Flex>
         <Box flexDirection="row">
           <Flex
             grow
-            borderColor="backgroundOutline"
+            borderColor="surface3"
             borderRadius="rounded12"
             borderWidth={1}
             gap="spacing16"
@@ -95,12 +88,12 @@ export function DappConnectedNetworkModal({
             {session.chains.map((chainId) => (
               <Flex key={chainId} row alignItems="center" justifyContent="space-between">
                 <NetworkLogo chainId={chainId} size={theme.iconSizes.icon24} />
-                <Text color="textPrimary" numberOfLines={1} variant="bodyLarge">
+                <Text color="neutral1" numberOfLines={1} variant="bodyLarge">
                   {CHAIN_INFO[chainId].label}
                 </Text>
                 <Flex centered height={theme.iconSizes.icon24} width={theme.iconSizes.icon24}>
                   <Box
-                    bg="accentSuccess"
+                    bg="statusSuccess"
                     borderRadius="roundedFull"
                     height={theme.iconSizes.icon8}
                     width={theme.iconSizes.icon8}

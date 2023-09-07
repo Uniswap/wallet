@@ -6,25 +6,29 @@ import { Keyboard, TextInput } from 'react-native'
 import { useAppDispatch, useAppSelector } from 'src/app/hooks'
 import { OnboardingStackParamList } from 'src/app/navigation/types'
 import { Button } from 'src/components/buttons/Button'
+import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { PasswordInput } from 'src/components/input/PasswordInput'
 import { Flex } from 'src/components/layout/Flex'
+import { Text } from 'src/components/Text'
+import { IS_ANDROID } from 'src/constants/globals'
 import {
   incrementPasswordAttempts,
   resetLockoutEndTime,
   resetPasswordAttempts,
   setLockoutEndTime,
 } from 'src/features/CloudBackup/passwordLockoutSlice'
-import { restoreMnemonicFromICloud } from 'src/features/CloudBackup/RNICloudBackupsManager'
+import { restoreMnemonicFromCloudStorage } from 'src/features/CloudBackup/RNCloudStorageBackupsManager'
 import { selectLockoutEndTime, selectPasswordAttempts } from 'src/features/CloudBackup/selectors'
 import { OnboardingScreen } from 'src/features/onboarding/OnboardingScreen'
 import { PasswordError } from 'src/features/onboarding/PasswordError'
+import { ImportType } from 'src/features/onboarding/utils'
 import { ElementName } from 'src/features/telemetry/constants'
 import { OnboardingScreens } from 'src/screens/Screens'
 import { useAddBackButton } from 'src/utils/useAddBackButton'
+import { ONE_HOUR_MS, ONE_MINUTE_MS } from 'utilities/src/time/time'
 import { importAccountActions } from 'wallet/src/features/wallet/import/importAccountSaga'
 import { ImportAccountType } from 'wallet/src/features/wallet/import/types'
 import { NUMBER_OF_WALLETS_TO_IMPORT } from 'wallet/src/features/wallet/import/utils'
-import { ONE_HOUR_MS, ONE_MINUTE_MS } from 'wallet/src/utils/time'
 
 type Props = NativeStackScreenProps<
   OnboardingStackParamList,
@@ -79,6 +83,8 @@ export function RestoreCloudBackupPasswordScreen({
   const passwordAttemptCount = useAppSelector(selectPasswordAttempts)
   const lockoutEndTime = useAppSelector(selectLockoutEndTime)
 
+  const isRestoringMnemonic = params.importType === ImportType.RestoreMnemonic
+
   const [enteredPassword, setEnteredPassword] = useState('')
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined)
 
@@ -113,7 +119,7 @@ export function RestoreCloudBackupPasswordScreen({
     // Attempt to restore backup with encrypted mnemonic using password
     async function checkCorrectPassword(): Promise<void> {
       try {
-        await restoreMnemonicFromICloud(params.mnemonicId, enteredPassword)
+        await restoreMnemonicFromCloudStorage(params.mnemonicId, enteredPassword)
         dispatch(
           importAccountActions.trigger({
             type: ImportAccountType.RestoreBackup,
@@ -122,7 +128,10 @@ export function RestoreCloudBackupPasswordScreen({
           })
         )
         dispatch(resetPasswordAttempts())
-        navigation.navigate({ name: OnboardingScreens.SelectWallet, params, merge: true })
+        // restore flow is handled in saga after `restoreMnemonicComplete` is dispatched
+        if (!isRestoringMnemonic) {
+          navigation.navigate({ name: OnboardingScreens.SelectWallet, params, merge: true })
+        }
       } catch (error) {
         dispatch(incrementPasswordAttempts())
         const updatedLockoutEndTime = calculateLockoutEndTime(passwordAttemptCount + 1)
@@ -140,10 +149,22 @@ export function RestoreCloudBackupPasswordScreen({
     Keyboard.dismiss()
   }
 
+  const navigateToEnterRecoveryPhrase = (): void => {
+    navigation.replace(OnboardingScreens.SeedPhraseInput, params)
+  }
+
   return (
     <OnboardingScreen
-      subtitle={t('This password is required to recover your recovery phrase backup from iCloud.')}
-      title={t('Enter your iCloud backup password')}>
+      subtitle={
+        IS_ANDROID
+          ? t('This password is required to recover your recovery phrase backup from Google Drive.')
+          : t('This password is required to recover your recovery phrase backup from iCloud.')
+      }
+      title={
+        IS_ANDROID
+          ? t('Enter your Google Drive backup password')
+          : t('Enter your iCloud backup password')
+      }>
       <Flex>
         <PasswordInput
           ref={inputRef}
@@ -161,12 +182,21 @@ export function RestoreCloudBackupPasswordScreen({
         />
         {errorMessage && <PasswordError errorText={errorMessage} />}
       </Flex>
-      <Button
-        disabled={!enteredPassword || isLockedOut}
-        label={t('Continue')}
-        testID={ElementName.Submit}
-        onPress={onPasswordSubmit}
-      />
+      <Flex>
+        {isRestoringMnemonic && (
+          <TouchableArea onPress={navigateToEnterRecoveryPhrase}>
+            <Text color="accent1" mb="spacing12" textAlign="center" variant="buttonLabelSmall">
+              {t('Enter your recovery phrase instead')}
+            </Text>
+          </TouchableArea>
+        )}
+        <Button
+          disabled={!enteredPassword || isLockedOut}
+          label={t('Continue')}
+          testID={ElementName.Submit}
+          onPress={onPasswordSubmit}
+        />
+      </Flex>
     </OnboardingScreen>
   )
 }

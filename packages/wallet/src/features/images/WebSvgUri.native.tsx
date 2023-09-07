@@ -1,12 +1,13 @@
 import { useCallback } from 'react'
 import { Platform, StyleSheet } from 'react-native'
 import WebView from 'react-native-webview'
-import { Box } from 'ui/src/components/layout'
-import { Loader } from 'ui/src/components/loading'
+import { Box } from 'ui/src'
+import { Loader } from 'ui/src/loading'
+import { serializeError } from 'utilities/src/errors'
+import { logger } from 'utilities/src/logger/logger'
+import { useAsyncData } from 'utilities/src/react/hooks'
 import { fetchSVG } from 'wallet/src/features/images/utils'
 import { SvgUriProps } from 'wallet/src/features/images/WebSvgUri'
-import { logger } from 'wallet/src/features/logger/logger'
-import { useAsyncData } from 'wallet/src/utils/hooks'
 
 const heightUnits = Platform.OS === 'ios' ? 'vh' : '%'
 
@@ -56,7 +57,7 @@ export function WebSvgUri({ autoplay, maxHeight, uri }: SvgUriProps): JSX.Elemen
         return // expect AbortError on unmount
       }
       logger.error('Failed to fetch remote SVG content', {
-        tags: { file: 'WebSvgUri', function: 'fetchSvg' },
+        tags: { file: 'WebSvgUri', function: 'fetchSvg', uri, error: serializeError(err) },
       })
     }
   }, [autoplay, uri])
@@ -70,6 +71,8 @@ export function WebSvgUri({ autoplay, maxHeight, uri }: SvgUriProps): JSX.Elemen
       <Box maxHeight={maxHeight ?? '100%'}>
         <WebView
           scalesPageToFit
+          androidLayerType="hardware"
+          geolocationEnabled={false}
           javaScriptEnabled={false}
           originWhitelist={['*']}
           pointerEvents="none"

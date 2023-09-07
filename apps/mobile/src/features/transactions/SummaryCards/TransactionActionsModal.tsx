@@ -10,7 +10,7 @@ import { Text } from 'src/components/Text'
 import { ElementName, ModalName } from 'src/features/telemetry/constants'
 import { setClipboard } from 'src/utils/clipboard'
 import { openMoonpayHelpLink, openUniswapHelpLink } from 'src/utils/linking'
-import { Theme } from 'ui/src/theme/restyle/theme'
+import { Theme } from 'ui/src/theme/restyle'
 import { pushNotification } from 'wallet/src/features/notifications/slice'
 import { AppNotificationType, CopyNotificationType } from 'wallet/src/features/notifications/types'
 import { TransactionDetails, TransactionType } from 'wallet/src/features/transactions/types'
@@ -24,7 +24,7 @@ function renderOptionItem(
       <>
         <Separator />
         <Text
-          color={textColorOverride ?? 'textPrimary'}
+          color={textColorOverride ?? 'neutral1'}
           p="spacing16"
           textAlign="center"
           variant="bodyLarge">
@@ -137,7 +137,7 @@ export default function TransactionActionsModal({
       transactionActionOptions.push({
         key: ElementName.Cancel,
         onPress: onCancel,
-        render: renderOptionItem(t('Cancel transaction'), 'accentCritical'),
+        render: renderOptionItem(t('Cancel transaction'), 'statusCritical'),
       })
     }
     return transactionActionOptions
@@ -156,13 +156,13 @@ export default function TransactionActionsModal({
   return (
     <BottomSheetModal
       hideHandlebar
-      backgroundColor="accentCritical"
+      backgroundColor="statusCritical"
       name={ModalName.TransactionActions}
       onClose={handleClose}>
       <Flex pb="spacing24" px="spacing12">
         <ActionSheetModalContent
           header={
-            <Text color="textTertiary" p="spacing16" variant="bodySmall">
+            <Text color="neutral3" p="spacing16" variant="bodySmall">
               {t('Submitted on') + ' ' + dateString}
             </Text>
           }

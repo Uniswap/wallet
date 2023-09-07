@@ -159,58 +159,43 @@ export interface GlobalPalette {
 }
 
 export interface Palette {
-  userThemeColor: string
-  userThemeMagenta: string
-  userThemeViolet: string
-  userThemeOrange: string
-  userThemeLime: string
-  userThemeCyan: string
-  userThemeSlate: string
-
-  background0: string
-  background1: string
-  background2: string
-  background3: string
-  backgroundOutline: string
-  backgroundScrim: string
-  backgroundBranded: string
-  backgroundOverlay: string
-  backgroundActionButton: string
-
-  textPrimary: string
-  textSecondary: string
-  textTertiary: string
-
-  accentAction: string
-  accentActive: string
-  accentSuccess: string
-  accentWarning: string
-  accentCritical: string
-
-  accentBranded: string
-  shadowBranded: string
-
-  accentActionSoft: string
-  accentActiveSoft: string
-  accentSuccessSoft: string
-  accentWarningSoft: string
-  accentCriticalSoft: string
-
-  textOnBrightPrimary: string
-  textOnBrightSecondary: string
-  textOnBrightTertiary: string
-
-  textOnDimPrimary: string
-  textOnDimSecondary: string
-  textOnDimTertiary: string
-
-  white: string
-  black: string
   none: string
-  blue300: string
-  brandedAccentSoft: string
-  magentaVibrant: string
-  magentaDark: string
+
+  sporeWhite: string
+  sporeBlack: string
+
+  surface1: string
+  surface2: string
+  surface3: string
+
+  neutral1: string
+  neutral2: string
+  neutral3: string
+
+  scrim: string
+
+  accent1: string
+  accent2: string
+
+  statusSuccess: string
+  statusCritical: string
+
+  DEP_backgroundBranded: string
+  DEP_backgroundOverlay: string
+  DEP_backgroundActionButton: string
+
+  DEP_accentWarning: string
+
+  DEP_accentBranded: string
+  DEP_shadowBranded: string
+
+  DEP_accentSuccessSoft: string
+  DEP_accentWarningSoft: string
+  DEP_accentCriticalSoft: string
+
+  DEP_blue300: string
+  DEP_brandedAccentSoft: string
+  DEP_magentaDark: string
 
   chain_1: string
   chain_3: string

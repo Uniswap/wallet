@@ -2,14 +2,14 @@ import React from 'react'
 import { useAppTheme } from 'src/app/hooks'
 import { Caret } from 'src/components/icons/Caret'
 import { Flex } from 'src/components/layout'
-import { Text } from 'src/components/Text'
+import { Text, TextProps } from 'src/components/Text'
 import { Theme } from 'ui/src/theme/restyle/theme'
-import { formatNumber, NumberType } from 'wallet/src/utils/format'
+import { formatNumber, NumberType } from 'utilities/src/format/format'
 
 interface RelativeChangeProps {
   change?: number
   absoluteChange?: number
-  variant?: keyof Theme['textVariants']
+  variant?: TextProps['variant']
   semanticColor?: boolean // If true, entire % change text will render green or red
   positiveChangeColor?: keyof Theme['colors']
   negativeChangeColor?: keyof Theme['colors']
@@ -25,8 +25,8 @@ export function RelativeChange(props: RelativeChangeProps): JSX.Element {
     change,
     variant = 'subheadSmall',
     semanticColor,
-    positiveChangeColor = 'accentSuccess',
-    negativeChangeColor = 'accentCritical',
+    positiveChangeColor = 'statusSuccess',
+    negativeChangeColor = 'statusCritical',
     arrowSize = theme.iconSizes.icon16,
     loading = false,
     alignRight = false,
@@ -52,9 +52,7 @@ export function RelativeChange(props: RelativeChangeProps): JSX.Element {
         <Caret color={arrowColor} direction={isPositiveChange ? 'n' : 's'} size={arrowSize} />
       )}
       <Text
-        color={
-          semanticColor ? (isPositiveChange ? 'accentSuccess' : 'accentCritical') : 'textSecondary'
-        }
+        color={semanticColor ? (isPositiveChange ? 'statusSuccess' : 'statusCritical') : 'neutral2'}
         loading={loading}
         loadingPlaceholderText="$0.00 (0.00)%"
         variant={variant}>

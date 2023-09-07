@@ -23,6 +23,8 @@
     "eslint-plugin-no-relative-import-paths": "1.5.2",
     "get-graphql-schema": "2.1.2",
     "husky": "8.0.3",
+    "i18next": "21.9.1",
+    "i18next-parser": "8.6.0",
     "is-ci": "^3.0.1",
     "lint-staged": "^13.1.0",
     "prettier": "latest",
@@ -32,6 +34,7 @@
     "syncpack": "^8.5.14",
     "turbo": "latest",
     "typechain": "5.2.0",
+    "underscore.string": "3.3.6",
     "undici": "5.19.1"
   },
   "engines": {
@@ -65,29 +68,31 @@
     "ua-parser-js": "0.7.33",
     "webpack": "^5.74.0",
     "xml2js": "0.5.0",
-    "yaml": "2.2.2"
+    "yaml": "2.2.2",
+    "@shopify/flash-list@1.4.3": "patch:@shopify/flash-list@npm%3A1.4.3#./.yarn/patches/@shopify-flash-list-npm-1.4.3-dc03c28fdd.patch"
   },
   "scripts": {
-    "bootstrap": "yarn contracts:compile && yarn g:build",
     "contracts:compile": "typechain --target ethers-v5 --out-dir packages/wallet/src/abis/types './packages/wallet/src/abis/**/*.json'",
     "g:build": "turbo run build --concurrency=100%",
     "g:check:deps": "manypkg check",
     "g:format:deps": "syncpack format",
-    "g:lint": "turbo run lint --parallel",
-    "g:lint:fix": "turbo run lint:fix --parallel",
+    "g:lint": "turbo run lint --parallel && yarn workspace wallet eslint src/i18n/locales/en.json",
+    "g:lint:fix": "turbo run lint:fix --parallel && yarn workspace wallet eslint src/i18n/locales/en.json --fix",
     "g:rm:nodemodules": "rm -rf node_modules",
     "g:run-all-checks": "turbo run typecheck lint test build --parallel",
     "g:test": "turbo run test --parallel",
     "g:typecheck": "turbo run typecheck --parallel",
     "graphql:generate": "graphql-codegen --config codegen.ts",
     "graphql:schema": "get-graphql-schema https://api.uniswap.org/v1/graphql -h Origin=https://app.uniswap.org > ./packages/wallet/src/data/__generated__/schema.graphql",
+    "i18n:extract": "i18next",
+    "lfg": "yarn && yarn contracts:compile && yarn mobile env:local:download && yarn web env:local:download && yarn g:build && yarn mobile pod && yarn mobile graphql:generate:swift && yarn mobile ios",
     "mobile": "yarn workspace @uniswap/mobile",
     "postinstall": "husky install",
     "staged:lint:fix": "eslint --fix",
     "ui:build:icons": "yarn workspace ui build:icons",
     "upgrade:next": "manypkg upgrade next && manypkg upgrade eslint-config-next",
     "upgrade:rnw": "manypkg upgrade react-native-web",
-    "upgrade:tamagui": "manypkg upgrade tamagui && manypkg upgrade @tamagui && manypkg upgrade tamagui-loader && manypkg upgrade react-native-web-lite",
+    "upgrade:tamagui": "manypkg upgrade tamagui && manypkg upgrade @tamagui && manypkg upgrade tamagui-loader",
     "web": "yarn workspace @uniswap/web"
   },
   "workspaces": [

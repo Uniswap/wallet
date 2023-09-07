@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react'
 import { Flex, FlexProps } from 'src/components/layout'
 import { Text } from 'src/components/Text'
-import { Theme } from 'ui/src/theme/restyle/theme'
+import { Theme } from 'ui/src/theme/restyle'
 
 type PillProps = {
   customBackgroundColor?: string
@@ -44,7 +44,8 @@ export function Pill({
       {...rest}>
       {icon ?? null}
       {label ? (
-        <Text style={{ color: foregroundColor }} variant={textVariant}>
+        // eslint-disable-next-line react-native/no-inline-styles
+        <Text style={{ color: foregroundColor, paddingTop: 1 }} variant={textVariant}>
           {label}
         </Text>
       ) : null}

@@ -11,8 +11,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { BackButton } from 'src/components/buttons/BackButton'
 import { AnimatedBox, Box, Flex } from 'src/components/layout'
 import { WithScrollToTop } from 'src/components/layout/screens/WithScrollToTop'
-import { Theme, theme } from 'ui/src/theme/restyle/theme'
-import { zIndices } from 'ui/src/theme/zIndices'
+import { zIndices } from 'ui/src/theme'
+import { Theme, theme } from 'ui/src/theme/restyle'
 
 type ScrollHeaderProps = {
   scrollY: SharedValue<number>
@@ -95,7 +95,7 @@ export function ScrollHeader({
           {rightElement}
         </Flex>
         <AnimatedBox
-          borderBottomColor={backgroundColor ?? 'backgroundOutline'}
+          borderBottomColor={backgroundColor ?? 'surface3'}
           borderBottomWidth={0.25}
           height={1}
           overflow="visible"
@@ -111,7 +111,7 @@ function HeaderWrapper({
   fullScreen,
   children,
   style,
-  backgroundColor = 'background0',
+  backgroundColor = 'surface1',
 }: {
   fullScreen: boolean
   children: ReactElement

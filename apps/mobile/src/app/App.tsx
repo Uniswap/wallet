@@ -2,7 +2,6 @@ import { ApolloProvider } from '@apollo/client'
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
 import * as Sentry from '@sentry/react-native'
 import { PerformanceProfiler, RenderPassReport } from '@shopify/react-native-performance'
-import * as SplashScreen from 'expo-splash-screen'
 import { default as React, StrictMode, useCallback, useEffect } from 'react'
 import { NativeModules, StatusBar } from 'react-native'
 import { getUniqueId } from 'react-native-device-info'
@@ -10,6 +9,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { PersistGate } from 'redux-persist/integration/react'
 import { ErrorBoundary } from 'src/app/ErrorBoundary'
+import { useAppSelector } from 'src/app/hooks'
 import { AppModals } from 'src/app/modals/AppModals'
 import { useIsPartOfNavigationTree } from 'src/app/navigation/hooks'
 import { AppStackNavigator } from 'src/app/navigation/navigation'
@@ -20,30 +20,41 @@ import Trace from 'src/components/Trace/Trace'
 import { TraceUserProperties } from 'src/components/Trace/TraceUserProperties'
 import { usePersistedApolloClient } from 'src/data/usePersistedApolloClient'
 import { initAppsFlyer } from 'src/features/analytics/appsflyer'
-import { useIsDarkMode } from 'src/features/appearance/hooks'
+import { useCurrentAppearanceSetting, useIsDarkMode } from 'src/features/appearance/hooks'
 import { LockScreenContextProvider } from 'src/features/authentication/lockScreenContext'
 import { BiometricContextProvider } from 'src/features/biometrics/context'
+import { selectFavoriteTokens } from 'src/features/favorites/selectors'
 import { NotificationToastWrapper } from 'src/features/notifications/NotificationToastWrapper'
 import { initOneSignal } from 'src/features/notifications/Onesignal'
-import { sendAnalyticsEvent } from 'src/features/telemetry'
+import { sendMobileAnalyticsEvent } from 'src/features/telemetry'
 import { MobileEventName } from 'src/features/telemetry/constants'
 import { shouldLogScreen } from 'src/features/telemetry/directLogScreens'
 import { TransactionHistoryUpdater } from 'src/features/transactions/TransactionHistoryUpdater'
+import {
+  processWidgetEvents,
+  setAccountAddressesUserDefaults,
+  setFavoritesUserDefaults,
+} from 'src/features/widgets/widgets'
 import { DynamicThemeProvider } from 'src/theme/DynamicThemeProvider'
+import { useAppStateTrigger } from 'src/utils/useAppStateTrigger'
 import { getSentryEnvironment, getStatsigEnvironmentTier } from 'src/utils/version'
 import { StatsigProvider } from 'statsig-react-native'
-import { flex } from 'ui/src/theme/restyle/flex'
+import { flex } from 'ui/src/theme/restyle'
+import { registerConsoleOverrides } from 'utilities/src/logger/console'
+import { useAsyncData } from 'utilities/src/react/hooks'
+import { AnalyticsNavigationContextProvider } from 'utilities/src/telemetry/trace/AnalyticsNavigationContext'
 import { config } from 'wallet/src/config'
-import { AnalyticsNavigationContextProvider } from 'wallet/src/features/telemetry/trace/AnalyticsNavigationContext'
 import { useTrmQuery } from 'wallet/src/features/trm/api'
-import { AccountType } from 'wallet/src/features/wallet/accounts/types'
+import { Account, AccountType } from 'wallet/src/features/wallet/accounts/types'
 import { WalletContextProvider } from 'wallet/src/features/wallet/context'
-import { useActiveAccount } from 'wallet/src/features/wallet/hooks'
+import { useAccounts, useActiveAccount } from 'wallet/src/features/wallet/hooks'
+import { initializeTranslation } from 'wallet/src/i18n/i18n'
 import { SharedProvider } from 'wallet/src/provider'
-import { useAsyncData } from 'wallet/src/utils/hooks'
+import { CurrencyId } from 'wallet/src/utils/currencyId'
 
-// Keep the splash screen visible while we fetch resources until one of our landing pages loads
-SplashScreen.preventAutoHideAsync().catch(() => undefined)
+if (__DEV__) {
+  registerConsoleOverrides()
+}
 
 // Construct a new instrumentation instance. This is needed to communicate between the integration and React
 const routingInstrumentation = new Sentry.ReactNavigationInstrumentation()
@@ -74,10 +85,9 @@ if (!__DEV__) {
 
 initOneSignal()
 initAppsFlyer()
+initializeTranslation()
 
 function App(): JSX.Element | null {
-  const client = usePersistedApolloClient()
-
   // We want to ensure deviceID is used as the identifier to link with analytics
   const fetchAndSetDeviceId = useCallback(async () => {
     const uniqueId = await getUniqueId()
@@ -88,14 +98,6 @@ function App(): JSX.Element | null {
   }, [])
 
   const deviceId = useAsyncData(fetchAndSetDeviceId).data
-
-  const onReportPrepared = useCallback((report: RenderPassReport) => {
-    sendAnalyticsEvent(MobileEventName.PerformanceReport, report)
-  }, [])
-
-  if (!client) {
-    return null
-  }
 
   const statSigOptions = {
     options: {
@@ -118,31 +120,7 @@ function App(): JSX.Element | null {
               <AnalyticsNavigationContextProvider
                 shouldLogScreen={shouldLogScreen}
                 useIsPartOfNavigationTree={useIsPartOfNavigationTree}>
-                <ApolloProvider client={client}>
-                  <PersistGate loading={null} persistor={persistor}>
-                    <DynamicThemeProvider>
-                      <ErrorBoundary>
-                        <GestureHandlerRootView style={flex.fill}>
-                          <WalletContextProvider>
-                            <BiometricContextProvider>
-                              <LockScreenContextProvider>
-                                <Sentry.TouchEventBoundary>
-                                  <DataUpdaters />
-                                  <BottomSheetModalProvider>
-                                    <AppModals />
-                                    <PerformanceProfiler onReportPrepared={onReportPrepared}>
-                                      <AppInner />
-                                    </PerformanceProfiler>
-                                  </BottomSheetModalProvider>
-                                </Sentry.TouchEventBoundary>
-                              </LockScreenContextProvider>
-                            </BiometricContextProvider>
-                          </WalletContextProvider>
-                        </GestureHandlerRootView>
-                      </ErrorBoundary>
-                    </DynamicThemeProvider>
-                  </PersistGate>
-                </ApolloProvider>
+                <AppOuter />
               </AnalyticsNavigationContextProvider>
             </SharedProvider>
           </SafeAreaProvider>
@@ -152,25 +130,81 @@ function App(): JSX.Element | null {
   )
 }
 
+// Ensures redux state is available inside usePersistedApolloClient for the custom endpoint
+function AppOuter(): JSX.Element | null {
+  const client = usePersistedApolloClient()
+
+  const onReportPrepared = useCallback((report: RenderPassReport) => {
+    sendMobileAnalyticsEvent(MobileEventName.PerformanceReport, report)
+  }, [])
+
+  if (!client) {
+    return null
+  }
+
+  return (
+    <ApolloProvider client={client}>
+      <PersistGate loading={null} persistor={persistor}>
+        <DynamicThemeProvider>
+          <ErrorBoundary>
+            <GestureHandlerRootView style={flex.fill}>
+              <WalletContextProvider>
+                <BiometricContextProvider>
+                  <LockScreenContextProvider>
+                    <Sentry.TouchEventBoundary>
+                      <DataUpdaters />
+                      <BottomSheetModalProvider>
+                        <AppModals />
+                        <PerformanceProfiler onReportPrepared={onReportPrepared}>
+                          <AppInner />
+                        </PerformanceProfiler>
+                      </BottomSheetModalProvider>
+                    </Sentry.TouchEventBoundary>
+                  </LockScreenContextProvider>
+                </BiometricContextProvider>
+              </WalletContextProvider>
+            </GestureHandlerRootView>
+          </ErrorBoundary>
+        </DynamicThemeProvider>
+      </PersistGate>
+    </ApolloProvider>
+  )
+}
+
 function AppInner(): JSX.Element {
   const isDarkMode = useIsDarkMode()
+  const themeSetting = useCurrentAppearanceSetting()
 
   useEffect(() => {
     // TODO: This is a temporary solution (it should be replaced with Appearance.setColorScheme
     // after updating RN to 0.72.0 or higher)
-    NativeModules.ThemeModule.setColorScheme(isDarkMode ? 'dark' : 'light')
-  }, [isDarkMode])
+    NativeModules.ThemeModule.setColorScheme(themeSetting)
+  }, [themeSetting])
 
   return <NavStack isDarkMode={isDarkMode} />
 }
 
 function DataUpdaters(): JSX.Element {
   const activeAccount = useActiveAccount()
+  const favoriteTokens: CurrencyId[] = useAppSelector(selectFavoriteTokens)
+  const accountsMap: Record<string, Account> = useAccounts()
+
   useTrmQuery(
     activeAccount && activeAccount.type === AccountType.SignerMnemonic
       ? activeAccount.address
       : undefined
   )
+
+  // Refreshes widgets when bringing app to foreground
+  useAppStateTrigger('background', 'active', processWidgetEvents)
+
+  useEffect(() => {
+    setFavoritesUserDefaults(favoriteTokens)
+  }, [favoriteTokens])
+
+  useEffect(() => {
+    setAccountAddressesUserDefaults(Object.values(accountsMap))
+  }, [accountsMap])
 
   return (
     <>

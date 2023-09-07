@@ -23,7 +23,6 @@ exports[`AccountSwitcher renders correctly 1`] = `
       [
         {
           "alignItems": "center",
-          "borderBottomColor": "#D2D9EE",
           "display": "flex",
           "flexDirection": "row",
           "justifyContent": "flex-start",
@@ -49,10 +48,11 @@ exports[`AccountSwitcher renders correctly 1`] = `
         style={
           [
             {
-              "color": "#0E1524",
+              "color": "#222222",
               "display": "flex",
-              "fontFamily": "Inter-Medium",
-              "fontSize": 17,
+              "fontFamily": "Basel-Book",
+              "fontSize": 19,
+              "fontWeight": "400",
               "lineHeight": 24,
               "textAlign": "left",
             },
@@ -126,6 +126,23 @@ exports[`AccountSwitcher renders correctly 1`] = `
           onPress={[Function]}
         >
           <View
+            accessibilityState={
+              {
+                "busy": undefined,
+                "checked": undefined,
+                "disabled": undefined,
+                "expanded": undefined,
+                "selected": undefined,
+              }
+            }
+            accessibilityValue={
+              {
+                "max": undefined,
+                "min": undefined,
+                "now": undefined,
+                "text": undefined,
+              }
+            }
             accessible={true}
             collapsable={false}
             focusable={true}
@@ -396,10 +413,11 @@ exports[`AccountSwitcher renders correctly 1`] = `
                     style={
                       [
                         {
-                          "color": "#0E1524",
+                          "color": "#222222",
                           "display": "flex",
-                          "fontFamily": "Inter-Medium",
-                          "fontSize": 20,
+                          "fontFamily": "Basel-Book",
+                          "fontSize": 19,
+                          "fontWeight": "400",
                           "lineHeight": 24,
                         },
                       ]
@@ -455,11 +473,12 @@ exports[`AccountSwitcher renders correctly 1`] = `
                             style={
                               [
                                 {
-                                  "color": "#888FAB",
+                                  "color": "#7D7D7D",
                                   "display": "flex",
-                                  "fontFamily": "Inter-Medium",
-                                  "fontSize": 15,
-                                  "lineHeight": 20,
+                                  "fontFamily": "Basel-Book",
+                                  "fontSize": 17,
+                                  "fontWeight": "400",
+                                  "lineHeight": 24,
                                   "opacity": 0,
                                 },
                               ]
@@ -472,7 +491,7 @@ exports[`AccountSwitcher renders correctly 1`] = `
                           style={
                             [
                               {
-                                "backgroundColor": "#E8ECFB",
+                                "backgroundColor": "#2222220D",
                                 "borderRadius": 4,
                                 "bottom": "5%",
                                 "display": "flex",
@@ -542,6 +561,23 @@ exports[`AccountSwitcher renders correctly 1`] = `
     }
   />
   <View
+    accessibilityState={
+      {
+        "busy": undefined,
+        "checked": undefined,
+        "disabled": undefined,
+        "expanded": undefined,
+        "selected": undefined,
+      }
+    }
+    accessibilityValue={
+      {
+        "max": undefined,
+        "min": undefined,
+        "now": undefined,
+        "text": undefined,
+      }
+    }
     accessible={true}
     collapsable={false}
     focusable={true}
@@ -586,7 +622,7 @@ exports[`AccountSwitcher renders correctly 1`] = `
         style={
           [
             {
-              "borderColor": "#D2D9EE",
+              "borderColor": "#2222220D",
               "borderRadius": 999999,
               "borderWidth": 1,
               "display": "flex",
@@ -596,7 +632,7 @@ exports[`AccountSwitcher renders correctly 1`] = `
         }
       >
         <svg
-          color="#0E1524"
+          color="#222222"
           data-file-name="SvgPlus"
           height={16}
           strokeWidth={2}
@@ -622,10 +658,11 @@ exports[`AccountSwitcher renders correctly 1`] = `
         style={
           [
             {
-              "color": "#0E1524",
+              "color": "#222222",
               "display": "flex",
-              "fontFamily": "Inter-Medium",
-              "fontSize": 17,
+              "fontFamily": "Basel-Book",
+              "fontSize": 19,
+              "fontWeight": "400",
               "lineHeight": 24,
             },
           ]

@@ -1,6 +1,7 @@
+import { Protocol } from '@uniswap/router-sdk'
 import { TradeType } from '@uniswap/sdk-core'
 import { providers } from 'ethers'
-import { ChainId, ChainIdTo } from 'wallet/src/constants/chains'
+import { AlternativeRpcType, ChainId, ChainIdTo } from 'wallet/src/constants/chains'
 import { TransactionListQuery } from 'wallet/src/data/__generated__/types-and-hooks'
 import { AssetType } from 'wallet/src/entities/assets'
 import { MoonpayCurrency } from 'wallet/src/features/fiatOnRamp/types'
@@ -70,6 +71,7 @@ export interface FinalizedTransactionDetails extends TransactionDetails {
 export interface TransactionOptions {
   request: providers.TransactionRequest
   timeoutMs?: number
+  alternativeRpc?: AlternativeRpcType
 }
 
 export interface TransactionReceipt {
@@ -124,6 +126,7 @@ export enum TransactionType {
 export interface BaseTransactionInfo {
   type: TransactionType
   transactedUSDValue?: number
+  isSpam?: boolean
 }
 
 export interface ApproveTransactionInfo extends BaseTransactionInfo {
@@ -142,6 +145,7 @@ export interface BaseSwapTransactionInfo extends BaseTransactionInfo {
   quoteId?: string
   routeString?: string
   gasUseEstimate?: string
+  protocol?: Protocol
 }
 
 export interface ExactInputSwapTransactionInfo extends BaseSwapTransactionInfo {
@@ -172,7 +176,6 @@ export interface SendTokenTransactionInfo extends BaseTransactionInfo {
   currencyAmountRaw?: string
   tokenId?: string // optional. NFT token id
   nftSummaryInfo?: NFTSummaryInfo // optional. NFT metadata
-  isSpam?: boolean
 }
 
 export interface ReceiveTokenTransactionInfo extends BaseTransactionInfo {
@@ -183,7 +186,6 @@ export interface ReceiveTokenTransactionInfo extends BaseTransactionInfo {
   tokenAddress: string
   tokenId?: string // optional. NFT token id
   nftSummaryInfo?: NFTSummaryInfo
-  isSpam?: boolean
 }
 
 export interface FiatPurchaseTransactionInfo extends BaseTransactionInfo {

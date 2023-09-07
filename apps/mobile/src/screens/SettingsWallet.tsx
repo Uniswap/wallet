@@ -1,4 +1,4 @@
-import { useFocusEffect } from '@react-navigation/core'
+import { useFocusEffect, useNavigation } from '@react-navigation/core'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { useTheme } from '@shopify/restyle'
 import React, { useCallback, useEffect, useState } from 'react'
@@ -6,7 +6,11 @@ import { useTranslation } from 'react-i18next'
 import { ListRenderItemInfo, SectionList } from 'react-native'
 import { SvgProps } from 'react-native-svg'
 import { useAppDispatch } from 'src/app/hooks'
-import { SettingsStackParamList, useSettingsStackNavigation } from 'src/app/navigation/types'
+import {
+  OnboardingStackNavigationProp,
+  SettingsStackNavigationProp,
+  SettingsStackParamList,
+} from 'src/app/navigation/types'
 import { AddressDisplay } from 'src/components/AddressDisplay'
 import { Button, ButtonEmphasis } from 'src/components/buttons/Button'
 import { Switch } from 'src/components/buttons/Switch'
@@ -21,14 +25,19 @@ import {
   SettingsSectionItemComponent,
 } from 'src/components/Settings/SettingsRow'
 import { Text } from 'src/components/Text'
+import { IS_ANDROID } from 'src/constants/globals'
 import { openModal } from 'src/features/modals/modalSlice'
 import {
   NotificationPermission,
   useNotificationOSPermissionsEnabled,
 } from 'src/features/notifications/hooks'
 import { promptPushPermission } from 'src/features/notifications/Onesignal'
+import { ImportType, OnboardingEntryPoint } from 'src/features/onboarding/utils'
 import { ElementName, ModalName } from 'src/features/telemetry/constants'
+import { useWalletRestore } from 'src/features/wallet/hooks'
 import { showNotificationSettingsAlert } from 'src/screens/Onboarding/NotificationsSetupScreen'
+import { OnboardingScreens, Screens } from 'src/screens/Screens'
+import { Icons } from 'ui/src'
 import NotificationIcon from 'ui/src/assets/icons/bell.svg'
 import ChartIcon from 'ui/src/assets/icons/chart.svg'
 import CloudIcon from 'ui/src/assets/icons/cloud.svg'
@@ -47,7 +56,6 @@ import {
   useSelectAccountHideSpamTokens,
   useSelectAccountNotificationSetting,
 } from 'wallet/src/features/wallet/hooks'
-import { Screens } from './Screens'
 
 type Props = NativeStackScreenProps<SettingsStackParamList, Screens.SettingsWallet>
 
@@ -62,9 +70,11 @@ export function SettingsWallet({
   const addressToAccount = useAccounts()
   const currentAccount = addressToAccount[address]
   const readonly = currentAccount?.type === AccountType.Readonly
-  const navigation = useSettingsStackNavigation()
+  const navigation = useNavigation<SettingsStackNavigationProp & OnboardingStackNavigationProp>()
 
-  const hasICloudBackup = currentAccount?.backups?.includes(BackupType.Cloud)
+  const hasCloudBackup = currentAccount?.backups?.includes(BackupType.Cloud)
+
+  const { walletNeedsRestore } = useWalletRestore()
 
   const hideSmallBalances = useSelectAccountHideSmallBalances(address)
   const hideSpamTokens = useSelectAccountHideSpamTokens(address)
@@ -138,12 +148,12 @@ export function SettingsWallet({
   }
 
   const iconProps: SvgProps = {
-    color: theme.colors.textTertiary,
-    height: 24,
+    color: theme.colors.neutral3,
+    height: theme.iconSizes.icon24,
     strokeLinecap: 'round',
     strokeLinejoin: 'round',
     strokeWidth: '2',
-    width: 24,
+    width: theme.iconSizes.icon24,
   }
 
   const sections: SettingsSection[] = [
@@ -153,7 +163,7 @@ export function SettingsWallet({
         {
           screen: Screens.SettingsWalletEdit,
           text: t('Nickname'),
-          icon: <EditIcon fill={theme.colors.textSecondary} {...iconProps} />,
+          icon: <EditIcon fill={theme.colors.neutral2} {...iconProps} />,
           screenProps: { address },
         },
         {
@@ -194,16 +204,34 @@ export function SettingsWallet({
           screen: Screens.SettingsViewSeedPhrase,
           text: t('Recovery phrase'),
           icon: <KeyIcon {...iconProps} />,
-          screenProps: { address },
+          screenProps: { address, walletNeedsRestore },
           isHidden: readonly,
         },
         {
-          screen: hasICloudBackup
+          screen: walletNeedsRestore
+            ? Screens.OnboardingStack
+            : hasCloudBackup
             ? Screens.SettingsCloudBackupStatus
             : Screens.SettingsCloudBackupPasswordCreate,
-          screenProps: { address },
-          text: t('iCloud backup'),
-          icon: <CloudIcon {...iconProps} />,
+          screenProps: walletNeedsRestore
+            ? {
+                screen: OnboardingScreens.RestoreCloudBackupLoading,
+                params: {
+                  entryPoint: OnboardingEntryPoint.Sidebar,
+                  importType: ImportType.Restore,
+                },
+              }
+            : { address },
+          text: IS_ANDROID ? t('Google Drive Backup') : t('iCloud backup'),
+          icon: IS_ANDROID ? (
+            <Icons.GoogleDrive
+              color={theme.colors.neutral3}
+              height={theme.iconSizes.icon24}
+              width={theme.iconSizes.icon24}
+            />
+          ) : (
+            <CloudIcon {...iconProps} />
+          ),
           isHidden: readonly,
         },
       ],
@@ -252,8 +280,8 @@ export function SettingsWallet({
             renderItem={renderItem}
             renderSectionFooter={(): JSX.Element => <Flex pt="spacing24" />}
             renderSectionHeader={({ section: { subTitle } }): JSX.Element => (
-              <Box bg="background0" pb="spacing12">
-                <Text color="textSecondary" variant="bodyLarge">
+              <Box bg="surface1" pb="spacing12">
+                <Text color="neutral2" variant="bodyLarge">
                   {subTitle}
                 </Text>
               </Box>

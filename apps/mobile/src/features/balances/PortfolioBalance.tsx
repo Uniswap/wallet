@@ -3,11 +3,11 @@ import { Flex } from 'src/components/layout'
 import { WarmLoadingShimmer } from 'src/components/loading/WarmLoadingShimmer'
 import { DecimalNumber } from 'src/components/text/DecimalNumber'
 import { RelativeChange } from 'src/components/text/RelativeChange'
-import { iconSizes } from 'ui/src/theme/iconSizes'
+import { iconSizes } from 'ui/src/theme'
+import { formatUSDPrice, NumberType } from 'utilities/src/format/format'
 import { PollingInterval } from 'wallet/src/constants/misc'
 import { isWarmLoadingStatus } from 'wallet/src/data/utils'
 import { usePortfolioBalancesQuery } from 'wallet/src/data/__generated__/types-and-hooks'
-import { formatUSDPrice, NumberType } from 'wallet/src/utils/format'
 
 interface PortfolioBalanceProps {
   owner: Address
@@ -47,9 +47,7 @@ export function PortfolioBalance({ owner }: PortfolioBalanceProps): JSX.Element 
         <DecimalNumber
           adjustsFontSizeToFit={!isLoading}
           // initially set color to textSecondary when isWarm because the shimmer mask takes a second to load, resulting in a flash of the underlying color
-          color={isWarmLoading ? 'textSecondary' : undefined}
-          fontSize={48}
-          fontWeight="600"
+          color={isWarmLoading ? 'neutral2' : undefined}
           formattedNumber={formatUSDPrice(totalBalance, NumberType.PortfolioBalance)}
           loading={isLoading}
           number={totalBalance}
@@ -61,8 +59,8 @@ export function PortfolioBalance({ owner }: PortfolioBalanceProps): JSX.Element 
           arrowSize={iconSizes.icon20}
           change={portfolioChange?.percentage?.value}
           loading={isLoading}
-          negativeChangeColor={isWarmLoading ? 'textSecondary' : 'accentCritical'}
-          positiveChangeColor={isWarmLoading ? 'textSecondary' : 'accentSuccess'}
+          negativeChangeColor={isWarmLoading ? 'neutral2' : 'statusCritical'}
+          positiveChangeColor={isWarmLoading ? 'neutral2' : 'statusSuccess'}
           variant="bodyLarge"
         />
       </Flex>
