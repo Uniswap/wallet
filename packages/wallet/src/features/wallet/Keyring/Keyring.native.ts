@@ -6,7 +6,7 @@ declare module 'react-native' {
 }
 
 import { NativeModules } from 'react-native'
-import { NotImplementedError } from 'wallet/src/utils/errors'
+import { NotImplementedError } from 'utilities/src/errors'
 import { IKeyring } from './Keyring'
 
 const { RNEthersRS } = NativeModules
@@ -44,6 +44,11 @@ class NativeKeyring implements IKeyring {
 
   getAddressesForStoredPrivateKeys(): Promise<string[]> {
     return RNEthersRS.getAddressesForStoredPrivateKeys()
+  }
+
+  // returns the address for a given mnemonic
+  generateAddressForMnemonic(mnemonic: string, derivationIndex: number): Promise<string> {
+    return RNEthersRS.generateAddressForMnemonic(mnemonic, derivationIndex)
   }
 
   // returns the address of the generated key

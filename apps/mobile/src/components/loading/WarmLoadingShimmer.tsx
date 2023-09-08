@@ -11,7 +11,7 @@ import Reanimated, {
 } from 'react-native-reanimated'
 import { useAppTheme } from 'src/app/hooks'
 import { Box } from 'src/components/layout'
-import { opacify } from 'ui/src/theme/color/utils'
+import { opacify } from 'ui/src/theme'
 const SHIMMER_DURATION = 2000 // 2 seconds
 
 type WarmLoadingShimmerProps = {
@@ -54,13 +54,13 @@ export function WarmLoadingShimmer({
   if (isWarmLoading) {
     return (
       <MaskedView maskElement={children} style={{ width: layout.width, height: layout.height }}>
-        <Box backgroundColor="textSecondary" flexGrow={1} height="100%" overflow="hidden" />
+        <Box backgroundColor="neutral2" flexGrow={1} height="100%" overflow="hidden" />
         <Reanimated.View style={[StyleSheet.absoluteFill, animatedStyle]}>
           <LinearGradient
             colors={[
-              theme.colors.textSecondary,
-              opacify(64, theme.colors.textPrimary),
-              theme.colors.textSecondary,
+              theme.colors.neutral2,
+              opacify(64, theme.colors.neutral1),
+              theme.colors.neutral2,
             ]}
             end={{ x: 1, y: 0 }}
             start={{ x: 0, y: 0 }}

@@ -10,7 +10,7 @@ import { useSelectAddressHasNotifications } from 'src/features/notifications/hoo
 import { selectActiveAccountNotifications } from 'src/features/notifications/selectors'
 import { useSortedPendingTransactions } from 'src/features/transactions/hooks'
 import AlertCircle from 'ui/src/assets/icons/alert-circle.svg'
-import { theme as FixedTheme } from 'ui/src/theme/restyle/theme'
+import { theme as FixedTheme } from 'ui/src/theme/restyle'
 import { AppNotificationType } from 'wallet/src/features/notifications/types'
 import { TransactionStatus } from 'wallet/src/features/transactions/types'
 import { selectActiveAccountAddress } from 'wallet/src/features/wallet/selectors'
@@ -41,16 +41,16 @@ export function PendingNotificationBadge({
     if (txStatus === TransactionStatus.Success) {
       return (
         <CheckmarkCircle
-          borderColor="accentSuccess"
+          borderColor="statusSuccess"
           borderWidth={2}
           checkmarkStrokeWidth={3}
-          color={theme.colors.accentSuccess}
+          color={theme.colors.statusSuccess}
           size={size}
         />
       )
     }
 
-    return <AlertCircle color={theme.colors.accentWarning} height={size} width={size} />
+    return <AlertCircle color={theme.colors.DEP_accentWarning} height={size} width={size} />
   }
 
   /*************** Pending in-app txn  **************/
@@ -78,7 +78,7 @@ export function PendingNotificationBadge({
           position="absolute"
           width={size}
           zIndex="modal">
-          <Text color="textSecondary" fontSize={8} textAlign="center" variant="buttonLabelMicro">
+          <Text color="neutral2" fontSize={8} textAlign="center" variant="buttonLabelMicro">
             {countToDisplay}
           </Text>
         </Box>
@@ -95,7 +95,7 @@ export function PendingNotificationBadge({
   if (hasNotifications) {
     return (
       <Box
-        backgroundColor="userThemeMagenta"
+        backgroundColor="accent1"
         borderRadius="roundedFull"
         height={theme.iconSizes.icon8}
         width={theme.iconSizes.icon8}

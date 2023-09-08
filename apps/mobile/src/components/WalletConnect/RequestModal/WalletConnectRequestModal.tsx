@@ -17,24 +17,25 @@ import { ClientDetails, PermitInfo } from 'src/components/WalletConnect/RequestM
 import { useHasSufficientFunds } from 'src/components/WalletConnect/RequestModal/hooks'
 import { RequestDetails } from 'src/components/WalletConnect/RequestModal/RequestDetails'
 import { useBiometricAppSettings, useBiometricPrompt } from 'src/features/biometrics/hooks'
-import { sendAnalyticsEvent } from 'src/features/telemetry'
+import { sendMobileAnalyticsEvent } from 'src/features/telemetry'
 import { ElementName, MobileEventName, ModalName } from 'src/features/telemetry/constants'
 import { BlockedAddressWarning } from 'src/features/trm/BlockedAddressWarning'
-import { signWcRequestActions } from 'src/features/walletConnect/saga'
+import { wcWeb3Wallet } from 'src/features/walletConnect/saga'
 import { selectDidOpenFromDeepLink } from 'src/features/walletConnect/selectors'
-import { rejectRequest, returnToPreviousApp } from 'src/features/walletConnect/WalletConnect'
+import { signWcRequestActions } from 'src/features/walletConnect/signWcRequestSaga'
+import { returnToPreviousApp } from 'src/features/walletConnect/WalletConnect'
 import {
   isTransactionRequest,
   SignRequest,
   TransactionRequest,
   WalletConnectRequest,
 } from 'src/features/walletConnect/walletConnectSlice'
-import { wcWeb3Wallet } from 'src/features/walletConnectV2/saga'
 import AlertTriangle from 'ui/src/assets/icons/alert-triangle.svg'
-import { iconSizes } from 'ui/src/theme/iconSizes'
-import { useTransactionGasFee } from 'wallet/src/features/gas/hooks'
+import { iconSizes } from 'ui/src/theme'
+import { serializeError } from 'utilities/src/errors'
+import { logger } from 'utilities/src/logger/logger'
+import { useTransactionGasFee, useUSDValue } from 'wallet/src/features/gas/hooks'
 import { GasSpeed } from 'wallet/src/features/gas/types'
-import { logger } from 'wallet/src/features/logger/logger'
 import { NativeCurrency } from 'wallet/src/features/tokens/NativeCurrency'
 import { useIsBlocked } from 'wallet/src/features/trm/hooks'
 import { useSignerAccounts } from 'wallet/src/features/wallet/hooks'
@@ -46,7 +47,6 @@ import {
 } from 'wallet/src/features/walletConnect/types'
 import { areAddressesEqual } from 'wallet/src/utils/addresses'
 import { buildCurrencyId } from 'wallet/src/utils/currencyId'
-import serializeError from 'wallet/src/utils/serializeError'
 
 const MAX_MODAL_MESSAGE_HEIGHT = 200
 
@@ -110,7 +110,7 @@ function SectionContainer({
 }
 
 const spacerProps: BoxProps = {
-  borderBottomColor: 'background1',
+  borderBottomColor: 'surface2',
   borderBottomWidth: 1,
 }
 
@@ -132,7 +132,8 @@ export function WalletConnectRequestModal({ onClose, request }: Props): JSX.Elem
   const signerAccount = signerAccounts.find((account) =>
     areAddressesEqual(account.address, request.account)
   )
-  const gasFeeInfo = useTransactionGasFee(tx, GasSpeed.Urgent)
+  const gasFeeInfo = useTransactionGasFee(tx, GasSpeed.Urgent).data
+  const gasFeeUSD = useUSDValue(chainId, gasFeeInfo?.gasFee)
   const hasSufficientFunds = useHasSufficientFunds({
     account: request.account,
     chainId,
@@ -167,31 +168,27 @@ export function WalletConnectRequestModal({ onClose, request }: Props): JSX.Elem
   const rejectOnCloseRef = useRef(true)
 
   const onReject = async (): Promise<void> => {
-    if (request.version === '1') {
-      rejectRequest(request.internalId)
-    } else {
-      await wcWeb3Wallet.respondSessionRequest({
-        topic: request.sessionId,
-        response: {
-          id: Number(request.internalId),
-          jsonrpc: '2.0',
-          error: getSdkError('USER_REJECTED'),
-        },
-      })
-    }
+    await wcWeb3Wallet.respondSessionRequest({
+      topic: request.sessionId,
+      response: {
+        id: Number(request.internalId),
+        jsonrpc: '2.0',
+        error: getSdkError('USER_REJECTED'),
+      },
+    })
 
     rejectOnCloseRef.current = false
 
-    sendAnalyticsEvent(MobileEventName.WalletConnectSheetCompleted, {
+    sendMobileAnalyticsEvent(MobileEventName.WalletConnectSheetCompleted, {
       request_type: isTransactionRequest(request)
         ? WCEventType.TransactionRequest
         : WCEventType.SignRequest,
       eth_method: request.type,
       dapp_url: request.dapp.url,
       dapp_name: request.dapp.name,
+      wc_version: '2',
       chain_id: chainId,
       outcome: WCRequestOutcome.Reject,
-      wc_version: request.version,
     })
 
     onClose()
@@ -213,7 +210,6 @@ export function WalletConnectRequestModal({ onClose, request }: Props): JSX.Elem
           account: signerAccount,
           dapp: request.dapp,
           chainId,
-          version: request.version,
         })
       )
     } else {
@@ -227,23 +223,22 @@ export function WalletConnectRequestModal({ onClose, request }: Props): JSX.Elem
           account: signerAccount,
           dapp: request.dapp,
           chainId,
-          version: request.version,
         })
       )
     }
 
     rejectOnCloseRef.current = false
 
-    sendAnalyticsEvent(MobileEventName.WalletConnectSheetCompleted, {
+    sendMobileAnalyticsEvent(MobileEventName.WalletConnectSheetCompleted, {
       request_type: isTransactionRequest(request)
         ? WCEventType.TransactionRequest
         : WCEventType.SignRequest,
       eth_method: request.type,
       dapp_url: request.dapp.url,
       dapp_name: request.dapp.name,
+      wc_version: '2',
       chain_id: chainId,
       outcome: WCRequestOutcome.Confirm,
-      wc_version: request.version,
     })
 
     onClose()
@@ -276,7 +271,7 @@ export function WalletConnectRequestModal({ onClose, request }: Props): JSX.Elem
         <ClientDetails permitInfo={permitInfo} request={request} />
         <Flex gap="spacing12">
           <Flex
-            backgroundColor="background2"
+            backgroundColor="surface2"
             borderRadius="rounded16"
             gap="none"
             spacerProps={spacerProps}>
@@ -289,10 +284,10 @@ export function WalletConnectRequestModal({ onClose, request }: Props): JSX.Elem
             )}
             <Box px="spacing16" py="spacing12">
               {methodCostsGas(request) ? (
-                <NetworkFee chainId={chainId} gasFee={gasFeeInfo?.gasFee} />
+                <NetworkFee chainId={chainId} gasFeeUSD={gasFeeUSD} />
               ) : (
                 <Flex row alignItems="center" justifyContent="space-between">
-                  <Text color="textPrimary" variant="subheadSmall">
+                  <Text color="neutral1" variant="subheadSmall">
                     {t('Network')}
                   </Text>
                   <NetworkPill
@@ -311,7 +306,7 @@ export function WalletConnectRequestModal({ onClose, request }: Props): JSX.Elem
             <SectionContainer>
               <AccountDetails address={request.account} />
               {!hasSufficientFunds && (
-                <Text color="accentWarning" paddingTop="spacing8" variant="bodySmall">
+                <Text color="DEP_accentWarning" paddingTop="spacing8" variant="bodySmall">
                   {t("You don't have enough {{symbol}} to complete this transaction.", {
                     symbol: nativeCurrency?.symbol,
                   })}
@@ -321,15 +316,15 @@ export function WalletConnectRequestModal({ onClose, request }: Props): JSX.Elem
           </Flex>
           {!netInfo.isInternetReachable ? (
             <BaseCard.InlineErrorState
-              backgroundColor="accentWarningSoft"
+              backgroundColor="DEP_accentWarningSoft"
               icon={
                 <AlertTriangle
-                  color={theme.colors.accentWarning}
+                  color={theme.colors.DEP_accentWarning}
                   height={theme.iconSizes.icon16}
                   width={theme.iconSizes.icon16}
                 />
               }
-              textColor="accentWarning"
+              textColor="DEP_accentWarning"
               title={t('Internet or network connection error')}
             />
           ) : (
@@ -390,11 +385,11 @@ function WarningSection({
   return (
     <Flex centered row alignSelf="center" gap="spacing8">
       <AlertTriangle
-        color={theme.colors.accentWarning}
+        color={theme.colors.DEP_accentWarning}
         height={iconSizes.icon16}
         width={iconSizes.icon16}
       />
-      <Text color="textSecondary" fontStyle="italic" variant="bodyMicro">
+      <Text color="neutral2" fontStyle="italic" variant="bodyMicro">
         {t('Be careful: this {{ requestType }} may transfer assets', {
           requestType: isTransactionRequest(request) ? 'transaction' : 'message',
         })}

@@ -6,9 +6,11 @@ import ContextMenu from 'react-native-context-menu-view'
 import { FadeInDown, FadeOutDown } from 'react-native-reanimated'
 import { useAppDispatch, useAppSelector, useAppTheme } from 'src/app/hooks'
 import { AppStackScreenProp } from 'src/app/navigation/types'
-import { AnimatedBox, AnimatedFlex, Box, Flex } from 'src/components/layout'
+import { TouchableArea } from 'src/components/buttons/TouchableArea'
+import { AnimatedBox, AnimatedFlex, Flex } from 'src/components/layout'
 import { BaseCard } from 'src/components/layout/BaseCard'
 import { HeaderScrollScreen } from 'src/components/layout/screens/HeaderScrollScreen'
+import { Separator } from 'src/components/layout/Separator'
 import { PriceExplorer } from 'src/components/PriceExplorer/PriceExplorer'
 import { useTokenPriceHistory } from 'src/components/PriceExplorer/usePriceHistory'
 import { Text } from 'src/components/Text'
@@ -30,7 +32,8 @@ import { useTokenWarningDismissed } from 'src/features/tokens/safetyHooks'
 import { Screens } from 'src/screens/Screens'
 import { useExtractedTokenColor } from 'src/utils/colors'
 import EllipsisIcon from 'ui/src/assets/icons/ellipsis.svg'
-import { iconSizes } from 'ui/src/theme/iconSizes'
+import { iconSizes } from 'ui/src/theme'
+import { formatUSDPrice } from 'utilities/src/format/format'
 import { TokenLogo } from 'wallet/src/components/CurrencyLogo/TokenLogo'
 import { ChainId } from 'wallet/src/constants/chains'
 import { PollingInterval } from 'wallet/src/constants/misc'
@@ -48,7 +51,6 @@ import {
   TransactionState,
 } from 'wallet/src/features/transactions/transactionState/types'
 import { currencyIdToAddress, currencyIdToChain } from 'wallet/src/utils/currencyId'
-import { formatUSDPrice } from 'wallet/src/utils/format'
 
 type Price = NonNullable<
   NonNullable<NonNullable<NonNullable<TokenDetailsScreenQuery['token']>['project']>['markets']>[0]
@@ -58,7 +60,7 @@ function HeaderPriceLabel({ price }: { price: Price }): JSX.Element {
   const { t } = useTranslation()
 
   return (
-    <Text color="textPrimary" variant="bodyLarge">
+    <Text color="neutral1" variant="bodyLarge">
       {formatUSDPrice(price?.value) ?? t('Unknown token')}
     </Text>
   )
@@ -90,7 +92,7 @@ function HeaderTitleElement({
           symbol={token?.symbol ?? undefined}
           url={tokenProject?.logoUrl ?? undefined}
         />
-        <Text color="textSecondary" variant="buttonLabelMicro">
+        <Text color="neutral2" variant="buttonLabelMicro">
           {token?.symbol ?? t('Unknown token')}
         </Text>
       </Flex>
@@ -184,8 +186,8 @@ function TokenDetails({
 
   const { tokenColor, tokenColorLoading } = useExtractedTokenColor(
     tokenLogoUrl,
-    /*background=*/ theme.colors.background0,
-    /*default=*/ theme.colors.textTertiary
+    /*background=*/ theme.colors.surface1,
+    /*default=*/ theme.colors.neutral3
   )
 
   const onPriceChartRetry = useCallback((): void => {
@@ -251,8 +253,10 @@ function TokenDetails({
 
   const onPressSwap = useCallback(
     (swapType: TransactionType.BUY | TransactionType.SELL) => {
-      // show warning modal speedbump if token has a warning level and user has not dismissed
-      if (safetyLevel !== SafetyLevel.Verified && !tokenWarningDismissed) {
+      if (safetyLevel === SafetyLevel.Blocked) {
+        setShowWarningModal(true)
+        // show warning modal speed bump if token has a warning level and user has not dismissed
+      } else if (safetyLevel !== SafetyLevel.Verified && !tokenWarningDismissed) {
         setActiveTransactionType(swapType)
         setShowWarningModal(true)
       } else {
@@ -297,7 +301,8 @@ function TokenDetails({
 
   const isDarkMode = useIsDarkMode()
   // shall be the same color as heart icon in not favorited state next to it
-  const ellipsisColor = isDarkMode ? theme.colors.textTertiary : theme.colors.backgroundOutline
+  const ellipsisColor = isDarkMode ? theme.colors.neutral2 : theme.colors.neutral2
+  const loadingColor = isDarkMode ? theme.colors.neutral3 : theme.colors.surface3
 
   const ellipsisMenuVisible = menuActions.length > 0
 
@@ -310,11 +315,15 @@ function TokenDetails({
           <Flex row alignItems="center">
             {ellipsisMenuVisible && (
               <ContextMenu dropdownMenuMode actions={menuActions} onPress={onContextMenuPress}>
-                <EllipsisIcon
-                  color={ellipsisColor}
-                  height={iconSizes.icon16}
-                  width={iconSizes.icon16}
-                />
+                <TouchableArea
+                  hapticFeedback
+                  style={{ padding: theme.spacing.spacing8, marginRight: -theme.spacing.spacing8 }}>
+                  <EllipsisIcon
+                    color={ellipsisColor}
+                    height={iconSizes.icon16}
+                    width={iconSizes.icon16}
+                  />
+                </TouchableArea>
               </ContextMenu>
             )}
             <TokenDetailsFavoriteButton currencyId={_currencyId} />
@@ -330,11 +339,7 @@ function TokenDetails({
             />
             <PriceExplorer
               currencyId={_currencyId}
-              tokenColor={
-                tokenColorLoading
-                  ? theme.colors.textTertiary
-                  : tokenColor ?? theme.colors.magentaVibrant
-              }
+              tokenColor={tokenColorLoading ? loadingColor : tokenColor ?? theme.colors.accent1}
               onRetry={onPriceChartRetry}
             />
           </Flex>
@@ -343,29 +348,25 @@ function TokenDetails({
               <BaseCard.InlineErrorState onRetry={retry} />
             </AnimatedBox>
           ) : null}
-          <Flex gap="spacing24" mb="spacing8">
+          <Flex gap="spacing24" mb="spacing8" px="spacing16">
             <TokenBalances
               currentChainBalance={currentChainBalance}
               otherChainBalances={otherChainBalances}
               onPressSend={onPressSend}
             />
-            <Box mx="spacing16">
-              <TokenDetailsStats data={data} tokenColor={tokenColor} />
-            </Box>
+            <Separator />
+            <TokenDetailsStats data={data} tokenColor={tokenColor} />
             <TokenDetailsLinks currencyId={_currencyId} data={data} />
           </Flex>
         </Flex>
       </HeaderScrollScreen>
 
       {!loading && !tokenColorLoading ? (
-        <AnimatedFlex backgroundColor="background0" entering={FadeInDown} pb={pb}>
+        <AnimatedFlex backgroundColor="surface1" entering={FadeInDown} pb={pb}>
           <TokenDetailsActionButtons
             tokenColor={tokenColor}
-            onPressSwap={
-              safetyLevel === SafetyLevel.Blocked
-                ? undefined
-                : (): void =>
-                    onPressSwap(currentChainBalance ? TransactionType.SELL : TransactionType.BUY)
+            onPressSwap={(): void =>
+              onPressSwap(currentChainBalance ? TransactionType.SELL : TransactionType.BUY)
             }
           />
         </AnimatedFlex>

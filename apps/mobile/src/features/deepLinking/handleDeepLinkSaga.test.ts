@@ -1,20 +1,22 @@
 import { expectSaga } from 'redux-saga-test-plan'
+import { call } from 'redux-saga/effects'
 import {
   handleDeepLink,
   handleUniswapAppDeepLink,
   handleWalletConnectDeepLink,
+  LinkSource,
   parseAndValidateUserAddress,
 } from 'src/features/deepLinking/handleDeepLinkSaga'
 
 import { handleTransactionLink } from 'src/features/deepLinking/handleTransactionLinkSaga'
 import { openModal } from 'src/features/modals/modalSlice'
-import { sendAnalyticsEvent } from 'src/features/telemetry'
+import { sendMobileAnalyticsEvent } from 'src/features/telemetry'
 import { MobileEventName, ModalName } from 'src/features/telemetry/constants'
+import { waitForWcWeb3WalletIsReady } from 'src/features/walletConnect/saga'
 import { Screens } from 'src/screens/Screens'
-import { account } from 'src/test/fixtures'
 import { UNISWAP_APP_HOSTNAME } from 'wallet/src/constants/urls'
 import { setAccountAsActive } from 'wallet/src/features/wallet/slice'
-import { SAMPLE_SEED_ADDRESS_1, SAMPLE_SEED_ADDRESS_2 } from 'wallet/src/test/fixtures'
+import { account, SAMPLE_SEED_ADDRESS_1, SAMPLE_SEED_ADDRESS_2 } from 'wallet/src/test/fixtures'
 
 const swapUrl = `https://uniswap.org/app?screen=swap&userAddress=${account.address}`
 const transactionUrl = `https://uniswap.org/app?screen=transaction&userAddress=${account.address}`
@@ -42,7 +44,7 @@ describe(handleDeepLink, () => {
       })
       .call(parseAndValidateUserAddress, account.address)
       .put(setAccountAsActive(account.address))
-      .call(sendAnalyticsEvent, MobileEventName.DeepLinkOpened, {
+      .call(sendMobileAnalyticsEvent, MobileEventName.DeepLinkOpened, {
         url: swapDeepLinkPayload.url,
         screen: 'swap',
         is_cold_start: swapDeepLinkPayload.coldStart,
@@ -61,7 +63,7 @@ describe(handleDeepLink, () => {
         },
       })
       .call(handleTransactionLink)
-      .call(sendAnalyticsEvent, MobileEventName.DeepLinkOpened, {
+      .call(sendMobileAnalyticsEvent, MobileEventName.DeepLinkOpened, {
         url: transactionDeepLinkPayload.url,
         screen: 'transaction',
         is_cold_start: transactionDeepLinkPayload.coldStart,
@@ -107,6 +109,7 @@ describe(handleDeepLink, () => {
           activeAccountAddress: account.address,
         },
       })
+      .provide([[call(waitForWcWeb3WalletIsReady), undefined]])
       .call(handleWalletConnectDeepLink, 'wc:123')
       .returns(undefined)
 
@@ -126,6 +129,7 @@ describe(handleDeepLink, () => {
           activeAccountAddress: account.address,
         },
       })
+      .provide([[call(waitForWcWeb3WalletIsReady), undefined]])
       .call(handleWalletConnectDeepLink, 'wc:123')
       .returns(undefined)
       .silentRun()
@@ -151,9 +155,10 @@ describe(handleDeepLink, () => {
 
   it('Handles Share NFT Item Universal Link', () => {
     const hash = `#/nfts/asset/${SAMPLE_SEED_ADDRESS_1}/123`
+    const url = `https://${UNISWAP_APP_HOSTNAME}/${hash}`
     return expectSaga(handleDeepLink, {
       payload: {
-        url: `https://${UNISWAP_APP_HOSTNAME}/${hash}`,
+        url,
         coldStart: false,
       },
       type: '',
@@ -166,7 +171,7 @@ describe(handleDeepLink, () => {
           activeAccountAddress: account.address,
         },
       })
-      .call(handleUniswapAppDeepLink, hash)
+      .call(handleUniswapAppDeepLink, hash, url, LinkSource.Share)
       .put(
         openModal({
           name: ModalName.Explore,
@@ -186,9 +191,10 @@ describe(handleDeepLink, () => {
 
   it('Handles Share NFT Collection Universal Link', () => {
     const hash = `#/nfts/collection/${SAMPLE_SEED_ADDRESS_1}`
+    const url = `https://${UNISWAP_APP_HOSTNAME}/${hash}`
     return expectSaga(handleDeepLink, {
       payload: {
-        url: `https://${UNISWAP_APP_HOSTNAME}/${hash}`,
+        url,
         coldStart: false,
       },
       type: '',
@@ -201,7 +207,7 @@ describe(handleDeepLink, () => {
           activeAccountAddress: account.address,
         },
       })
-      .call(handleUniswapAppDeepLink, hash)
+      .call(handleUniswapAppDeepLink, hash, url, LinkSource.Share)
       .put(
         openModal({
           name: ModalName.Explore,
@@ -219,9 +225,10 @@ describe(handleDeepLink, () => {
 
   it('Handles Share Token Item Universal Link', () => {
     const hash = `#/tokens/ethereum/${SAMPLE_SEED_ADDRESS_1}`
+    const url = `https://${UNISWAP_APP_HOSTNAME}/${hash}`
     return expectSaga(handleDeepLink, {
       payload: {
-        url: `https://${UNISWAP_APP_HOSTNAME}/${hash}`,
+        url,
         coldStart: false,
       },
       type: '',
@@ -234,7 +241,7 @@ describe(handleDeepLink, () => {
           activeAccountAddress: account.address,
         },
       })
-      .call(handleUniswapAppDeepLink, hash)
+      .call(handleUniswapAppDeepLink, hash, url, LinkSource.Share)
       .put(
         openModal({
           name: ModalName.Explore,
@@ -252,9 +259,10 @@ describe(handleDeepLink, () => {
 
   it('Handles Share currently active Account Address Universal Link', () => {
     const hash = `#/address/${account.address}`
+    const url = `https://${UNISWAP_APP_HOSTNAME}/${hash}`
     return expectSaga(handleDeepLink, {
       payload: {
-        url: `https://${UNISWAP_APP_HOSTNAME}/${hash}`,
+        url,
         coldStart: false,
       },
       type: '',
@@ -267,16 +275,17 @@ describe(handleDeepLink, () => {
           activeAccountAddress: account.address,
         },
       })
-      .call(handleUniswapAppDeepLink, hash)
+      .call(handleUniswapAppDeepLink, hash, url, LinkSource.Share)
       .returns(undefined)
       .silentRun()
   })
 
   it('Handles Share already added Account Address Universal Link', () => {
     const hash = `#/address/${SAMPLE_SEED_ADDRESS_2}`
+    const url = `https://${UNISWAP_APP_HOSTNAME}/${hash}`
     return expectSaga(handleDeepLink, {
       payload: {
-        url: `https://${UNISWAP_APP_HOSTNAME}/${hash}`,
+        url,
         coldStart: false,
       },
       type: '',
@@ -290,7 +299,7 @@ describe(handleDeepLink, () => {
           activeAccountAddress: account.address,
         },
       })
-      .call(handleUniswapAppDeepLink, hash)
+      .call(handleUniswapAppDeepLink, hash, url, LinkSource.Share)
       .put(setAccountAsActive(SAMPLE_SEED_ADDRESS_2))
       .returns(undefined)
       .silentRun()
@@ -298,9 +307,10 @@ describe(handleDeepLink, () => {
 
   it('Handles Share external Account Address Universal Link', () => {
     const hash = `#/address/${SAMPLE_SEED_ADDRESS_2}`
+    const url = `https://${UNISWAP_APP_HOSTNAME}/${hash}`
     return expectSaga(handleDeepLink, {
       payload: {
-        url: `https://${UNISWAP_APP_HOSTNAME}/${hash}`,
+        url,
         coldStart: false,
       },
       type: '',
@@ -313,7 +323,7 @@ describe(handleDeepLink, () => {
           activeAccountAddress: account.address,
         },
       })
-      .call(handleUniswapAppDeepLink, hash)
+      .call(handleUniswapAppDeepLink, hash, url, LinkSource.Share)
       .put(
         openModal({
           name: ModalName.Explore,

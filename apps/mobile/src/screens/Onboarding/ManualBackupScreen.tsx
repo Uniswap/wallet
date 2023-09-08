@@ -16,14 +16,14 @@ import {
   FULL_MNEMONIC_DISPLAY_HEIGHT,
 } from 'src/components/mnemonic/constants'
 import { HiddenMnemonicWordView } from 'src/components/mnemonic/HiddenMnemonicWordView'
+import { MnemonicConfirmation } from 'src/components/mnemonic/MnemonicConfirmation'
 import { MnemonicDisplay } from 'src/components/mnemonic/MnemonicDisplay'
-import { MnemonicTest } from 'src/components/mnemonic/MnemonicTest'
 import { BottomSheetModal } from 'src/components/modals/BottomSheetModal'
 import WarningModal from 'src/components/modals/WarningModal/WarningModal'
 import { Text } from 'src/components/Text'
 import { useLockScreenOnBlur } from 'src/features/authentication/lockScreenContext'
 import { OnboardingScreen } from 'src/features/onboarding/OnboardingScreen'
-import { sendAnalyticsEvent } from 'src/features/telemetry'
+import { sendMobileAnalyticsEvent } from 'src/features/telemetry'
 import { ElementName, ManualPageViewScreen, ModalName } from 'src/features/telemetry/constants'
 import { OnboardingScreens } from 'src/screens/Screens'
 import {
@@ -37,7 +37,7 @@ type Props = NativeStackScreenProps<OnboardingStackParamList, OnboardingScreens.
 
 enum View {
   SeedPhrase,
-  SeedPhraseTest,
+  SeedPhraseConfirm,
 }
 
 export function ManualBackupScreen({ navigation, route: { params } }: Props): JSX.Element | null {
@@ -103,12 +103,12 @@ export function ManualBackupScreen({ navigation, route: { params } }: Props): JS
   useEffect(() => {
     switch (view) {
       case View.SeedPhrase:
-        sendAnalyticsEvent(SharedEventName.PAGE_VIEWED, {
+        sendMobileAnalyticsEvent(SharedEventName.PAGE_VIEWED, {
           screen: ManualPageViewScreen.WriteDownRecoveryPhrase,
         })
         break
-      case View.SeedPhraseTest:
-        sendAnalyticsEvent(SharedEventName.PAGE_VIEWED, {
+      case View.SeedPhraseConfirm:
+        sendMobileAnalyticsEvent(SharedEventName.PAGE_VIEWED, {
           screen: ManualPageViewScreen.ConfirmRecoveryPhrase,
         })
     }
@@ -151,13 +151,13 @@ export function ManualBackupScreen({ navigation, route: { params } }: Props): JS
           )}
         </OnboardingScreen>
       )
-    case View.SeedPhraseTest:
+    case View.SeedPhraseConfirm:
       return (
         <OnboardingScreen subtitle={responsiveSubtitle} title={responsiveTitle}>
           <Flex grow pointerEvents={continueButtonEnabled ? 'none' : 'auto'} pt="spacing12">
-            <MnemonicTest
+            <MnemonicConfirmation
               mnemonicId={mnemonicId}
-              onTestComplete={(): void => setContinueButtonEnabled(true)}
+              onConfirmComplete={(): void => setContinueButtonEnabled(true)}
             />
           </Flex>
           <Flex justifyContent="flex-end">
@@ -180,28 +180,28 @@ const SeedWarningModal = ({ onPress }: { onPress: () => void }): JSX.Element => 
   const { t } = useTranslation()
   return (
     <BottomSheetModal
-      backgroundColor={theme.colors.background1}
+      backgroundColor={theme.colors.surface2}
       hideHandlebar={true}
       isDismissible={false}
       name={ModalName.SeedPhraseWarningModal}>
-      <Flex centered gap="spacing12" pb="spacing48" pt="spacing12" px="spacing24">
-        <Flex centered backgroundColor="background3" borderRadius="roundedFull" padding="spacing8">
+      <Flex centered gap="spacing12" pb="spacing48" pt="spacing36" px="spacing24">
+        <Flex centered backgroundColor="surface2" borderRadius="roundedFull" padding="spacing8">
           <LockIcon
-            color={theme.colors.textPrimary}
+            color={theme.colors.neutral1}
             height={theme.iconSizes.icon24}
             width={theme.iconSizes.icon24}
           />
         </Flex>
-        <Text color="textPrimary" variant="bodyLarge">
+        <Text color="neutral1" variant="bodyLarge">
           {t('Do this step in a private place')}
         </Text>
-        <Text color="textTertiary" textAlign="center" variant="bodySmall">
+        <Text color="neutral2" textAlign="center" variant="bodySmall">
           {t(
             'Your recovery phrase is what grants you (and anyone who has it) access to your funds. Be sure to store it in a memorable, safe space.'
           )}
         </Text>
         <TouchableOpacity onPress={onPress}>
-          <Text color="magentaVibrant" paddingTop="spacing24" variant="buttonLabelMedium">
+          <Text color="accent1" paddingTop="spacing24" variant="buttonLabelMedium">
             {t('I’m ready')}
           </Text>
         </TouchableOpacity>

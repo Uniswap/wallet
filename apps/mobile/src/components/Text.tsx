@@ -5,8 +5,7 @@ import Animated from 'react-native-reanimated'
 import { Box } from 'src/components/layout'
 import { Shimmer } from 'src/components/loading/Shimmer'
 import { HiddenFromScreenReaders } from 'src/components/text/HiddenFromScreenReaders'
-import { textVariants } from 'ui/src/theme/restyle/font'
-import { Theme } from 'ui/src/theme/restyle/theme'
+import { textVariants, Theme } from 'ui/src/theme/restyle'
 
 export const DEFAULT_FONT_SCALE = 1
 
@@ -29,7 +28,7 @@ const TextPlaceholder = ({ children }: PropsWithChildren<unknown>): JSX.Element 
       <Box alignItems="center" flexDirection="row" position="relative">
         <HiddenFromScreenReaders>{children}</HiddenFromScreenReaders>
         <Box
-          bg="background3"
+          bg="surface3"
           borderRadius="rounded4"
           bottom="5%"
           left={0}

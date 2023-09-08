@@ -2,15 +2,15 @@ import { QueryHookOptions } from '@apollo/client'
 import { TradeType } from '@uniswap/sdk-core'
 import { BigNumber } from 'ethers'
 import { useMemo } from 'react'
+import { serializeError } from 'utilities/src/errors'
+import { logger } from 'utilities/src/logger/logger'
+import { ONE_MINUTE_MS } from 'utilities/src/time/time'
 import { ChainId } from 'wallet/src/constants/chains'
-import { DEFAULT_SLIPPAGE_TOLERANCE } from 'wallet/src/constants/transactions'
+import { MAX_AUTO_SLIPPAGE_TOLERANCE } from 'wallet/src/constants/transactions'
 import { useRestQuery } from 'wallet/src/data/rest'
-import { logger } from 'wallet/src/features/logger/logger'
 import { transformQuoteToTrade } from 'wallet/src/features/transactions/swap/routeUtils'
 import { PermitSignatureInfo } from 'wallet/src/features/transactions/swap/usePermit2Signature'
 import { SwapRouterNativeAssets } from 'wallet/src/utils/currencyId'
-import serializeError from 'wallet/src/utils/serializeError'
-import { ONE_MINUTE_MS } from 'wallet/src/utils/time'
 import { QuoteRequest, QuoteResponse, TradeQuoteResult } from './types'
 
 const DEFAULT_DEADLINE_S = 60 * 30 // 30 minutes in seconds
@@ -23,7 +23,7 @@ export const SWAP_NO_ROUTE_ERROR = 'NO_ROUTE'
 // https://github.com/Uniswap/api/blob/main/bin/stacks/api-v1.ts#L234
 export const API_RATE_LIMIT_ERROR = 'TOO_MANY_REQUESTS'
 
-interface TradeQuoteRequest {
+export interface TradeQuoteRequest {
   amount: string
   deadline?: number
   enableUniversalRouter: boolean
@@ -45,9 +45,9 @@ export function useQuoteQuery(
   request: TradeQuoteRequest | undefined,
   { pollInterval }: QueryHookOptions
 ): ReturnType<typeof useRestQuery<TradeQuoteResult>> {
-  let params: QuoteRequest | Record<string, never> = {}
+  const params: QuoteRequest | undefined = useMemo(() => {
+    if (!request) return undefined
 
-  if (request) {
     const {
       amount,
       deadline = DEFAULT_DEADLINE_S,
@@ -55,7 +55,7 @@ export function useQuoteQuery(
       fetchSimulatedGasLimit,
       recipient,
       permitSignatureInfo,
-      slippageTolerance = DEFAULT_SLIPPAGE_TOLERANCE,
+      slippageTolerance = MAX_AUTO_SLIPPAGE_TOLERANCE,
       tokenInAddress,
       tokenInChainId,
       tokenOutAddress,
@@ -89,7 +89,7 @@ export function useQuoteQuery(
         }
       : undefined
 
-    params = {
+    return {
       tokenInChainId,
       tokenIn: tokenInAddress,
       tokenOutChainId,
@@ -111,14 +111,15 @@ export function useQuoteQuery(
         },
       ],
     }
-  }
+  }, [request])
 
   const result = useRestQuery<QuoteResponse, QuoteRequest | Record<string, never>>(
     '/v2/quote',
-    params,
+    params ?? {},
     ['quote', 'routing'],
     {
       pollInterval,
+      ttlMs: ONE_MINUTE_MS,
       skip: !request,
       notifyOnNetworkStatusChange: true,
     }
@@ -126,7 +127,7 @@ export function useQuoteQuery(
 
   return useMemo(() => {
     if (result.error && request?.loggingProperties?.isUSDQuote) {
-      logger.error('Error in Routing API response', {
+      logger.error(new Error('Error in Routing API response'), {
         tags: {
           file: 'routingApi',
           function: 'quote',
@@ -135,13 +136,19 @@ export function useQuoteQuery(
       })
     }
 
-    if (result.data) {
-      // Since there is no cachettl if the cached query being returned is more than a minute old then refetch
-      if (result.data?.timestamp && Date.now() - result.data.timestamp > ONE_MINUTE_MS) {
-        result.refetch?.()
-        return { ...result, data: undefined }
-      }
+    if (result.data && !result.data.quote) {
+      logger.error(new Error('Unexpected empty Routing API response'), {
+        tags: {
+          file: 'routingApi',
+          function: 'quote',
+        },
+        extra: {
+          quoteRequestParams: params,
+        },
+      })
+    }
 
+    if (result.data?.quote) {
       const tradeType = request?.type === 'exactIn' ? TradeType.EXACT_INPUT : TradeType.EXACT_OUTPUT
       const tokenInIsNative = Object.values(SwapRouterNativeAssets).includes(
         request?.tokenInAddress as SwapRouterNativeAssets
@@ -169,17 +176,15 @@ export function useQuoteQuery(
       }
     }
 
-    return {
-      ...result,
-      data: undefined,
-    }
+    return { ...result, data: undefined }
   }, [
     result,
-    request?.deadline,
     request?.loggingProperties?.isUSDQuote,
-    request?.slippageTolerance,
+    request?.type,
     request?.tokenInAddress,
     request?.tokenOutAddress,
-    request?.type,
+    request?.deadline,
+    request?.slippageTolerance,
+    params,
   ])
 }

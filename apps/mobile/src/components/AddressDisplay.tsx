@@ -9,7 +9,7 @@ import { Text } from 'src/components/Text'
 import { ElementName } from 'src/features/telemetry/constants'
 import { setClipboard } from 'src/utils/clipboard'
 import CopyIcon from 'ui/src/assets/icons/copy-sheets.svg'
-import { Theme } from 'ui/src/theme/restyle/theme'
+import { Theme } from 'ui/src/theme/restyle'
 import { useENSAvatar } from 'wallet/src/features/ens/api'
 import { pushNotification } from 'wallet/src/features/notifications/slice'
 import { AppNotificationType, CopyNotificationType } from 'wallet/src/features/notifications/types'
@@ -58,8 +58,8 @@ export function AddressDisplay({
   address,
   size = 24,
   variant = 'bodyLarge',
-  textColor = 'textPrimary',
-  captionTextColor = 'textSecondary',
+  textColor = 'neutral1',
+  captionTextColor = 'neutral2',
   captionVariant = 'subheadSmall',
   hideAddressInSubtitle,
   direction = 'row',
@@ -123,7 +123,7 @@ export function AddressDisplay({
               {displayName?.name}
             </Text>
             {showCopy && !showAddressAsSubtitle && (
-              <CopyIcon color={theme.colors.textPrimary} height={mainSize} width={mainSize} />
+              <CopyIcon color={theme.colors.neutral1} height={mainSize} width={mainSize} />
             )}
           </Flex>
         </CopyButtonWrapper>
@@ -132,7 +132,7 @@ export function AddressDisplay({
             <Flex
               centered
               row
-              backgroundColor={showCopyWrapperButton ? 'backgroundOverlay' : 'none'}
+              backgroundColor={showCopyWrapperButton ? 'DEP_backgroundOverlay' : 'none'}
               borderRadius="roundedFull"
               gap="spacing4"
               marginTop={showCopyWrapperButton ? 'spacing8' : 'none'}

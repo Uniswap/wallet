@@ -3,22 +3,23 @@ import { parseUri } from '@walletconnect/utils'
 import { Alert } from 'react-native'
 import { URL } from 'react-native-url-polyfill'
 import { appSelect } from 'src/app/hooks'
-import { i18n } from 'src/app/i18n'
 import { handleMoonpayReturnLink } from 'src/features/deepLinking/handleMoonpayReturnLinkSaga'
 import { handleSwapLink } from 'src/features/deepLinking/handleSwapLinkSaga'
 import { handleTransactionLink } from 'src/features/deepLinking/handleTransactionLinkSaga'
 import { openModal } from 'src/features/modals/modalSlice'
-import { sendAnalyticsEvent } from 'src/features/telemetry'
-import { MobileEventName, ModalName } from 'src/features/telemetry/constants'
-import { connectToApp, isValidWCUrl } from 'src/features/walletConnect/WalletConnect'
+import { sendMobileAnalyticsEvent } from 'src/features/telemetry'
+import { MobileEventName, ModalName, ShareableEntity } from 'src/features/telemetry/constants'
+import { waitForWcWeb3WalletIsReady } from 'src/features/walletConnect/saga'
+import { pairWithWalletConnectURI } from 'src/features/walletConnect/utils'
 import { setDidOpenFromDeepLink } from 'src/features/walletConnect/walletConnectSlice'
-import { pairWithWalletConnectURI } from 'src/features/walletConnectV2/utils'
+import { WidgetType } from 'src/features/widgets/widgets'
 import { Screens } from 'src/screens/Screens'
 import { openUri, UNISWAP_APP_NATIVE_TOKEN } from 'src/utils/linking'
-import { call, fork, put, takeLatest } from 'typed-redux-saga'
+import { call, put, takeLatest } from 'typed-redux-saga'
+import { serializeError } from 'utilities/src/errors'
+import { logger } from 'utilities/src/logger/logger'
 import { UNISWAP_APP_HOSTNAME } from 'wallet/src/constants/urls'
 import { fromUniswapWebAppLink } from 'wallet/src/features/chains/utils'
-import { logger } from 'wallet/src/features/logger/logger'
 import {
   selectAccounts,
   selectActiveAccount,
@@ -26,24 +27,30 @@ import {
   selectNonPendingAccounts,
 } from 'wallet/src/features/wallet/selectors'
 import { setAccountAsActive } from 'wallet/src/features/wallet/slice'
+import i18n from 'wallet/src/i18n/i18n'
 import { buildCurrencyId, buildNativeCurrencyId } from 'wallet/src/utils/currencyId'
-import serializeError from 'wallet/src/utils/serializeError'
 
 export interface DeepLink {
   url: string
   coldStart: boolean
 }
 
+export enum LinkSource {
+  Widget = 'Widget',
+  Share = 'Share',
+}
+
 const UNISWAP_URL_SCHEME = 'uniswap://'
 const UNISWAP_URL_SCHEME_WALLETCONNECT = 'uniswap://wc?uri='
+const UNISWAP_URL_SCHEME_WIDGET = 'uniswap://widget/'
 
-const NFT_ITEM_SHARE_LINK_HASH_REGEX = /^#\/nfts\/asset\/(0x[a-fA-F0-9]{40})\/(\d+)$/
-const NFT_COLLECTION_SHARE_LINK_HASH_REGEX = /^#\/nfts\/collection\/(0x[a-fA-F0-9]{40})$/
+const NFT_ITEM_SHARE_LINK_HASH_REGEX = /^(#\/)?nfts\/asset\/(0x[a-fA-F0-9]{40})\/(\d+)$/
+const NFT_COLLECTION_SHARE_LINK_HASH_REGEX = /^(#\/)?nfts\/collection\/(0x[a-fA-F0-9]{40})$/
 const TOKEN_SHARE_LINK_HASH_REGEX = RegExp(
   // eslint-disable-next-line no-useless-escape
-  `^#\/tokens\/([\\w\\d]*)\/(0x[a-fA-F0-9]{40}|${UNISWAP_APP_NATIVE_TOKEN})$`
+  `^(#\/)?tokens\/([\\w\\d]*)\/(0x[a-fA-F0-9]{40}|${UNISWAP_APP_NATIVE_TOKEN})$`
 )
-const ADDRESS_SHARE_LINK_HASH_REGEX = /^#\/address\/(0x[a-fA-F0-9]{40})$/
+const ADDRESS_SHARE_LINK_HASH_REGEX = /^(#\/)?address\/(0x[a-fA-F0-9]{40})$/
 
 export const openDeepLink = createAction<DeepLink>('deeplink/open')
 
@@ -51,10 +58,10 @@ export function* deepLinkWatcher() {
   yield* takeLatest(openDeepLink.type, handleDeepLink)
 }
 
-export function* handleUniswapAppDeepLink(hash: string) {
+export function* handleUniswapAppDeepLink(path: string, url: string, linkSource: LinkSource) {
   // Handle NFT Item share (ex. https://app.uniswap.org/#/nfts/asset/0x.../123)
-  if (NFT_ITEM_SHARE_LINK_HASH_REGEX.test(hash)) {
-    const [, contractAddress, tokenId] = hash.match(NFT_ITEM_SHARE_LINK_HASH_REGEX) || []
+  if (NFT_ITEM_SHARE_LINK_HASH_REGEX.test(path)) {
+    const [, , contractAddress, tokenId] = path.match(NFT_ITEM_SHARE_LINK_HASH_REGEX) || []
     if (!contractAddress || !tokenId) return
     yield* put(
       openModal({
@@ -69,12 +76,16 @@ export function* handleUniswapAppDeepLink(hash: string) {
         },
       })
     )
+    yield* call(sendMobileAnalyticsEvent, MobileEventName.ShareLinkOpened, {
+      entity: ShareableEntity.NftItem,
+      url,
+    })
     return
   }
 
   // Handle NFT collection share (ex. https://app.uniswap.org/#/nfts/collection/0x...)
-  if (NFT_COLLECTION_SHARE_LINK_HASH_REGEX.test(hash)) {
-    const [, contractAddress] = hash.match(NFT_COLLECTION_SHARE_LINK_HASH_REGEX) || []
+  if (NFT_COLLECTION_SHARE_LINK_HASH_REGEX.test(path)) {
+    const [, , contractAddress] = path.match(NFT_COLLECTION_SHARE_LINK_HASH_REGEX) || []
     if (!contractAddress) return
     yield* put(
       openModal({
@@ -87,13 +98,16 @@ export function* handleUniswapAppDeepLink(hash: string) {
         },
       })
     )
-
+    yield* call(sendMobileAnalyticsEvent, MobileEventName.ShareLinkOpened, {
+      entity: ShareableEntity.NftCollection,
+      url,
+    })
     return
   }
 
   // Handle Token share (ex. https://app.uniswap.org/#/tokens/ethereum/0x...)
-  if (TOKEN_SHARE_LINK_HASH_REGEX.test(hash)) {
-    const [, network, contractAddress] = hash.match(TOKEN_SHARE_LINK_HASH_REGEX) || []
+  if (TOKEN_SHARE_LINK_HASH_REGEX.test(path)) {
+    const [, , network, contractAddress] = path.match(TOKEN_SHARE_LINK_HASH_REGEX) || []
     const chainId = network && fromUniswapWebAppLink(network)
     if (!chainId || !contractAddress) return
     const currencyId =
@@ -111,12 +125,23 @@ export function* handleUniswapAppDeepLink(hash: string) {
         },
       })
     )
+    if (linkSource === LinkSource.Share) {
+      yield* call(sendMobileAnalyticsEvent, MobileEventName.ShareLinkOpened, {
+        entity: ShareableEntity.Token,
+        url,
+      })
+    } else {
+      yield* call(sendMobileAnalyticsEvent, MobileEventName.WidgetClicked, {
+        widget_type: WidgetType.TokenPrice,
+        url,
+      })
+    }
     return
   }
 
   // Handle Address share (ex. https://app.uniswap.org/#/address/0x...)
-  if (ADDRESS_SHARE_LINK_HASH_REGEX.test(hash)) {
-    const [, accountAddress] = hash.match(ADDRESS_SHARE_LINK_HASH_REGEX) || []
+  if (ADDRESS_SHARE_LINK_HASH_REGEX.test(path)) {
+    const [, , accountAddress] = path.match(ADDRESS_SHARE_LINK_HASH_REGEX) || []
     if (!accountAddress) return
     const accounts = yield* appSelect(selectNonPendingAccounts)
     const activeAccountAddress = yield* appSelect(selectActiveAccountAddress)
@@ -138,6 +163,10 @@ export function* handleUniswapAppDeepLink(hash: string) {
         })
       )
     }
+    yield* call(sendMobileAnalyticsEvent, MobileEventName.ShareLinkOpened, {
+      entity: ShareableEntity.Wallet,
+      url,
+    })
     return
   }
 }
@@ -168,6 +197,12 @@ export function* handleDeepLink(action: ReturnType<typeof openDeepLink>) {
       return
     }
 
+    // Handles deep links from Uniswap Widgets (ex. uniswap://widget/#/tokens/ethereum/0x...)
+    if (action.payload.url.startsWith(UNISWAP_URL_SCHEME_WIDGET)) {
+      yield* call(handleUniswapAppDeepLink, url.hash, action.payload.url, LinkSource.Widget)
+      return
+    }
+
     // Skip handling any non-WalletConnect uniswap:// URL scheme deep links for now for security reasons
     // Currently only used on WalletConnect Universal Link web page fallback button (https://uniswap.org/app/wc)
     if (action.payload.url.startsWith(UNISWAP_URL_SCHEME)) {
@@ -186,7 +221,9 @@ export function* handleDeepLink(action: ReturnType<typeof openDeepLink>) {
     }
 
     if (url.hostname === UNISWAP_APP_HOSTNAME) {
-      yield* call(handleUniswapAppDeepLink, url.hash)
+      const urlParts = url.href.split(`${UNISWAP_APP_HOSTNAME}/`)
+      const urlPath = urlParts.length >= 1 ? (urlParts[1] as string) : ''
+      yield* call(handleUniswapAppDeepLink, urlPath, action.payload.url, LinkSource.Share)
       return
     }
 
@@ -212,7 +249,7 @@ export function* handleDeepLink(action: ReturnType<typeof openDeepLink>) {
         throw new Error('Invalid or unsupported screen')
     }
 
-    yield* call(sendAnalyticsEvent, MobileEventName.DeepLinkOpened, {
+    yield* call(sendMobileAnalyticsEvent, MobileEventName.DeepLinkOpened, {
       url: url.toString(),
       screen,
       is_cold_start: coldStart,
@@ -229,12 +266,26 @@ export function* handleDeepLink(action: ReturnType<typeof openDeepLink>) {
 }
 
 export function* handleWalletConnectDeepLink(wcUri: string) {
-  const isValidWcUri = yield* call(isValidWCUrl, wcUri)
-  if (isValidWcUri) {
-    yield* fork(connectToApp, wcUri)
+  yield* call(waitForWcWeb3WalletIsReady)
+
+  const wcUriVersion = parseUri(wcUri).version
+
+  if (wcUriVersion === 1) {
+    Alert.alert(
+      i18n.t('Invalid QR Code'),
+      i18n.t(
+        "WalletConnect v1 is no longer supported. The application you're trying to connect to needs to upgrade to WalletConnect v2."
+      ),
+      [
+        {
+          text: i18n.t('OK'),
+        },
+      ]
+    )
+    return
   }
 
-  if (parseUri(wcUri).version === 2) {
+  if (wcUriVersion === 2) {
     try {
       yield* call(pairWithWalletConnectURI, wcUri)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

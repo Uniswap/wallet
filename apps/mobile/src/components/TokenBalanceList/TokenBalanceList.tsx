@@ -6,18 +6,23 @@ import { RefreshControl } from 'react-native'
 import { FadeInDown, FadeOut } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useAppTheme } from 'src/app/hooks'
-import { useAdaptiveFooterHeight } from 'src/components/home/hooks'
+import { useAdaptiveFooter } from 'src/components/home/hooks'
 import { AnimatedBox, Box } from 'src/components/layout'
 import { AnimatedFlashList } from 'src/components/layout/AnimatedFlashList'
 import { BaseCard } from 'src/components/layout/BaseCard'
-import { TabProps, TAB_VIEW_SCROLL_THROTTLE } from 'src/components/layout/TabHelpers'
+import {
+  TabProps,
+  TAB_BAR_HEIGHT,
+  TAB_VIEW_SCROLL_THROTTLE,
+} from 'src/components/layout/TabHelpers'
 import { Loader } from 'src/components/loading'
 import { HiddenTokensRow } from 'src/components/TokenBalanceList/HiddenTokensRow'
 import { TokenBalanceItem } from 'src/components/TokenBalanceList/TokenBalanceItem'
+import { IS_ANDROID } from 'src/constants/globals'
 import { useTokenBalancesGroupedByVisibility } from 'src/features/balances/hooks'
 import { Screens } from 'src/screens/Screens'
-import { dimensions } from 'ui/src/theme/restyle/sizing'
-import { zIndices } from 'ui/src/theme/zIndices'
+import { zIndices } from 'ui/src/theme'
+import { dimensions } from 'ui/src/theme/restyle'
 import { isError, isNonPollingRequestInFlight, isWarmLoadingStatus } from 'wallet/src/data/utils'
 import { usePortfolioBalances } from 'wallet/src/features/dataApi/balances'
 import { PortfolioBalance } from 'wallet/src/features/dataApi/types'
@@ -45,8 +50,8 @@ export const TokenBalanceList = forwardRef<FlashList<any>, TokenBalanceListProps
       containerProps,
       scrollHandler,
       isExternalProfile = false,
-      headerHeight,
       refreshing,
+      headerHeight = 0,
       onRefresh,
     },
     ref
@@ -55,9 +60,9 @@ export const TokenBalanceList = forwardRef<FlashList<any>, TokenBalanceListProps
     const theme = useAppTheme()
     const insets = useSafeAreaInsets()
 
-    const { onContentSizeChange, footerHeight, setFooterHeight } = useAdaptiveFooterHeight({
-      headerHeight,
-    })
+    const { onContentSizeChange, adaptiveFooter, footerHeight } = useAdaptiveFooter(
+      containerProps?.contentContainerStyle
+    )
 
     // This function gets passed down through:
     // usePortfolioBalances -> the usePortfolioBalancesQuery query's onCompleted argument.
@@ -107,13 +112,15 @@ export const TokenBalanceList = forwardRef<FlashList<any>, TokenBalanceListProps
     const refreshControl = useMemo(() => {
       return (
         <RefreshControl
-          progressViewOffset={insets.top}
+          progressViewOffset={
+            insets.top + (IS_ANDROID && headerHeight ? headerHeight + TAB_BAR_HEIGHT : 0)
+          }
           refreshing={refreshing ?? false}
-          tintColor={theme.colors.textTertiary}
+          tintColor={theme.colors.neutral3}
           onRefresh={onRefresh}
         />
       )
-    }, [refreshing, onRefresh, theme.colors.textTertiary, insets.top])
+    }, [refreshing, headerHeight, onRefresh, theme.colors.neutral3, insets.top])
 
     // Note: `PerformanceView` must wrap the entire return statement to properly track interactive states.
     return (
@@ -150,7 +157,7 @@ export const TokenBalanceList = forwardRef<FlashList<any>, TokenBalanceListProps
               </Box>
             }
             // we add a footer to cover any possible space, so user can scroll the top menu all the way to the top
-            ListFooterComponent={<Box height={footerHeight} />}
+            ListFooterComponent={adaptiveFooter}
             // add negative z index to prevent footer from covering hidden tokens row when minimized
             ListFooterComponentStyle={{ zIndex: zIndices.negative }}
             ListHeaderComponent={
@@ -177,7 +184,7 @@ export const TokenBalanceList = forwardRef<FlashList<any>, TokenBalanceListProps
                     numHidden={hiddenTokens?.length ?? 0}
                     onPress={(): void => {
                       if (hiddenTokensExpanded) {
-                        setFooterHeight(dimensions.fullHeight)
+                        footerHeight.value = dimensions.fullHeight
                       }
                       setHiddenTokensExpanded(!hiddenTokensExpanded)
                     }}

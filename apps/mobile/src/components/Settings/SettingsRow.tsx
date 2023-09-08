@@ -1,12 +1,19 @@
+import { NavigatorScreenParams } from '@react-navigation/core'
 import { BaseTheme } from '@shopify/restyle'
 import React from 'react'
 import { ValueOf } from 'react-native-gesture-handler/lib/typescript/typeUtils'
-import { SettingsStackNavigationProp, SettingsStackParamList } from 'src/app/navigation/types'
+import {
+  OnboardingStackNavigationProp,
+  OnboardingStackParamList,
+  SettingsStackNavigationProp,
+  SettingsStackParamList,
+} from 'src/app/navigation/types'
 import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { Arrow } from 'src/components/icons/Arrow'
 import { Chevron } from 'src/components/icons/Chevron'
 import { Flex } from 'src/components/layout'
 import { Text } from 'src/components/Text'
+import { Screens } from 'src/screens/Screens'
 import { openUri } from 'src/utils/linking'
 
 export interface SettingsSection {
@@ -21,8 +28,8 @@ export interface SettingsSectionItemComponent {
 }
 
 export interface SettingsSectionItem {
-  screen?: keyof SettingsStackParamList
-  screenProps?: ValueOf<SettingsStackParamList>
+  screen?: keyof SettingsStackParamList | typeof Screens.OnboardingStack
+  screenProps?: ValueOf<SettingsStackParamList> | NavigatorScreenParams<OnboardingStackParamList>
   externalLink?: string
   action?: JSX.Element
   text: string
@@ -34,7 +41,7 @@ export interface SettingsSectionItem {
 
 interface SettingsRowProps {
   page: SettingsSectionItem
-  navigation: SettingsStackNavigationProp
+  navigation: SettingsStackNavigationProp & OnboardingStackNavigationProp
   theme: BaseTheme
 }
 
@@ -62,7 +69,7 @@ export function SettingsRow({
               {text}
             </Text>
             {subText && (
-              <Text color="textSecondary" numberOfLines={1} variant="buttonLabelMicro">
+              <Text color="neutral2" numberOfLines={1} variant="buttonLabelMicro">
                 {subText}
               </Text>
             )}
@@ -80,7 +87,7 @@ export function SettingsRow({
                 justifyContent="flex-end">
                 <Text
                   adjustsFontSizeToFit
-                  color="textSecondary"
+                  color="neutral2"
                   mr="spacing8"
                   numberOfLines={1}
                   variant="bodyMicro">
@@ -88,10 +95,10 @@ export function SettingsRow({
                 </Text>
               </Flex>
             ) : null}
-            <Chevron color={theme.colors.textTertiary} direction="e" height={24} width={24} />
+            <Chevron color={theme.colors.neutral3} direction="e" height={24} width={24} />
           </Flex>
         ) : externalLink ? (
-          <Arrow color={theme.colors.textTertiary} direction="ne" size={24} />
+          <Arrow color={theme.colors.neutral3} direction="ne" size={24} />
         ) : (
           action
         )}

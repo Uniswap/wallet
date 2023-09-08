@@ -35,6 +35,11 @@ ignore:
         reason: None Given
         expires: 2023-12-31T00:00:00.000Z
         created: 2023-05-23T16:26:17.702Z
+  SNYK-JS-OPENZEPPELINCONTRACTS-5838352:
+    - '*':
+        reason: No known fix
+        expires: 2023-11-30T00:00:00.000Z
+        created: 2023-05-23T16:25:57.347Z
   'snyk:lic:npm:uniswap:universal-router:GPL-2.0':
     - '*':
         reason: 'Internal library, GPL library is ok'
@@ -150,4 +155,29 @@ ignore:
         reason: 'Initial commit, ignoring all packages without known fixes'
         expires: 2099-01-01T00:00:00.000Z
         created: 2022-10-27T00:13:29.506Z
+  SNYK-JS-UTILITIES-3184491:
+    - '*':
+      reason: 'internal package, not a real vulnerability'
+      expires: 2099-01-01T00:00:00.000Z
+      created: 2023-08-02T00:00:00.000Z
+  'snyk:lic:npm:eslint-plugin-turbo:MPL-2.0':
+    - '*':
+        reason: monorepo migration
+        expires: 2023-08-30T00:00:00.000Z
+        created: 2023-04-19T21:50:28.481Z
+  'snyk:lic:npm:eslint-plugin-no-unsanitized:MPL-2.0':
+    - '*':
+        reason: monorepo migration
+        expires: 2023-08-30T00:00:00.000Z
+        created: 2023-04-19T21:49:49.960Z
+  'snyk:lic:npm:eslint-config-turbo:MPL-2.0':
+    - '*':
+        reason: monorepo migration
+        expires: 2023-08-30T00:00:00.000Z
+        created: 2023-04-19T21:49:32.588Z
+  'snyk:lic:npm:axe-core:MPL-2.0':
+    - '*':
+        reason: monorepo migration
+        expires: 2023-08-30T00:00:00.000Z
+        created: 2023-04-19T21:49:00.028Z
 patch: {}

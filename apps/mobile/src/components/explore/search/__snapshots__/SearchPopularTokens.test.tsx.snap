@@ -63,7 +63,7 @@ exports[`SearchPopularTokens renders without error 1`] = `
             style={
               [
                 {
-                  "backgroundColor": "#E8ECFB",
+                  "backgroundColor": "#2222220D",
                   "borderRadius": 999999,
                   "display": "flex",
                   "minHeight": 40,
@@ -135,8 +135,9 @@ exports[`SearchPopularTokens renders without error 1`] = `
                         {
                           "color": "transparent",
                           "display": "flex",
-                          "fontFamily": "Inter-Medium",
-                          "fontSize": 17,
+                          "fontFamily": "Basel-Book",
+                          "fontSize": 19,
+                          "fontWeight": "400",
                           "lineHeight": 24,
                           "opacity": 0,
                         },
@@ -150,7 +151,7 @@ exports[`SearchPopularTokens renders without error 1`] = `
                   style={
                     [
                       {
-                        "backgroundColor": "#E8ECFB",
+                        "backgroundColor": "#2222220D",
                         "borderRadius": 4,
                         "bottom": "5%",
                         "display": "flex",
@@ -226,9 +227,10 @@ exports[`SearchPopularTokens renders without error 1`] = `
                           {
                             "color": "transparent",
                             "display": "flex",
-                            "fontFamily": "Inter-Medium",
-                            "fontSize": 15,
-                            "lineHeight": 20,
+                            "fontFamily": "Basel-Book",
+                            "fontSize": 17,
+                            "fontWeight": "400",
+                            "lineHeight": 24,
                             "opacity": 0,
                           },
                         ]
@@ -241,7 +243,7 @@ exports[`SearchPopularTokens renders without error 1`] = `
                     style={
                       [
                         {
-                          "backgroundColor": "#E8ECFB",
+                          "backgroundColor": "#2222220D",
                           "borderRadius": 4,
                           "bottom": "5%",
                           "display": "flex",
@@ -306,7 +308,7 @@ exports[`SearchPopularTokens renders without error 1`] = `
             style={
               [
                 {
-                  "backgroundColor": "#E8ECFB",
+                  "backgroundColor": "#2222220D",
                   "borderRadius": 999999,
                   "display": "flex",
                   "minHeight": 40,
@@ -378,8 +380,9 @@ exports[`SearchPopularTokens renders without error 1`] = `
                         {
                           "color": "transparent",
                           "display": "flex",
-                          "fontFamily": "Inter-Medium",
-                          "fontSize": 17,
+                          "fontFamily": "Basel-Book",
+                          "fontSize": 19,
+                          "fontWeight": "400",
                           "lineHeight": 24,
                           "opacity": 0,
                         },
@@ -393,7 +396,7 @@ exports[`SearchPopularTokens renders without error 1`] = `
                   style={
                     [
                       {
-                        "backgroundColor": "#E8ECFB",
+                        "backgroundColor": "#2222220D",
                         "borderRadius": 4,
                         "bottom": "5%",
                         "display": "flex",
@@ -469,9 +472,10 @@ exports[`SearchPopularTokens renders without error 1`] = `
                           {
                             "color": "transparent",
                             "display": "flex",
-                            "fontFamily": "Inter-Medium",
-                            "fontSize": 15,
-                            "lineHeight": 20,
+                            "fontFamily": "Basel-Book",
+                            "fontSize": 17,
+                            "fontWeight": "400",
+                            "lineHeight": 24,
                             "opacity": 0,
                           },
                         ]
@@ -484,7 +488,7 @@ exports[`SearchPopularTokens renders without error 1`] = `
                     style={
                       [
                         {
-                          "backgroundColor": "#E8ECFB",
+                          "backgroundColor": "#2222220D",
                           "borderRadius": 4,
                           "bottom": "5%",
                           "display": "flex",
@@ -532,7 +536,6 @@ exports[`SearchPopularTokens renders without error 2`] = `
   getItem={[Function]}
   getItemCount={[Function]}
   keyExtractor={[Function]}
-  listKey="tokens"
   onContentSizeChange={[Function]}
   onLayout={[Function]}
   onMomentumScrollBegin={[Function]}
@@ -548,10 +551,28 @@ exports[`SearchPopularTokens renders without error 2`] = `
 >
   <View>
     <View
+      onFocusCapture={[Function]}
       onLayout={[Function]}
       style={null}
     >
       <View
+        accessibilityState={
+          {
+            "busy": undefined,
+            "checked": undefined,
+            "disabled": undefined,
+            "expanded": undefined,
+            "selected": undefined,
+          }
+        }
+        accessibilityValue={
+          {
+            "max": undefined,
+            "min": undefined,
+            "now": undefined,
+            "text": undefined,
+          }
+        }
         accessible={true}
         collapsable={false}
         focusable={true}
@@ -595,21 +616,13 @@ exports[`SearchPopularTokens renders without error 2`] = `
         >
           <View
             style={
-              [
-                {
-                  "alignItems": "center",
-                  "display": "flex",
-                  "flexBasis": "auto",
-                  "flexDirection": "column",
-                  "flexShrink": 0,
-                  "height": 40,
-                  "justifyContent": "center",
-                  "minHeight": 0,
-                  "minWidth": 0,
-                  "position": "relative",
-                  "width": 40,
-                },
-              ]
+              {
+                "alignItems": "center",
+                "flexDirection": "column",
+                "height": 40,
+                "justifyContent": "center",
+                "width": 40,
+              }
             }
           >
             <Image
@@ -624,8 +637,8 @@ exports[`SearchPopularTokens renders without error 2`] = `
                     "resizeMode": "contain",
                   },
                   {
-                    "backgroundColor": "#D2D9EE",
-                    "borderColor": "#D2D9EE",
+                    "backgroundColor": "#2222220D",
+                    "borderColor": "#2222220D",
                     "borderRadius": 20,
                     "borderWidth": 0.5,
                     "height": 40,
@@ -696,10 +709,11 @@ exports[`SearchPopularTokens renders without error 2`] = `
                   style={
                     [
                       {
-                        "color": "#0E1524",
+                        "color": "#222222",
                         "display": "flex",
-                        "fontFamily": "Inter-Medium",
-                        "fontSize": 17,
+                        "fontFamily": "Basel-Book",
+                        "fontSize": 19,
+                        "fontWeight": "400",
                         "lineHeight": 24,
                       },
                     ]
@@ -741,11 +755,12 @@ exports[`SearchPopularTokens renders without error 2`] = `
                 style={
                   [
                     {
-                      "color": "#5D6785",
+                      "color": "#7D7D7D",
                       "display": "flex",
-                      "fontFamily": "Inter-Medium",
-                      "fontSize": 15,
-                      "lineHeight": 20,
+                      "fontFamily": "Basel-Book",
+                      "fontSize": 17,
+                      "fontWeight": "400",
+                      "lineHeight": 24,
                     },
                   ]
                 }
@@ -758,10 +773,28 @@ exports[`SearchPopularTokens renders without error 2`] = `
       </View>
     </View>
     <View
+      onFocusCapture={[Function]}
       onLayout={[Function]}
       style={null}
     >
       <View
+        accessibilityState={
+          {
+            "busy": undefined,
+            "checked": undefined,
+            "disabled": undefined,
+            "expanded": undefined,
+            "selected": undefined,
+          }
+        }
+        accessibilityValue={
+          {
+            "max": undefined,
+            "min": undefined,
+            "now": undefined,
+            "text": undefined,
+          }
+        }
         accessible={true}
         collapsable={false}
         focusable={true}
@@ -805,21 +838,13 @@ exports[`SearchPopularTokens renders without error 2`] = `
         >
           <View
             style={
-              [
-                {
-                  "alignItems": "center",
-                  "display": "flex",
-                  "flexBasis": "auto",
-                  "flexDirection": "column",
-                  "flexShrink": 0,
-                  "height": 40,
-                  "justifyContent": "center",
-                  "minHeight": 0,
-                  "minWidth": 0,
-                  "position": "relative",
-                  "width": 40,
-                },
-              ]
+              {
+                "alignItems": "center",
+                "flexDirection": "column",
+                "height": 40,
+                "justifyContent": "center",
+                "width": 40,
+              }
             }
           >
             <Image
@@ -834,8 +859,8 @@ exports[`SearchPopularTokens renders without error 2`] = `
                     "resizeMode": "contain",
                   },
                   {
-                    "backgroundColor": "#D2D9EE",
-                    "borderColor": "#D2D9EE",
+                    "backgroundColor": "#2222220D",
+                    "borderColor": "#2222220D",
                     "borderRadius": 20,
                     "borderWidth": 0.5,
                     "height": 40,
@@ -906,10 +931,11 @@ exports[`SearchPopularTokens renders without error 2`] = `
                   style={
                     [
                       {
-                        "color": "#0E1524",
+                        "color": "#222222",
                         "display": "flex",
-                        "fontFamily": "Inter-Medium",
-                        "fontSize": 17,
+                        "fontFamily": "Basel-Book",
+                        "fontSize": 19,
+                        "fontWeight": "400",
                         "lineHeight": 24,
                       },
                     ]
@@ -951,11 +977,12 @@ exports[`SearchPopularTokens renders without error 2`] = `
                 style={
                   [
                     {
-                      "color": "#5D6785",
+                      "color": "#7D7D7D",
                       "display": "flex",
-                      "fontFamily": "Inter-Medium",
-                      "fontSize": 15,
-                      "lineHeight": 20,
+                      "fontFamily": "Basel-Book",
+                      "fontSize": 17,
+                      "fontWeight": "400",
+                      "lineHeight": 24,
                     },
                   ]
                 }

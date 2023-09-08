@@ -33,6 +33,7 @@ local.properties
 *.hprof
 *.jks
 keystore.properties
+*.aab
 
 # node.js
 #
@@ -62,9 +63,7 @@ fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots
 fastlane/.env
-fastlane/.env.dev
-fastlane/.env.beta
-fastlane/.env.prod
+fastlane/.env.*
 fastlane/builds
 
 # firebase
@@ -81,9 +80,6 @@ artifacts/
 
 # CocoaPods
 /ios/Pods/
-
-# Locale backup files
-src/locales/**/*_old.json
 
 # ccache
 .ccache
@@ -105,3 +101,15 @@ storybook-static/*
 
 # Jest
 coverage/
+
+# Swift GraphQL codegen
+# Ignores everything inside the schema folder except the README.md
+!ios/WidgetsCore/MobileSchema/
+ios/WidgetsCore/MobileSchema/*
+!ios/WidgetsCore/MobileSchema/README.md
+
+# Swift env
+ios/WidgetsCore/Env.swift
+
+# Sentry
+ios/sentry.properties

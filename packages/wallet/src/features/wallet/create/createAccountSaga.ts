@@ -1,6 +1,6 @@
 import dayjs from 'dayjs'
 import { call, put } from 'typed-redux-saga'
-import { logger } from 'wallet/src/features/logger/logger'
+import { logger } from 'utilities/src/logger/logger'
 import {
   AccountType,
   BackupType,
@@ -43,7 +43,7 @@ export function* createAccount(params: CreateAccountParams = {}) {
       derivationIndex: nextDerivationIndex,
       mnemonicId,
       backups: existingBackups,
-      name: `Wallet ${nextDerivationIndex + 1}`, // TODO(EXT-255): add translation
+      name: `Wallet ${nextDerivationIndex + 1}`,
     })
   )
 

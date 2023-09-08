@@ -18,7 +18,7 @@ import { closeModal, selectModalState } from 'src/features/modals/modalSlice'
 import { ImportType, OnboardingEntryPoint } from 'src/features/onboarding/utils'
 import { ElementName, ModalName } from 'src/features/telemetry/constants'
 import { OnboardingScreens, Screens } from 'src/screens/Screens'
-import { opacify } from 'ui/src/theme/color/utils'
+import { opacify } from 'ui/src/theme'
 import { useAccounts } from 'wallet/src/features/wallet/hooks'
 import { selectSignerMnemonicAccounts } from 'wallet/src/features/wallet/selectors'
 import { removeAccounts, setFinishedOnboarding } from 'wallet/src/features/wallet/slice'
@@ -126,7 +126,7 @@ export function RemoveWalletModal(): JSX.Element | null {
 
   return (
     <BottomSheetModal
-      backgroundColor={theme.colors.background1}
+      backgroundColor={theme.colors.surface1}
       name={ModalName.RemoveSeedPhraseWarningModal}
       onClose={onClose}>
       <Flex centered gap="spacing16" height="100%" mb="spacing24" p="spacing24" paddingTop="none">
@@ -146,7 +146,7 @@ export function RemoveWalletModal(): JSX.Element | null {
         <Text textAlign="center" variant="bodyLarge">
           {title}
         </Text>
-        <Text color="textSecondary" textAlign="center" variant="bodySmall">
+        <Text color="neutral2" textAlign="center" variant="bodySmall">
           {description}
         </Text>
         {currentStep === RemoveWalletStep.Final && isRemovingRecoveryPhrase ? (

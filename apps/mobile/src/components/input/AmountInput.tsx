@@ -1,7 +1,7 @@
 import React, { forwardRef, useCallback, useMemo } from 'react'
 import { KeyboardTypeOptions, TextInput as NativeTextInput } from 'react-native'
 import { TextInput, TextInputProps } from 'src/components/input/TextInput'
-import { escapeRegExp } from 'wallet/src/utils/string'
+import { escapeRegExp } from 'utilities/src/primitives/string'
 
 const inputRegex = RegExp('^\\d*(?:\\\\[.])?\\d*$') // match escaped "." characters via in a non-capturing group
 
@@ -76,7 +76,7 @@ export const AmountInput = forwardRef<NativeTextInput, Props>(function _AmountIn
   const textInputProps: TextInputProps = useMemo(
     () => ({
       ref,
-      color: !value || dimTextColor ? 'textTertiary' : 'textPrimary',
+      color: !value || dimTextColor ? 'neutral3' : 'neutral1',
       keyboardType: 'numeric' as KeyboardTypeOptions,
 
       // Use defaultValue here to make TextInput technically an uncontrolled element

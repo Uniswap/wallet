@@ -2,7 +2,6 @@ import React, { useCallback, useMemo } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { FlatList, ListRenderItemInfo } from 'react-native'
 import { FadeIn, FadeOut } from 'react-native-reanimated'
-import { i18n } from 'src/app/i18n'
 import { SearchEtherscanItem } from 'src/components/explore/search/items/SearchEtherscanItem'
 import { SearchNFTCollectionItem } from 'src/components/explore/search/items/SearchNFTCollectionItem'
 import { SearchTokenItem } from 'src/components/explore/search/items/SearchTokenItem'
@@ -25,10 +24,11 @@ import {
   WalletSearchResult,
 } from 'src/features/explore/searchHistorySlice'
 import { useIsSmartContractAddress } from 'src/features/transactions/transfer/hooks'
+import { logger } from 'utilities/src/logger/logger'
 import { ChainId } from 'wallet/src/constants/chains'
 import { SafetyLevel, useExploreSearchQuery } from 'wallet/src/data/__generated__/types-and-hooks'
 import { useENS } from 'wallet/src/features/ens/useENS'
-import { logger } from 'wallet/src/features/logger/logger'
+import i18n from 'wallet/src/i18n/i18n'
 import { getValidAddress } from 'wallet/src/utils/addresses'
 
 export const SEARCH_RESULT_HEADER_KEY = 'header'
@@ -217,16 +217,15 @@ export function SearchResultsSection({ searchQuery }: { searchQuery: string }): 
       <FlatList
         ListEmptyComponent={
           <AnimatedFlex entering={FadeIn} exiting={FadeOut} gap="spacing8" mx="spacing8">
-            <Text color="textSecondary" variant="bodyLarge">
+            <Text color="neutral2" variant="bodyLarge">
               <Trans t={t}>
-                No results found for <Text color="textPrimary">"{searchQuery}"</Text>
+                No results found for <Text color="neutral1">"{searchQuery}"</Text>
               </Trans>
             </Text>
           </AnimatedFlex>
         }
         data={sortedSearchResults}
         keyExtractor={getSearchResultId}
-        listKey="wallets"
         renderItem={(props): JSX.Element | null => {
           // Find position of search result in list, but exclude header items
           const position =

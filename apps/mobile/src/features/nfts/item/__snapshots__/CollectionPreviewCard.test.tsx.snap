@@ -4,7 +4,19 @@ exports[`renders collection preview card 1`] = `
 <View
   accessibilityState={
     {
+      "busy": undefined,
+      "checked": undefined,
       "disabled": false,
+      "expanded": undefined,
+      "selected": undefined,
+    }
+  }
+  accessibilityValue={
+    {
+      "max": undefined,
+      "min": undefined,
+      "now": undefined,
+      "text": undefined,
     }
   }
   accessible={true}
@@ -38,7 +50,7 @@ exports[`renders collection preview card 1`] = `
       [
         {
           "alignItems": "center",
-          "backgroundColor": "#0D111C73",
+          "backgroundColor": "#2222220D",
           "borderRadius": 16,
           "display": "flex",
           "flexDirection": "row",
@@ -79,42 +91,31 @@ exports[`renders collection preview card 1`] = `
       >
         <View
           style={
-            [
-              {
-                "alignItems": "center",
-                "aspectRatio": 1,
-                "backgroundColor": "rgba(232,236,251,1.00)",
-                "display": "flex",
-                "flexBasis": "auto",
-                "flexDirection": "column",
-                "flexShrink": 0,
-                "justifyContent": "center",
-                "maxHeight": 60,
-                "minHeight": 0,
-                "minWidth": 0,
-                "position": "relative",
-                "width": "100%",
-              },
-            ]
+            {
+              "alignItems": "center",
+              "aspectRatio": 1,
+              "backgroundColor": "#F9F9F9",
+              "flexDirection": "column",
+              "justifyContent": "center",
+              "maxHeight": 60,
+              "width": "100%",
+            }
           }
         >
           <Text
             allowFontScaling={true}
-            fontFamily="$body"
             style={
-              [
-                {
-                  "color": "rgba(93,103,133,1.00)",
-                  "display": "flex",
-                  "flex": 0,
-                  "flexGrow": 0,
-                  "flexWrap": "wrap",
-                  "fontFamily": "Inter",
-                  "fontSize": 14,
-                  "fontWeight": "500",
-                  "lineHeight": 20,
-                },
-              ]
+              {
+                "color": "#7D7D7D",
+                "display": "flex",
+                "flex": 0,
+                "flexGrow": 0,
+                "flexWrap": "wrap",
+                "fontFamily": "Basel-Medium",
+                "fontSize": 17,
+                "fontWeight": "400",
+                "lineHeight": 24,
+              }
             }
             suppressHighlighting={true}
           >
@@ -180,10 +181,11 @@ exports[`renders collection preview card 1`] = `
               style={
                 [
                   {
-                    "color": "#FFFFFF",
+                    "color": "#222222",
                     "display": "flex",
-                    "fontFamily": "Inter-Medium",
-                    "fontSize": 17,
+                    "fontFamily": "Basel-Book",
+                    "fontSize": 19,
+                    "fontWeight": "400",
                     "lineHeight": 24,
                   },
                 ]
@@ -299,7 +301,7 @@ exports[`renders collection preview card 1`] = `
             }
             stroke={
               {
-                "payload": 4294309628,
+                "payload": 4280427042,
                 "type": 0,
               }
             }

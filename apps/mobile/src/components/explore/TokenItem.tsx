@@ -13,13 +13,14 @@ import { useTokenDetailsNavigation } from 'src/components/TokenDetails/hooks'
 import { TokenMetadata } from 'src/components/tokens/TokenMetadata'
 import { useSelectHasTokenFavorited, useToggleFavoriteCallback } from 'src/features/favorites/hooks'
 import { openModal } from 'src/features/modals/modalSlice'
-import { sendAnalyticsEvent } from 'src/features/telemetry'
+import { sendMobileAnalyticsEvent } from 'src/features/telemetry'
 import {
   ElementName,
   MobileEventName,
   ModalName,
   SectionName,
 } from 'src/features/telemetry/constants'
+import { formatNumber, formatUSDPrice, NumberType } from 'utilities/src/format/format'
 import { TokenLogo } from 'wallet/src/components/CurrencyLogo/TokenLogo'
 import { ChainId } from 'wallet/src/constants/chains'
 import { AssetType } from 'wallet/src/entities/assets'
@@ -34,7 +35,6 @@ import {
   currencyIdToAddress,
   currencyIdToChain,
 } from 'wallet/src/utils/currencyId'
-import { formatNumber, formatUSDPrice, NumberType } from 'wallet/src/utils/format'
 
 const FAVORITE_ACTION_INDEX = 0
 const SWAP_ACTION_INDEX = 1
@@ -129,7 +129,7 @@ export const TokenItem = memo(function _TokenItem({
   const onPress = (): void => {
     tokenDetailsNavigation.preload(_currencyId)
     tokenDetailsNavigation.navigate(_currencyId)
-    sendAnalyticsEvent(MobileEventName.ExploreTokenItemSelected, {
+    sendMobileAnalyticsEvent(MobileEventName.ExploreTokenItemSelected, {
       address: currencyIdToAddress(_currencyId),
       chain: currencyIdToChain(_currencyId) as number,
       name,
@@ -149,7 +149,7 @@ export const TokenItem = memo(function _TokenItem({
         // Swap action
         if (e.nativeEvent.index === SWAP_ACTION_INDEX) {
           navigateToSwapSell()
-          sendAnalyticsEvent(SharedEventName.ELEMENT_CLICKED, {
+          sendMobileAnalyticsEvent(SharedEventName.ELEMENT_CLICKED, {
             element: ElementName.Swap,
             section: SectionName.ExploreTopTokensSection,
           })
@@ -170,7 +170,7 @@ export const TokenItem = memo(function _TokenItem({
             <Flex centered row gap="spacing4" overflow="hidden">
               {index !== undefined && (
                 <Box minWidth={16}>
-                  <Text color="textSecondary" variant="buttonLabelMicro">
+                  <Text color="neutral2" variant="buttonLabelMicro">
                     {index + 1}
                   </Text>
                 </Box>
@@ -181,14 +181,16 @@ export const TokenItem = memo(function _TokenItem({
               <Text numberOfLines={1} variant="bodyLarge">
                 {name}
               </Text>
-              <Text color="textSecondary" variant="subheadSmall">
+              <Text color="neutral2" variant="subheadSmall">
                 {getMetadataSubtitle()}
               </Text>
             </Flex>
           </Flex>
           <Flex row alignItems="center" justifyContent="flex-end">
             <TokenMetadata>
-              <Text variant="bodyLarge">{formatUSDPrice(price)}</Text>
+              <Text lineHeight={24} variant="bodyLarge">
+                {formatUSDPrice(price)}
+              </Text>
               <RelativeChange change={pricePercentChange24h} variant="subheadSmall" />
             </TokenMetadata>
           </Flex>

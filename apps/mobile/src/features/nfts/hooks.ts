@@ -7,16 +7,18 @@ import { selectNftsData } from 'src/features/favorites/selectors'
 import { AccountToNftData, isNftHidden, toggleNftVisibility } from 'src/features/favorites/slice'
 import { NFTItem } from 'src/features/nfts/types'
 import { getNFTAssetKey } from 'src/features/nfts/utils'
+import { sendMobileAnalyticsEvent } from 'src/features/telemetry'
+import { MobileEventName, ShareableEntity } from 'src/features/telemetry/constants'
 import { getNftUrl } from 'src/utils/linking'
+import { serializeError } from 'utilities/src/errors'
+import { logger } from 'utilities/src/logger/logger'
+import { ONE_SECOND_MS } from 'utilities/src/time/time'
 import { PollingInterval } from 'wallet/src/constants/misc'
 import { NftsQuery, useNftsQuery } from 'wallet/src/data/__generated__/types-and-hooks'
 import { GqlResult } from 'wallet/src/features/dataApi/types'
-import { logger } from 'wallet/src/features/logger/logger'
 import { pushNotification } from 'wallet/src/features/notifications/slice'
 import { AppNotificationType } from 'wallet/src/features/notifications/types'
 import { useAccounts } from 'wallet/src/features/wallet/hooks'
-import serializeError from 'wallet/src/utils/serializeError'
-import { ONE_SECOND_MS } from 'wallet/src/utils/time'
 
 export const HIDDEN_NFTS_ROW_LEFT_ITEM = 'HIDDEN_NFTS_ROW_LEFT_ITEM'
 export const HIDDEN_NFTS_ROW_RIGHT_ITEM = 'HIDDEN_NFTS_ROW_RIGHT_ITEM'
@@ -104,8 +106,13 @@ export function useNFTMenu({
   const onPressShare = useCallback(async (): Promise<void> => {
     if (!contractAddress || !tokenId) return
     try {
+      const url = getNftUrl(contractAddress, tokenId)
       await Share.share({
-        message: getNftUrl(contractAddress, tokenId),
+        message: url,
+      })
+      sendMobileAnalyticsEvent(MobileEventName.ShareButtonClicked, {
+        entity: ShareableEntity.NftItem,
+        url,
       })
     } catch (error) {
       logger.error('Unable to share NFT Item url', {

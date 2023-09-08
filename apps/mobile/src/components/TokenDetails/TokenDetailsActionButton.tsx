@@ -14,7 +14,7 @@ export function TokenDetailsActionButtons({
   onPressSwap,
   tokenColor,
 }: {
-  onPressSwap?: () => void
+  onPressSwap: () => void
   tokenColor?: Maybe<string>
 }): JSX.Element {
   const { t } = useTranslation()
@@ -28,8 +28,8 @@ export function TokenDetailsActionButtons({
   return (
     <Flex
       row
-      bg="background0"
-      borderTopColor="backgroundOutline"
+      bg="surface1"
+      borderTopColor="surface3"
       borderTopWidth={1}
       gap="spacing8"
       pb="spacing16"
@@ -42,14 +42,13 @@ export function TokenDetailsActionButtons({
           borderColor={borderColor}
           borderRadius={borderRadius}
           borderWidth={1}
-          disabled={!onPressSwap}
           flexGrow={1}
           px={paddingX}
           py={paddingY}
-          style={{ backgroundColor: tokenColor ?? theme.colors.magentaVibrant }}
+          style={{ backgroundColor: tokenColor ?? theme.colors.accent1 }}
           onPress={onPressSwap}>
           <Text
-            color={tokenColor ? getContrastPassingTextColor(tokenColor) : 'textOnBrightPrimary'}
+            color={tokenColor ? getContrastPassingTextColor(tokenColor) : 'sporeWhite'}
             variant={textVariant}>
             {t('Swap')}
           </Text>

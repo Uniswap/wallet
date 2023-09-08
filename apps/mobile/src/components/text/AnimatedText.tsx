@@ -10,6 +10,7 @@ import {
 } from '@shopify/restyle'
 import React from 'react'
 import {
+  StyleSheet,
   TextInput,
   TextInputProps,
   TextProps as RNTextProps,
@@ -17,8 +18,7 @@ import {
 } from 'react-native'
 import Animated, { useAnimatedProps } from 'react-native-reanimated'
 import { DEFAULT_FONT_SCALE } from 'src/components/Text'
-import { textVariants } from 'ui/src/theme/restyle/font'
-import { Theme } from 'ui/src/theme/restyle/theme'
+import { textVariants, Theme } from 'ui/src/theme/restyle'
 
 // base animated text component using a TextInput
 // forked from https://github.com/wcandillon/react-native-redash/blob/master/src/ReText.tsx
@@ -77,6 +77,13 @@ export const AnimatedText = (
       {...props}
       allowFontScaling={enableFontScaling}
       maxFontSizeMultiplier={multiplier}
+      style={[styles.input, props.style]}
     />
   )
 }
+
+const styles = StyleSheet.create({
+  input: {
+    padding: 0, // inputs have default padding on Android
+  },
+})

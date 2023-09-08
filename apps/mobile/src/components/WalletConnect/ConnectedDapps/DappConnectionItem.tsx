@@ -8,29 +8,20 @@ import 'react-native-reanimated'
 import { FadeIn, FadeOut } from 'react-native-reanimated'
 import { useAppDispatch, useAppTheme } from 'src/app/hooks'
 import { AnimatedTouchableArea, TouchableArea } from 'src/components/buttons/TouchableArea'
-import { Chevron } from 'src/components/icons/Chevron'
 import { Box, Flex } from 'src/components/layout'
 import { Text } from 'src/components/Text'
 import { DappHeaderIcon } from 'src/components/WalletConnect/DappHeaderIcon'
 import { NetworkLogos } from 'src/components/WalletConnect/NetworkLogos'
 import { ElementName } from 'src/features/telemetry/constants'
-import { disconnectFromApp } from 'src/features/walletConnect/WalletConnect'
-import {
-  removeSession,
-  WalletConnectSession,
-  WalletConnectSessionV1,
-} from 'src/features/walletConnect/walletConnectSlice'
-import { wcWeb3Wallet } from 'src/features/walletConnectV2/saga'
-import { NetworkLogo } from 'wallet/src/components/CurrencyLogo/NetworkLogo'
-import { CHAIN_INFO } from 'wallet/src/constants/chains'
-import { toSupportedChainId } from 'wallet/src/features/chains/utils'
-import { logger } from 'wallet/src/features/logger/logger'
+import { wcWeb3Wallet } from 'src/features/walletConnect/saga'
+import { removeSession, WalletConnectSession } from 'src/features/walletConnect/walletConnectSlice'
+import { serializeError } from 'utilities/src/errors'
+import { logger } from 'utilities/src/logger/logger'
+import { ONE_SECOND_MS } from 'utilities/src/time/time'
 import { pushNotification } from 'wallet/src/features/notifications/slice'
 import { AppNotificationType } from 'wallet/src/features/notifications/types'
 import { useActiveAccountAddressWithThrow } from 'wallet/src/features/wallet/hooks'
 import { WalletConnectEvent } from 'wallet/src/features/walletConnect/types'
-import serializeError from 'wallet/src/utils/serializeError'
-import { ONE_SECOND_MS } from 'wallet/src/utils/time'
 
 export function DappConnectionItem({
   session,
@@ -48,39 +39,30 @@ export function DappConnectionItem({
   const address = useActiveAccountAddressWithThrow()
 
   const onDisconnect = async (): Promise<void> => {
-    if (session.version === '1') {
+    try {
       dispatch(removeSession({ account: address, sessionId: session.id }))
-      // Allow session removal action to complete before disconnecting from app, for immediate UI feedback
-      setImmediate(() => disconnectFromApp(session.id))
-      return
-    }
-
-    if (session.version === '2') {
-      try {
-        dispatch(removeSession({ account: address, sessionId: session.id }))
-        await wcWeb3Wallet.disconnectSession({
-          topic: session.id,
-          reason: getSdkError('USER_DISCONNECTED'),
+      await wcWeb3Wallet.disconnectSession({
+        topic: session.id,
+        reason: getSdkError('USER_DISCONNECTED'),
+      })
+      dispatch(
+        pushNotification({
+          type: AppNotificationType.WalletConnect,
+          address,
+          dappName: dapp.name,
+          event: WalletConnectEvent.Disconnected,
+          imageUrl: dapp.icon,
+          hideDelay: 3 * ONE_SECOND_MS,
         })
-        dispatch(
-          pushNotification({
-            type: AppNotificationType.WalletConnect,
-            address,
-            dappName: dapp.name,
-            event: WalletConnectEvent.Disconnected,
-            imageUrl: dapp.icon,
-            hideDelay: 3 * ONE_SECOND_MS,
-          })
-        )
-      } catch (error) {
-        logger.error(error, {
-          tags: {
-            file: 'DappConnectionItem',
-            function: 'onDisconnect',
-            error: serializeError(error),
-          },
-        })
-      }
+      )
+    } catch (error) {
+      logger.error(error, {
+        tags: {
+          file: 'DappConnectionItem',
+          function: 'onDisconnect',
+          error: serializeError(error),
+        },
+      })
     }
   }
 
@@ -96,7 +78,7 @@ export function DappConnectionItem({
     <ContextMenu actions={menuActions} style={styles.container} onPress={onPress}>
       <Flex
         grow
-        bg="background2"
+        bg="surface2"
         borderRadius="rounded16"
         gap="spacing12"
         justifyContent="space-between"
@@ -114,7 +96,7 @@ export function DappConnectionItem({
             <AnimatedTouchableArea
               hapticFeedback
               alignItems="center"
-              backgroundColor="textTertiary"
+              backgroundColor="neutral3"
               borderRadius="roundedFull"
               entering={FadeIn}
               exiting={FadeOut}
@@ -123,97 +105,37 @@ export function DappConnectionItem({
               width={theme.iconSizes.icon28}
               zIndex="tooltip"
               onPress={onDisconnect}>
-              <Box backgroundColor="background0" borderRadius="rounded12" height={2} width={14} />
+              <Box backgroundColor="surface1" borderRadius="rounded12" height={2} width={14} />
             </AnimatedTouchableArea>
           ) : (
             <Box height={theme.iconSizes.icon28} width={theme.iconSizes.icon28} />
           )}
         </Flex>
         <Flex grow alignItems="center" gap="spacing8">
-          <DappHeaderIcon dapp={dapp} showChain={false} />
+          <DappHeaderIcon dapp={dapp} />
           <Text numberOfLines={2} textAlign="center" variant="buttonLabelMedium">
             {dapp.name || dapp.url}
           </Text>
-          <Text
-            color="accentActive"
-            numberOfLines={1}
-            textAlign="center"
-            variant="buttonLabelMicro">
+          <Text color="accent1" numberOfLines={1} textAlign="center" variant="buttonLabelMicro">
             {dapp.url}
           </Text>
         </Flex>
 
-        {session.version === '1' ? (
-          <ChangeNetworkButton session={session} onPressChangeNetwork={onPressChangeNetwork} />
-        ) : (
-          <TouchableArea
-            hapticFeedback
-            hapticStyle={ImpactFeedbackStyle.Medium}
-            testID={ElementName.WCDappSwitchNetwork}
-            onPress={(): void => onPressChangeNetwork(session)}>
-            <NetworkLogos
-              showFirstChainLabel
-              backgroundColor="background3"
-              borderRadius="roundedFull"
-              chains={session.chains}
-              p="spacing8"
-            />
-          </TouchableArea>
-        )}
+        <TouchableArea
+          hapticFeedback
+          hapticStyle={ImpactFeedbackStyle.Medium}
+          testID={ElementName.WCDappNetworks}
+          onPress={(): void => onPressChangeNetwork(session)}>
+          <NetworkLogos
+            showFirstChainLabel
+            backgroundColor="surface2"
+            borderRadius="roundedFull"
+            chains={session.chains}
+            p="spacing8"
+          />
+        </TouchableArea>
       </Flex>
     </ContextMenu>
-  )
-}
-
-function ChangeNetworkButton({
-  session,
-  onPressChangeNetwork,
-}: {
-  session: WalletConnectSessionV1
-  onPressChangeNetwork: (session: WalletConnectSessionV1) => void
-}): JSX.Element {
-  const theme = useAppTheme()
-  const { t } = useTranslation()
-
-  // Only WC v1.0 connections have a current chain_id
-  const supportedChainId = toSupportedChainId(session.dapp.chain_id)
-
-  return (
-    <TouchableArea onPress={(): void => onPressChangeNetwork(session)}>
-      <Flex
-        row
-        shrink
-        backgroundColor="background3"
-        borderRadius="roundedFull"
-        gap="none"
-        justifyContent="space-between"
-        p="spacing8">
-        {supportedChainId ? (
-          <Flex fill row shrink gap="spacing8">
-            <NetworkLogo chainId={supportedChainId} />
-            <Flex shrink>
-              <Text
-                color="textSecondary"
-                numberOfLines={1}
-                textAlign="center"
-                variant="buttonLabelSmall">
-                {CHAIN_INFO[supportedChainId].label}
-              </Text>
-            </Flex>
-          </Flex>
-        ) : (
-          <Text color="textSecondary" textAlign="center" variant="buttonLabelSmall">
-            {t('Unsupported chain')}
-          </Text>
-        )}
-        <Chevron
-          color={theme.colors.textTertiary}
-          direction="s"
-          height={theme.iconSizes.icon20}
-          width={theme.iconSizes.icon20}
-        />
-      </Flex>
-    </TouchableArea>
   )
 }
 

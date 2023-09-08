@@ -8,7 +8,7 @@ import {
   SuggestedTokenSection,
 } from 'src/components/TokenSelector/TokenSelectorList'
 import { TokenOption } from 'src/components/TokenSelector/types'
-import { iconSizes } from 'ui/src/theme/iconSizes'
+import { iconSizes } from 'ui/src/theme'
 import { TokenLogo } from 'wallet/src/components/CurrencyLogo/TokenLogo'
 
 function _SuggestedToken({
@@ -34,9 +34,9 @@ function _SuggestedToken({
       testID={`token-option-${currency.chainId}-${currency.symbol}`}
       onPress={onPress}>
       <Pill
-        backgroundColor="background2"
+        backgroundColor="surface3"
         borderRadius="roundedFull"
-        foregroundColor={theme.colors.textPrimary}
+        foregroundColor={theme.colors.neutral1}
         icon={<TokenLogo size={iconSizes.icon28} symbol={currency.symbol} url={logoUrl} />}
         label={currency.symbol}
         mr="spacing8"

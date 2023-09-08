@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Chevron } from 'src/components/icons/Chevron'
 import { Flex } from 'src/components/layout'
 import { Text } from 'src/components/Text'
-import { Theme } from 'ui/src/theme/restyle/theme'
+import { Theme } from 'ui/src/theme/restyle'
 
 type Props = {
   size?: number
@@ -19,12 +19,12 @@ export function BackButtonView({ size, color, showButtonLabel }: Props): JSX.Ele
   return (
     <Flex row alignItems="center" gap="spacing8">
       <Chevron
-        color={color ? theme.colors[color] : theme.colors.textTertiary}
+        color={color ? theme.colors[color] : theme.colors.neutral2}
         height={size}
         width={size}
       />
       {showButtonLabel && (
-        <Text color="textSecondary" variant="subheadLarge">
+        <Text color="neutral2" variant="subheadLarge">
           {t('Back')}
         </Text>
       )}

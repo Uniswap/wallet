@@ -25,11 +25,11 @@ import { DerivedTransferInfo } from 'src/features/transactions/transfer/hooks'
 import { TransferReview } from 'src/features/transactions/transfer/TransferReview'
 import { TransferStatus } from 'src/features/transactions/transfer/TransferStatus'
 import { TransferTokenForm } from 'src/features/transactions/transfer/TransferTokenForm'
-import { ANIMATE_SPRING_CONFIG } from 'src/features/transactions/utils'
 import DollarSign from 'ui/src/assets/icons/dollar.svg'
 import EyeIcon from 'ui/src/assets/icons/eye.svg'
 import SettingsIcon from 'ui/src/assets/icons/settings.svg'
-import { dimensions } from 'ui/src/theme/restyle/sizing'
+import { dimensions } from 'ui/src/theme/restyle'
+import { ANIMATE_SPRING_CONFIG } from 'wallet/src/features/transactions/utils'
 import { AccountType } from 'wallet/src/features/wallet/accounts/types'
 import { useActiveAccountWithThrow } from 'wallet/src/features/wallet/hooks'
 
@@ -49,6 +49,7 @@ interface TransactionFlowProps {
   approveTxRequest?: providers.TransactionRequest
   txRequest?: providers.TransactionRequest
   totalGasFee?: string
+  gasFeeUSD?: string
   gasFallbackUsed?: boolean
   step: TransactionStep
   setStep: (newStep: TransactionStep) => void
@@ -73,6 +74,7 @@ type InnerContentProps = Pick<
   step: number
   setStep: (step: TransactionStep) => void
   showingSelectorScreen: boolean
+  gasFeeUSD?: string
 }
 
 type HeaderContentProps = Pick<
@@ -99,6 +101,7 @@ export function TransactionFlow({
   approveTxRequest,
   txRequest,
   totalGasFee,
+  gasFeeUSD,
   gasFallbackUsed,
   step,
   setStep,
@@ -168,6 +171,7 @@ export function TransactionFlow({
                 dispatch={dispatch}
                 exactValue={exactValue}
                 gasFallbackUsed={gasFallbackUsed}
+                gasFeeUSD={gasFeeUSD}
                 setStep={setStep}
                 showingSelectorScreen={!!showRecipientSelector}
                 step={step}
@@ -188,7 +192,7 @@ export function TransactionFlow({
               confirmText={t('Dismiss')}
               icon={
                 <EyeIcon
-                  color={theme.colors.textSecondary}
+                  color={theme.colors.neutral2}
                   height={theme.iconSizes.icon24}
                   width={theme.iconSizes.icon24}
                 />
@@ -254,20 +258,18 @@ function HeaderContent({
         {step === TransactionStep.FORM && showUSDToggle ? (
           <TouchableArea
             hapticFeedback
-            bg={isUSDInput ? 'accentActionSoft' : 'background2'}
+            bg={isUSDInput ? 'accent2' : 'surface2'}
             borderRadius="rounded16"
             px="spacing8"
             py="spacing4"
             onPress={(): void => onToggleUSDInput(!isUSDInput)}>
             <Flex row alignItems="center" gap="spacing4">
               <DollarSign
-                color={isUSDInput ? theme.colors.accentAction : theme.colors.textSecondary}
+                color={isUSDInput ? theme.colors.accent1 : theme.colors.neutral2}
                 height={theme.iconSizes.icon16}
                 width={theme.iconSizes.icon16}
               />
-              <Text
-                color={isUSDInput ? 'accentAction' : 'textSecondary'}
-                variant="buttonLabelSmall">
+              <Text color={isUSDInput ? 'accent1' : 'neutral2'} variant="buttonLabelSmall">
                 {t('USD')}
               </Text>
             </Flex>
@@ -275,7 +277,7 @@ function HeaderContent({
         ) : null}
         {isViewOnlyWallet ? (
           <TouchableArea
-            bg="background2"
+            bg="surface2"
             borderRadius="rounded12"
             justifyContent="center"
             px="spacing8"
@@ -283,11 +285,11 @@ function HeaderContent({
             onPress={(): void => setShowViewOnlyModal(true)}>
             <Flex row alignItems="center" gap="spacing4">
               <EyeIcon
-                color={theme.colors.textTertiary}
+                color={theme.colors.neutral2}
                 height={theme.iconSizes.icon16}
                 width={theme.iconSizes.icon16}
               />
-              <Text color="textTertiary" variant="buttonLabelSmall">
+              <Text color="neutral2" variant="buttonLabelSmall">
                 {t('View-only')}
               </Text>
             </Flex>
@@ -301,20 +303,20 @@ function HeaderContent({
             <Flex
               centered
               row
-              bg={customSlippageTolerance ? 'background2' : 'none'}
+              bg={customSlippageTolerance ? 'surface2' : 'none'}
               borderRadius="roundedFull"
               gap="spacing4"
               px={customSlippageTolerance ? 'spacing8' : 'none'}
               py="spacing4">
               {customSlippageTolerance ? (
-                <Text color="textSecondary" variant="buttonLabelMicro">
+                <Text color="neutral2" variant="buttonLabelMicro">
                   {t('{{slippage}}% slippage', {
                     slippage: customSlippageTolerance.toFixed(2),
                   })}
                 </Text>
               ) : null}
               <SettingsIcon
-                color={theme.colors.textTertiary}
+                color={theme.colors.neutral3}
                 height={theme.iconSizes.icon28}
                 width={theme.iconSizes.icon28}
               />
@@ -359,6 +361,7 @@ function InnerContentRouter(props: InnerContentProps): JSX.Element {
 
 interface SwapInnerContentProps extends InnerContentProps {
   derivedSwapInfo: DerivedSwapInfo
+  gasFeeUSD?: string
   onFormNext: () => void
   onReviewNext: () => void
   onReviewPrev: () => void
@@ -370,6 +373,7 @@ function SwapInnerContent({
   onClose,
   dispatch,
   totalGasFee,
+  gasFeeUSD,
   gasFallbackUsed,
   approveTxRequest,
   txRequest,
@@ -415,6 +419,7 @@ function SwapInnerContent({
           derivedSwapInfo={derivedSwapInfo}
           exactValue={exactValue}
           gasFallbackUsed={gasFallbackUsed}
+          gasFeeUSD={gasFeeUSD}
           totalGasFee={totalGasFee}
           txRequest={txRequest}
           warnings={warnings}
@@ -441,7 +446,7 @@ function TransferInnerContent({
   onClose,
   dispatch,
   step,
-  totalGasFee,
+  gasFeeUSD,
   txRequest,
   warnings,
   onFormNext,
@@ -477,7 +482,7 @@ function TransferInnerContent({
         <Trace logImpression section={SectionName.TransferReview}>
           <TransferReview
             derivedTransferInfo={derivedTransferInfo}
-            totalGasFee={totalGasFee}
+            gasFeeUSD={gasFeeUSD}
             txRequest={txRequest}
             warnings={warnings}
             onNext={onReviewNext}

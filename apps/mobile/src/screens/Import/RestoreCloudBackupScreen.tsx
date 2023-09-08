@@ -10,8 +10,9 @@ import { Chevron } from 'src/components/icons/Chevron'
 import { Flex } from 'src/components/layout'
 import { Text } from 'src/components/Text'
 import { Unicon } from 'src/components/unicons/Unicon'
+import { IS_ANDROID } from 'src/constants/globals'
 import { useCloudBackups } from 'src/features/CloudBackup/hooks'
-import { ICloudMnemonicBackup } from 'src/features/CloudBackup/types'
+import { CloudStorageMnemonicBackup } from 'src/features/CloudBackup/types'
 import { OnboardingScreen } from 'src/features/onboarding/OnboardingScreen'
 import { OnboardingScreens } from 'src/screens/Screens'
 import { useAddBackButton } from 'src/utils/useAddBackButton'
@@ -30,7 +31,7 @@ export function RestoreCloudBackupScreen({ navigation, route: { params } }: Prop
   const backups = useCloudBackups()
   const sortedBackups = backups.slice().sort((a, b) => b.createdAt - a.createdAt)
 
-  const onPressRestoreBackup = async (backup: ICloudMnemonicBackup): Promise<void> => {
+  const onPressRestoreBackup = async (backup: CloudStorageMnemonicBackup): Promise<void> => {
     // Clear any existing pending accounts
     dispatch(pendingAccountActions.trigger(PendingAccountActions.Delete))
 
@@ -45,7 +46,11 @@ export function RestoreCloudBackupScreen({ navigation, route: { params } }: Prop
 
   return (
     <OnboardingScreen
-      subtitle={t('There are multiple recovery phrases backed up to your iCloud.')}
+      subtitle={
+        IS_ANDROID
+          ? t('There are multiple recovery phrases backed up to your Google Drive.')
+          : t('There are multiple recovery phrases backed up to your iCloud.')
+      }
       title={t('Select backup to restore')}>
       <ScrollView>
         <Flex gap="spacing8">
@@ -54,8 +59,8 @@ export function RestoreCloudBackupScreen({ navigation, route: { params } }: Prop
             return (
               <TouchableArea
                 key={backup.mnemonicId}
-                backgroundColor="background2"
-                borderColor="background3"
+                backgroundColor="surface2"
+                borderColor="surface2"
                 borderRadius="rounded16"
                 borderWidth={1}
                 p="spacing16"
@@ -67,21 +72,21 @@ export function RestoreCloudBackupScreen({ navigation, route: { params } }: Prop
                       <Text numberOfLines={1} variant="subheadSmall">
                         {t('Backup {{backupIndex}}', { backupIndex: sortedBackups.length - index })}
                       </Text>
-                      <Text color="textSecondary" variant="buttonLabelMicro">
+                      <Text color="neutral2" variant="buttonLabelMicro">
                         {shortenAddress(mnemonicId)}
                       </Text>
                     </Flex>
                   </Flex>
                   <Flex row gap="spacing12">
                     <Flex alignItems="flex-end" gap="spacing4">
-                      <Text color="textSecondary" variant="buttonLabelMicro">
+                      <Text color="neutral2" variant="buttonLabelMicro">
                         {t('Backed up on:')}
                       </Text>
                       <Text variant="buttonLabelMicro">
                         {dayjs.unix(createdAt).format('MMM D, YYYY, h:mma')}
                       </Text>
                     </Flex>
-                    <Chevron color={theme.colors.textPrimary} direction="e" />
+                    <Chevron color={theme.colors.neutral1} direction="e" />
                   </Flex>
                 </Flex>
               </TouchableArea>

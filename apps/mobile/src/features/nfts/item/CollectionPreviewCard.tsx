@@ -9,8 +9,7 @@ import { Text } from 'src/components/Text'
 import { PriceAmount } from 'src/features/nfts/collection/ListPriceCard'
 import { NFTItem } from 'src/features/nfts/types'
 import VerifiedIcon from 'ui/src/assets/icons/verified.svg'
-import { iconSizes } from 'ui/src/theme/iconSizes'
-import { imageSizes } from 'ui/src/theme/imageSizes'
+import { iconSizes, imageSizes } from 'ui/src/theme'
 import { Currency, NftItemScreenQuery } from 'wallet/src/data/__generated__/types-and-hooks'
 import { NFTViewer } from 'wallet/src/features/images/NFTViewer'
 
@@ -44,7 +43,7 @@ export function CollectionPreviewCard({
       <Flex
         row
         alignItems="center"
-        backgroundColor="textOnDimTertiary"
+        backgroundColor="surface3"
         borderRadius="rounded16"
         gap="spacing8"
         justifyContent="space-between"
@@ -69,13 +68,13 @@ export function CollectionPreviewCard({
               {/* Width chosen to ensure truncation of collection name on both small
                 and large screens with sufficient padding */}
               <Box flexShrink={1}>
-                <Text color="textOnBrightPrimary" numberOfLines={1} variant="bodyLarge">
+                <Text color="neutral1" numberOfLines={1} variant="bodyLarge">
                   {collection?.name || fallbackData?.name || '-'}
                 </Text>
               </Box>
               {collection?.isVerified && (
                 <VerifiedIcon
-                  color={theme.colors.userThemeMagenta}
+                  color={theme.colors.accent1}
                   height={iconSizes.icon16}
                   width={iconSizes.icon16}
                 />
@@ -83,17 +82,17 @@ export function CollectionPreviewCard({
             </Flex>
             {collection?.markets?.[0]?.floorPrice?.value && (
               <Flex row gap="spacing4">
-                <Text color="textSecondary" numberOfLines={1} variant="subheadSmall">
+                <Text color="neutral2" numberOfLines={1} variant="subheadSmall">
                   {t('Floor')}:
                 </Text>
                 <PriceAmount
-                  iconColor="textSecondary"
+                  iconColor="neutral2"
                   price={{
                     id: collection?.markets?.[0].floorPrice.id,
                     value: collection.markets[0].floorPrice.value,
                     currency: Currency.Eth,
                   }}
-                  textColor="textSecondary"
+                  textColor="neutral2"
                   textVariant="subheadSmall"
                 />
               </Flex>
@@ -102,7 +101,7 @@ export function CollectionPreviewCard({
         </Flex>
         {isViewableCollection ? (
           <Chevron
-            color={theme.colors.textOnBrightSecondary}
+            color={theme.colors.neutral1}
             direction="e"
             height={theme.iconSizes.icon24}
             width={theme.iconSizes.icon24}

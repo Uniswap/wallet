@@ -12,18 +12,18 @@ import { Text } from 'src/components/Text'
 import { GenericImportForm } from 'src/features/import/GenericImportForm'
 import { useCompleteOnboardingCallback } from 'src/features/onboarding/hooks'
 import { SafeKeyboardOnboardingScreen } from 'src/features/onboarding/SafeKeyboardOnboardingScreen'
-import { sendAnalyticsEvent } from 'src/features/telemetry'
+import { sendMobileAnalyticsEvent } from 'src/features/telemetry'
 import { ElementName } from 'src/features/telemetry/constants'
 import { useIsSmartContractAddress } from 'src/features/transactions/transfer/hooks'
 import { OnboardingScreens } from 'src/screens/Screens'
 import { useAddBackButton } from 'src/utils/useAddBackButton'
+import { normalizeTextInput } from 'utilities/src/primitives/string'
 import { ChainId } from 'wallet/src/constants/chains'
 import { useENS } from 'wallet/src/features/ens/useENS'
 import { useAccounts } from 'wallet/src/features/wallet/hooks'
 import { importAccountActions } from 'wallet/src/features/wallet/import/importAccountSaga'
 import { ImportAccountType } from 'wallet/src/features/wallet/import/types'
 import { getValidAddress } from 'wallet/src/utils/addresses'
-import { normalizeTextInput } from 'wallet/src/utils/string'
 
 type Props = NativeStackScreenProps<OnboardingStackParamList, OnboardingScreens.WatchWallet>
 
@@ -84,7 +84,7 @@ export function WatchWalletScreen({ navigation, route: { params } }: Props): JSX
           })
         )
       }
-      sendAnalyticsEvent(SharedEventName.ELEMENT_CLICKED, {
+      sendMobileAnalyticsEvent(SharedEventName.ELEMENT_CLICKED, {
         screen: OnboardingScreens.WatchWallet,
         element: ElementName.Continue,
       })
@@ -150,9 +150,9 @@ export function WatchWalletScreen({ navigation, route: { params } }: Props): JSX
           }}
         />
         <Flex>
-          <Text color="textTertiary" mx="spacing4" textAlign="center" variant={subtitleSize}>
+          <Text color="neutral2" mx="spacing4" textAlign="center" variant={subtitleSize}>
             Not sure? Try adding{' '}
-            <Text color="accentAction" variant={addressSize} onPress={onPressDemoWallet}>
+            <Text color="accent1" variant={addressSize} onPress={onPressDemoWallet}>
               uniswapdemo.eth
             </Text>
           </Text>

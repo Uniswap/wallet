@@ -6,6 +6,7 @@ import {
   ReadOnlyAccount,
   SignerMnemonicAccount,
 } from 'wallet/src/features/wallet/accounts/types'
+import { SwapProtectionSetting } from 'wallet/src/features/wallet/slice'
 import { TokensOrderBy } from 'wallet/src/features/wallet/types'
 import type { RootState } from 'wallet/src/state'
 
@@ -81,11 +82,6 @@ export const selectActiveAccount = createSelector(
     (activeAccountAddress ? accounts[activeAccountAddress] : null) ?? null
 )
 
-export const selectUserPalette = createSelector(
-  selectActiveAccount,
-  (activeAccount) => activeAccount?.customizations?.palette
-)
-
 export const selectFinishedOnboarding = (state: RootState): boolean | undefined =>
   state.wallet.finishedOnboarding
 
@@ -111,3 +107,6 @@ export const makeSelectAccountHideSmallBalances = (
 
 export const makeSelectAccountHideSpamTokens = (address: Address): Selector<RootState, boolean> =>
   createSelector(selectAccounts, (accounts) => !accounts?.[address]?.showSpamTokens)
+
+export const selectWalletSwapProtectionSetting = (state: RootState): SwapProtectionSetting =>
+  state.wallet.settings.swapProtection

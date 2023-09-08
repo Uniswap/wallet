@@ -1,3 +1,4 @@
+import { apolloClient } from 'src/data/usePersistedApolloClient'
 import { accountCleanupWatcher } from 'src/features/accounts/accountWatcherSaga'
 import { cloudBackupsManagerSaga } from 'src/features/CloudBackup/saga'
 import { deepLinkWatcher } from 'src/features/deepLinking/handleDeepLinkSaga'
@@ -17,16 +18,11 @@ import {
   tokenWrapSaga,
   tokenWrapSagaName,
 } from 'src/features/transactions/swap/wrapSaga'
-import { transactionWatcher } from 'src/features/transactions/transactionWatcherSaga'
-import {
-  transferTokenActions,
-  transferTokenReducer,
-  transferTokenSaga,
-  transferTokenSagaName,
-} from 'src/features/transactions/transfer/transferTokenSaga'
-import { signWcRequestSaga } from 'src/features/walletConnect/saga'
-import { initializeWeb3Wallet, walletConnectV2Saga } from 'src/features/walletConnectV2/saga'
-import { call, spawn } from 'typed-redux-saga'
+import { restoreMnemonicCompleteWatcher } from 'src/features/wallet/saga'
+import { walletConnectSaga } from 'src/features/walletConnect/saga'
+import { signWcRequestSaga } from 'src/features/walletConnect/signWcRequestSaga'
+import { spawn } from 'typed-redux-saga'
+import { transactionWatcher } from 'wallet/src/features/transactions/transactionWatcherSaga'
 import {
   editAccountActions,
   editAccountReducer,
@@ -57,10 +53,10 @@ const sagas = [
   initFirebase,
   notificationWatcher,
   pendingAccountSaga,
+  restoreMnemonicCompleteWatcher,
   signWcRequestSaga,
   telemetrySaga,
-  transactionWatcher,
-  walletConnectV2Saga,
+  walletConnectSaga,
 ]
 
 // All monitored sagas must be included here
@@ -83,12 +79,6 @@ export const monitoredSagas: Record<string, MonitoredSaga> = {
     reducer: importAccountReducer,
     actions: importAccountActions,
   },
-  [transferTokenSagaName]: {
-    name: transferTokenSagaName,
-    wrappedSaga: transferTokenSaga,
-    reducer: transferTokenReducer,
-    actions: transferTokenActions,
-  },
   [swapSagaName]: {
     name: swapSagaName,
     wrappedSaga: swapSaga,
@@ -106,12 +96,12 @@ export const monitoredSagas: Record<string, MonitoredSaga> = {
 export const monitoredSagaReducers = getMonitoredSagaReducers(monitoredSagas)
 
 export function* mobileSaga() {
-  // Ensure WalletConnect core is initialized before spawning any other sagas (deepLinkWatcher)
-  yield* call(initializeWeb3Wallet)
-
   for (const s of sagas) {
     yield* spawn(s)
   }
+
+  yield* spawn(transactionWatcher, { apolloClient })
+
   for (const m of Object.values(monitoredSagas)) {
     yield* spawn(m.wrappedSaga)
   }

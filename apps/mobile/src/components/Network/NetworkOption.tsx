@@ -5,7 +5,7 @@ import { Box, Flex } from 'src/components/layout'
 import { Separator } from 'src/components/layout/Separator'
 import { Text } from 'src/components/Text'
 import Check from 'ui/src/assets/icons/check.svg'
-import { iconSizes } from 'ui/src/theme/iconSizes'
+import { iconSizes } from 'ui/src/theme'
 import { NetworkLogo } from 'wallet/src/components/CurrencyLogo/NetworkLogo'
 import { ChainId, CHAIN_INFO } from 'wallet/src/constants/chains'
 
@@ -28,13 +28,13 @@ export function NetworkOption({
         {(chainId && <NetworkLogo chainId={chainId} size={NETWORK_OPTION_ICON_SIZE} />) || (
           <Box width={NETWORK_OPTION_ICON_SIZE} />
         )}
-        <Text color="textPrimary" variant="bodyLarge">
+        <Text color="neutral1" variant="bodyLarge">
           {info?.label ?? t('All networks')}
         </Text>
         <Flex centered height={NETWORK_OPTION_ICON_SIZE} width={NETWORK_OPTION_ICON_SIZE}>
           {currentlySelected && (
             <Check
-              color={theme.colors.textPrimary}
+              color={theme.colors.neutral1}
               height={iconSizes.icon20}
               width={iconSizes.icon20}
             />

@@ -1,5 +1,5 @@
 // Based on https://github.com/Uniswap/wallet-internal/blob/main/apps/mobile/src/lib/RNEthersRs.ts
-import { NotImplementedError } from 'wallet/src/utils/errors'
+import { NotImplementedError } from 'utilities/src/errors'
 
 /**
  * Provides the generation, storage, and signing logic for mnemonics and private keys.
@@ -47,6 +47,16 @@ export interface IKeyring {
    * @returns public addresses for all stored private keys
    */
   getAddressesForStoredPrivateKeys(): Promise<string[]>
+
+  /**
+   * Derives public address from `mnemonic` for a given `derivationIndex`.
+   *
+   * @param mnemonic mnemonic to generate public address for
+   * @param derivationIndex number used to specify a which derivation index to use for deriving a private key
+   * from the mnemonic
+   * @returns public address associated with private key generated from the mnemonic at given derivation index
+   */
+  generateAddressForMnemonic(mnemonic: string, derivationIndex: number): Promise<string>
 
   /**
    * Derives private key and public address from mnemonic associated with `mnemonicId` for given `derivationIndex`.
@@ -99,6 +109,11 @@ class NullKeyring implements IKeyring {
 
   getAddressesForStoredPrivateKeys(): Promise<string[]> {
     throw new NotImplementedError('getAddressesForStoredPrivateKeys')
+  }
+
+  // returns the address for a given mnemonic
+  generateAddressForMnemonic(_menemonic: string, _derivationIndex: number): Promise<string> {
+    throw new NotImplementedError('generateAddressForMnemonic')
   }
 
   // returns the address of the generated key

@@ -1,12 +1,14 @@
+import { useTheme } from '@tamagui/web'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import ImageColors from 'react-native-image-colors'
 import { useAppTheme } from 'src/app/hooks'
-import { colors as GlobalColors } from 'ui/src/theme/color'
-import { GlobalPalette } from 'ui/src/theme/color/types'
-import { theme as FixedTheme, Theme } from 'ui/src/theme/restyle/theme'
+import { useIsDarkMode } from 'src/features/appearance/hooks'
+import { colors as GlobalColors, GlobalPalette } from 'ui/src/theme'
+import { theme as FixedTheme, Theme } from 'ui/src/theme/restyle'
+import { assert } from 'utilities/src/errors'
+import { isSVGUri } from 'utilities/src/format/urls'
+import { useAsyncData } from 'utilities/src/react/hooks'
 import { ChainId } from 'wallet/src/constants/chains'
-import { useAsyncData } from 'wallet/src/utils/hooks'
-import { assert } from 'wallet/src/utils/validation'
 import { hex } from 'wcag-contrast'
 
 export const MIN_COLOR_CONTRAST_THRESHOLD = 3
@@ -70,23 +72,89 @@ const specialCaseTokenColors: { [key: string]: string } = {
   // new WBTC
   'https://assets.coingecko.com/coins/images/7598/large/wrapped_bitcoin_wbtc.png?1548822744':
     '#F09241',
-
   // DAI
   'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png':
     '#FAB01B',
-
   // UNI
   'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984/logo.png':
     '#E6358C',
-
   // BUSD
   'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0x4Fabb145d64652a948d72533023f6E7A623C7C53/logo.png':
     '#EFBA09',
+  // AI-X
+  'https://s2.coinmarketcap.com/static/img/coins/64x64/26984.png': '#29A1F1',
+  // ETH
+  'https://token-icons.s3.amazonaws.com/eth.png': '#4970D5',
+  // HARRYPOTTERSHIBAINUBITCOIN
+  'https://assets.coingecko.com/coins/images/30323/large/hpos10i_logo_casino_night-dexview.png?1684117567':
+    '#DE3110',
+  // PEPE
+  'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0x6982508145454Ce325dDbE47a25d4ec3d2311933/logo.png':
+    '#3EAE14',
+  // Unibot V2
+  'https://s2.coinmarketcap.com/static/img/coins/64x64/25436.png': '#4A0A4F',
+  // UNIBOT v1
+  'https://assets.coingecko.com/coins/images/30462/small/logonoline_%281%29.png?1687510315':
+    '#4A0A4F',
+  // USDC
+  'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png':
+    '#0066D9',
+  // HEX
+  'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0x2b591e99afE9f32eAA6214f7B7629768c40Eeb39/logo.png':
+    '#F93F8C',
+  // MONG
+  'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0x1ce270557C1f68Cfb577b856766310Bf8B47FD9C/logo.png':
+    '#A96DFF',
+  // ARB
+  'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xB50721BCf8d664c30412Cfbc6cf7a15145234ad1/logo.png':
+    '#29A1F1',
+  // PSYOP
+  'https://s2.coinmarketcap.com/static/img/coins/64x64/25422.png': '#E88F00',
+  // MATIC
+  'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0/logo.png':
+    '#A96DFF',
+  // TURBO
+  'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xA35923162C49cF95e6BF26623385eb431ad920D3/logo.png':
+    '#BD6E29',
+  // AIDOGE
+  'https://assets.coingecko.com/coins/images/29852/large/photo_2023-04-18_14-25-28.jpg?1681799160':
+    '#29A1F1',
+  // SIMPSON
+  'https://assets.coingecko.com/coins/images/30243/large/1111.png?1683692033': '#E88F00',
+  // MAKER
+  'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2/logo.png':
+    '#50B197',
+  // OX
+  'https://assets.coingecko.com/coins/images/30604/large/Logo2.png?1685522119': '#2959D9',
+  // ANGLE
+  'https://assets.coingecko.com/coins/images/19060/large/ANGLE_Token-light.png?1666774221':
+    '#FF5555',
+  // APE
+  'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0x4d224452801ACEd8B2F0aebE155379bb5D594381/logo.png':
+    '#054AA9',
+  // GUSD
+  'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0x056Fd409E1d7A124BD7017459dFEa2F387b6d5Cd/logo.png':
+    '#00A4BD',
+  // OGN
+  'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0x8207c1FfC5B6804F6024322CcF34F29c3541Ae26/logo.png':
+    '#054AA9',
+  // RPL
+  'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xD33526068D116cE69F19A9ee46F0bd304F21A51f/logo.png':
+    '#FF7B4F',
 }
+
+const blackAndWhiteSpecialCase: Set<string> = new Set([
+  // QNT
+  'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0x4a220E6096B25EADb88358cb44068A3248254675/logo.png',
+  // Xen
+  'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0x06450dEe7FD2Fb8E39061434BAbCFC05599a6Fb8/logo.png',
+  // FWB
+  'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0x35bD01FC9d6D5D81CA9E055Db88Dc49aa2c699A8/logo.png',
+])
 
 export function useExtractedColors(
   imageUrl: Maybe<string>,
-  fallback: keyof Theme['colors'] = 'magentaVibrant',
+  fallback: keyof Theme['colors'] = 'accent1',
   cache = true
 ): { colors?: ExtractedColors; colorsLoading: boolean } {
   const getImageColors = useCallback(async () => {
@@ -121,10 +189,15 @@ export function useExtractedColors(
   return { colors, colorsLoading }
 }
 
-function getSpecialCaseTokenColor(imageUrl: Maybe<string>): Nullable<string> {
+function getSpecialCaseTokenColor(imageUrl: Maybe<string>, isDarkMode: boolean): Nullable<string> {
+  if (imageUrl && blackAndWhiteSpecialCase.has(imageUrl)) {
+    return isDarkMode ? '#FFFFFF' : '#000000'
+  }
+
   if (!imageUrl || !specialCaseTokenColors[imageUrl]) {
     return null
   }
+
   return specialCaseTokenColors[imageUrl] ?? null
 }
 /**
@@ -137,8 +210,8 @@ function getSpecialCaseTokenColor(imageUrl: Maybe<string>): Nullable<string> {
  * ```ts
  * const { tokenColor, tokenColorLoading } = useExtractedTokenColor(
  *    tokenImageUrl,
- *    theme.colors.background0,
- *    theme.colors.textTertiary
+ *    theme.colors.surface1,
+ *    theme.colors.neutral3
  * )
  * ```
  *
@@ -152,9 +225,11 @@ export function useExtractedTokenColor(
   backgroundColor: string,
   defaultColor: string
 ): { tokenColor: Nullable<string>; tokenColorLoading: boolean } {
+  const theme = useTheme()
   const { colors, colorsLoading } = useExtractedColors(imageUrl)
   const [tokenColor, setTokenColor] = useState(defaultColor)
   const [tokenColorLoading, setTokenColorLoading] = useState(true)
+  const isDarkMode = useIsDarkMode()
 
   useEffect(() => {
     if (!colorsLoading && !!colors) {
@@ -164,11 +239,16 @@ export function useExtractedTokenColor(
   }, [backgroundColor, colors, colorsLoading])
 
   const specialCaseTokenColor = useMemo(() => {
-    return getSpecialCaseTokenColor(imageUrl)
-  }, [imageUrl])
+    return getSpecialCaseTokenColor(imageUrl, isDarkMode)
+  }, [imageUrl, isDarkMode])
 
   if (specialCaseTokenColor) {
     return { tokenColor: specialCaseTokenColor, tokenColorLoading: false }
+  }
+
+  if (isSVGUri(imageUrl)) {
+    // Fall back to a more neutral color for SVG's since they fail extraction but we can render them elsewhere
+    return { tokenColor: theme.neutral1?.get(), tokenColorLoading: false }
   }
 
   if (!imageUrl) {
@@ -182,17 +262,15 @@ export function useExtractedTokenColor(
  * Picks a contrast-passing text color to put on top of a given background color.
  * The threshold right now is 3.0, which is the WCAG AA standard.
  * @param backgroundColor The hex value of the background color to check contrast against
- * @returns either 'textOnBrightPrimary' or 'textOnDimPrimary'
+ * @returns either 'sporeWhite' or 'sporeBlack'
  */
-export function getContrastPassingTextColor(
-  backgroundColor: string
-): 'textOnBrightPrimary' | 'textOnDimPrimary' {
-  const lightText = FixedTheme.colors.textOnBrightPrimary
+export function getContrastPassingTextColor(backgroundColor: string): 'sporeWhite' | 'sporeBlack' {
+  const lightText = FixedTheme.colors.sporeWhite
 
   if (hex(lightText, backgroundColor) >= MIN_COLOR_CONTRAST_THRESHOLD) {
-    return 'textOnBrightPrimary'
+    return 'sporeWhite'
   }
-  return 'textOnDimPrimary'
+  return 'sporeBlack'
 }
 
 export function passesContrast(
@@ -241,7 +319,7 @@ function pickContrastPassingColor(extractedColors: ExtractedColors, backgroundHe
       return c
     }
   }
-  return FixedTheme.colors.magentaVibrant
+  return FixedTheme.colors.accent1
 }
 
 /**

@@ -2,8 +2,8 @@ import { PropsWithChildren } from 'react'
 import { useWindowDimensions } from 'react-native'
 import { GetProps, styled, Text as TamaguiText } from 'tamagui'
 import { Box } from 'ui/src/components/layout/Box'
-import { Shimmer } from 'ui/src/components/loading/Shimmer'
 import { HiddenFromScreenReaders } from 'ui/src/components/text/HiddenFromScreenReaders'
+import { Shimmer } from 'ui/src/loading/Shimmer'
 import { fonts } from 'ui/src/theme/fonts'
 
 // import { createText, useResponsiveProp } from '@shopify/restyle'
@@ -27,73 +27,73 @@ export const TextFrame = styled(TamaguiText, {
         fontFamily: '$heading',
         fontSize: fonts.headlineLarge.fontSize,
         lineHeight: fonts.headlineLarge.lineHeight,
-        fontWeight: '600',
+        fontWeight: fonts.headlineLarge.fontWeight,
       },
       headlineMedium: {
         fontFamily: '$heading',
         fontSize: fonts.headlineMedium.fontSize,
         lineHeight: fonts.headlineMedium.lineHeight,
-        fontWeight: '500',
+        fontWeight: fonts.headlineMedium.fontWeight,
       },
       headlineSmall: {
         fontFamily: '$heading',
         fontSize: fonts.headlineSmall.fontSize,
         lineHeight: fonts.headlineSmall.lineHeight,
-        fontWeight: '500',
+        fontWeight: fonts.headlineSmall.fontWeight,
       },
       subheadLarge: {
         fontFamily: '$heading',
         fontSize: fonts.subheadLarge.fontSize,
         lineHeight: fonts.subheadLarge.lineHeight,
-        fontWeight: '500',
+        fontWeight: fonts.subheadLarge.fontWeight,
       },
       subheadSmall: {
         fontFamily: '$heading',
         fontSize: fonts.subheadSmall.fontSize,
         lineHeight: fonts.subheadSmall.lineHeight,
-        fontWeight: '500',
+        fontWeight: fonts.subheadSmall.fontWeight,
       },
       bodyLarge: {
         fontFamily: '$body',
         fontSize: fonts.bodyLarge.fontSize,
         lineHeight: fonts.bodyLarge.lineHeight,
-        fontWeight: '500',
+        fontWeight: fonts.bodyLarge.fontWeight,
       },
       bodySmall: {
         fontFamily: '$body',
         fontSize: fonts.bodySmall.fontSize,
         lineHeight: fonts.bodySmall.lineHeight,
-        fontWeight: '400',
+        fontWeight: fonts.bodySmall.fontWeight,
       },
       bodyMicro: {
         fontFamily: '$body',
         fontSize: fonts.bodyMicro.fontSize,
         lineHeight: fonts.bodyMicro.lineHeight,
-        fontWeight: '400',
+        fontWeight: fonts.bodyMicro.fontWeight,
       },
       buttonLabelLarge: {
         fontFamily: '$body',
         fontSize: fonts.buttonLabelLarge.fontSize,
         lineHeight: fonts.buttonLabelLarge.lineHeight,
-        fontWeight: '600',
+        fontWeight: fonts.buttonLabelLarge.fontWeight,
       },
       buttonLabelMedium: {
         fontFamily: '$body',
         fontSize: fonts.buttonLabelMedium.fontSize,
         lineHeight: fonts.buttonLabelMedium.lineHeight,
-        fontWeight: '600',
+        fontWeight: fonts.buttonLabelMedium.fontWeight,
       },
       buttonLabelSmall: {
         fontFamily: '$body',
         fontSize: fonts.buttonLabelSmall.fontSize,
         lineHeight: fonts.buttonLabelSmall.lineHeight,
-        fontWeight: '600',
+        fontWeight: fonts.buttonLabelSmall.fontWeight,
       },
       buttonLabelMicro: {
         fontFamily: '$body',
         fontSize: fonts.buttonLabelMicro.fontSize,
         lineHeight: fonts.buttonLabelMicro.lineHeight,
-        fontWeight: '600',
+        fontWeight: fonts.buttonLabelMicro.fontWeight,
       },
       monospace: {
         fontFamily: '$body',
@@ -127,7 +127,7 @@ const TextPlaceholder = ({ children }: PropsWithChildren<unknown>): JSX.Element 
       <Box alignItems="center" flexDirection="row" position="relative">
         <HiddenFromScreenReaders>{children}</HiddenFromScreenReaders>
         <Box
-          bg="$background3"
+          bg="$surface2"
           borderRadius="$rounded4"
           bottom="5%"
           left={0}

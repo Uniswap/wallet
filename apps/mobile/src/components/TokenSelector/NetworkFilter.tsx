@@ -11,8 +11,7 @@ import { useNetworkOptions } from 'src/components/Network/hooks'
 import { Text } from 'src/components/Text'
 import { ModalName } from 'src/features/telemetry/constants'
 import EllipsisIcon from 'ui/src/assets/icons/ellipsis.svg'
-import { colors } from 'ui/src/theme/color'
-import { iconSizes } from 'ui/src/theme/iconSizes'
+import { colors, iconSizes } from 'ui/src/theme'
 import {
   NetworkLogo,
   SQUARE_BORDER_RADIUS as NETWORK_LOGO_SQUARE_BORDER_RADIUS,
@@ -37,11 +36,11 @@ type ListItem = 'ellipsis' | number
 
 function renderItem({ item: chainId }: { item: ListItem }): JSX.Element {
   return (
-    <Box key={chainId} borderColor="background1" style={styles.networksInSeriesIcon}>
+    <Box key={chainId} borderColor="surface2" style={styles.networksInSeriesIcon}>
       {chainId === ELLIPSIS ? (
         <Flex
           centered
-          backgroundColor="textTertiary"
+          backgroundColor="neutral3"
           height={NETWORK_ICON_SIZE}
           style={styles.ellipsisIcon}
           width={NETWORK_ICON_SIZE}>
@@ -149,7 +148,7 @@ export function NetworkFilter({
             networks={networks}
           />
           <Chevron
-            color={theme.colors.textTertiary}
+            color={theme.colors.neutral3}
             direction="s"
             height={theme.iconSizes.icon20}
             width={theme.iconSizes.icon20}

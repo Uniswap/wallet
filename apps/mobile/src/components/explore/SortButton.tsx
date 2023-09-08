@@ -11,10 +11,10 @@ import {
   getTokensOrderByMenuLabel,
   getTokensOrderBySelectedLabel,
 } from 'src/features/explore/utils'
-import { sendAnalyticsEvent } from 'src/features/telemetry'
+import { sendMobileAnalyticsEvent } from 'src/features/telemetry'
 import { MobileEventName } from 'src/features/telemetry/constants'
+import { logger } from 'utilities/src/logger/logger'
 import { TokenSortableField } from 'wallet/src/data/__generated__/types-and-hooks'
-import { logger } from 'wallet/src/features/logger/logger'
 import { setTokensOrderBy } from 'wallet/src/features/wallet/slice'
 import { ClientTokensOrderBy, TokensOrderBy } from 'wallet/src/features/wallet/types'
 interface FilterGroupProps {
@@ -72,24 +72,24 @@ function _SortButton({ orderBy }: FilterGroupProps): JSX.Element {
         }
 
         dispatch(setTokensOrderBy({ newTokensOrderBy: selectedMenuAction.orderBy }))
-        sendAnalyticsEvent(MobileEventName.ExploreFilterSelected, {
+        sendMobileAnalyticsEvent(MobileEventName.ExploreFilterSelected, {
           filter_type: selectedMenuAction.orderBy,
         })
       }}>
       <TouchableArea
         alignItems="center"
-        backgroundColor={isDarkMode ? 'backgroundOverlay' : 'background0'}
+        backgroundColor={isDarkMode ? 'DEP_backgroundOverlay' : 'surface1'}
         borderRadius="roundedFull"
         flexDirection="row"
-        px="spacing12"
+        px="spacing16"
         py="spacing8">
         <Flex row gap="spacing4">
           {orderBy === TokenSortableField.Volume || orderBy === TokenSortableField.TotalValueLocked}
-          <Text color="textSecondary" variant="buttonLabelSmall">
+          <Text color="neutral2" variant="buttonLabelSmall">
             {getTokensOrderBySelectedLabel(orderBy, t)}
           </Text>
           <Chevron
-            color={theme.colors.textSecondary}
+            color={theme.colors.neutral2}
             direction="s"
             height={theme.iconSizes.icon20}
             width={theme.iconSizes.icon20}

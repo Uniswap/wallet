@@ -1,3 +1,4 @@
+import { useNavigation } from '@react-navigation/core'
 import { useTheme } from '@shopify/restyle'
 import { default as React, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -5,7 +6,11 @@ import { Image, ListRenderItemInfo, SectionList, StyleSheet } from 'react-native
 import { FadeInDown, FadeOutUp } from 'react-native-reanimated'
 import { SvgProps } from 'react-native-svg'
 import { useDispatch } from 'react-redux'
-import { useSettingsStackNavigation } from 'src/app/navigation/types'
+import {
+  OnboardingStackNavigationProp,
+  SettingsStackNavigationProp,
+  useSettingsStackNavigation,
+} from 'src/app/navigation/types'
 import { AddressDisplay } from 'src/components/AddressDisplay'
 import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { Chevron } from 'src/components/icons/Chevron'
@@ -32,15 +37,15 @@ import LikeSquare from 'ui/src/assets/icons/like-square.svg'
 import LockIcon from 'ui/src/assets/icons/lock.svg'
 import MessageQuestion from 'ui/src/assets/icons/message-question.svg'
 import UniswapIcon from 'ui/src/assets/icons/uniswap-logo.svg'
+import { ONE_SECOND_MS } from 'utilities/src/time/time'
+import { useTimeout } from 'utilities/src/time/timing'
 import { uniswapUrls } from 'wallet/src/constants/urls'
 import { AccountType, SignerMnemonicAccount } from 'wallet/src/features/wallet/accounts/types'
 import { useAccounts } from 'wallet/src/features/wallet/hooks'
 import { resetWallet, setFinishedOnboarding } from 'wallet/src/features/wallet/slice'
-import { ONE_SECOND_MS } from 'wallet/src/utils/time'
-import { useTimeout } from 'wallet/src/utils/timing'
 
 export function SettingsScreen(): JSX.Element {
-  const navigation = useSettingsStackNavigation()
+  const navigation = useNavigation<SettingsStackNavigationProp & OnboardingStackNavigationProp>()
   const theme = useTheme()
   const { t } = useTranslation()
 
@@ -53,7 +58,7 @@ export function SettingsScreen(): JSX.Element {
 
   const sections: SettingsSection[] = useMemo((): SettingsSection[] => {
     const iconProps: SvgProps = {
-      color: theme.colors.textTertiary,
+      color: theme.colors.neutral2,
       height: 24,
       strokeLinecap: 'round',
       strokeLinejoin: 'round',
@@ -155,7 +160,7 @@ export function SettingsScreen(): JSX.Element {
       },
     ]
   }, [
-    theme.colors.textTertiary,
+    theme.colors.neutral2,
     t,
     currentAppearanceSetting,
     isTouchIdSupported,
@@ -187,8 +192,8 @@ export function SettingsScreen(): JSX.Element {
           renderItem={renderItem}
           renderSectionFooter={(): JSX.Element => <Flex pt="spacing24" />}
           renderSectionHeader={({ section: { subTitle } }): JSX.Element => (
-            <Box bg="background0" pb="spacing12">
-              <Text color="textSecondary" variant="bodyLarge">
+            <Box bg="surface1" pb="spacing12">
+              <Text color="neutral2" variant="bodyLarge">
                 {subTitle}
               </Text>
             </Box>
@@ -225,7 +230,7 @@ function OnboardingRow({ iconProps }: { iconProps: SvgProps }): JSX.Element {
             {t('Onboarding')}
           </Text>
         </Box>
-        <Chevron color={theme.colors.textTertiary} direction="e" height={24} width={24} />
+        <Chevron color={theme.colors.neutral3} direction="e" height={24} width={24} />
       </Box>
     </TouchableArea>
   )
@@ -266,12 +271,12 @@ function WalletSettings(): JSX.Element {
   return (
     <Box flexDirection="column" mb="spacing16">
       <Flex row justifyContent="space-between">
-        <Text color="textSecondary" variant="bodyLarge">
+        <Text color="neutral2" variant="bodyLarge">
           {t('Wallet settings')}
         </Text>
         {allAccounts.length > DEFAULT_ACCOUNTS_TO_DISPLAY && (
           <TouchableArea onPress={toggleViewAll}>
-            <Text color="textSecondary" mb="spacing12" variant="subheadSmall">
+            <Text color="neutral2" mb="spacing12" variant="subheadSmall">
               {showAll ? t('View less') : t('View all')}
             </Text>
           </TouchableArea>
@@ -294,7 +299,7 @@ function WalletSettings(): JSX.Element {
                   variant="bodyLarge"
                 />
               </Flex>
-              <Chevron color={theme.colors.textTertiary} direction="e" height={24} width={24} />
+              <Chevron color={theme.colors.neutral3} direction="e" height={24} width={24} />
             </Box>
           </TouchableArea>
         ))}
@@ -327,10 +332,10 @@ function FooterSettings(): JSX.Element {
           gap="none"
           mt="spacing16">
           <Flex gap="spacing4">
-            <Text color="textTertiary" textAlign="center" variant="bodySmall">
+            <Text color="neutral3" textAlign="center" variant="bodySmall">
               {t('Made with love, ')}
             </Text>
-            <Text color="textTertiary" textAlign="center" variant="bodySmall">
+            <Text color="neutral3" textAlign="center" variant="bodySmall">
               {t('Uniswap Team 🦄')}
             </Text>
           </Flex>
@@ -342,8 +347,9 @@ function FooterSettings(): JSX.Element {
         </AnimatedFlex>
       ) : null}
       <Text
-        color="textTertiary"
+        color="neutral3"
         mt="spacing8"
+        paddingBottom="spacing24"
         variant="bodySmall"
         onLongPress={(): void => {
           setShowSignature(true)

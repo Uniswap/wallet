@@ -66,12 +66,12 @@ import { hideSplashScreen } from 'src/utils/splashScreen'
 import BuyIcon from 'ui/src/assets/icons/buy.svg'
 import ScanIcon from 'ui/src/assets/icons/scan-receive.svg'
 import SendIcon from 'ui/src/assets/icons/send-action.svg'
-import { dimensions } from 'ui/src/theme/restyle/sizing'
+import { dimensions } from 'ui/src/theme/restyle'
+import { ONE_SECOND_MS } from 'utilities/src/time/time'
+import { useInterval, useTimeout } from 'utilities/src/time/timing'
 import { setNotificationStatus } from 'wallet/src/features/notifications/slice'
 import { AccountType } from 'wallet/src/features/wallet/accounts/types'
 import { useActiveAccountWithThrow } from 'wallet/src/features/wallet/hooks'
-import { ONE_SECOND_MS } from 'wallet/src/utils/time'
-import { useInterval, useTimeout } from 'wallet/src/utils/timing'
 
 const CONTENT_HEADER_HEIGHT_ESTIMATE = 270
 
@@ -93,13 +93,8 @@ export function HomeScreen(props?: AppStackScreenProp<Screens.Home>): JSX.Elemen
   const insets = useSafeAreaInsets()
   const dispatch = useAppDispatch()
 
-  const { walletNeedsRestore, openWalletRestoreModal } = useWalletRestore()
-
-  useEffect(() => {
-    if (walletNeedsRestore) {
-      openWalletRestoreModal()
-    }
-  }, [openWalletRestoreModal, walletNeedsRestore])
+  // opens the wallet restore modal if recovery phrase is missing after the app is opened
+  useWalletRestore({ openModalImmediately: true })
 
   // Report balances at most every 24 hours, checking every 15 seconds when app is open
   const lastBalancesReporter = useLastBalancesReporter()
@@ -254,7 +249,7 @@ export function HomeScreen(props?: AppStackScreenProp<Screens.Home>): JSX.Elemen
 
   const contentHeader = useMemo(() => {
     return (
-      <Flex bg="background0" gap="spacing16" pb="spacing16" px="spacing24">
+      <Flex bg="surface1" gap="spacing12" pb="spacing16" px="spacing24">
         <Box pb="spacing12">
           <AccountHeader />
         </Box>
@@ -274,9 +269,8 @@ export function HomeScreen(props?: AppStackScreenProp<Screens.Home>): JSX.Elemen
         SWAP_BUTTON_HEIGHT +
         TAB_STYLES.tabListInner.paddingBottom +
         listBottomPadding,
-      minHeight: dimensions.fullHeight + headerHeightDiff,
     }),
-    [headerHeight, insets.bottom, listBottomPadding, headerHeightDiff]
+    [headerHeight, insets.bottom, listBottomPadding]
   )
 
   const loadingContainerStyle = useMemo<StyleProp<ViewStyle>>(
@@ -322,7 +316,7 @@ export function HomeScreen(props?: AppStackScreenProp<Screens.Home>): JSX.Elemen
     backgroundColor: interpolateColor(
       currentScrollValue.value,
       [0, headerHeightDiff],
-      [theme.colors.background0, theme.colors.background0]
+      [theme.colors.surface1, theme.colors.surface1]
     ),
   }))
 
@@ -335,25 +329,25 @@ export function HomeScreen(props?: AppStackScreenProp<Screens.Home>): JSX.Elemen
             {contentHeader}
           </Animated.View>
           <Animated.View style={[TAB_STYLES.header, tabBarStyle]}>
-            <Box bg="background0" paddingLeft="spacing12">
-              <TabBar
-                {...sceneProps}
-                indicatorStyle={TAB_STYLES.activeTabIndicator}
-                navigationState={{ index: tabIndex, routes }}
-                renderLabel={renderTabLabel}
-                style={[
-                  TAB_STYLES.tabBar,
-                  {
-                    backgroundColor: theme.colors.background0,
-                    borderBottomColor: theme.colors.backgroundOutline,
-                  },
-                ]}
-                tabStyle={style}
-                onTabPress={async (): Promise<void> => {
-                  await impactAsync()
-                }}
-              />
-            </Box>
+            <TabBar
+              {...sceneProps}
+              indicatorStyle={TAB_STYLES.activeTabIndicator}
+              navigationState={{ index: tabIndex, routes }}
+              pressColor={theme.colors.surface3} // Android only
+              renderLabel={renderTabLabel}
+              style={[
+                TAB_STYLES.tabBar,
+                {
+                  backgroundColor: theme.colors.surface1,
+                  borderBottomColor: theme.colors.surface3,
+                  paddingLeft: theme.spacing.spacing12,
+                },
+              ]}
+              tabStyle={style}
+              onTabPress={async (): Promise<void> => {
+                await impactAsync()
+              }}
+            />
           </Animated.View>
         </>
       )
@@ -365,8 +359,9 @@ export function HomeScreen(props?: AppStackScreenProp<Screens.Home>): JSX.Elemen
       routes,
       tabBarStyle,
       tabIndex,
-      theme.colors.background0,
-      theme.colors.backgroundOutline,
+      theme.colors.surface1,
+      theme.colors.surface3,
+      theme.spacing.spacing12,
     ]
   )
 
@@ -444,7 +439,6 @@ export function HomeScreen(props?: AppStackScreenProp<Screens.Home>): JSX.Elemen
       activeAccount?.address,
       activityTabScrollHandler,
       activityTabScrollRef,
-      headerHeight,
       nftsTabScrollHandler,
       nftsTabScrollRef,
       sharedProps,
@@ -452,6 +446,7 @@ export function HomeScreen(props?: AppStackScreenProp<Screens.Home>): JSX.Elemen
       tokensTabScrollRef,
       refreshing,
       onRefreshHomeData,
+      headerHeight,
     ]
   )
 
@@ -515,6 +510,7 @@ function QuickActions(): JSX.Element {
           Icon={BuyIcon}
           eventName={MobileEventName.FiatOnRampQuickActionButtonPressed}
           flex={1}
+          iconScale={1.2}
           label={t('Buy')}
           name={ElementName.Buy}
           sentry-label="BuyActionButton"
@@ -524,6 +520,7 @@ function QuickActions(): JSX.Element {
       <ActionButton
         Icon={SendIcon}
         flex={1}
+        iconScale={1.1}
         label={t('Send')}
         name={ElementName.Send}
         sentry-label="SendActionButton"
@@ -549,6 +546,7 @@ function ActionButton({
   onPress,
   flex,
   activeScale = 0.96,
+  iconScale = 1,
 }: {
   eventName?: MobileEventName
   name: ElementName
@@ -557,10 +555,16 @@ function ActionButton({
   onPress: () => void
   flex: number
   activeScale?: number
+  iconScale?: number
 }): JSX.Element {
   const theme = useAppTheme()
   const scale = useSharedValue(1)
-  const animatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }), [scale])
+  const animatedStyle = useAnimatedStyle(
+    () => ({
+      transform: [{ scale: scale.value }],
+    }),
+    [scale]
+  )
 
   const onGestureEvent = useAnimatedGestureHandler<TapGestureHandlerGestureEvent>({
     onStart: () => {
@@ -579,23 +583,29 @@ function ActionButton({
           <AnimatedFlex
             centered
             row
-            backgroundColor="backgroundActionButton"
+            backgroundColor="DEP_backgroundActionButton"
             borderRadius="roundedFull"
             gap="none"
             px="spacing12"
-            py="spacing16"
-            shadowColor="white"
+            shadowColor="sporeWhite"
             shadowOffset={SHADOW_OFFSET_SMALL}
             shadowOpacity={0.1}
             shadowRadius={6}
-            style={animatedStyle}>
+            style={[
+              animatedStyle,
+              // eslint-disable-next-line react-native/no-inline-styles
+              {
+                // doing specific padding here because we need exact styles and spacing12 vs 16 either too small/big
+                paddingVertical: 14.5,
+              },
+            ]}>
             <Icon
-              color={theme.colors.magentaVibrant}
-              height={theme.iconSizes.icon20}
+              color={theme.colors.accent1}
+              height={theme.iconSizes.icon20 * iconScale}
               strokeWidth={2}
-              width={theme.iconSizes.icon20}
+              width={theme.iconSizes.icon20 * iconScale}
             />
-            <Text color="accentAction" marginLeft="spacing8" variant="buttonLabelMedium">
+            <Text color="accent1" marginLeft="spacing8" variant="buttonLabelMedium">
               {label}
             </Text>
           </AnimatedFlex>

@@ -9,7 +9,7 @@ import { SafetyLevel } from 'wallet/src/data/__generated__/types-and-hooks'
 interface Props {
   safetyLevel: Maybe<SafetyLevel>
   // To override the normally associated safetyLevel<->color mapping
-  strokeColorOverride?: 'accentWarning' | 'accentCritical' | 'textTertiary'
+  strokeColorOverride?: 'DEP_accentWarning' | 'statusCritical' | 'neutral3'
 }
 
 export default function WarningIcon({

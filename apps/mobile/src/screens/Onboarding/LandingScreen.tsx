@@ -17,13 +17,13 @@ import { ElementName } from 'src/features/telemetry/constants'
 import { OnboardingScreens } from 'src/screens/Screens'
 import { openUri } from 'src/utils/linking'
 import { hideSplashScreen } from 'src/utils/splashScreen'
+import { useTimeout } from 'utilities/src/time/timing'
 import { uniswapUrls } from 'wallet/src/constants/urls'
 import { createAccountActions } from 'wallet/src/features/wallet/create/createAccountSaga'
 import {
   PendingAccountActions,
   pendingAccountActions,
 } from 'wallet/src/features/wallet/create/pendingAccountsSaga'
-import { useTimeout } from 'wallet/src/utils/timing'
 
 type Props = NativeStackScreenProps<OnboardingStackParamList, OnboardingScreens.Landing>
 
@@ -57,7 +57,9 @@ export function LandingScreen({ navigation }: Props): JSX.Element {
   useTimeout(hideSplashScreen, 1)
 
   return (
-    <Screen edges={['bottom']}>
+    // TODO(blocked by MOB-1082): delete bg prop
+    // dark mode onboarding asset needs to be re-exported with #131313 (surface1) as background color
+    <Screen bg={isDarkMode ? 'sporeBlack' : 'surface1'} edges={['bottom']}>
       <Flex shrink height="100%" width="100%">
         <LandingBackground />
       </Flex>
@@ -73,24 +75,24 @@ export function LandingScreen({ navigation }: Props): JSX.Element {
           </Trace>
           <Trace logPress element={ElementName.ImportAccount}>
             <TouchableArea hapticFeedback alignItems="center" onPress={onPressImportWallet}>
-              <Text color="magentaVibrant" variant="buttonLabelLarge">
+              <Text color="accent1" variant="buttonLabelLarge">
                 {t('Import or watch a wallet')}
               </Text>
             </TouchableArea>
           </Trace>
           <Box mx="spacing24" pb={pb}>
-            <Text color="textTertiary" mx="spacing4" textAlign="center" variant="buttonLabelMicro">
+            <Text color="neutral2" mx="spacing4" textAlign="center" variant="buttonLabelMicro">
               <Trans t={t}>
                 By continuing, I agree to the{' '}
                 <Text
-                  color={isDarkMode ? 'accentActive' : 'accentAction'}
+                  color={isDarkMode ? 'accent1' : 'accent1'}
                   variant="buttonLabelMicro"
                   onPress={(): Promise<void> => openUri(uniswapUrls.termsOfServiceUrl)}>
                   Terms of Service
                 </Text>{' '}
                 and consent to the{' '}
                 <Text
-                  color={isDarkMode ? 'accentActive' : 'accentAction'}
+                  color={isDarkMode ? 'accent1' : 'accent1'}
                   variant="buttonLabelMicro"
                   onPress={(): Promise<void> => openUri(uniswapUrls.privacyPolicyUrl)}>
                   Privacy Policy

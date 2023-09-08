@@ -6,6 +6,7 @@ import { AnimatedCaretChange } from 'src/components/icons/Caret'
 import { Flex } from 'src/components/layout'
 import { Text } from 'src/components/Text'
 import { AnimatedText } from 'src/components/text/AnimatedText'
+import { IS_ANDROID } from 'src/constants/globals'
 import { AnimatedDecimalNumber } from './AnimatedDecimalNumber'
 import { useLineChartPrice, useLineChartRelativeChange } from './usePrice'
 
@@ -32,11 +33,11 @@ export function RelativeChangeText({
 
   const styles = useAnimatedStyle(() => ({
     color:
-      relativeChange.value.value > 0 ? theme.colors.accentSuccess : theme.colors.accentCritical,
+      relativeChange.value.value > 0 ? theme.colors.statusSuccess : theme.colors.statusCritical,
   }))
   const caretStyle = useAnimatedStyle(() => ({
     color:
-      relativeChange.value.value > 0 ? theme.colors.accentSuccess : theme.colors.accentCritical,
+      relativeChange.value.value > 0 ? theme.colors.statusSuccess : theme.colors.statusCritical,
     transform: [{ rotate: relativeChange.value.value > 0 ? '180deg' : '0deg' }],
   }))
 
@@ -45,11 +46,16 @@ export function RelativeChangeText({
   }
 
   return (
-    <Flex row alignItems="flex-end" gap="spacing2">
+    <Flex row alignItems={IS_ANDROID ? 'center' : 'flex-end'} gap="spacing2" mt="spacing2">
       <AnimatedCaretChange
         height={theme.iconSizes.icon16}
         strokeWidth={2}
-        style={caretStyle}
+        style={[
+          caretStyle,
+          // fix vertical centering
+          // eslint-disable-next-line react-native/no-inline-styles
+          { translateY: relativeChange.value.value > 0 ? -1 : 1 },
+        ]}
         width={theme.iconSizes.icon16}
       />
       <AnimatedText
@@ -68,5 +74,5 @@ export function DatetimeText({ loading }: { loading: boolean }): JSX.Element | n
 
   if (loading) return null
 
-  return <AnimatedText color="textSecondary" text={datetime.formatted} variant="bodyLarge" />
+  return <AnimatedText color="neutral2" text={datetime.formatted} variant="bodyLarge" />
 }

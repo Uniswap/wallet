@@ -73,11 +73,12 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
           style={
             [
               {
-                "color": "#0E1524",
+                "color": "#222222",
                 "display": "flex",
-                "fontFamily": "Inter-Medium",
-                "fontSize": 24,
-                "lineHeight": 28,
+                "fontFamily": "Basel-Book",
+                "fontSize": 25,
+                "fontWeight": "400",
+                "lineHeight": 32,
                 "paddingTop": 0,
                 "textAlign": "center",
               },
@@ -104,11 +105,11 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
           style={
             [
               {
-                "color": "#5D6785",
+                "color": "#7D7D7D",
                 "display": "flex",
-                "fontFamily": "Inter-Regular",
-                "fontSize": 15,
-                "lineHeight": 20,
+                "fontFamily": "Basel-Book",
+                "fontSize": 17,
+                "lineHeight": 24,
                 "textAlign": "center",
               },
             ]
@@ -172,6 +173,23 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
             }
           >
             <View
+              accessibilityState={
+                {
+                  "busy": undefined,
+                  "checked": undefined,
+                  "disabled": undefined,
+                  "expanded": undefined,
+                  "selected": undefined,
+                }
+              }
+              accessibilityValue={
+                {
+                  "max": undefined,
+                  "min": undefined,
+                  "now": undefined,
+                  "text": undefined,
+                }
+              }
               accessible={true}
               collapsable={false}
               focusable={true}
@@ -192,8 +210,8 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
               onStartShouldSetResponder={[Function]}
               style={
                 {
-                  "backgroundColor": "#FFFFFF",
-                  "borderColor": "#D2D9EE80",
+                  "backgroundColor": "#F9F9F9",
+                  "borderColor": "#2222220D",
                   "borderRadius": 20,
                   "borderWidth": 1,
                   "display": "flex",
@@ -201,7 +219,7 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
                   "padding": 16,
                 }
               }
-              testID="add-icloud-backup"
+              testID="add-cloud-backup"
             >
               <View
                 sentry-label="Flex"
@@ -299,10 +317,11 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
                         style={
                           [
                             {
-                              "color": "#0E1524",
+                              "color": "#222222",
                               "display": "flex",
-                              "fontFamily": "Inter-Medium",
-                              "fontSize": 17,
+                              "fontFamily": "Basel-Book",
+                              "fontSize": 19,
+                              "fontWeight": "400",
                               "lineHeight": 24,
                             },
                           ]
@@ -329,11 +348,11 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
                       style={
                         [
                           {
-                            "color": "#5D6785",
+                            "color": "#7D7D7D",
                             "display": "flex",
-                            "fontFamily": "Inter-Regular",
-                            "fontSize": 15,
-                            "lineHeight": 20,
+                            "fontFamily": "Basel-Book",
+                            "fontSize": 17,
+                            "lineHeight": 24,
                           },
                         ]
                       }
@@ -357,6 +376,23 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
               }
             />
             <View
+              accessibilityState={
+                {
+                  "busy": undefined,
+                  "checked": undefined,
+                  "disabled": undefined,
+                  "expanded": undefined,
+                  "selected": undefined,
+                }
+              }
+              accessibilityValue={
+                {
+                  "max": undefined,
+                  "min": undefined,
+                  "now": undefined,
+                  "text": undefined,
+                }
+              }
               accessible={true}
               collapsable={false}
               focusable={true}
@@ -377,8 +413,8 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
               onStartShouldSetResponder={[Function]}
               style={
                 {
-                  "backgroundColor": "#FFFFFF",
-                  "borderColor": "#D2D9EE80",
+                  "backgroundColor": "#F9F9F9",
+                  "borderColor": "#2222220D",
                   "borderRadius": 20,
                   "borderWidth": 1,
                   "display": "flex",
@@ -484,10 +520,11 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
                         style={
                           [
                             {
-                              "color": "#0E1524",
+                              "color": "#222222",
                               "display": "flex",
-                              "fontFamily": "Inter-Medium",
-                              "fontSize": 17,
+                              "fontFamily": "Basel-Book",
+                              "fontSize": 19,
+                              "fontWeight": "400",
                               "lineHeight": 24,
                             },
                           ]
@@ -514,11 +551,11 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
                       style={
                         [
                           {
-                            "color": "#5D6785",
+                            "color": "#7D7D7D",
                             "display": "flex",
-                            "fontFamily": "Inter-Regular",
-                            "fontSize": 15,
-                            "lineHeight": 20,
+                            "fontFamily": "Basel-Book",
+                            "fontSize": 17,
+                            "lineHeight": 24,
                           },
                         ]
                       }
@@ -557,6 +594,23 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
             }
           >
             <View
+              accessibilityState={
+                {
+                  "busy": undefined,
+                  "checked": undefined,
+                  "disabled": undefined,
+                  "expanded": undefined,
+                  "selected": undefined,
+                }
+              }
+              accessibilityValue={
+                {
+                  "max": undefined,
+                  "min": undefined,
+                  "now": undefined,
+                  "text": undefined,
+                }
+              }
               accessible={true}
               collapsable={false}
               focusable={true}
@@ -598,7 +652,7 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
                 }
               >
                 <svg
-                  color="#5D6785"
+                  color="#7D7D7D"
                   data-file-name="SvgInfoCircle"
                   height={24}
                   width={24}
@@ -622,11 +676,12 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
                   style={
                     [
                       {
-                        "color": "#0E1524",
+                        "color": "#222222",
                         "display": "flex",
-                        "fontFamily": "Inter-Medium",
-                        "fontSize": 15,
-                        "lineHeight": 20,
+                        "fontFamily": "Basel-Book",
+                        "fontSize": 17,
+                        "fontWeight": "400",
+                        "lineHeight": 24,
                       },
                     ]
                   }
@@ -650,7 +705,19 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
             <View
               accessibilityState={
                 {
+                  "busy": undefined,
+                  "checked": undefined,
                   "disabled": true,
+                  "expanded": undefined,
+                  "selected": undefined,
+                }
+              }
+              accessibilityValue={
+                {
+                  "max": undefined,
+                  "min": undefined,
+                  "now": undefined,
+                  "text": undefined,
                 }
               }
               accessible={true}
@@ -688,7 +755,7 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
                 style={
                   [
                     {
-                      "alignItems": "stretch",
+                      "alignItems": "center",
                       "display": "flex",
                       "flexDirection": "row",
                       "justifyContent": "flex-start",
@@ -706,9 +773,10 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
                       {
                         "color": "#FFFFFF",
                         "display": "flex",
-                        "fontFamily": "Inter-SemiBold",
-                        "fontSize": 17,
-                        "lineHeight": 20,
+                        "fontFamily": "Basel-Medium",
+                        "fontSize": 19,
+                        "fontWeight": "500",
+                        "lineHeight": 24,
                         "textAlign": "center",
                       },
                     ]
@@ -799,11 +867,12 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
           style={
             [
               {
-                "color": "#0E1524",
+                "color": "#222222",
                 "display": "flex",
-                "fontFamily": "Inter-Medium",
-                "fontSize": 24,
-                "lineHeight": 28,
+                "fontFamily": "Basel-Book",
+                "fontSize": 25,
+                "fontWeight": "400",
+                "lineHeight": 32,
                 "paddingTop": 0,
                 "textAlign": "center",
               },
@@ -830,11 +899,11 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
           style={
             [
               {
-                "color": "#5D6785",
+                "color": "#7D7D7D",
                 "display": "flex",
-                "fontFamily": "Inter-Regular",
-                "fontSize": 15,
-                "lineHeight": 20,
+                "fontFamily": "Basel-Book",
+                "fontSize": 17,
+                "lineHeight": 24,
                 "textAlign": "center",
               },
             ]
@@ -900,7 +969,19 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
             <View
               accessibilityState={
                 {
+                  "busy": undefined,
+                  "checked": undefined,
                   "disabled": true,
+                  "expanded": undefined,
+                  "selected": undefined,
+                }
+              }
+              accessibilityValue={
+                {
+                  "max": undefined,
+                  "min": undefined,
+                  "now": undefined,
+                  "text": undefined,
                 }
               }
               accessible={true}
@@ -923,8 +1004,8 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
               onStartShouldSetResponder={[Function]}
               style={
                 {
-                  "backgroundColor": "#FFFFFF",
-                  "borderColor": "#D2D9EE80",
+                  "backgroundColor": "#F9F9F9",
+                  "borderColor": "#2222220D",
                   "borderRadius": 20,
                   "borderWidth": 1,
                   "display": "flex",
@@ -932,7 +1013,7 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
                   "padding": 16,
                 }
               }
-              testID="add-icloud-backup"
+              testID="add-cloud-backup"
             >
               <View
                 sentry-label="Flex"
@@ -1030,10 +1111,11 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
                         style={
                           [
                             {
-                              "color": "#0E1524",
+                              "color": "#222222",
                               "display": "flex",
-                              "fontFamily": "Inter-Medium",
-                              "fontSize": 17,
+                              "fontFamily": "Basel-Book",
+                              "fontSize": 19,
+                              "fontWeight": "400",
                               "lineHeight": 24,
                             },
                           ]
@@ -1060,11 +1142,11 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
                       style={
                         [
                           {
-                            "color": "#5D6785",
+                            "color": "#7D7D7D",
                             "display": "flex",
-                            "fontFamily": "Inter-Regular",
-                            "fontSize": 15,
-                            "lineHeight": 20,
+                            "fontFamily": "Basel-Book",
+                            "fontSize": 17,
+                            "lineHeight": 24,
                           },
                         ]
                       }
@@ -1090,7 +1172,19 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
             <View
               accessibilityState={
                 {
+                  "busy": undefined,
+                  "checked": undefined,
                   "disabled": false,
+                  "expanded": undefined,
+                  "selected": undefined,
+                }
+              }
+              accessibilityValue={
+                {
+                  "max": undefined,
+                  "min": undefined,
+                  "now": undefined,
+                  "text": undefined,
                 }
               }
               accessible={true}
@@ -1113,8 +1207,8 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
               onStartShouldSetResponder={[Function]}
               style={
                 {
-                  "backgroundColor": "#FFFFFF",
-                  "borderColor": "#D2D9EE80",
+                  "backgroundColor": "#F9F9F9",
+                  "borderColor": "#2222220D",
                   "borderRadius": 20,
                   "borderWidth": 1,
                   "display": "flex",
@@ -1220,10 +1314,11 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
                         style={
                           [
                             {
-                              "color": "#0E1524",
+                              "color": "#222222",
                               "display": "flex",
-                              "fontFamily": "Inter-Medium",
-                              "fontSize": 17,
+                              "fontFamily": "Basel-Book",
+                              "fontSize": 19,
+                              "fontWeight": "400",
                               "lineHeight": 24,
                             },
                           ]
@@ -1250,11 +1345,11 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
                       style={
                         [
                           {
-                            "color": "#5D6785",
+                            "color": "#7D7D7D",
                             "display": "flex",
-                            "fontFamily": "Inter-Regular",
-                            "fontSize": 15,
-                            "lineHeight": 20,
+                            "fontFamily": "Basel-Book",
+                            "fontSize": 17,
+                            "lineHeight": 24,
                           },
                         ]
                       }
@@ -1293,6 +1388,23 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
             }
           >
             <View
+              accessibilityState={
+                {
+                  "busy": undefined,
+                  "checked": undefined,
+                  "disabled": undefined,
+                  "expanded": undefined,
+                  "selected": undefined,
+                }
+              }
+              accessibilityValue={
+                {
+                  "max": undefined,
+                  "min": undefined,
+                  "now": undefined,
+                  "text": undefined,
+                }
+              }
               accessible={true}
               collapsable={false}
               focusable={true}
@@ -1334,7 +1446,7 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
                 }
               >
                 <svg
-                  color="#5D6785"
+                  color="#7D7D7D"
                   data-file-name="SvgInfoCircle"
                   height={24}
                   width={24}
@@ -1358,11 +1470,12 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
                   style={
                     [
                       {
-                        "color": "#0E1524",
+                        "color": "#222222",
                         "display": "flex",
-                        "fontFamily": "Inter-Medium",
-                        "fontSize": 15,
-                        "lineHeight": 20,
+                        "fontFamily": "Basel-Book",
+                        "fontSize": 17,
+                        "fontWeight": "400",
+                        "lineHeight": 24,
                       },
                     ]
                   }
@@ -1386,7 +1499,19 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
             <View
               accessibilityState={
                 {
+                  "busy": undefined,
+                  "checked": undefined,
                   "disabled": false,
+                  "expanded": undefined,
+                  "selected": undefined,
+                }
+              }
+              accessibilityValue={
+                {
+                  "max": undefined,
+                  "min": undefined,
+                  "now": undefined,
+                  "text": undefined,
                 }
               }
               accessible={true}
@@ -1424,7 +1549,7 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
                 style={
                   [
                     {
-                      "alignItems": "stretch",
+                      "alignItems": "center",
                       "display": "flex",
                       "flexDirection": "row",
                       "justifyContent": "flex-start",
@@ -1442,9 +1567,10 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
                       {
                         "color": "#FFFFFF",
                         "display": "flex",
-                        "fontFamily": "Inter-SemiBold",
-                        "fontSize": 17,
-                        "lineHeight": 20,
+                        "fontFamily": "Basel-Medium",
+                        "fontSize": 19,
+                        "fontWeight": "500",
+                        "lineHeight": 24,
                         "textAlign": "center",
                       },
                     ]

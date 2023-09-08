@@ -11,12 +11,14 @@ import { BackHeader } from 'src/components/layout/BackHeader'
 import { Screen } from 'src/components/layout/Screen'
 import WarningModal from 'src/components/modals/WarningModal/WarningModal'
 import { Text } from 'src/components/Text'
+import { IS_ANDROID } from 'src/constants/globals'
 import { useBiometricAppSettings, useBiometricPrompt } from 'src/features/biometrics/hooks'
-import { deleteICloudMnemonicBackup } from 'src/features/CloudBackup/RNICloudBackupsManager'
+import { deleteCloudStorageMnemonicBackup } from 'src/features/CloudBackup/RNCloudStorageBackupsManager'
 import { ElementName, ModalName } from 'src/features/telemetry/constants'
 import { Screens } from 'src/screens/Screens'
 import Checkmark from 'ui/src/assets/icons/check.svg'
-import { logger } from 'wallet/src/features/logger/logger'
+import { serializeError } from 'utilities/src/errors'
+import { logger } from 'utilities/src/logger/logger'
 import {
   EditAccountAction,
   editAccountActions,
@@ -27,7 +29,6 @@ import {
   SignerMnemonicAccount,
 } from 'wallet/src/features/wallet/accounts/types'
 import { useAccounts } from 'wallet/src/features/wallet/hooks'
-import serializeError from 'wallet/src/utils/serializeError'
 
 type Props = NativeStackScreenProps<SettingsStackParamList, Screens.SettingsCloudBackupStatus>
 
@@ -58,7 +59,7 @@ export function SettingsCloudBackupStatus({
 
   const deleteBackup = async (): Promise<void> => {
     try {
-      await deleteICloudMnemonicBackup(mnemonicId)
+      await deleteCloudStorageMnemonicBackup(mnemonicId)
       dispatch(
         editAccountActions.trigger({
           type: EditAccountAction.RemoveBackupMethod,
@@ -70,7 +71,7 @@ export function SettingsCloudBackupStatus({
       navigation.navigate(Screens.SettingsWallet, { address })
     } catch (error) {
       setShowBackupDeleteWarning(false)
-      logger.error('Unable to delete iCloud backup', {
+      logger.error('Unable to delete cloud storage backup', {
         tags: {
           file: 'SettingsCloudBackupStatus',
           function: 'deleteBackup',
@@ -78,9 +79,11 @@ export function SettingsCloudBackupStatus({
         },
       })
 
-      Alert.alert(t('iCloud error'), t('Unable to delete backup'), [
-        { text: t('OK'), style: 'default' },
-      ])
+      Alert.alert(
+        IS_ANDROID ? t('Google Drive error') : t('iCloud error'),
+        t('Unable to delete backup'),
+        [{ text: t('OK'), style: 'default' }]
+      )
     }
   }
 
@@ -94,31 +97,37 @@ export function SettingsCloudBackupStatus({
   return (
     <Screen mx="spacing16" my="spacing16">
       <BackHeader alignment="center" mb="spacing16" onPressBack={onPressBack}>
-        <Text variant="bodyLarge">{t('iCloud backup')}</Text>
+        <Text variant="bodyLarge">
+          {IS_ANDROID ? t('Google Drive backup') : t('iCloud backup')}
+        </Text>
       </BackHeader>
 
       <Flex grow alignItems="stretch" justifyContent="space-evenly" mt="spacing16">
         <Flex grow gap="spacing24" justifyContent="flex-start">
-          <Text color="textSecondary" variant="bodySmall">
-            {t(
-              'By having your recovery phrase backed up to iCloud, you can recover your wallet just by being logged into your iCloud on any device.'
-            )}
+          <Text color="neutral2" variant="bodySmall">
+            {IS_ANDROID
+              ? t(
+                  'By having your recovery phrase backed up to Google Drive, you can recover your wallet just by being logged into your Google account on any device.'
+                )
+              : t(
+                  'By having your recovery phrase backed up to iCloud, you can recover your wallet just by being logged into your iCloud on any device.'
+                )}
           </Text>
           <Flex row justifyContent="space-between">
             <Text variant="bodyLarge">{t('Recovery phrase')}</Text>
             <Flex row alignItems="center" gap="spacing12" justifyContent="space-around">
-              <Text color="textSecondary" variant="buttonLabelMicro">
+              <Text color="neutral2" variant="buttonLabelMicro">
                 {t('Backed up')}
               </Text>
 
               {/* @TODO: [MOB-249] Add non-backed up state once we have more options on this page  */}
-              <Checkmark color={theme.colors.accentSuccess} height={24} width={24} />
+              <Checkmark color={theme.colors.statusSuccess} height={24} width={24} />
             </Flex>
           </Flex>
         </Flex>
         <Button
           emphasis={ButtonEmphasis.Detrimental}
-          label={t('Delete iCloud backup')}
+          label={IS_ANDROID ? t('Delete Google Drive backup') : t('Delete iCloud backup')}
           testID={ElementName.Remove}
           onPress={(): void => {
             setShowBackupDeleteWarning(true)

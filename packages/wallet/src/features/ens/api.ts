@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { providers } from 'ethers'
 import { useMemo } from 'react'
+import { ONE_MINUTE_MS } from 'utilities/src/time/time'
 import { config } from 'wallet/src/config'
 import { ChainId } from 'wallet/src/constants/chains'
 import { useRestQuery } from 'wallet/src/data/rest'
 import { getEthersProvider } from 'wallet/src/features/providers/getEthersProvider'
 import { areAddressesEqual } from 'wallet/src/utils/addresses'
-import { ONE_MINUTE_MS } from 'wallet/src/utils/time'
 
 // stub endpoint to conform to REST endpoint styles
 // Rest link should intercept and use custom fetcher instead
@@ -18,7 +18,7 @@ export enum EnsLookupType {
   Avatar = 'avatar',
 }
 
-export type EnslookupParams = {
+export type EnsLookupParams = {
   type: EnsLookupType
   nameOrAddress: string
   chainId: ChainId
@@ -47,7 +47,7 @@ async function getAvatarFetch(address: string, provider: providers.JsonRpcProvid
   return checkedName ? await provider.getAvatar(checkedName) : null
 }
 
-export const getOnChainEnsFetch = async (params: EnslookupParams): Promise<Response> => {
+export const getOnChainEnsFetch = async (params: EnsLookupParams): Promise<Response> => {
   const { type, nameOrAddress } = params
   const provider = getEthersProvider(ChainId.Mainnet, config)
 
@@ -75,16 +75,13 @@ function useEnsQuery(
   nameOrAddress?: string | null,
   chainId: ChainId = ChainId.Mainnet
 ) {
-  const result = useRestQuery<{ data?: string; timestamp: number }, EnslookupParams>(
-    STUB_ONCHAIN_ENS_ENDPOINT, // will invoke `getOnChainEnsFecth`
+  const result = useRestQuery<{ data?: string; timestamp: number }, EnsLookupParams>(
+    STUB_ONCHAIN_ENS_ENDPOINT, // will invoke `getOnChainEnsFetch`
     // the query is skipped if this is not defined so the assertion is okay
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     { type, nameOrAddress: nameOrAddress!, chainId },
     ['data'],
-    {
-      ttlMs: 5 * ONE_MINUTE_MS,
-      skip: !nameOrAddress,
-    }
+    { ttlMs: 5 * ONE_MINUTE_MS, skip: !nameOrAddress }
   )
 
   const { data, error } = result

@@ -11,17 +11,17 @@ import {
   useTransferERC20Callback,
   useTransferNFTCallback,
 } from 'src/features/transactions/transfer/hooks'
+import { formatCurrencyAmount, formatNumberOrString, NumberType } from 'utilities/src/format/format'
 import { useUSDCValue } from 'wallet/src/features/routing/useUSDCPrice'
 import { CurrencyField } from 'wallet/src/features/transactions/transactionState/types'
 import { AccountType } from 'wallet/src/features/wallet/accounts/types'
 import { useActiveAccountWithThrow } from 'wallet/src/features/wallet/hooks'
 import { currencyAddress } from 'wallet/src/utils/currencyId'
-import { formatCurrencyAmount, formatNumberOrString, NumberType } from 'wallet/src/utils/format'
 
 interface TransferFormProps {
   derivedTransferInfo: DerivedTransferInfo
   txRequest?: providers.TransactionRequest
-  totalGasFee?: string
+  gasFeeUSD?: string
   onNext: () => void
   onPrev: () => void
   warnings: Warning[]
@@ -29,7 +29,7 @@ interface TransferFormProps {
 
 export function TransferReview({
   derivedTransferInfo,
-  totalGasFee,
+  gasFeeUSD,
   onNext,
   onPrev,
   txRequest,
@@ -67,7 +67,7 @@ export function TransferReview({
   )
 
   const actionButtonDisabled =
-    blockingWarning || !totalGasFee || !txRequest || account.type === AccountType.Readonly
+    blockingWarning || !gasFeeUSD || !txRequest || account.type === AccountType.Readonly
 
   const transferERC20Callback = useTransferERC20Callback(
     txId,
@@ -139,7 +139,7 @@ export function TransferReview({
         transactionDetails={
           <TransactionDetails
             chainId={chainId}
-            gasFee={totalGasFee}
+            gasFeeUSD={gasFeeUSD}
             showWarning={Boolean(transferWarning)}
             warning={transferWarning}
             onShowWarning={onShowWarning}

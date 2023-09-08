@@ -1,8 +1,7 @@
 // TODO: rename to /theme/index.ts and move all other theme files to ui package
 import { createTheme } from '@shopify/restyle'
 import { borderRadii } from 'ui/src/theme/borderRadii'
-import { colorsDark, colorsLight } from 'ui/src/theme/color'
-import { opacify } from 'ui/src/theme/color/utils'
+import { colorsDark, colorsLight } from 'ui/src/theme/color/colors'
 import { iconSizes } from 'ui/src/theme/iconSizes'
 import { imageSizes } from 'ui/src/theme/imageSizes'
 import { textVariants } from 'ui/src/theme/restyle/font'
@@ -22,14 +21,7 @@ export const theme = createTheme({
       height: 736,
     },
   },
-  colors: {
-    // The following two colors are the same to accomodate incorrect colors in dark mode. See comment in the dark mode section
-    clearBackground1Backdrop: opacify(0, colorsLight.background1),
-    translucentBackgroundBackdrop: opacify(50, colorsLight.background0),
-    translucentBackground: opacify(50, colorsLight.background0),
-    imageTintBackground: opacify(80, colorsLight.background1),
-    ...colorsLight,
-  },
+  colors: colorsLight,
   iconSizes,
   imageSizes,
   spacing,
@@ -39,16 +31,7 @@ export const theme = createTheme({
 
 export const darkTheme: Theme = {
   ...theme,
-  colors: {
-    clearBackground1Backdrop: opacify(0, colorsDark.background1),
-    translucentBackgroundBackdrop: opacify(5, colorsDark.background0),
-    // This color is incorrect for dark mode but we rely on the incorrect color right now.
-    // The translucentBackgroundBackdrop is the correct translucent background in dark mode.
-    // TODO: [MOB-252] come up with a better name for translucentBackground and add it to the theme.
-    translucentBackground: opacify(5, colorsDark.white),
-    imageTintBackground: opacify(80, colorsDark.background1),
-    ...colorsDark,
-  },
+  colors: colorsDark,
 }
 
 export type Theme = typeof theme

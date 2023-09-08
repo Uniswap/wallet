@@ -5,6 +5,11 @@ import { areAddressesEqual, getValidAddress } from 'wallet/src/utils/addresses'
 
 export const HIDE_SMALL_USD_BALANCES_THRESHOLD = 1
 
+export enum SwapProtectionSetting {
+  On = 'on',
+  Off = 'off',
+}
+
 export interface WalletState {
   accounts: Record<Address, Account>
   activeAccountAddress: Address | null
@@ -15,6 +20,7 @@ export interface WalletState {
     nftViewType?: NFTViewType
     // Settings used in the top tokens list
     tokensOrderBy?: TokensOrderBy
+    swapProtection: SwapProtectionSetting
   }
 }
 
@@ -22,7 +28,9 @@ export const initialWalletState: WalletState = {
   accounts: {},
   activeAccountAddress: null,
   isUnlocked: false,
-  settings: {},
+  settings: {
+    swapProtection: SwapProtectionSetting.On,
+  },
 }
 
 const slice = createSlice({
@@ -112,7 +120,16 @@ const slice = createSlice({
     ) => {
       state.settings.tokensOrderBy = newTokensOrderBy
     },
+    setSwapProtectionSetting: (
+      state,
+      {
+        payload: { newSwapProtectionSetting },
+      }: PayloadAction<{ newSwapProtectionSetting: SwapProtectionSetting }>
+    ) => {
+      state.settings.swapProtection = newSwapProtectionSetting
+    },
     resetWallet: () => initialWalletState,
+    restoreMnemonicComplete: (state) => state,
   },
 })
 
@@ -130,6 +147,8 @@ export const {
   setFinishedOnboarding,
   setNFTViewType,
   setTokensOrderBy,
+  restoreMnemonicComplete,
+  setSwapProtectionSetting,
 } = slice.actions
 
 export const walletReducer = slice.reducer

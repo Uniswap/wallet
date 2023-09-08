@@ -6,7 +6,7 @@ import { useAppTheme } from 'src/app/hooks'
 import { Box, Flex } from 'src/components/layout'
 import { Text } from 'src/components/Text'
 import { openUri } from 'src/utils/linking'
-import { Theme } from 'ui/src/theme/restyle/theme'
+import { Theme } from 'ui/src/theme/restyle'
 
 type LongTextProps = {
   initialDisplayedLines?: number
@@ -29,9 +29,9 @@ export function LongText(props: LongTextProps): JSX.Element {
     initialDisplayedLines = 3,
     text,
     gap = 'spacing8',
-    color = theme.colors.textPrimary,
-    linkColor = theme.colors.accentAction,
-    readMoreOrLessColor = theme.colors.accentAction,
+    color = theme.colors.neutral1,
+    linkColor = theme.colors.neutral2,
+    readMoreOrLessColor = theme.colors.neutral2,
     renderAsMarkdown = false,
     variant = 'bodySmall',
     ...rest

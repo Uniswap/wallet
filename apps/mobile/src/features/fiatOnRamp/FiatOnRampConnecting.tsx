@@ -13,7 +13,7 @@ import {
   UNISWAP_LOGO_LARGE,
 } from 'ui/src/assets'
 import MoonpayLogo from 'ui/src/assets/logos/svg/moonpay.svg'
-import { theme } from 'ui/src/theme/restyle/theme'
+import { theme } from 'ui/src/theme/restyle'
 
 const ICON_SIZE = 90
 
@@ -50,7 +50,7 @@ export function FiatOnRampConnectingView({
         <Flex centered gap="spacing8">
           <Text variant="subheadLarge">{t('Connecting you to Moonpay')}</Text>
           {quoteCurrencyCode && (
-            <Text color="textSecondary" variant="bodySmall">
+            <Text color="neutral2" variant="bodySmall">
               {t('Buying {{amount}} worth of {{quoteCurrencyCode}}', {
                 amount,
                 quoteCurrencyCode,

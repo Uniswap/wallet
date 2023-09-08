@@ -2,7 +2,7 @@ import React from 'react'
 import { FadeIn, FadeOut, useAnimatedStyle, withTiming } from 'react-native-reanimated'
 import { AnimatedFlex } from 'src/components/layout'
 import { Text } from 'src/components/Text'
-import { Theme } from 'ui/src/theme/restyle/theme'
+import { Theme } from 'ui/src/theme/restyle'
 
 export const BANNER_HEIGHT = 45
 
@@ -36,8 +36,8 @@ export function BottomBanner({
       alignContent="center"
       alignItems="center"
       alignSelf="stretch"
-      backgroundColor={backgroundColor ? backgroundColor : 'accentActive'}
-      borderColor="backgroundOutline"
+      backgroundColor={backgroundColor ? backgroundColor : 'accent1'}
+      borderColor="surface3"
       borderRadius="rounded8"
       borderWidth={1}
       bottom={0}

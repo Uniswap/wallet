@@ -29,16 +29,11 @@ export function AccountDetails({
         />
       </Flex>
       <Flex row shrink flex={1} gap="spacing4" justifyContent="flex-end">
-        <Text color="textSecondary" variant="subheadSmall">
+        <Text color="neutral2" variant="subheadSmall">
           {shortenAddress(address)}
         </Text>
         {chevron && (
-          <Chevron
-            color={theme.colors.textSecondary}
-            direction="e"
-            height={iconSize}
-            width={iconSize}
-          />
+          <Chevron color={theme.colors.neutral2} direction="e" height={iconSize} width={iconSize} />
         )}
       </Flex>
     </Flex>

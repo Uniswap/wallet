@@ -3,21 +3,13 @@
 exports[`renders a currency logo with network logo 1`] = `
 <View
   style={
-    [
-      {
-        "alignItems": "center",
-        "display": "flex",
-        "flexBasis": "auto",
-        "flexDirection": "column",
-        "flexShrink": 0,
-        "height": 20,
-        "justifyContent": "center",
-        "minHeight": 0,
-        "minWidth": 0,
-        "position": "relative",
-        "width": 20,
-      },
-    ]
+    {
+      "alignItems": "center",
+      "flexDirection": "column",
+      "height": 20,
+      "justifyContent": "center",
+      "width": 20,
+    }
   }
 >
   <Image
@@ -32,8 +24,8 @@ exports[`renders a currency logo with network logo 1`] = `
           "resizeMode": "contain",
         },
         {
-          "backgroundColor": "#D2D9EE",
-          "borderColor": "#D2D9EE",
+          "backgroundColor": "#2222220D",
+          "borderColor": "#2222220D",
           "borderRadius": 10,
           "borderWidth": 0.5,
           "height": 20,
@@ -44,27 +36,20 @@ exports[`renders a currency logo with network logo 1`] = `
   />
   <View
     style={
-      [
-        {
-          "alignItems": "stretch",
-          "bottom": 0,
-          "display": "flex",
-          "flexBasis": "auto",
-          "flexDirection": "column",
-          "flexShrink": 0,
-          "minHeight": 0,
-          "minWidth": 0,
-          "position": "absolute",
-          "right": 0,
-          "shadowColor": "rgb(0,0,0)",
-          "shadowOffset": {
-            "height": 2,
-            "width": 0,
-          },
-          "shadowOpacity": 0.1,
-          "shadowRadius": 2,
+      {
+        "alignItems": "stretch",
+        "bottom": 0,
+        "flexDirection": "column",
+        "position": "absolute",
+        "right": 0,
+        "shadowColor": "rgb(0,0,0)",
+        "shadowOffset": {
+          "height": 2,
+          "width": 0,
         },
-      ]
+        "shadowOpacity": 0.1,
+        "shadowRadius": 2,
+      }
     }
   />
 </View>
@@ -73,21 +58,13 @@ exports[`renders a currency logo with network logo 1`] = `
 exports[`renders a currency logo without network logo 1`] = `
 <View
   style={
-    [
-      {
-        "alignItems": "center",
-        "display": "flex",
-        "flexBasis": "auto",
-        "flexDirection": "column",
-        "flexShrink": 0,
-        "height": 20,
-        "justifyContent": "center",
-        "minHeight": 0,
-        "minWidth": 0,
-        "position": "relative",
-        "width": 20,
-      },
-    ]
+    {
+      "alignItems": "center",
+      "flexDirection": "column",
+      "height": 20,
+      "justifyContent": "center",
+      "width": 20,
+    }
   }
 >
   <Image
@@ -102,8 +79,8 @@ exports[`renders a currency logo without network logo 1`] = `
           "resizeMode": "contain",
         },
         {
-          "backgroundColor": "#D2D9EE",
-          "borderColor": "#D2D9EE",
+          "backgroundColor": "#2222220D",
+          "borderColor": "#2222220D",
           "borderRadius": 10,
           "borderWidth": 0.5,
           "height": 20,

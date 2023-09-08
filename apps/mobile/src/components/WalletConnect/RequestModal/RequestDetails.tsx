@@ -15,13 +15,13 @@ import {
 } from 'src/features/walletConnect/walletConnectSlice'
 import { ExplorerDataType, getExplorerLink } from 'src/utils/linking'
 import { useNoYoloParser } from 'src/utils/useNoYoloParser'
-import { Theme } from 'ui/src/theme/restyle/theme'
+import { Theme } from 'ui/src/theme/restyle'
+import { serializeError } from 'utilities/src/errors'
+import { logger } from 'utilities/src/logger/logger'
 import { ChainId } from 'wallet/src/constants/chains'
 import { useENS } from 'wallet/src/features/ens/useENS'
-import { logger } from 'wallet/src/features/logger/logger'
 import { EthMethod, EthTransaction } from 'wallet/src/features/walletConnect/types'
 import { getValidAddress, shortenAddress } from 'wallet/src/utils/addresses'
-import serializeError from 'wallet/src/utils/serializeError'
 
 const getStrMessage = (request: WalletConnectRequest): string => {
   if (request.type === EthMethod.PersonalSign || request.type === EthMethod.EthSign) {
@@ -43,9 +43,9 @@ const AddressButton = ({ address, chainId, ...rest }: AddressButtonProps): JSX.E
 
   return (
     <LinkButton
-      backgroundColor="backgroundOutline"
+      backgroundColor="surface3"
       borderRadius="rounded12"
-      iconColor={theme.colors.textPrimary}
+      iconColor={theme.colors.neutral1}
       label={name || shortenAddress(address)}
       px="spacing8"
       py="spacing4"
@@ -74,7 +74,7 @@ const getParsedObjectDisplay = (chainId: number, obj: any, depth = 0): JSX.Eleme
         if (typeof childValue === 'object') {
           return (
             <Flex key={objKey} gap="spacing4">
-              <Text color="textTertiary" style={{ marginLeft: depth * 10 }} variant="monospace">
+              <Text color="neutral3" style={{ marginLeft: depth * 10 }} variant="monospace">
                 {objKey}
               </Text>
               {getParsedObjectDisplay(chainId, childValue, depth + 1)}
@@ -90,7 +90,7 @@ const getParsedObjectDisplay = (chainId: number, obj: any, depth = 0): JSX.Eleme
               alignItems="flex-start"
               gap="spacing8"
               style={{ marginLeft: depth * 10 }}>
-              <Text color="textTertiary" py="spacing4" variant="monospace">
+              <Text color="neutral3" py="spacing4" variant="monospace">
                 {objKey}
               </Text>
               <Flex flexShrink={1}>
@@ -161,22 +161,22 @@ function TransactionDetails({
       ) : null}
       {to ? (
         <Flex row alignItems="center" gap="spacing16">
-          <Text color="textSecondary" variant="bodySmall">
+          <Text color="neutral2" variant="bodySmall">
             {t('To')}:
           </Text>
           <AddressButton address={to} chainId={chainId} />
         </Flex>
       ) : null}
       <Flex row alignItems="center" gap="spacing16">
-        <Text color="textSecondary" variant="bodySmall">
+        <Text color="neutral2" variant="bodySmall">
           {t('Function')}:
         </Text>
         <Box
-          backgroundColor={isLoading ? 'none' : 'backgroundOutline'}
+          backgroundColor={isLoading ? 'none' : 'surface3'}
           borderRadius="rounded12"
           px="spacing8"
           py="spacing4">
-          <Text color="textPrimary" loading={isLoading} variant="monospace">
+          <Text color="neutral1" loading={isLoading} variant="monospace">
             {parsedData ? parsedData.name : t('Unknown')}
           </Text>
         </Box>
@@ -220,7 +220,7 @@ function RequestDetailsContent({ request }: Props): JSX.Element {
   return message ? (
     <Text variant="bodySmall">{message}</Text>
   ) : (
-    <Text color="textSecondary" variant="bodySmall">
+    <Text color="neutral2" variant="bodySmall">
       {t('No message found.')}
     </Text>
   )

@@ -6,8 +6,7 @@ import { Flex } from 'src/components/layout'
 import { BottomSheetDetachedModal } from 'src/components/modals/BottomSheetModal'
 import { Text } from 'src/components/Text'
 import { ModalName } from 'src/features/telemetry/constants'
-import { flex } from 'ui/src/theme/restyle/flex'
-import { dimensions } from 'ui/src/theme/restyle/sizing'
+import { dimensions, flex } from 'ui/src/theme/restyle'
 
 export interface MenuItemProp {
   key: string
@@ -29,7 +28,7 @@ export function ActionSheetModalContent(props: ActionSheetModalContentProps): JS
 
   return (
     <Flex gap="spacing12" justifyContent="flex-end">
-      <Flex centered bg="background1" borderRadius="rounded16" gap="none" overflow="hidden">
+      <Flex centered bg="surface2" borderRadius="rounded16" gap="none" overflow="hidden">
         {typeof header === 'string' ? (
           <Flex centered gap="spacing4" py="spacing16">
             <Text variant="buttonLabelMedium">{header}</Text>
@@ -50,10 +49,10 @@ export function ActionSheetModalContent(props: ActionSheetModalContentProps): JS
           </ScrollView>
         </Flex>
       </Flex>
-      <Flex bg="background1" borderRadius="rounded12">
+      <Flex bg="surface2" borderRadius="rounded12">
         <TouchableArea hapticFeedback onPress={onClose}>
-          <Flex centered bg="background3" borderRadius="rounded12" py="spacing16">
-            <Text color="textPrimary" variant="buttonLabelMedium">
+          <Flex centered bg="surface2" borderRadius="rounded12" py="spacing16">
+            <Text color="neutral1" variant="buttonLabelMedium">
               {closeButtonLabel}
             </Text>
           </Flex>

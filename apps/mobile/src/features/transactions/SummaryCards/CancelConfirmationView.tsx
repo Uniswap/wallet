@@ -11,15 +11,15 @@ import { useBiometricAppSettings, useBiometricPrompt } from 'src/features/biomet
 import { useCancelationGasFeeInfo } from 'src/features/gas/hooks'
 import { ElementName } from 'src/features/telemetry/constants'
 import SlashCircleIcon from 'ui/src/assets/icons/slash-circle.svg'
-import { theme } from 'ui/src/theme/restyle/theme'
+import { theme } from 'ui/src/theme/restyle'
+import { formatUSDPrice, NumberType } from 'utilities/src/format/format'
 import { useUSDValue } from 'wallet/src/features/gas/hooks'
 import { TransactionDetails, TransactionStatus } from 'wallet/src/features/transactions/types'
 import { useActiveAccount } from 'wallet/src/features/wallet/hooks'
 import { shortenAddress } from 'wallet/src/utils/addresses'
-import { formatUSDPrice, NumberType } from 'wallet/src/utils/format'
 
 const spacerProps: BoxProps = {
-  borderBottomColor: 'backgroundOutline',
+  borderBottomColor: 'surface3',
   borderBottomWidth: 1,
 }
 
@@ -63,34 +63,29 @@ export function CancelConfirmationView({
     <Flex
       centered
       grow
-      bg="background1"
+      bg="surface2"
       borderRadius="rounded20"
       gap="spacing24"
       p="spacing24"
       pb="spacing48">
       <Flex
         centered
-        backgroundColor="background2"
-        borderColor="textSecondary"
+        backgroundColor="surface2"
+        borderColor="neutral2"
         borderRadius="rounded12"
         padding="spacing12">
-        <SlashCircleIcon
-          color={theme.colors.textSecondary}
-          height={24}
-          strokeWidth="1"
-          width={24}
-        />
+        <SlashCircleIcon color={theme.colors.neutral2} height={24} strokeWidth="1" width={24} />
       </Flex>
       <Flex centered gap="spacing8">
         <Text variant="buttonLabelMedium">{t('Cancel this transaction?')}</Text>
-        <Text color="textSecondary" textAlign="center" variant="bodySmall">
+        <Text color="neutral2" textAlign="center" variant="bodySmall">
           {t(
             'If you cancel this transaction before it’s processed by the network, you’ll pay a new network fee instead of the original one.'
           )}
         </Text>
       </Flex>
       <Flex
-        bg="background2"
+        bg="surface2"
         borderRadius="rounded16"
         gap="none"
         spacerProps={spacerProps}
@@ -107,7 +102,7 @@ export function CancelConfirmationView({
               horizontalGap="spacing8"
               variant="subheadSmall"
             />
-            <Text color="textSecondary" variant="subheadSmall">
+            <Text color="neutral2" variant="subheadSmall">
               {shortenAddress(transactionDetails.from)}
             </Text>
           </Flex>

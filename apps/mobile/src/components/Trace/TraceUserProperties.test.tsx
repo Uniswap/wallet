@@ -6,9 +6,10 @@ import * as appearanceHooks from 'src/features/appearance/hooks'
 import * as biometricHooks from 'src/features/biometrics/hooks'
 import { AuthMethod, UserPropertyName } from 'src/features/telemetry/constants'
 import * as versionUtils from 'src/utils/version'
-import { analytics } from 'wallet/src/features/telemetry/analytics/analytics'
+import { analytics } from 'utilities/src/telemetry/analytics/analytics'
 import { AccountType, BackupType } from 'wallet/src/features/wallet/accounts/types'
 import * as walletHooks from 'wallet/src/features/wallet/hooks'
+import { SwapProtectionSetting } from 'wallet/src/features/wallet/slice'
 
 // `any` is the actual type used by `jest.spyOn`
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -59,6 +60,7 @@ describe('TraceUserProperties', () => {
       showSpamTokens: false,
     })
     mockFn(walletHooks, 'useViewOnlyAccounts', ['address1', 'address2'])
+    mockFn(walletHooks, 'useSwapProtectionSetting', SwapProtectionSetting.On)
     mockFn(walletHooks, 'useNonPendingSignerAccounts', [
       signerAccount1,
       signerAccount2,
@@ -102,10 +104,14 @@ describe('TraceUserProperties', () => {
       address2,
       address3,
     ])
+    expect(mocked).toHaveBeenCalledWith(
+      UserPropertyName.WalletSwapProtectionSetting,
+      SwapProtectionSetting.On
+    )
     expect(mocked).toHaveBeenCalledWith(UserPropertyName.AppOpenAuthMethod, AuthMethod.FaceId)
     expect(mocked).toHaveBeenCalledWith(UserPropertyName.TransactionAuthMethod, AuthMethod.FaceId)
 
-    expect(mocked).toHaveBeenCalledTimes(13)
+    expect(mocked).toHaveBeenCalledTimes(14)
   })
 
   it('sets user properties without active account', async () => {
@@ -115,6 +121,7 @@ describe('TraceUserProperties', () => {
     mockedUsedColorScheme.mockReturnValue('dark')
     mockFn(walletHooks, 'useActiveAccount', null)
     mockFn(walletHooks, 'useViewOnlyAccounts', [])
+    mockFn(walletHooks, 'useSwapProtectionSetting', SwapProtectionSetting.On)
     mockFn(walletHooks, 'useNonPendingSignerAccounts', [])
     mockFn(biometricHooks, 'useBiometricAppSettings', {
       requiredForAppAccess: false,
@@ -142,6 +149,6 @@ describe('TraceUserProperties', () => {
     expect(mocked).toHaveBeenCalledWith(UserPropertyName.AppOpenAuthMethod, AuthMethod.None)
     expect(mocked).toHaveBeenCalledWith(UserPropertyName.TransactionAuthMethod, AuthMethod.None)
 
-    expect(mocked).toHaveBeenCalledTimes(7)
+    expect(mocked).toHaveBeenCalledTimes(8)
   })
 })

@@ -11,17 +11,17 @@ import { TransferArrowButton } from 'src/components/buttons/TransferArrowButton'
 import { Arrow } from 'src/components/icons/Arrow'
 import { AmountInput } from 'src/components/input/AmountInput'
 import { RecipientPrevTransfers } from 'src/components/input/RecipientInputPanel'
-import { AnimatedFlex, Flex } from 'src/components/layout'
+import { AnimatedFlex, Box, Flex } from 'src/components/layout'
 import { NFTTransfer } from 'src/components/NFT/NFTTransfer'
 import { Text } from 'src/components/Text'
 import { useBiometricAppSettings, useBiometricPrompt } from 'src/features/biometrics/hooks'
 import { GQLNftAsset } from 'src/features/nfts/hooks'
 import { ElementName } from 'src/features/telemetry/constants'
-import { iconSizes } from 'ui/src/theme/iconSizes'
-import { dimensions } from 'ui/src/theme/restyle/sizing'
+import { iconSizes } from 'ui/src/theme'
+import { dimensions } from 'ui/src/theme/restyle'
+import { formatNumberOrString, NumberType } from 'utilities/src/format/format'
 import { CurrencyLogo } from 'wallet/src/components/CurrencyLogo/CurrencyLogo'
 import { CurrencyInfo } from 'wallet/src/features/dataApi/types'
-import { formatNumberOrString, NumberType } from 'wallet/src/utils/format'
 
 interface BaseReviewProps {
   actionButtonProps: { disabled: boolean; label: string; name: ElementName; onPress: () => void }
@@ -86,10 +86,11 @@ export function TransactionReview({
     sm: theme.textVariants.headlineLarge.fontSize,
   })
 
-  const lineHeight = useResponsiveProp({
-    xs: theme.textVariants.headlineSmall.lineHeight,
-    sm: theme.textVariants.headlineLarge.lineHeight,
-  })
+  const lineHeight =
+    useResponsiveProp({
+      xs: theme.textVariants.headlineSmall.lineHeight,
+      sm: theme.textVariants.headlineLarge.lineHeight,
+    }) ?? theme.textVariants.headlineLarge.lineHeight
 
   const maxFontSizeMultiplier = useResponsiveProp({
     xs: theme.textVariants.headlineSmall.maxFontSizeMultiplier,
@@ -103,7 +104,7 @@ export function TransactionReview({
 
   const arrowPadding = useResponsiveProp({ xs: 'spacing4', sm: 'spacing8' })
 
-  const amountAndEquivalentValueGap = useResponsiveProp({ xs: 'spacing4', sm: 'none' })
+  const amountAndEquivalentValueGap = useResponsiveProp({ xs: 'spacing4', sm: 'spacing4' })
 
   const formattedInputUsdValue = inputCurrencyUSDValue
     ? formatNumberOrString(inputCurrencyUSDValue?.toExact(), NumberType.FiatTokenQuantity)
@@ -118,7 +119,7 @@ export function TransactionReview({
         {currencyInInfo ? (
           <Flex centered gap={innerGap}>
             <Flex centered gap={amountAndEquivalentValueGap}>
-              <Text color="textTertiary" variant="bodyLarge">
+              <Text color="neutral2" variant="bodyLarge">
                 {recipient ? t('Sending') : t('You pay')}
               </Text>
               <AmountInput
@@ -141,12 +142,12 @@ export function TransactionReview({
                 value={formattedAmountIn}
               />
               {inputCurrencyUSDValue && !isUSDInput ? (
-                <Text color="textTertiary" variant={equivalentValueTextVariant}>
+                <Text color="neutral2" variant={equivalentValueTextVariant}>
                   {formattedInputUsdValue}
                 </Text>
               ) : null}
               {isUSDInput ? (
-                <Text color="textTertiary" variant={equivalentValueTextVariant}>
+                <Text color="neutral2" variant={equivalentValueTextVariant}>
                   {/* when sending a token with USD input, show the amount of the token being sent */}
                   {usdTokenEquivalentAmount}
                 </Text>
@@ -163,26 +164,28 @@ export function TransactionReview({
         {currencyOutInfo && formattedAmountOut ? (
           <Flex centered gap={innerGap} pb={{ xs: 'spacing4', sm: 'none' }}>
             <Flex centered gap={amountAndEquivalentValueGap}>
-              <Text color="textTertiary" variant="bodyLarge">
+              <Text color="neutral2" variant="bodyLarge">
                 {t('You receive')}
               </Text>
-              <AmountInput
-                alignSelf="stretch"
-                backgroundColor="none"
-                borderWidth={0}
-                editable={false}
-                fontFamily={fontFamily}
-                fontSize={fontSize}
-                height={lineHeight}
-                maxFontSizeMultiplier={maxFontSizeMultiplier}
-                showCurrencySign={isUSDInput}
-                showSoftInputOnFocus={false}
-                testID="amount-input-out"
-                textAlign="center"
-                value={formattedAmountOut}
-              />
+              <Box height={lineHeight} justifyContent="center" overflow="hidden">
+                <AmountInput
+                  alignSelf="stretch"
+                  backgroundColor="none"
+                  borderWidth={0}
+                  editable={false}
+                  fontFamily={fontFamily}
+                  fontSize={fontSize}
+                  maxFontSizeMultiplier={maxFontSizeMultiplier}
+                  minHeight={2 * lineHeight}
+                  showCurrencySign={isUSDInput}
+                  showSoftInputOnFocus={false}
+                  testID="amount-input-out"
+                  textAlign="center"
+                  value={formattedAmountOut}
+                />
+              </Box>
               {outputCurrencyUSDValue ? (
-                <Text color="textTertiary" variant={equivalentValueTextVariant}>
+                <Text color="neutral2" variant={equivalentValueTextVariant}>
                   {formattedOutputUsdValue}
                 </Text>
               ) : null}
@@ -191,7 +194,7 @@ export function TransactionReview({
           </Flex>
         ) : recipient ? (
           <Flex centered gap="spacing12">
-            <Text color="textTertiary" variant="bodyLarge">
+            <Text color="neutral2" variant="bodyLarge">
               {t('To')}
             </Text>
             <Flex centered gap="spacing8">
@@ -211,7 +214,7 @@ export function TransactionReview({
         <Flex row gap="spacing8">
           <Button
             CustomIcon={
-              <Arrow color={theme.colors.textPrimary} direction="w" size={theme.iconSizes.icon24} />
+              <Arrow color={theme.colors.neutral1} direction="w" size={theme.iconSizes.icon24} />
             }
             emphasis={ButtonEmphasis.Tertiary}
             size={ButtonSize.Large}
@@ -244,7 +247,7 @@ function CurrencyLogoWithLabel({ currencyInfo }: { currencyInfo: CurrencyInfo })
   return (
     <Flex centered row gap={gap}>
       <CurrencyLogo currencyInfo={currencyInfo} size={size} />
-      <Text color="textPrimary" variant="buttonLabelLarge">
+      <Text color="neutral1" variant="buttonLabelLarge">
         {currencyInfo.currency.symbol}
       </Text>
     </Flex>

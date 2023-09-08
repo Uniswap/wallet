@@ -3,8 +3,7 @@ import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { Flex } from 'src/components/layout'
 import { Text } from 'src/components/Text'
 import WarningIcon from 'src/components/tokens/WarningIcon'
-import { flex } from 'ui/src/theme/restyle/flex'
-import { theme } from 'ui/src/theme/restyle/theme'
+import { flex, theme } from 'ui/src/theme/restyle'
 import { TokenLogo } from 'wallet/src/components/CurrencyLogo/TokenLogo'
 import { SafetyLevel, TokenDetailsScreenQuery } from 'wallet/src/data/__generated__/types-and-hooks'
 import { fromGraphQLChain } from 'wallet/src/features/chains/utils'
@@ -32,7 +31,7 @@ export function TokenDetailsHeader({
       />
       <Flex row alignItems="center" gap="spacing8">
         <Text
-          color="textPrimary"
+          color="neutral1"
           loading={loading}
           numberOfLines={1}
           style={flex.shrink}
@@ -46,7 +45,7 @@ export function TokenDetailsHeader({
             <WarningIcon
               height={theme.iconSizes.icon20}
               safetyLevel={tokenProject?.safetyLevel}
-              strokeColorOverride="textTertiary"
+              strokeColorOverride="neutral3"
               width={theme.imageSizes.image20}
             />
           </TouchableArea>

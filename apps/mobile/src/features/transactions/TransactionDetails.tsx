@@ -11,7 +11,7 @@ import { Warning } from 'src/components/modals/WarningModal/types'
 import { getAlertColor } from 'src/components/modals/WarningModal/WarningModal'
 import { NetworkFee } from 'src/components/Network/NetworkFee'
 import { Text } from 'src/components/Text'
-import { sendAnalyticsEvent } from 'src/features/telemetry'
+import { sendMobileAnalyticsEvent } from 'src/features/telemetry'
 import AlertTriangle from 'ui/src/assets/icons/alert-triangle.svg'
 import AnglesMaximize from 'ui/src/assets/icons/angles-maximize.svg'
 import AnglesMinimize from 'ui/src/assets/icons/angles-minimize.svg'
@@ -23,7 +23,7 @@ const ALERT_ICONS_SIZE = 18
 interface TransactionDetailsProps {
   banner?: ReactNode
   chainId: ChainId
-  gasFee?: string
+  gasFeeUSD?: string
   gasFallbackUsed?: boolean
   showExpandedChildren?: boolean
   showWarning?: boolean
@@ -37,7 +37,7 @@ export function TransactionDetails({
   children,
   showExpandedChildren,
   chainId,
-  gasFee,
+  gasFeeUSD,
   gasFallbackUsed,
   showWarning,
   warning,
@@ -53,7 +53,7 @@ export function TransactionDetails({
 
   const onPressToggleShowChildren = (): void => {
     if (!showChildren) {
-      sendAnalyticsEvent(SwapEventName.SWAP_DETAILS_EXPANDED)
+      sendMobileAnalyticsEvent(SwapEventName.SWAP_DETAILS_EXPANDED)
     }
     setShowChildren(!showChildren)
   }
@@ -84,11 +84,11 @@ export function TransactionDetails({
           </Flex>
         </TouchableArea>
       )}
-      <Flex backgroundColor="background2" borderRadius="rounded16" gap="none">
+      <Flex backgroundColor="surface2" borderRadius="rounded16" gap="none">
         {!showWarning && (
           <>
             {banner}
-            <Separator color="background1" width={1} />
+            <Separator color="surface2" width={1} />
           </>
         )}
         <Flex gap="spacing12" px="spacing12" py="spacing12">
@@ -96,11 +96,11 @@ export function TransactionDetails({
           <NetworkFee
             chainId={chainId}
             gasFallbackUsed={gasFallbackUsed}
-            gasFee={gasFee}
+            gasFeeUSD={gasFeeUSD}
             onShowGasWarning={onShowGasWarning}
           />
         </Flex>
-        <Separator color="background1" width={1} />
+        <Separator color="surface2" width={1} />
         <Box px="spacing12" py="spacing12">
           <AccountDetails address={userAddress} iconSize={20} />
         </Box>
@@ -112,18 +112,18 @@ export function TransactionDetails({
           justifyContent="center"
           py="spacing8"
           onPress={onPressToggleShowChildren}>
-          <Text color="textTertiary" variant="bodySmall">
+          <Text color="neutral3" variant="bodySmall">
             {showChildren ? t('Show less') : t('Show more')}
           </Text>
           {showChildren ? (
             <AnglesMinimize
-              color={theme.colors.textTertiary}
+              color={theme.colors.neutral3}
               height={theme.iconSizes.icon20}
               width={theme.iconSizes.icon20}
             />
           ) : (
             <AnglesMaximize
-              color={theme.colors.textTertiary}
+              color={theme.colors.neutral3}
               height={theme.iconSizes.icon20}
               width={theme.iconSizes.icon20}
             />

@@ -204,7 +204,7 @@ function KeyButton({
       onLongPress={onLongPress}
       onPress={onPress}>
       <Text
-        color={isDisabled ? 'textSecondary' : 'textPrimary'}
+        color={isDisabled ? 'neutral2' : 'neutral1'}
         textAlign="center"
         variant="headlineMedium">
         {

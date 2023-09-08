@@ -2,6 +2,23 @@
 
 exports[`renders wallet preview card 1`] = `
 <View
+  accessibilityState={
+    {
+      "busy": undefined,
+      "checked": undefined,
+      "disabled": undefined,
+      "expanded": undefined,
+      "selected": undefined,
+    }
+  }
+  accessibilityValue={
+    {
+      "max": undefined,
+      "min": undefined,
+      "now": undefined,
+      "text": undefined,
+    }
+  }
   accessible={true}
   collapsable={false}
   focusable={true}
@@ -22,7 +39,7 @@ exports[`renders wallet preview card 1`] = `
   onStartShouldSetResponder={[Function]}
   style={
     {
-      "backgroundColor": "#FFFFFF",
+      "backgroundColor": "#F9F9F9",
       "borderColor": "#FC72FF",
       "borderRadius": 20,
       "borderWidth": 1,
@@ -238,10 +255,11 @@ exports[`renders wallet preview card 1`] = `
           style={
             [
               {
-                "color": "#0E1524",
+                "color": "#222222",
                 "display": "flex",
-                "fontFamily": "Inter-Medium",
-                "fontSize": 17,
+                "fontFamily": "Basel-Book",
+                "fontSize": 19,
+                "fontWeight": "400",
                 "lineHeight": 24,
               },
             ]

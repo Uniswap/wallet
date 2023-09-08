@@ -16,11 +16,18 @@ exports[`DatetimeText renders without error 1`] = `
     [
       [
         {
-          "color": "#5D6785",
-          "fontFamily": "Inter-Medium",
-          "fontSize": 17,
+          "color": "#7D7D7D",
+          "fontFamily": "Basel-Book",
+          "fontSize": 19,
+          "fontWeight": "400",
           "lineHeight": 24,
         },
+        [
+          {
+            "padding": 0,
+          },
+          undefined,
+        ],
       ],
     ]
   }
@@ -68,9 +75,10 @@ exports[`PriceText renders loading state 1`] = `
               {
                 "color": "transparent",
                 "display": "flex",
-                "fontFamily": "Inter-SemiBold",
-                "fontSize": 40,
-                "lineHeight": 48,
+                "fontFamily": "Basel-Book",
+                "fontSize": 53,
+                "fontWeight": "400",
+                "lineHeight": 60,
                 "opacity": 0,
               },
             ]
@@ -83,7 +91,7 @@ exports[`PriceText renders loading state 1`] = `
         style={
           [
             {
-              "backgroundColor": "#E8ECFB",
+              "backgroundColor": "#2222220D",
               "borderRadius": 4,
               "bottom": "5%",
               "display": "flex",
@@ -125,14 +133,20 @@ exports[`PriceText renders without error 1`] = `
       [
         [
           {
-            "color": "#0E1524",
-            "fontFamily": "Inter-SemiBold",
-            "fontSize": 40,
-            "lineHeight": 48,
+            "color": "#222222",
+            "fontFamily": "Basel-Book",
+            "fontSize": 53,
+            "fontWeight": "400",
+            "lineHeight": 60,
           },
-          {
-            "color": "#0E1524",
-          },
+          [
+            {
+              "padding": 0,
+            },
+            {
+              "color": "#222222",
+            },
+          ],
         ],
       ]
     }
@@ -153,14 +167,20 @@ exports[`PriceText renders without error 1`] = `
       [
         [
           {
-            "color": "#0E1524",
-            "fontFamily": "Inter-SemiBold",
-            "fontSize": 40,
-            "lineHeight": 48,
+            "color": "#222222",
+            "fontFamily": "Basel-Book",
+            "fontSize": 53,
+            "fontWeight": "400",
+            "lineHeight": 60,
           },
-          {
-            "color": "#888FAB",
-          },
+          [
+            {
+              "padding": 0,
+            },
+            {
+              "color": "#CECECE",
+            },
+          ],
         ],
       ]
     }
@@ -196,14 +216,20 @@ exports[`PriceText renders without error less than a dollar 1`] = `
       [
         [
           {
-            "color": "#0E1524",
-            "fontFamily": "Inter-SemiBold",
-            "fontSize": 40,
-            "lineHeight": 48,
+            "color": "#222222",
+            "fontFamily": "Basel-Book",
+            "fontSize": 53,
+            "fontWeight": "400",
+            "lineHeight": 60,
           },
-          {
-            "color": "#0E1524",
-          },
+          [
+            {
+              "padding": 0,
+            },
+            {
+              "color": "#222222",
+            },
+          ],
         ],
       ]
     }
@@ -224,14 +250,20 @@ exports[`PriceText renders without error less than a dollar 1`] = `
       [
         [
           {
-            "color": "#0E1524",
-            "fontFamily": "Inter-SemiBold",
-            "fontSize": 40,
-            "lineHeight": 48,
+            "color": "#222222",
+            "fontFamily": "Basel-Book",
+            "fontSize": 53,
+            "fontWeight": "400",
+            "lineHeight": 60,
           },
-          {
-            "color": "#0E1524",
-          },
+          [
+            {
+              "padding": 0,
+            },
+            {
+              "color": "#222222",
+            },
+          ],
         ],
       ]
     }
@@ -281,8 +313,9 @@ exports[`RelativeChangeText renders loading state 1`] = `
               {
                 "color": "transparent",
                 "display": "flex",
-                "fontFamily": "Inter-Medium",
-                "fontSize": 17,
+                "fontFamily": "Basel-Book",
+                "fontSize": 19,
+                "fontWeight": "400",
                 "lineHeight": 24,
                 "opacity": 0,
               },
@@ -296,7 +329,7 @@ exports[`RelativeChangeText renders loading state 1`] = `
         style={
           [
             {
-              "backgroundColor": "#E8ECFB",
+              "backgroundColor": "#2222220D",
               "borderRadius": 4,
               "bottom": "5%",
               "display": "flex",
@@ -323,6 +356,7 @@ exports[`RelativeChangeText renders without error 1`] = `
         "display": "flex",
         "flexDirection": "row",
         "justifyContent": "flex-start",
+        "marginTop": 2,
       },
     ]
   }
@@ -332,14 +366,19 @@ exports[`RelativeChangeText renders without error 1`] = `
     height={16}
     strokeWidth={2}
     style={
-      {
-        "color": "#40B66B",
-        "transform": [
-          {
-            "rotate": "180deg",
-          },
-        ],
-      }
+      [
+        {
+          "color": "#40B66B",
+          "transform": [
+            {
+              "rotate": "180deg",
+            },
+          ],
+        },
+        {
+          "translateY": -1,
+        },
+      ]
     }
     width={16}
   />
@@ -369,14 +408,20 @@ exports[`RelativeChangeText renders without error 1`] = `
       [
         [
           {
-            "color": "#0E1524",
-            "fontFamily": "Inter-Medium",
-            "fontSize": 17,
+            "color": "#222222",
+            "fontFamily": "Basel-Book",
+            "fontSize": 19,
+            "fontWeight": "400",
             "lineHeight": 24,
           },
-          {
-            "color": "#40B66B",
-          },
+          [
+            {
+              "padding": 0,
+            },
+            {
+              "color": "#40B66B",
+            },
+          ],
         ],
       ]
     }

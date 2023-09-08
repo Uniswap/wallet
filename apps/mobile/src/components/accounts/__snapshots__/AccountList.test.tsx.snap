@@ -52,6 +52,23 @@ exports[`AccountList renders without error 1`] = `
         onPress={[Function]}
       >
         <View
+          accessibilityState={
+            {
+              "busy": undefined,
+              "checked": undefined,
+              "disabled": undefined,
+              "expanded": undefined,
+              "selected": undefined,
+            }
+          }
+          accessibilityValue={
+            {
+              "max": undefined,
+              "min": undefined,
+              "now": undefined,
+              "text": undefined,
+            }
+          }
           accessible={true}
           collapsable={false}
           focusable={true}
@@ -322,10 +339,11 @@ exports[`AccountList renders without error 1`] = `
                   style={
                     [
                       {
-                        "color": "#0E1524",
+                        "color": "#222222",
                         "display": "flex",
-                        "fontFamily": "Inter-Medium",
-                        "fontSize": 20,
+                        "fontFamily": "Basel-Book",
+                        "fontSize": 19,
+                        "fontWeight": "400",
                         "lineHeight": 24,
                       },
                     ]
@@ -351,11 +369,12 @@ exports[`AccountList renders without error 1`] = `
                   style={
                     [
                       {
-                        "color": "#888FAB",
+                        "color": "#7D7D7D",
                         "display": "flex",
-                        "fontFamily": "Inter-Medium",
-                        "fontSize": 15,
-                        "lineHeight": 20,
+                        "fontFamily": "Basel-Book",
+                        "fontSize": 17,
+                        "fontWeight": "400",
+                        "lineHeight": 24,
                       },
                     ]
                   }

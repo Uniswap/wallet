@@ -16,12 +16,11 @@ import { VirtualizedList } from 'src/components/layout/VirtualizedList'
 import { HandleBar } from 'src/components/modals/HandleBar'
 import { useIsDarkMode } from 'src/features/appearance/hooks'
 import { selectModalState } from 'src/features/modals/modalSlice'
-import { sendAnalyticsEvent } from 'src/features/telemetry'
+import { sendMobileAnalyticsEvent } from 'src/features/telemetry'
 import { ModalName, SectionName } from 'src/features/telemetry/constants'
 import { Screens } from 'src/screens/Screens'
-import { flex } from 'ui/src/theme/restyle/flex'
-import { Theme } from 'ui/src/theme/restyle/theme'
-import { useDebounce } from 'wallet/src/utils/timing'
+import { flex, Theme } from 'ui/src/theme/restyle'
+import { useDebounce } from 'utilities/src/time/timing'
 
 export function ExploreScreen(): JSX.Element {
   const modalInitialState = useAppSelector(selectModalState(ModalName.Explore)).initialState
@@ -53,7 +52,7 @@ export function ExploreScreen(): JSX.Element {
 
   const onSearchFocus = (): void => {
     setIsSearchMode(true)
-    sendAnalyticsEvent(SharedEventName.PAGE_VIEWED, {
+    sendMobileAnalyticsEvent(SharedEventName.PAGE_VIEWED, {
       section: SectionName.ExploreSearch,
       screen: Screens.Explore,
     })
@@ -63,13 +62,13 @@ export function ExploreScreen(): JSX.Element {
     setIsSearchMode(false)
   }
 
-  // Handle special case with design system light colors because background1 is the same as background0
+  // Handle special case with design system light colors because surface2 is the same as surface1
   const contrastBackgroundColor: keyof Theme['colors'] = isDarkMode
-    ? 'backgroundOverlay'
-    : 'background1'
+    ? 'DEP_backgroundOverlay'
+    : 'surface1'
   const searchBarBackgroundColor: keyof Theme['colors'] = isDarkMode
-    ? 'backgroundOverlay'
-    : 'background1'
+    ? 'DEP_backgroundOverlay'
+    : 'surface1'
 
   const onScroll = useCallback(() => {
     textInputRef.current?.blur()

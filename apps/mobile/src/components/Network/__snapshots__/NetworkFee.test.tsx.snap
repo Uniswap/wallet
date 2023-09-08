@@ -20,11 +20,12 @@ exports[`NetworkFee renders a NetworkFee in a loading state 1`] = `
     style={
       [
         {
-          "color": "#0E1524",
+          "color": "#222222",
           "display": "flex",
-          "fontFamily": "Inter-Medium",
-          "fontSize": 15,
-          "lineHeight": 20,
+          "fontFamily": "Basel-Book",
+          "fontSize": 17,
+          "fontWeight": "400",
+          "lineHeight": 24,
         },
       ]
     }
@@ -85,14 +86,15 @@ exports[`NetworkFee renders a NetworkFee in a loading state 1`] = `
         style={
           [
             {
-              "color": "#0E1524",
+              "color": "#222222",
               "display": "flex",
-              "fontFamily": "Inter-SemiBold",
-              "fontSize": 12,
-              "lineHeight": 17,
+              "fontFamily": "Basel-Medium",
+              "fontSize": 13,
+              "lineHeight": 16,
             },
             {
               "color": "#393939",
+              "paddingTop": 1,
             },
           ]
         }
@@ -119,11 +121,12 @@ exports[`NetworkFee renders a NetworkFee in a loading state 1`] = `
       style={
         [
           {
-            "color": "#0E1524",
+            "color": "#222222",
             "display": "flex",
-            "fontFamily": "Inter-Medium",
-            "fontSize": 15,
-            "lineHeight": 20,
+            "fontFamily": "Basel-Book",
+            "fontSize": 17,
+            "fontWeight": "400",
+            "lineHeight": 24,
           },
         ]
       }
@@ -163,7 +166,7 @@ exports[`NetworkFee renders a NetworkFee in a loading state 1`] = `
       }
     >
       <svg
-        color="#0E1524"
+        color="#222222"
         data-file-name="SvgCircleSpinner"
         height={20}
         width={20}
@@ -193,11 +196,12 @@ exports[`NetworkFee renders a NetworkFee normally 1`] = `
     style={
       [
         {
-          "color": "#0E1524",
+          "color": "#222222",
           "display": "flex",
-          "fontFamily": "Inter-Medium",
-          "fontSize": 15,
-          "lineHeight": 20,
+          "fontFamily": "Basel-Book",
+          "fontSize": 17,
+          "fontWeight": "400",
+          "lineHeight": 24,
         },
       ]
     }
@@ -258,14 +262,15 @@ exports[`NetworkFee renders a NetworkFee normally 1`] = `
         style={
           [
             {
-              "color": "#0E1524",
+              "color": "#222222",
               "display": "flex",
-              "fontFamily": "Inter-SemiBold",
-              "fontSize": 12,
-              "lineHeight": 17,
+              "fontFamily": "Basel-Medium",
+              "fontSize": 13,
+              "lineHeight": 16,
             },
             {
               "color": "#393939",
+              "paddingTop": 1,
             },
           ]
         }
@@ -292,11 +297,12 @@ exports[`NetworkFee renders a NetworkFee normally 1`] = `
       style={
         [
           {
-            "color": "#0E1524",
+            "color": "#222222",
             "display": "flex",
-            "fontFamily": "Inter-Medium",
-            "fontSize": 15,
-            "lineHeight": 20,
+            "fontFamily": "Basel-Book",
+            "fontSize": 17,
+            "fontWeight": "400",
+            "lineHeight": 24,
           },
         ]
       }
@@ -317,30 +323,36 @@ exports[`NetworkFee renders a NetworkFee normally 1`] = `
       }
     />
     <View
-      sentry-label="SpinningLoader"
+      sentry-label="Flex"
       style={
         [
           {
+            "alignItems": "center",
             "display": "flex",
+            "flexDirection": "row",
+            "justifyContent": "space-between",
           },
-          [
-            {
-              "transform": [
-                {
-                  "rotateZ": "0deg",
-                },
-              ],
-            },
-          ],
         ]
       }
     >
-      <svg
-        color="#0E1524"
-        data-file-name="SvgCircleSpinner"
-        height={20}
-        width={20}
-      />
+      <Text
+        allowFontScaling={true}
+        maxFontSizeMultiplier={1.4}
+        style={
+          [
+            {
+              "color": "#222222",
+              "display": "flex",
+              "fontFamily": "Basel-Book",
+              "fontSize": 17,
+              "fontWeight": "400",
+              "lineHeight": 24,
+            },
+          ]
+        }
+      >
+        $500.00
+      </Text>
     </View>
   </View>
 </View>
@@ -366,11 +378,12 @@ exports[`NetworkFee renders a NetworkFee with a warning 1`] = `
     style={
       [
         {
-          "color": "#0E1524",
+          "color": "#222222",
           "display": "flex",
-          "fontFamily": "Inter-Medium",
-          "fontSize": 15,
-          "lineHeight": 20,
+          "fontFamily": "Basel-Book",
+          "fontSize": 17,
+          "fontWeight": "400",
+          "lineHeight": 24,
         },
       ]
     }
@@ -431,14 +444,15 @@ exports[`NetworkFee renders a NetworkFee with a warning 1`] = `
         style={
           [
             {
-              "color": "#0E1524",
+              "color": "#222222",
               "display": "flex",
-              "fontFamily": "Inter-SemiBold",
-              "fontSize": 12,
-              "lineHeight": 17,
+              "fontFamily": "Basel-Medium",
+              "fontSize": 13,
+              "lineHeight": 16,
             },
             {
               "color": "#393939",
+              "paddingTop": 1,
             },
           ]
         }
@@ -465,11 +479,12 @@ exports[`NetworkFee renders a NetworkFee with a warning 1`] = `
       style={
         [
           {
-            "color": "#0E1524",
+            "color": "#222222",
             "display": "flex",
-            "fontFamily": "Inter-Medium",
-            "fontSize": 15,
-            "lineHeight": 20,
+            "fontFamily": "Basel-Book",
+            "fontSize": 17,
+            "fontWeight": "400",
+            "lineHeight": 24,
           },
         ]
       }
@@ -490,30 +505,53 @@ exports[`NetworkFee renders a NetworkFee with a warning 1`] = `
       }
     />
     <View
-      sentry-label="SpinningLoader"
+      sentry-label="Flex"
       style={
         [
           {
+            "alignItems": "center",
             "display": "flex",
+            "flexDirection": "row",
+            "justifyContent": "space-between",
           },
-          [
-            {
-              "transform": [
-                {
-                  "rotateZ": "0deg",
-                },
-              ],
-            },
-          ],
         ]
       }
     >
-      <svg
-        color="#0E1524"
-        data-file-name="SvgCircleSpinner"
-        height={20}
-        width={20}
-      />
+      <Text
+        allowFontScaling={true}
+        maxFontSizeMultiplier={1.4}
+        style={
+          [
+            {
+              "color": "#FEB239",
+              "display": "flex",
+              "fontFamily": "Basel-Book",
+              "fontSize": 17,
+              "fontWeight": "400",
+              "lineHeight": 24,
+            },
+          ]
+        }
+      >
+        $500.00
+      </Text>
+      <View
+        style={
+          [
+            {
+              "display": "flex",
+              "marginLeft": 4,
+            },
+          ]
+        }
+      >
+        <svg
+          color="#FEB239"
+          data-file-name="SvgInfoCircle"
+          height={20}
+          width={20}
+        />
+      </View>
     </View>
   </View>
 </View>

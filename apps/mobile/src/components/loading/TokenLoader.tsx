@@ -2,7 +2,7 @@ import React from 'react'
 import { Box, Flex } from 'src/components/layout'
 import { Text } from 'src/components/Text'
 import { TOKEN_BALANCE_ITEM_HEIGHT } from 'src/components/TokenBalanceList/TokenBalanceItem'
-import { iconSizes } from 'ui/src/theme/iconSizes'
+import { iconSizes } from 'ui/src/theme'
 
 interface TokenLoaderProps {
   opacity: number
@@ -19,7 +19,7 @@ export function TokenLoader({ opacity }: TokenLoaderProps): JSX.Element {
       py="spacing8">
       <Flex row alignItems="center" flexShrink={1} gap="spacing12" overflow="hidden">
         <Box
-          bg="background3"
+          bg="surface3"
           borderRadius="roundedFull"
           minHeight={iconSizes.icon40}
           minWidth={iconSizes.icon40}

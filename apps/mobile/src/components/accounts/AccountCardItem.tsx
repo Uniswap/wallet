@@ -15,12 +15,12 @@ import { ModalName } from 'src/features/telemetry/constants'
 import { Screens } from 'src/screens/Screens'
 import { setClipboard } from 'src/utils/clipboard'
 import Check from 'ui/src/assets/icons/check.svg'
-import { iconSizes } from 'ui/src/theme/iconSizes'
+import { iconSizes } from 'ui/src/theme'
+import { formatUSDPrice, NumberType } from 'utilities/src/format/format'
 import { useENSAvatar } from 'wallet/src/features/ens/api'
 import { pushNotification } from 'wallet/src/features/notifications/slice'
 import { AppNotificationType, CopyNotificationType } from 'wallet/src/features/notifications/types'
 import { useDisplayName } from 'wallet/src/features/wallet/hooks'
-import { formatUSDPrice, NumberType } from 'wallet/src/utils/format'
 
 type AccountCardItemProps = {
   address: Address
@@ -42,7 +42,7 @@ function PortfolioValue({
 
   return (
     <Text
-      color="textTertiary"
+      color="neutral2"
       loading={isLoading}
       loadingPlaceholderText="$000.00"
       variant="subheadSmall">
@@ -155,7 +155,7 @@ export function AccountCardItem({
           <Flex row alignItems="center" gap="none">
             {isActive && (
               <Check
-                color={theme.colors.userThemeMagenta}
+                color={theme.colors.accent1}
                 height={theme.iconSizes.icon24}
                 width={theme.iconSizes.icon24}
               />

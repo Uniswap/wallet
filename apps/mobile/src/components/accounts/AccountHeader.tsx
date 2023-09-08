@@ -13,7 +13,7 @@ import { Screens } from 'src/screens/Screens'
 import { setClipboard } from 'src/utils/clipboard'
 import { isDevBuild } from 'src/utils/version'
 import SettingsIcon from 'ui/src/assets/icons/settings.svg'
-import { iconSizes } from 'ui/src/theme/iconSizes'
+import { iconSizes } from 'ui/src/theme'
 import { pushNotification } from 'wallet/src/features/notifications/slice'
 import { AppNotificationType, CopyNotificationType } from 'wallet/src/features/notifications/types'
 import { selectActiveAccountAddress } from 'wallet/src/features/wallet/selectors'
@@ -79,7 +79,7 @@ export function AccountHeader(): JSX.Element {
               />
             </Flex>
             <Chevron
-              color={theme.colors.textTertiary}
+              color={theme.colors.neutral3}
               direction="s"
               height={iconSizes.icon20}
               width={iconSizes.icon20}
@@ -89,7 +89,7 @@ export function AccountHeader(): JSX.Element {
       </TouchableArea>
       <TouchableArea hapticFeedback onPress={onPressSettings}>
         <SettingsIcon
-          color={theme.colors.textTertiary}
+          color={theme.colors.neutral2}
           height={theme.iconSizes.icon28}
           opacity="0.8"
           width={theme.iconSizes.icon28}

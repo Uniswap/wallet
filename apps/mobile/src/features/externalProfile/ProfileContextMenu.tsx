@@ -7,14 +7,16 @@ import { useAppDispatch, useAppTheme } from 'src/app/hooks'
 import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { TripleDot } from 'src/components/icons/TripleDot'
 import { Flex } from 'src/components/layout/Flex'
+import { sendMobileAnalyticsEvent } from 'src/features/telemetry'
 import { setClipboard } from 'src/utils/clipboard'
 import { ExplorerDataType, getExplorerLink, getProfileUrl, openUri } from 'src/utils/linking'
+import { serializeError } from 'utilities/src/errors'
+import { logger } from 'utilities/src/logger/logger'
 import { ChainId } from 'wallet/src/constants/chains'
-import { logger } from 'wallet/src/features/logger/logger'
 
+import { MobileEventName, ShareableEntity } from 'src/features/telemetry/constants'
 import { pushNotification } from 'wallet/src/features/notifications/slice'
 import { AppNotificationType, CopyNotificationType } from 'wallet/src/features/notifications/types'
-import serializeError from 'wallet/src/utils/serializeError'
 
 export function ProfileContextMenu({ address }: { address: Address }): JSX.Element {
   const { t } = useTranslation()
@@ -37,8 +39,13 @@ export function ProfileContextMenu({ address }: { address: Address }): JSX.Eleme
   const onPressShare = useCallback(async () => {
     if (!address) return
     try {
+      const url = getProfileUrl(address)
       await Share.share({
-        message: getProfileUrl(address),
+        message: url,
+      })
+      sendMobileAnalyticsEvent(MobileEventName.ShareButtonClicked, {
+        entity: ShareableEntity.Wallet,
+        url,
       })
     } catch (error) {
       logger.error('Unable to share Account url', {
@@ -80,12 +87,12 @@ export function ProfileContextMenu({ address }: { address: Address }): JSX.Eleme
         await menuActions[e.nativeEvent.index]?.action()
       }}>
       <TouchableArea
-        backgroundColor="textOnDimTertiary"
+        backgroundColor="surface3"
         borderRadius="roundedFull"
         opacity={0.8}
         padding="spacing8">
         <Flex centered grow height={theme.iconSizes.icon16} width={theme.iconSizes.icon16}>
-          <TripleDot color="white" size={3.5} />
+          <TripleDot color="sporeWhite" size={3.5} />
         </Flex>
       </TouchableArea>
     </ContextMenu>

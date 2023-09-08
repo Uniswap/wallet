@@ -20,6 +20,7 @@ exports[`ActivityTab renders without error 1`] = `
     style={
       {
         "flex": 1,
+        "overflow": "hidden",
       }
     }
   >
@@ -30,8 +31,12 @@ exports[`ActivityTab renders without error 1`] = `
           <Memo(_Transaction)
             repeat={4}
           />
-          <ForwardRef
-            height={0.1}
+          <View
+            style={
+              {
+                "height": 1334,
+              }
+            }
           />
         </React.Fragment>
       }
@@ -42,6 +47,8 @@ exports[`ActivityTab renders without error 1`] = `
           "backgroundColor": undefined,
           "minHeight": 1,
           "minWidth": 1,
+          "paddingLeft": 0,
+          "paddingRight": 0,
         }
       }
       contentHeight={0}
@@ -112,6 +119,7 @@ exports[`ActivityTab renders without error 1`] = `
           "_getHeightOrWidth": [Function],
           "_getLayoutTypeForIndex": [Function],
           "_getSpan": [Function],
+          "_hasExpired": false,
           "_maxSpan": 1,
           "_setLayoutForType": [Function],
           "_tempDim": {
@@ -137,8 +145,12 @@ exports[`ActivityTab renders without error 1`] = `
               <Memo(_Transaction)
                 repeat={4}
               />
-              <ForwardRef
-                height={0.1}
+              <View
+                style={
+                  {
+                    "height": 1334,
+                  }
+                }
               />
             </React.Fragment>,
             "data": [
@@ -168,13 +180,18 @@ exports[`ActivityTab renders without error 1`] = `
             "onRefresh": undefined,
             "onScroll": [Function],
             "refreshControl": <RefreshControlMock
+              progressViewOffset={NaN}
               refreshing={false}
-              tintColor="#888FAB"
+              tintColor="#CECECE"
             />,
             "refreshing": undefined,
             "renderItem": [Function],
             "sentry-label": "ReanimatedFlashList",
             "showsVerticalScrollIndicator": false,
+          },
+          "renderWindowInsets": {
+            "height": 0,
+            "width": 0,
           },
           "shouldRefreshWithAnchoring": true,
         }
@@ -193,8 +210,9 @@ exports[`ActivityTab renders without error 1`] = `
       onVisibleIndicesChanged={[Function]}
       refreshControl={
         <RefreshControlMock
+          progressViewOffset={NaN}
           refreshing={false}
-          tintColor="#888FAB"
+          tintColor="#CECECE"
         />
       }
       removeClippedSubviews={false}
@@ -212,12 +230,15 @@ exports[`ActivityTab renders without error 1`] = `
             "backgroundColor": undefined,
             "minHeight": 1,
             "minWidth": 1,
+            "paddingLeft": 0,
+            "paddingRight": 0,
           },
           "onLayout": [Function],
           "onScrollBeginDrag": [Function],
           "refreshControl": <RefreshControlMock
+            progressViewOffset={NaN}
             refreshing={false}
-            tintColor="#888FAB"
+            tintColor="#CECECE"
           />,
           "style": {
             "minHeight": 1,
@@ -297,6 +318,7 @@ exports[`ActivityTab renders without error 2`] = `
     style={
       {
         "flex": 1,
+        "overflow": "hidden",
       }
     }
   >
@@ -316,8 +338,12 @@ exports[`ActivityTab renders without error 2`] = `
       }
       ListFooterComponent={
         <React.Fragment>
-          <ForwardRef
-            height={0.1}
+          <View
+            style={
+              {
+                "height": 1334,
+              }
+            }
           />
         </React.Fragment>
       }
@@ -328,6 +354,8 @@ exports[`ActivityTab renders without error 2`] = `
           "backgroundColor": undefined,
           "minHeight": 1,
           "minWidth": 1,
+          "paddingLeft": 0,
+          "paddingRight": 0,
         }
       }
       contentHeight={0}
@@ -450,6 +478,7 @@ exports[`ActivityTab renders without error 2`] = `
           "_getHeightOrWidth": [Function],
           "_getLayoutTypeForIndex": [Function],
           "_getSpan": [Function],
+          "_hasExpired": false,
           "_maxSpan": 1,
           "_setLayoutForType": [Function],
           "_tempDim": {
@@ -482,8 +511,12 @@ exports[`ActivityTab renders without error 2`] = `
               />
             </ForwardRef>,
             "ListFooterComponent": <React.Fragment>
-              <ForwardRef
-                height={0.1}
+              <View
+                style={
+                  {
+                    "height": 1334,
+                  }
+                }
               />
             </React.Fragment>,
             "data": [
@@ -539,13 +572,18 @@ exports[`ActivityTab renders without error 2`] = `
             "onRefresh": undefined,
             "onScroll": [Function],
             "refreshControl": <RefreshControlMock
+              progressViewOffset={NaN}
               refreshing={false}
-              tintColor="#888FAB"
+              tintColor="#CECECE"
             />,
             "refreshing": undefined,
             "renderItem": [Function],
             "sentry-label": "ReanimatedFlashList",
             "showsVerticalScrollIndicator": false,
+          },
+          "renderWindowInsets": {
+            "height": 0,
+            "width": 0,
           },
           "shouldRefreshWithAnchoring": true,
         }
@@ -564,8 +602,9 @@ exports[`ActivityTab renders without error 2`] = `
       onVisibleIndicesChanged={[Function]}
       refreshControl={
         <RefreshControlMock
+          progressViewOffset={NaN}
           refreshing={false}
-          tintColor="#888FAB"
+          tintColor="#CECECE"
         />
       }
       removeClippedSubviews={false}
@@ -583,12 +622,15 @@ exports[`ActivityTab renders without error 2`] = `
             "backgroundColor": undefined,
             "minHeight": 1,
             "minWidth": 1,
+            "paddingLeft": 0,
+            "paddingRight": 0,
           },
           "onLayout": [Function],
           "onScrollBeginDrag": [Function],
           "refreshControl": <RefreshControlMock
+            progressViewOffset={NaN}
             refreshing={false}
-            tintColor="#888FAB"
+            tintColor="#CECECE"
           />,
           "style": {
             "minHeight": 1,

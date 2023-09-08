@@ -1,3 +1,4 @@
+/* eslint-disable complexity */
 import { providers } from 'ethers'
 import React, { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -14,6 +15,7 @@ import {
 } from 'src/features/transactions/swap/hooks'
 import SlippageInfoModal from 'src/features/transactions/swap/SlippageInfoModal'
 import { SwapDetails } from 'src/features/transactions/swap/SwapDetails'
+import { SwapProtectionInfoModal } from 'src/features/transactions/swap/SwapProtectionModal'
 import {
   getActionElementName,
   getActionName,
@@ -22,11 +24,11 @@ import {
 } from 'src/features/transactions/swap/utils'
 import { TransactionDetails } from 'src/features/transactions/TransactionDetails'
 import { TransactionReview } from 'src/features/transactions/TransactionReview'
-import InfoCircleSVG from 'ui/src/assets/icons/info-circle.svg'
+import { Icons } from 'ui/src'
+import { formatCurrencyAmount, formatNumberOrString, NumberType } from 'utilities/src/format/format'
 import { CurrencyField } from 'wallet/src/features/transactions/transactionState/types'
 import { AccountType } from 'wallet/src/features/wallet/accounts/types'
 import { useActiveAccountWithThrow } from 'wallet/src/features/wallet/hooks'
-import { formatCurrencyAmount, formatNumberOrString, NumberType } from 'wallet/src/utils/format'
 
 interface SwapFormProps {
   onNext: () => void
@@ -35,6 +37,7 @@ interface SwapFormProps {
   approveTxRequest?: providers.TransactionRequest
   txRequest?: providers.TransactionRequest
   totalGasFee?: string
+  gasFeeUSD?: string
   gasFallbackUsed?: boolean
   warnings: Warning[]
   exactValue: string
@@ -47,6 +50,7 @@ export function SwapReview({
   approveTxRequest,
   txRequest,
   totalGasFee,
+  gasFeeUSD,
   gasFallbackUsed,
   warnings,
   exactValue,
@@ -59,6 +63,7 @@ export function SwapReview({
   const [showSlippageModal, setShowSlippageModal] = useState(false)
   const [warningAcknowledged, setWarningAcknowledged] = useState(false)
   const [shouldSubmitTx, setShouldSubmitTx] = useState(false)
+  const [showSwapProtectionModal, setShowSwapProtectionModal] = useState(false)
 
   const {
     chainId,
@@ -154,6 +159,13 @@ export function SwapReview({
     setShowSlippageModal(false)
   }, [])
 
+  const onShowSwapProtectionModal = useCallback(() => {
+    setShowSwapProtectionModal(true)
+  }, [])
+  const onCloseSwapProtectionModal = useCallback(() => {
+    setShowSwapProtectionModal(false)
+  }, [])
+
   const actionButtonDisabled =
     noValidSwap ||
     blockingWarning ||
@@ -175,7 +187,7 @@ export function SwapReview({
         <TransactionDetails
           chainId={chainId}
           gasFallbackUsed={gasFallbackUsed}
-          gasFee={totalGasFee}
+          gasFeeUSD={gasFeeUSD}
           warning={swapWarning}
           onShowGasWarning={onShowGasWarning}
           onShowWarning={onShowWarning}
@@ -191,13 +203,14 @@ export function SwapReview({
         autoSlippageTolerance={autoSlippageTolerance}
         customSlippageTolerance={customSlippageTolerance}
         gasFallbackUsed={gasFallbackUsed}
-        gasFee={totalGasFee}
+        gasFeeUSD={gasFeeUSD}
         newTradeToAccept={newTradeToAccept}
         trade={trade}
         warning={swapWarning}
         onAcceptTrade={onAcceptTrade}
         onShowGasWarning={onShowGasWarning}
         onShowSlippageModal={onShowSlippageModal}
+        onShowSwapProtectionModal={onShowSwapProtectionModal}
         onShowWarning={onShowWarning}
       />
     )
@@ -244,15 +257,17 @@ export function SwapReview({
       )}
       {showGasWarningModal && (
         <WarningModal
+          backgroundIconColor={theme.colors.surface3}
           caption={t(
             'This maximum network fee estimate is more conservative than usual—we’re unable to provide a more accurate figure at this time.'
           )}
           closeText={t('Dismiss')}
           icon={
-            <InfoCircleSVG
-              color={theme.colors.accentWarning}
-              height={theme.iconSizes.icon24}
-              width={theme.iconSizes.icon24}
+            <Icons.InfoCircleFilled
+              color={theme.colors.neutral2}
+              size={theme.iconSizes.icon24}
+              // not sure why this one is upside down
+              style={{ transform: [{ rotate: '180deg' }] }}
             />
           }
           modalName={ModalName.GasEstimateWarning}
@@ -269,6 +284,7 @@ export function SwapReview({
           onClose={onCloseSlippageModal}
         />
       )}
+      {showSwapProtectionModal && <SwapProtectionInfoModal onClose={onCloseSwapProtectionModal} />}
       <Trace logImpression section={SectionName.SwapReview}>
         <TransactionReview
           actionButtonProps={actionButtonProps}

@@ -4,7 +4,7 @@ import { useAppTheme } from 'src/app/hooks'
 import { Box } from 'src/components/layout'
 import { TextProps } from 'src/components/Text'
 import { AnimatedText } from 'src/components/text/AnimatedText'
-import { Theme } from 'ui/src/theme/restyle/theme'
+import { Theme } from 'ui/src/theme/restyle'
 import { ValueAndFormatted } from './usePrice'
 
 type AnimatedDecimalNumberProps = TextProps & {
@@ -25,8 +25,8 @@ export function AnimatedDecimalNumber(props: AnimatedDecimalNumberProps): JSX.El
     number,
     separator = '.',
     variant,
-    wholePartColor = theme.colors.textPrimary,
-    decimalPartColor = theme.colors.textTertiary,
+    wholePartColor = theme.colors.neutral1,
+    decimalPartColor = theme.colors.neutral3,
     decimalThreshold = 1,
     ...rest
   } = props

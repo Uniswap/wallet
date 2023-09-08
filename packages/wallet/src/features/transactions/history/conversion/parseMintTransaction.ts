@@ -1,4 +1,4 @@
-import { ChainId } from 'wallet/src/constants/chains'
+import { fromGraphQLChain } from 'wallet/src/features/chains/utils'
 import {
   deriveCurrencyAmountFromAssetResponse,
   parseUSDValueFromAssetChange,
@@ -11,12 +11,12 @@ import {
 import { buildCurrencyId, buildNativeCurrencyId } from 'wallet/src/utils/currencyId'
 
 export default function parseNFTMintTransaction(
-  transaction: TransactionListQueryResponse
+  transaction: NonNullable<TransactionListQueryResponse>
 ): NFTMintTransactionInfo | undefined {
-  const tokenChange = transaction?.assetChanges.find(
+  const tokenChange = transaction.assetChanges.find(
     (change) => change?.__typename === 'TokenTransfer'
   )
-  const nftChange = transaction?.assetChanges.find((change) => change?.__typename === 'NftTransfer')
+  const nftChange = transaction.assetChanges.find((change) => change?.__typename === 'NftTransfer')
 
   // Mints must include the NFT minted
   if (!nftChange || nftChange.__typename !== 'NftTransfer') return undefined
@@ -25,18 +25,21 @@ export default function parseNFTMintTransaction(
   const collectionName = nftChange.asset.collection?.name
   const imageURL = nftChange.asset.image?.url
   const tokenId = nftChange.asset.tokenId
+  const chainId = fromGraphQLChain(transaction.chain)
+  const isSpam = nftChange.asset?.isSpam ?? false
+
   let transactedUSDValue: number | undefined
 
-  if (!name || !collectionName || !imageURL || !tokenId) return undefined
+  if (!name || !collectionName || !imageURL || !tokenId || !chainId) return undefined
 
   let purchaseCurrencyId: string | undefined
   let purchaseCurrencyAmountRaw: string | undefined
   if (tokenChange && tokenChange.__typename === 'TokenTransfer') {
     purchaseCurrencyId =
       tokenChange.tokenStandard === 'NATIVE'
-        ? buildNativeCurrencyId(ChainId.Mainnet)
+        ? buildNativeCurrencyId(chainId)
         : tokenChange.asset?.address
-        ? buildCurrencyId(ChainId.Mainnet, tokenChange.asset.address)
+        ? buildCurrencyId(chainId, tokenChange.asset.address)
         : undefined
     purchaseCurrencyAmountRaw = deriveCurrencyAmountFromAssetResponse(
       tokenChange.tokenStandard,
@@ -60,5 +63,6 @@ export default function parseNFTMintTransaction(
     purchaseCurrencyId,
     purchaseCurrencyAmountRaw,
     transactedUSDValue,
+    isSpam,
   }
 }

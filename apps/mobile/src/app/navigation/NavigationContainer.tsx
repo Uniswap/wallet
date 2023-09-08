@@ -12,11 +12,12 @@ import { useAppDispatch, useAppTheme } from 'src/app/hooks'
 import { RootParamList } from 'src/app/navigation/types'
 import Trace from 'src/components/Trace/Trace'
 import { DeepLink, openDeepLink } from 'src/features/deepLinking/handleDeepLinkSaga'
-import { sendAnalyticsEvent } from 'src/features/telemetry'
+import { sendMobileAnalyticsEvent } from 'src/features/telemetry'
 import { getEventParams } from 'src/features/telemetry/constants'
 import { DIRECT_LOG_ONLY_SCREENS } from 'src/features/telemetry/directLogScreens'
+import { processWidgetEvents } from 'src/features/widgets/widgets'
 import { AppScreen } from 'src/screens/Screens'
-import { useAsyncData } from 'wallet/src/utils/hooks'
+import { useAsyncData } from 'utilities/src/react/hooks'
 
 interface Props {
   onReady: (navigationRef: NavigationContainerRefWithCurrent<ReactNavigation.RootParamList>) => void
@@ -43,11 +44,13 @@ export const NavigationContainer: FC<PropsWithChildren<Props>> = ({
       // avoid white flickering background on screen navigation
       theme={{
         ...DefaultTheme,
-        colors: { ...DefaultTheme.colors, background: theme.colors.background0 },
+        colors: { ...DefaultTheme.colors, background: theme.colors.surface1 },
       }}
       onReady={(): void => {
         onReady(navigationRef)
-        sendAnalyticsEvent(SharedEventName.APP_LOADED)
+        sendMobileAnalyticsEvent(SharedEventName.APP_LOADED)
+        // Process widget events on app load
+        processWidgetEvents().catch(() => undefined)
 
         // setting initial route name for telemetry
         const initialRoute = navigationRef.getCurrentRoute()?.name as AppScreen

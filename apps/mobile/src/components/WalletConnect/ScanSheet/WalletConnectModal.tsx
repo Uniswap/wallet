@@ -18,15 +18,13 @@ import { ConnectedDappsList } from 'src/components/WalletConnect/ConnectedDapps/
 import { getSupportedURI, URIType } from 'src/components/WalletConnect/ScanSheet/util'
 import { useIsDarkMode } from 'src/features/appearance/hooks'
 import { ElementName, ModalName } from 'src/features/telemetry/constants'
-import { useWCTimeoutError } from 'src/features/wallet/hooks'
 import { useWalletConnect } from 'src/features/walletConnect/useWalletConnect'
-import { pairWithWalletConnectURI } from 'src/features/walletConnectV2/utils'
+import { pairWithWalletConnectURI } from 'src/features/walletConnect/utils'
 import Scan from 'ui/src/assets/icons/receive.svg'
 import ScanQRIcon from 'ui/src/assets/icons/scan.svg'
+import { serializeError } from 'utilities/src/errors'
+import { logger } from 'utilities/src/logger/logger'
 import { selectActiveAccountAddress } from 'wallet/src/features/wallet/selectors'
-import { ONE_SECOND_MS } from 'wallet/src/utils/time'
-
-const WC_TIMEOUT_DURATION_MS = 10 * ONE_SECOND_MS // timeout after 10 seconds
 
 type Props = {
   initialScreenState?: ScannerModalState
@@ -44,28 +42,26 @@ export function WalletConnectModal({
   const { sessions, hasPendingSessionError } = useWalletConnect(activeAddress)
   const [currentScreenState, setCurrentScreenState] =
     useState<ScannerModalState>(initialScreenState)
-  const { hasScanError, setHasScanError, shouldFreezeCamera, setShouldFreezeCamera } =
-    useWCTimeoutError(WC_TIMEOUT_DURATION_MS)
+  const [shouldFreezeCamera, setShouldFreezeCamera] = useState(false)
   const { preload, navigate } = useEagerExternalProfileRootNavigation()
 
   // Update QR scanner states when pending session error alert is shown from WCv2 saga event channel
   useEffect(() => {
-    setHasScanError(hasPendingSessionError)
     if (hasPendingSessionError) {
       // Cancels the pending connection state in QRCodeScanner
       setShouldFreezeCamera(false)
     }
-  }, [hasPendingSessionError, setShouldFreezeCamera, setHasScanError])
+  }, [hasPendingSessionError, setShouldFreezeCamera])
 
   const onScanCode = useCallback(
     async (uri: string) => {
       // don't scan any QR codes if there is an error popup open or camera is frozen
-      if (!activeAddress || hasScanError || shouldFreezeCamera) return
+      if (!activeAddress || hasPendingSessionError || shouldFreezeCamera) return
       await selectionAsync()
 
       const supportedURI = await getSupportedURI(uri)
       if (!supportedURI) {
-        setHasScanError(true)
+        setShouldFreezeCamera(true)
         Alert.alert(
           t('Invalid QR Code'),
           t(
@@ -75,7 +71,7 @@ export function WalletConnectModal({
             {
               text: t('Try again'),
               onPress: (): void => {
-                setHasScanError(false)
+                setShouldFreezeCamera(false)
               },
             },
           ]
@@ -91,7 +87,7 @@ export function WalletConnectModal({
       }
 
       if (supportedURI.type === URIType.WalletConnectURL) {
-        setHasScanError(true)
+        setShouldFreezeCamera(true)
         Alert.alert(
           t('Invalid QR Code'),
           t(
@@ -101,7 +97,7 @@ export function WalletConnectModal({
             {
               text: t('OK'),
               onPress: (): void => {
-                setHasScanError(false)
+                setShouldFreezeCamera(false)
               },
             },
           ]
@@ -115,8 +111,13 @@ export function WalletConnectModal({
           await pairWithWalletConnectURI(supportedURI.value)
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (errorMessage: any) {
-          setHasScanError(true)
-          setShouldFreezeCamera(false)
+          logger.error(errorMessage, {
+            tags: {
+              file: 'WalletConnectModal',
+              function: 'onScanCode',
+              error: serializeError(errorMessage),
+            },
+          })
           Alert.alert(
             t('WalletConnect Error'),
             t(`There was an issue with WalletConnect. \n\n Error information:\n {{error}}`, {
@@ -126,7 +127,7 @@ export function WalletConnectModal({
               {
                 text: t('OK'),
                 onPress: (): void => {
-                  setHasScanError(false)
+                  setShouldFreezeCamera(false)
                 },
               },
             ]
@@ -140,6 +141,7 @@ export function WalletConnectModal({
           {
             text: 'Bye',
             onPress: (): void => {
+              setShouldFreezeCamera(true)
               onClose()
             },
           },
@@ -148,13 +150,12 @@ export function WalletConnectModal({
     },
     [
       activeAddress,
-      hasScanError,
       navigate,
       onClose,
       preload,
-      setHasScanError,
       setShouldFreezeCamera,
       shouldFreezeCamera,
+      hasPendingSessionError,
       t,
     ]
   )
@@ -180,7 +181,7 @@ export function WalletConnectModal({
   return (
     <BottomSheetModal
       fullScreen
-      backgroundColor={theme.colors.background1}
+      backgroundColor={theme.colors.surface1}
       name={ModalName.WalletConnectScan}
       onClose={onClose}>
       <>
@@ -212,21 +213,21 @@ export function WalletConnectModal({
         <Flex centered mb="spacing48" mt="spacing16" mx="spacing16">
           <TouchableArea
             hapticFeedback
-            borderColor={isDarkMode ? 'none' : 'backgroundOutline'}
+            borderColor={isDarkMode ? 'none' : 'surface3'}
             borderRadius="roundedFull"
             borderWidth={1}
             p="spacing16"
             paddingEnd="spacing24"
-            style={{ backgroundColor: theme.colors.backgroundOverlay }}
+            style={{ backgroundColor: theme.colors.DEP_backgroundOverlay }}
             testID={ElementName.QRCodeModalToggle}
             onPress={onPressBottomToggle}>
             <Flex row alignItems="center" gap="spacing12">
               {currentScreenState === ScannerModalState.ScanQr ? (
-                <Scan color={theme.colors.textPrimary} height={24} width={24} />
+                <Scan color={theme.colors.neutral1} height={24} width={24} />
               ) : (
-                <ScanQRIcon color={theme.colors.textPrimary} height={24} width={24} />
+                <ScanQRIcon color={theme.colors.neutral1} height={24} width={24} />
               )}
-              <Text color="textPrimary" variant="buttonLabelMedium">
+              <Text color="neutral1" variant="buttonLabelMedium">
                 {currentScreenState === ScannerModalState.ScanQr
                   ? t('Show my QR code')
                   : t('Scan a QR code')}

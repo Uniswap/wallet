@@ -13,7 +13,7 @@ import { Text } from 'src/components/Text'
 import { addToSearchHistory, WalletSearchResult } from 'src/features/explore/searchHistorySlice'
 import { useToggleWatchedWalletCallback } from 'src/features/favorites/hooks'
 import { selectWatchedAddressSet } from 'src/features/favorites/selectors'
-import { sendAnalyticsEvent } from 'src/features/telemetry'
+import { sendMobileAnalyticsEvent } from 'src/features/telemetry'
 import { MobileEventName } from 'src/features/telemetry/constants'
 import { useENSAvatar, useENSName } from 'wallet/src/features/ens/api'
 import { getCompletedENSName } from 'wallet/src/features/ens/useENS'
@@ -54,11 +54,10 @@ export function SearchWalletItem({ wallet, searchContext }: SearchWalletItemProp
 
   const isFavorited = useAppSelector(selectWatchedAddressSet).has(address)
 
-  const onPress = async (): Promise<void> => {
-    await preload(address)
+  const onPress = (): void => {
     navigate(address)
     if (searchContext) {
-      sendAnalyticsEvent(MobileEventName.ExploreSearchResultClicked, {
+      sendMobileAnalyticsEvent(MobileEventName.ExploreSearchResultClicked, {
         query: searchContext.query,
         name: ensName ?? address,
         address,
@@ -89,7 +88,10 @@ export function SearchWalletItem({ wallet, searchContext }: SearchWalletItemProp
         hapticFeedback
         hapticStyle={ImpactFeedbackStyle.Light}
         testID={`wallet-item-${address}`}
-        onPress={onPress}>
+        onPress={onPress}
+        onPressIn={async (): Promise<void> => {
+          await preload(address)
+        }}>
         <Flex row alignItems="center" gap="spacing12" px="spacing8" py="spacing12">
           <AccountIcon address={address} avatarUri={avatar} size={theme.imageSizes.image40} />
           <Box flexShrink={1}>
@@ -101,11 +103,7 @@ export function SearchWalletItem({ wallet, searchContext }: SearchWalletItemProp
               {completedENSName || formattedAddress}
             </Text>
             {showOwnedBy ? (
-              <Text
-                color="textSecondary"
-                ellipsizeMode="tail"
-                numberOfLines={1}
-                variant="subheadSmall">
+              <Text color="neutral2" ellipsizeMode="tail" numberOfLines={1} variant="subheadSmall">
                 {t('Owned by {{owner}}', {
                   owner: primaryENSName || formattedAddress,
                 })}

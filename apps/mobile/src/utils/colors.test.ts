@@ -6,7 +6,7 @@ import {
   hexToRGB,
   opacify,
 } from 'src/utils/colors'
-import { theme } from 'ui/src/theme/restyle/theme'
+import { theme } from 'ui/src/theme/restyle'
 
 it('returns an hex color with opacity', () => {
   expect(opacify(10, '#000000')).toEqual('#0000001a')
@@ -46,7 +46,7 @@ describe('adjustColorVariant', () => {
 
 describe('findNearestThemeColor', () => {
   it('Finds correct theme color for color in theme', () => {
-    expect(findNearestThemeColor(theme.colors.accentActive)).toEqual('blue400')
+    expect(findNearestThemeColor(theme.colors.accent1)).toEqual('magentaVibrant')
   })
 })
 

@@ -17,9 +17,10 @@ import { RelativeChange } from 'src/components/text/RelativeChange'
 import { useTokenDetailsNavigation } from 'src/components/TokenDetails/hooks'
 import { removeFavoriteToken } from 'src/features/favorites/slice'
 import { openModal } from 'src/features/modals/modalSlice'
-import { sendAnalyticsEvent } from 'src/features/telemetry'
+import { sendMobileAnalyticsEvent } from 'src/features/telemetry'
 import { ElementName, ModalName, SectionName } from 'src/features/telemetry/constants'
 import { usePollOnFocusOnly } from 'src/utils/hooks'
+import { formatUSDPrice } from 'utilities/src/format/format'
 import { TokenLogo } from 'wallet/src/components/CurrencyLogo/TokenLogo'
 import { PollingInterval } from 'wallet/src/constants/misc'
 import { isNonPollingRequestInFlight } from 'wallet/src/data/utils'
@@ -31,7 +32,6 @@ import {
   CurrencyField,
   TransactionState,
 } from 'wallet/src/features/transactions/transactionState/types'
-import { formatUSDPrice } from 'wallet/src/utils/format'
 
 export const FAVORITE_TOKEN_CARD_LOADER_HEIGHT = 102
 
@@ -127,7 +127,7 @@ function FavoriteTokenCard({
         // Swap token action
         if (e.nativeEvent.index === 2) {
           navigateToSwapSell()
-          sendAnalyticsEvent(SharedEventName.ELEMENT_CLICKED, {
+          sendMobileAnalyticsEvent(SharedEventName.ELEMENT_CLICKED, {
             element: ElementName.Swap,
             section: SectionName.ExploreFavoriteTokensSection,
           })
@@ -146,7 +146,7 @@ function FavoriteTokenCard({
         <BaseCard.Shadow>
           <Flex alignItems="flex-start" gap="spacing8">
             <Flex row gap="spacing4" justifyContent="space-between">
-              <Flex grow row alignItems="center" gap="spacing4">
+              <Flex grow row alignItems="center" gap="spacing8">
                 <TokenLogo
                   chainId={chainId ?? undefined}
                   size={theme.imageSizes.image20}
@@ -162,11 +162,11 @@ function FavoriteTokenCard({
               )}
             </Flex>
             <Flex gap="spacing2">
-              <Text adjustsFontSizeToFit numberOfLines={1} variant="subheadLarge">
+              <Text adjustsFontSizeToFit numberOfLines={1} variant="headlineSmall">
                 {formatUSDPrice(usdPrice)}
               </Text>
               <RelativeChange
-                arrowSize={theme.iconSizes.icon20}
+                arrowSize={theme.iconSizes.icon16}
                 change={pricePercentChange ?? undefined}
                 semanticColor={true}
                 variant="subheadSmall"

@@ -5,18 +5,19 @@ import { useAppDispatch, useAppTheme } from 'src/app/hooks'
 import { CheckmarkCircle } from 'src/components/icons/CheckmarkCircle'
 import { Flex } from 'src/components/layout'
 import { Text } from 'src/components/Text'
-import { backupMnemonicToICloud } from 'src/features/CloudBackup/RNICloudBackupsManager'
-import { logger } from 'wallet/src/features/logger/logger'
+import { IS_ANDROID } from 'src/constants/globals'
+import { backupMnemonicToCloudStorage } from 'src/features/CloudBackup/RNCloudStorageBackupsManager'
+import { serializeError } from 'utilities/src/errors'
+import { logger } from 'utilities/src/logger/logger'
+import { useAsyncData } from 'utilities/src/react/hooks'
+import { ONE_SECOND_MS } from 'utilities/src/time/time'
+import { promiseMinDelay } from 'utilities/src/time/timing'
 import {
   EditAccountAction,
   editAccountActions,
 } from 'wallet/src/features/wallet/accounts/editAccountSaga'
 import { BackupType } from 'wallet/src/features/wallet/accounts/types'
 import { useAccount } from 'wallet/src/features/wallet/hooks'
-import { useAsyncData } from 'wallet/src/utils/hooks'
-import serializeError from 'wallet/src/utils/serializeError'
-import { ONE_SECOND_MS } from 'wallet/src/utils/time'
-import { promiseMinDelay } from 'wallet/src/utils/timing'
 
 type Props = {
   accountAddress: Address
@@ -37,7 +38,6 @@ export function CloudBackupProcessingAnimation({
   const theme = useAppTheme()
 
   const account = useAccount(accountAddress)
-
   const [processing, doneProcessing] = useReducer(() => false, true)
 
   // Handle finished backing up to Cloud
@@ -54,7 +54,7 @@ export function CloudBackupProcessingAnimation({
   const backup = useCallback(async () => {
     try {
       // Ensure processing state is shown for at least 1s
-      await promiseMinDelay(backupMnemonicToICloud(accountAddress, password), ONE_SECOND_MS)
+      await promiseMinDelay(backupMnemonicToCloudStorage(accountAddress, password), ONE_SECOND_MS)
 
       dispatch(
         editAccountActions.trigger({
@@ -64,7 +64,7 @@ export function CloudBackupProcessingAnimation({
         })
       )
     } catch (error) {
-      logger.error('Unable to backup to iCloud', {
+      logger.error('Unable to backup to cloud storage', {
         tags: {
           file: 'CloudBackupProcessingScreen',
           function: 'onPressNext',
@@ -73,10 +73,14 @@ export function CloudBackupProcessingAnimation({
       })
 
       Alert.alert(
-        t('iCloud error'),
-        t(
-          'Unable to backup recovery phrase to iCloud. Please ensure you have iCloud enabled with available storage space and try again.'
-        ),
+        IS_ANDROID ? t('Google Drive error') : t('iCloud error'),
+        IS_ANDROID
+          ? t(
+              'Unable to backup recovery phrase to Google Drive. Please ensure you have Google Drive enabled with available storage space and try again.'
+            )
+          : t(
+              'Unable to backup recovery phrase to iCloud. Please ensure you have iCloud enabled with available storage space and try again.'
+            ),
         [
           {
             text: t('OK'),
@@ -93,18 +97,22 @@ export function CloudBackupProcessingAnimation({
   return processing ? (
     <Flex centered grow gap="spacing24">
       <ActivityIndicator size="large" />
-      <Text variant="headlineSmall">{t('Backing up to iCloud...')}</Text>
+      <Text variant="headlineSmall">
+        {IS_ANDROID ? t('Backing up to Google Drive...') : t('Backing up to iCloud...')}
+      </Text>
     </Flex>
   ) : (
     <Flex centered grow gap="spacing24">
       <CheckmarkCircle
-        borderColor="accentSuccess"
+        borderColor="statusSuccess"
         borderWidth={3}
         checkmarkStrokeWidth={2}
-        color={theme.colors.accentSuccess}
+        color={theme.colors.statusSuccess}
         size={theme.iconSizes.icon40}
       />
-      <Text variant="headlineSmall">{t('Backed up to iCloud')}</Text>
+      <Text variant="headlineSmall">
+        {IS_ANDROID ? t('Backed up to Google Drive') : t('Backed up to iCloud')}
+      </Text>
     </Flex>
   )
 }

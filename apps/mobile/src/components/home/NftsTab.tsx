@@ -9,15 +9,16 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useAppDispatch, useAppTheme } from 'src/app/hooks'
 import { useAppStackNavigation } from 'src/app/navigation/types'
 import { TouchableArea } from 'src/components/buttons/TouchableArea'
+import { useAdaptiveFooter } from 'src/components/home/hooks'
 import { AnimatedFlashList } from 'src/components/layout/AnimatedFlashList'
 import { BaseCard } from 'src/components/layout/BaseCard'
 import { Box } from 'src/components/layout/Box'
 import { Flex } from 'src/components/layout/Flex'
-import { TabProps } from 'src/components/layout/TabHelpers'
+import { TabProps, TAB_BAR_HEIGHT } from 'src/components/layout/TabHelpers'
 import { Loader } from 'src/components/loading'
 import { HiddenNftsRowLeft, HiddenNftsRowRight } from 'src/components/NFT/NFTHiddenRow'
 import { ScannerModalState } from 'src/components/QRCodeScanner/constants'
-import { GQLQueries } from 'src/data/queries'
+import { IS_ANDROID } from 'src/constants/globals'
 import { openModal } from 'src/features/modals/modalSlice'
 import {
   EMPTY_NFT_ITEM,
@@ -32,11 +33,11 @@ import { ModalName } from 'src/features/telemetry/constants'
 import { removePendingSession } from 'src/features/walletConnect/walletConnectSlice'
 import { Screens } from 'src/screens/Screens'
 import NoNFTsIcon from 'ui/src/assets/icons/empty-state-picture.svg'
-import { dimensions } from 'ui/src/theme/restyle/sizing'
+import { dimensions } from 'ui/src/theme/restyle'
+import { GQLQueries } from 'wallet/src/data/queries'
 import { isError, isNonPollingRequestInFlight } from 'wallet/src/data/utils'
 import { NftsTabQuery, useNftsTabQuery } from 'wallet/src/data/__generated__/types-and-hooks'
 import { NFTViewer } from 'wallet/src/features/images/NFTViewer'
-import { useAdaptiveFooterHeight } from './hooks'
 
 export const NFTS_TAB_DATA_DEPENDENCIES = [GQLQueries.NftsTab]
 
@@ -81,8 +82,7 @@ function NftView({ owner, item }: { owner: Address; item: NFTItem }): JSX.Elemen
   const navigation = useAppStackNavigation()
   const theme = useAppTheme()
   const onPressItem = useCallback(() => {
-    // Always ensure push to enforce right push
-    navigation.push(Screens.NFTItem, {
+    navigation.navigate(Screens.NFTItem, {
       owner,
       address: item.contractAddress ?? '',
       tokenId: item.tokenId ?? '',
@@ -113,7 +113,7 @@ function NftView({ owner, item }: { owner: Address; item: NFTItem }): JSX.Elemen
           <Box
             alignItems="center"
             aspectRatio={1}
-            backgroundColor="backgroundOutline"
+            backgroundColor="surface3"
             borderRadius="rounded12"
             overflow="hidden"
             width="100%">
@@ -137,10 +137,10 @@ export const NftsTab = forwardRef<FlashList<unknown>, TabProps>(function _NftsTa
     owner,
     containerProps,
     scrollHandler,
-    headerHeight,
     isExternalProfile = false,
     refreshing,
     onRefresh,
+    headerHeight = 0,
   },
   ref
 ) {
@@ -151,9 +151,9 @@ export const NftsTab = forwardRef<FlashList<unknown>, TabProps>(function _NftsTa
 
   const [hiddenNftsExpanded, setHiddenNftsExpanded] = useState(false)
 
-  const { onContentSizeChange, footerHeight, setFooterHeight } = useAdaptiveFooterHeight({
-    headerHeight,
-  })
+  const { onContentSizeChange, footerHeight, adaptiveFooter } = useAdaptiveFooter(
+    containerProps?.contentContainerStyle
+  )
 
   const { data, fetchMore, refetch, networkStatus } = useNftsTabQuery({
     variables: { ownerAddress: owner, first: 30, filter: { filterSpam: false } },
@@ -188,10 +188,10 @@ export const NftsTab = forwardRef<FlashList<unknown>, TabProps>(function _NftsTa
 
   const onHiddenRowPressed = useCallback((): void => {
     if (hiddenNftsExpanded) {
-      setFooterHeight(dimensions.fullHeight)
+      footerHeight.value = dimensions.fullHeight
     }
     setHiddenNftsExpanded(!hiddenNftsExpanded)
-  }, [hiddenNftsExpanded, setFooterHeight])
+  }, [hiddenNftsExpanded, footerHeight])
 
   useEffect(() => {
     if (numHidden === 0 && hiddenNftsExpanded) {
@@ -223,13 +223,15 @@ export const NftsTab = forwardRef<FlashList<unknown>, TabProps>(function _NftsTa
   const refreshControl = useMemo(() => {
     return (
       <RefreshControl
-        progressViewOffset={insets.top}
+        progressViewOffset={
+          insets.top + (IS_ANDROID && headerHeight ? headerHeight + TAB_BAR_HEIGHT : 0)
+        }
         refreshing={refreshing ?? false}
-        tintColor={theme.colors.textTertiary}
+        tintColor={theme.colors.neutral3}
         onRefresh={onRefresh}
       />
     )
-  }, [refreshing, onRefresh, theme.colors.textTertiary, insets.top])
+  }, [refreshing, headerHeight, onRefresh, theme.colors.neutral3, insets.top])
 
   const onRetry = useCallback(() => refetch(), [refetch])
 
@@ -263,7 +265,7 @@ export const NftsTab = forwardRef<FlashList<unknown>, TabProps>(function _NftsTa
                     ? t('When this wallet buys or receives NFTs, they’ll appear here.')
                     : t('Transfer NFTs from another wallet to get started.')
                 }
-                icon={<NoNFTsIcon color={theme.colors.textSecondary} />}
+                icon={<NoNFTsIcon color={theme.colors.neutral3} />}
                 title={t('No NFTs yet')}
                 onPress={onPressScan}
               />
@@ -274,7 +276,7 @@ export const NftsTab = forwardRef<FlashList<unknown>, TabProps>(function _NftsTa
         ListFooterComponent={
           <>
             {networkStatus === NetworkStatus.fetchMore && <Loader.NFT repeat={4} />}
-            <Box height={footerHeight} />
+            {adaptiveFooter}
           </>
         }
         data={shouldAddInLoadingItem ? [...nfts, LOADING_ITEM] : nfts}

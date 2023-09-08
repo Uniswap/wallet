@@ -67,18 +67,18 @@ export const useUniconColors = (
   const attributeIndices = deriveUniconAttributeIndices(activeAddress || '')
   if (!attributeIndices)
     return {
-      gradientStart: theme.colors.accentAction,
-      gradientEnd: theme.colors.accentActionSoft,
-      glow: theme.colors.accentAction,
+      gradientStart: theme.colors.accent1,
+      gradientEnd: theme.colors.accent2,
+      glow: theme.colors.accent1,
     }
 
   const attributeData = getUniconAttributeData(attributeIndices)
   const blurColor = blurs[attributeIndices[UniconAttributes.GradientStart]]
   if (!blurColor)
     return {
-      gradientStart: theme.colors.accentAction,
-      gradientEnd: theme.colors.accentActionSoft,
-      glow: theme.colors.accentAction,
+      gradientStart: theme.colors.accent1,
+      gradientEnd: theme.colors.accent2,
+      glow: theme.colors.accent1,
     }
 
   return {

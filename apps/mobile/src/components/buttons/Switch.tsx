@@ -3,7 +3,7 @@ import React from 'react'
 import { Switch as BaseSwitch, SwitchProps, ViewProps } from 'react-native'
 import { useAppTheme } from 'src/app/hooks'
 import { Box } from 'src/components/layout/Box'
-import { Theme } from 'ui/src/theme/restyle/theme'
+import { Theme } from 'ui/src/theme/restyle'
 
 type RestyleProps = SpacingProps<Theme> & SpacingShorthandProps<Theme>
 
@@ -22,11 +22,11 @@ export function Switch({ value, onValueChange, disabled, ...rest }: Props): JSX.
   return (
     <Box>
       <BaseSwitch
-        ios_backgroundColor={theme.colors.background3}
-        thumbColor={value ? theme.colors.accentAction : theme.colors.textSecondary}
+        ios_backgroundColor="transparent"
+        thumbColor={value ? theme.colors.accent1 : theme.colors.surface1}
         trackColor={{
-          false: theme.colors.background3,
-          true: theme.colors.background3,
+          false: theme.colors.surface4,
+          true: theme.colors.surface3,
         }}
         value={value}
         onValueChange={disabled ? undefined : onValueChange}

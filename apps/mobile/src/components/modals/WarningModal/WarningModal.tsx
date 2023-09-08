@@ -1,4 +1,5 @@
 import React, { PropsWithChildren, ReactNode } from 'react'
+import { ColorValue } from 'react-native'
 import { useAppTheme } from 'src/app/hooks'
 import { Button, ButtonEmphasis } from 'src/components/buttons/Button'
 import { Flex } from 'src/components/layout'
@@ -8,7 +9,7 @@ import { Text } from 'src/components/Text'
 import { useBiometricAppSettings, useBiometricPrompt } from 'src/features/biometrics/hooks'
 import { ElementName, ModalName } from 'src/features/telemetry/constants'
 import AlertTriangleIcon from 'ui/src/assets/icons/alert-triangle.svg'
-import { opacify } from 'ui/src/theme/color/utils'
+import { opacify } from 'ui/src/theme'
 
 export type WarningModalProps = {
   onClose?: () => void
@@ -24,6 +25,7 @@ export type WarningModalProps = {
   isDismissible?: boolean
   hideHandlebar?: boolean
   icon?: ReactNode
+  backgroundIconColor?: ColorValue
 }
 
 export default function WarningModal({
@@ -41,6 +43,7 @@ export default function WarningModal({
   isDismissible = true,
   hideHandlebar = false,
   icon,
+  backgroundIconColor,
 }: PropsWithChildren<WarningModalProps>): JSX.Element {
   const { requiredForTransactions } = useBiometricAppSettings()
   const { trigger } = useBiometricPrompt(onConfirm)
@@ -58,7 +61,7 @@ export default function WarningModal({
 
   return (
     <BottomSheetModal
-      backgroundColor={theme.colors.background1}
+      backgroundColor={theme.colors.surface1}
       hideHandlebar={hideHandlebar}
       isDismissible={isDismissible}
       name={modalName}
@@ -68,9 +71,9 @@ export default function WarningModal({
           centered
           borderRadius="rounded12"
           mb="spacing8"
-          p="spacing8"
+          p="spacing12"
           style={{
-            backgroundColor: opacify(12, theme.colors[alertColor.text]),
+            backgroundColor: backgroundIconColor ?? opacify(12, theme.colors[alertColor.text]),
           }}>
           {icon ?? (
             <AlertTriangleIcon
@@ -84,7 +87,7 @@ export default function WarningModal({
           {title}
         </Text>
         {caption && (
-          <Text color="textSecondary" textAlign="center" variant="bodySmall">
+          <Text color="neutral2" textAlign="center" variant="bodySmall">
             {caption}
           </Text>
         )}
@@ -93,7 +96,7 @@ export default function WarningModal({
           {closeText && (
             <Button
               fill
-              emphasis={ButtonEmphasis.Tertiary}
+              emphasis={ButtonEmphasis.Secondary}
               label={closeText}
               onPress={onCancel ?? onClose}
             />
@@ -117,29 +120,33 @@ export const getAlertColor = (severity?: WarningSeverity): WarningColor => {
   switch (severity) {
     case WarningSeverity.None:
       return {
-        text: 'textSecondary',
-        background: 'textSecondary',
+        text: 'neutral2',
+        background: 'neutral2',
         buttonEmphasis: ButtonEmphasis.Secondary,
       }
     case WarningSeverity.Low:
       return {
-        text: 'textSecondary',
-        background: 'background2',
+        text: 'neutral2',
+        background: 'surface2',
         buttonEmphasis: ButtonEmphasis.Tertiary,
       }
     case WarningSeverity.High:
       return {
-        text: 'accentCritical',
-        background: 'accentCriticalSoft',
+        text: 'statusCritical',
+        background: 'DEP_accentCriticalSoft',
         buttonEmphasis: ButtonEmphasis.Detrimental,
       }
     case WarningSeverity.Medium:
       return {
-        text: 'accentWarning',
-        background: 'accentWarningSoft',
+        text: 'DEP_accentWarning',
+        background: 'DEP_accentWarningSoft',
         buttonEmphasis: ButtonEmphasis.Warning,
       }
     default:
-      return { text: 'textSecondary', background: 'none', buttonEmphasis: ButtonEmphasis.Tertiary }
+      return {
+        text: 'neutral2',
+        background: 'none',
+        buttonEmphasis: ButtonEmphasis.Tertiary,
+      }
   }
 }

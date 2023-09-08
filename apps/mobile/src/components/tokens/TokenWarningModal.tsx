@@ -1,4 +1,3 @@
-import { TFunction } from 'i18next'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAppTheme } from 'src/app/hooks'
@@ -13,14 +12,14 @@ import { ElementName, ModalName } from 'src/features/telemetry/constants'
 import { useTokenSafetyLevelColors } from 'src/features/tokens/safetyHooks'
 import { ExplorerDataType, getExplorerLink, openUri } from 'src/utils/linking'
 import ExternalLinkIcon from 'ui/src/assets/icons/external-link.svg'
-import { opacify } from 'ui/src/theme/color/utils'
-import { iconSizes } from 'ui/src/theme/iconSizes'
+import { AppTFunction } from 'ui/src/i18n/types'
+import { iconSizes, opacify } from 'ui/src/theme'
 import { TokenLogo } from 'wallet/src/components/CurrencyLogo/TokenLogo'
 import { TOKEN_WARNING_HELP_PAGE_URL } from 'wallet/src/constants/urls'
 import { SafetyLevel } from 'wallet/src/data/__generated__/types-and-hooks'
 import { currencyIdToAddress, currencyIdToChain } from 'wallet/src/utils/currencyId'
 
-function getTokenSafetyBodyText(safetyLevel: Maybe<SafetyLevel>, t: TFunction): string {
+function getTokenSafetyBodyText(safetyLevel: Maybe<SafetyLevel>, t: AppTFunction): string {
   switch (safetyLevel) {
     case SafetyLevel.MediumWarning:
       return t(
@@ -102,10 +101,10 @@ export default function TokenWarningModal({
           <TokenLogo size={theme.imageSizes.image48} url={tokenLogoUrl} />
         )}
         <Flex centered gap="spacing4" width="90%">
-          <Text color="textSecondary" textAlign="center" variant="bodySmall">
+          <Text color="neutral2" textAlign="center" variant="bodySmall">
             {getTokenSafetyBodyText(safetyLevel, t)}{' '}
             <TouchableArea height={18} onPress={onPressLearnMore}>
-              <Text color="accentActive" variant="buttonLabelSmall">
+              <Text color="accent1" variant="buttonLabelSmall">
                 {t('Learn more')}
               </Text>
             </TouchableArea>
@@ -113,7 +112,7 @@ export default function TokenWarningModal({
         </Flex>
         <TouchableArea
           alignItems="center"
-          bg="accentActiveSoft"
+          bg="accent2"
           borderRadius="rounded16"
           flexDirection="row"
           mx="spacing48"
@@ -121,7 +120,7 @@ export default function TokenWarningModal({
           py="spacing8"
           onPress={(): Promise<void> => openUri(explorerLink)}>
           <Text
-            color="accentActive"
+            color="accent1"
             ellipsizeMode="tail"
             mx="spacing8"
             numberOfLines={1}
@@ -129,7 +128,7 @@ export default function TokenWarningModal({
             {explorerLink}
           </Text>
           <ExternalLinkIcon
-            color={theme.colors.accentActive}
+            color={theme.colors.accent1}
             height={iconSizes.icon16}
             width={iconSizes.icon16}
           />

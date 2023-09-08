@@ -6,7 +6,7 @@ import { Modal } from 'src/components/modals/Modal'
 import { useLockScreenContext } from 'src/features/authentication/lockScreenContext'
 import { useBiometricPrompt } from 'src/features/biometrics/hooks'
 import { UNISWAP_LOGO_LARGE } from 'ui/src/assets'
-import { dimensions } from 'ui/src/theme/restyle/sizing'
+import { dimensions } from 'ui/src/theme/restyle'
 
 export function LockScreenModal(): JSX.Element | null {
   const { isLockScreenVisible, animationType, setIsLockScreenVisible } = useLockScreenContext()
@@ -29,7 +29,7 @@ export function LockScreenModal(): JSX.Element | null {
         <Flex
           centered
           alignItems="center"
-          backgroundColor="background0"
+          backgroundColor="surface1"
           pointerEvents="none"
           style={{
             width: dimensions.fullWidth,

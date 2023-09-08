@@ -32,7 +32,7 @@ class MnemonicDisplayView: UIView {
       let wordLabel = UILabel(frame: CGRect(x: 0, y: 0, width: 300, height: 50))
       wordLabel.text = "Error loading recovery phrase"
       wordLabel.textColor = UIColor.lightGray
-      wordLabel.font = UIFont.init(name: "Inter-Regular", size: 16)
+      wordLabel.font = UIFont.init(name: "Basel-Book", size: 16)
       wordLabel.textAlignment = .center
       self.addSubview(wordLabel)
       
@@ -45,7 +45,7 @@ class MnemonicDisplayView: UIView {
       // Show alternate display for >12 word seed phrases
       let seedPhraseView = UITextView()
       seedPhraseView.text =  mnemonic
-      seedPhraseView.font = UIFont.init(name: "Inter-Regular", size: 16)
+      seedPhraseView.font = UIFont.init(name: "Basel-Book", size: 16)
       seedPhraseView.textContainerInset = UIEdgeInsets(top: 20, left: 20, bottom: 20, right: 20)
       seedPhraseView.textAlignment = .center
       seedPhraseView.layer.cornerRadius = 100
@@ -54,12 +54,12 @@ class MnemonicDisplayView: UIView {
       seedPhraseView.isScrollEnabled = false
     
       if traitCollection.userInterfaceStyle == .light {
-        seedPhraseView.backgroundColor = UIColor.init(red: 237/255.0, green: 239/255.0, blue: 247/255.0, alpha: 1.0)
-        seedPhraseView.layer.borderColor = UIColor.init(red: 94/255.0, green: 104/255.0, blue: 135/255.0, alpha: 0.24).cgColor
+        seedPhraseView.backgroundColor = UIColor.init(red: 249/255.0, green: 249/255.0, blue: 249/255.0, alpha: 1.0)
+        seedPhraseView.layer.borderColor = UIColor.init(red: 34/255.0, green: 34/255.0, blue: 34/255.0, alpha: 0.05).cgColor
         seedPhraseView.textColor = UIColor.black
       } else {
-        seedPhraseView.backgroundColor = UIColor.init(red: 14/255.0, green: 17/255.0, blue: 26/255.0, alpha: 1.0)
-        seedPhraseView.layer.borderColor = UIColor.init(red: 153/255.0, green: 161/255.0, blue: 189/255.0, alpha: 0.24).cgColor
+        seedPhraseView.backgroundColor = UIColor.init(red: 27/255.0, green: 27/255.0, blue: 27/255.0, alpha: 1.0)
+        seedPhraseView.layer.borderColor = UIColor.init(red: 255/255.0, green: 255/255.0, blue: 255/255.0, alpha: 0.12).cgColor
         seedPhraseView.textColor = UIColor.white
       }
 

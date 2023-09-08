@@ -10,9 +10,11 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AnyAction } from 'redux'
 import { useAppDispatch, useAppSelector } from 'src/app/hooks'
 import { CurrencyInfo } from 'src/features/dataApi/types'
-import { sendAnalyticsEvent } from 'src/features/telemetry'
-import { selectTransactions } from 'src/features/transactions/selectors'
-import { getBaseTradeAnalyticsProperties } from 'src/features/transactions/swap/analytics'
+import { sendMobileAnalyticsEvent } from 'src/features/telemetry'
+import {
+  getBaseTradeAnalyticsProperties,
+  getBaseTradeAnalyticsPropertiesFromSwapInfo,
+} from 'src/features/transactions/swap/analytics'
 import { swapActions } from 'src/features/transactions/swap/swapSaga'
 import {
   getSwapMethodParameters,
@@ -31,14 +33,16 @@ import {
 } from 'src/features/transactions/transactionState/transactionState'
 import { BaseDerivedInfo } from 'src/features/transactions/transactionState/types'
 import { toStringish } from 'src/utils/number'
-import { flattenObjectOfObjects } from 'src/utils/objects'
+import { formatCurrencyAmount, NumberType } from 'utilities/src/format/format'
+import { logger } from 'utilities/src/logger/logger'
+import { flattenObjectOfObjects } from 'utilities/src/primitives/objects'
+import { useAsyncData, usePrevious } from 'utilities/src/react/hooks'
 import ERC20_ABI from 'wallet/src/abis/erc20.json'
 import { Erc20 } from 'wallet/src/abis/types'
 import { ChainId } from 'wallet/src/constants/chains'
 import { ContractManager } from 'wallet/src/features/contracts/ContractManager'
 import { useTransactionGasFee } from 'wallet/src/features/gas/hooks'
-import { GasSpeed } from 'wallet/src/features/gas/types'
-import { logger } from 'wallet/src/features/logger/logger'
+import { GasSpeed, SimulatedGasEstimationInfo } from 'wallet/src/features/gas/types'
 import { pushNotification } from 'wallet/src/features/notifications/slice'
 import { AppNotificationType } from 'wallet/src/features/notifications/types'
 import { useOnChainCurrencyBalance } from 'wallet/src/features/portfolio/api'
@@ -49,7 +53,11 @@ import {
   useUSDCValue,
 } from 'wallet/src/features/routing/useUSDCPrice'
 import { useCurrencyInfo } from 'wallet/src/features/tokens/useCurrencyInfo'
-import { usePermit2Signature } from 'wallet/src/features/transactions/swap/usePermit2Signature'
+import { selectTransactions } from 'wallet/src/features/transactions/selectors'
+import {
+  PermitSignatureInfo,
+  usePermit2Signature,
+} from 'wallet/src/features/transactions/swap/usePermit2Signature'
 import {
   Trade,
   useSetTradeSlippage,
@@ -66,9 +74,7 @@ import {
   useActiveAccountAddressWithThrow,
 } from 'wallet/src/features/wallet/hooks'
 import { buildCurrencyId } from 'wallet/src/utils/currencyId'
-import { formatCurrencyAmount, NumberType } from 'wallet/src/utils/format'
 import { getCurrencyAmount, ValueType } from 'wallet/src/utils/getCurrencyAmount'
-import { useAsyncData, usePrevious } from 'wallet/src/utils/hooks'
 
 const NUM_USD_DECIMALS_DISPLAY = 2
 
@@ -160,7 +166,7 @@ export function useDerivedSwapInfo(state: TransactionState): DerivedSwapInfo {
 
   const shouldGetQuote = !isWrapAction(wrapType)
 
-  // Fetch the trade quote. If customSlippageTolerance is undefined, then the quote is fetched with DEFAULT_SLIPPAGE_TOLERANCE
+  // Fetch the trade quote. If customSlippageTolerance is undefined, then the quote is fetched with MAX_AUTO_SLIPPAGE_TOLERANCE
   const tradeWithoutSlippage = useTrade({
     amountSpecified: shouldGetQuote ? amountSpecified : null,
     otherCurrency,
@@ -168,7 +174,7 @@ export function useDerivedSwapInfo(state: TransactionState): DerivedSwapInfo {
     customSlippageTolerance,
   })
 
-  // Calculate autolippage tolerance for trade. If customSlippageTolerance is undefined, then the Trade slippage is set to the calculated value.
+  // Calculate auto slippage tolerance for trade. If customSlippageTolerance is undefined, then the Trade slippage is set to the calculated value.
   const { trade, autoSlippageTolerance } = useSetTradeSlippage(
     tradeWithoutSlippage,
     customSlippageTolerance
@@ -327,12 +333,24 @@ interface TransactionRequestInfo {
   gasFallbackUsed: boolean
 }
 
-export function useTransactionRequestInfo(
+interface Permit2SignatureInfo {
+  data?: PermitSignatureInfo
+  isLoading: boolean
+}
+
+function useTransactionRequestInfo(
   derivedSwapInfo: DerivedSwapInfo,
-  tokenApprovalInfo?: TokenApprovalInfo
+  tokenApprovalInfo: TokenApprovalInfo | undefined,
+  simulatedGasEstimationInfo: SimulatedGasEstimationInfo,
+  permit2SignatureInfo: Permit2SignatureInfo
 ): TransactionRequestInfo {
   const wrapTxRequest = useWrapTransactionRequest(derivedSwapInfo)
-  const swapTxRequest = useSwapTransactionRequest(derivedSwapInfo, tokenApprovalInfo)
+  const swapTxRequest = useSwapTransactionRequest(
+    derivedSwapInfo,
+    tokenApprovalInfo,
+    simulatedGasEstimationInfo,
+    permit2SignatureInfo
+  )
   const isWrapApplicable = derivedSwapInfo.wrapType !== WrapType.NotApplicable
   return {
     transactionRequest: isWrapApplicable ? wrapTxRequest : swapTxRequest.transactionRequest,
@@ -385,7 +403,7 @@ const getWrapTransactionRequest = async (
 }
 
 const MAX_APPROVE_AMOUNT = MaxUint256
-export function useTokenApprovalInfo(
+function useTokenApprovalInfo(
   chainId: ChainId,
   wrapType: WrapType,
   currencyInAmount: Maybe<CurrencyAmount<Currency>>
@@ -461,29 +479,22 @@ const getTokenPermit2ApprovalInfo = async (
   }
 }
 
-export function useSwapTransactionRequest(
+function useSwapTransactionRequest(
   derivedSwapInfo: DerivedSwapInfo,
-  tokenApprovalInfo?: TokenApprovalInfo
+  tokenApprovalInfo: TokenApprovalInfo | undefined,
+  simulatedGasEstimationInfo: SimulatedGasEstimationInfo,
+  permit2SignatureInfo: Permit2SignatureInfo
 ): TransactionRequestInfo {
   const {
     chainId,
     trade: { trade },
     wrapType,
-    exactCurrencyField,
-    currencies,
     currencyAmounts,
   } = derivedSwapInfo
 
   const address = useActiveAccountAddressWithThrow()
 
-  const { data: permit2Signature, isLoading: permit2InfoLoading } = usePermit2Signature(
-    currencyAmounts[CurrencyField.INPUT]
-  )
-
-  const [otherCurrency, tradeType] =
-    exactCurrencyField === CurrencyField.INPUT
-      ? [currencies[CurrencyField.OUTPUT]?.currency, TradeType.EXACT_INPUT]
-      : [currencies[CurrencyField.INPUT]?.currency, TradeType.EXACT_OUTPUT]
+  const { data: permit2Signature, isLoading: permit2InfoLoading } = permit2SignatureInfo
 
   // get simulated gasLimit only if token doesn't have enough allowance AND we can't get the allowance
   // through .permit instead
@@ -495,14 +506,7 @@ export function useSwapTransactionRequest(
     isLoading: simulatedGasLimitLoading,
     simulatedGasLimit,
     gasFallbackUsed,
-  } = useSimulatedGasLimit(
-    chainId,
-    currencyAmounts[exactCurrencyField],
-    otherCurrency,
-    tradeType,
-    !shouldFetchSimulatedGasLimit,
-    permit2Signature
-  )
+  } = simulatedGasEstimationInfo
 
   const currencyAmountIn = currencyAmounts[CurrencyField.INPUT]
   return useMemo(() => {
@@ -564,7 +568,7 @@ export function useSwapTxAndGasInfo(
   derivedSwapInfo: DerivedSwapInfo,
   skipGasFeeQuery: boolean
 ): SwapTxAndGasInfo {
-  const { chainId, wrapType, currencyAmounts } = derivedSwapInfo
+  const { chainId, wrapType, currencyAmounts, currencies, exactCurrencyField } = derivedSwapInfo
 
   const tokenApprovalInfo = useTokenApprovalInfo(
     chainId,
@@ -572,17 +576,68 @@ export function useSwapTxAndGasInfo(
     currencyAmounts[CurrencyField.INPUT]
   )
 
-  const { transactionRequest, gasFallbackUsed } = useTransactionRequestInfo(
+  const permit2SignatureInfo = usePermit2Signature(currencyAmounts[CurrencyField.INPUT])
+
+  const [otherCurrency, tradeType] =
+    exactCurrencyField === CurrencyField.INPUT
+      ? [currencies[CurrencyField.OUTPUT]?.currency, TradeType.EXACT_INPUT]
+      : [currencies[CurrencyField.INPUT]?.currency, TradeType.EXACT_OUTPUT]
+
+  // get simulated gasLimit only if token doesn't have enough allowance AND we can't get the allowance
+  // through .permit instead
+  const shouldFetchSimulatedGasLimit =
+    tokenApprovalInfo?.action === ApprovalAction.Approve ||
+    tokenApprovalInfo?.action === ApprovalAction.Permit2Approve
+
+  const simulatedGasEstimationInfo = useSimulatedGasLimit(
+    chainId,
+    currencyAmounts[exactCurrencyField],
+    otherCurrency,
+    tradeType,
+    !shouldFetchSimulatedGasLimit,
+    permit2SignatureInfo.data
+  )
+
+  const { transactionRequest } = useTransactionRequestInfo(
     derivedSwapInfo,
-    tokenApprovalInfo
+    tokenApprovalInfo,
+    simulatedGasEstimationInfo,
+    permit2SignatureInfo
   )
 
   const approveFeeInfo = useTransactionGasFee(
     tokenApprovalInfo?.txRequest,
     GasSpeed.Urgent,
     skipGasFeeQuery
+  ).data
+
+  const txFeeInfoResponse = useTransactionGasFee(
+    transactionRequest,
+    GasSpeed.Urgent,
+    skipGasFeeQuery
   )
-  const txFeeInfo = useTransactionGasFee(transactionRequest, GasSpeed.Urgent, skipGasFeeQuery)
+
+  useEffect(() => {
+    if (txFeeInfoResponse.error && simulatedGasEstimationInfo.error) {
+      const simulationError =
+        typeof simulatedGasEstimationInfo.error === 'boolean'
+          ? new Error('Unknown gas simulation error')
+          : simulatedGasEstimationInfo.error
+      sendMobileAnalyticsEvent(SwapEventName.SWAP_ESTIMATE_GAS_CALL_FAILED, {
+        ...getBaseTradeAnalyticsPropertiesFromSwapInfo(derivedSwapInfo),
+        error: shouldFetchSimulatedGasLimit ? simulationError : txFeeInfoResponse.error,
+        txRequest: transactionRequest,
+      })
+    }
+  }, [
+    derivedSwapInfo,
+    transactionRequest,
+    txFeeInfoResponse.error,
+    shouldFetchSimulatedGasLimit,
+    simulatedGasEstimationInfo.error,
+  ])
+
+  const txFeeInfo = txFeeInfoResponse.data
   const totalGasFee = sumGasFees(approveFeeInfo?.gasFee, txFeeInfo?.gasFee)
 
   const txRequestWithGasSettings = useMemo(() => {
@@ -597,14 +652,17 @@ export function useSwapTxAndGasInfo(
   const approveTxWithGasSettings: providers.TransactionRequest | undefined = useMemo(() => {
     if (approveLoading || !tokenApprovalInfo?.txRequest) return
 
-    return { ...tokenApprovalInfo.txRequest, ...approveFeeInfo?.params }
+    return {
+      ...tokenApprovalInfo.txRequest,
+      ...approveFeeInfo?.params,
+    }
   }, [approveLoading, tokenApprovalInfo?.txRequest, approveFeeInfo?.params])
 
   return {
     txRequest: txRequestWithGasSettings,
     approveTxRequest: approveTxWithGasSettings,
     totalGasFee,
-    gasFallbackUsed,
+    gasFallbackUsed: simulatedGasEstimationInfo.gasFallbackUsed,
     isLoading: approveLoading,
   }
 }
@@ -651,7 +709,7 @@ export function useSwapCallback(
       )
       onSubmit()
 
-      sendAnalyticsEvent(SwapEventName.SWAP_SUBMITTED_BUTTON_CLICKED, {
+      sendMobileAnalyticsEvent(SwapEventName.SWAP_SUBMITTED_BUTTON_CLICKED, {
         ...getBaseTradeAnalyticsProperties(trade),
         estimated_network_fee_wei: totalGasFee,
         gas_limit: toStringish(swapTxRequest.gasLimit),
@@ -671,10 +729,10 @@ export function useSwapCallback(
     swapTxRequest,
     trade,
     totalGasFee,
-    currencyInAmountUSD,
-    currencyOutAmountUSD,
     appDispatch,
     txId,
+    currencyInAmountUSD,
+    currencyOutAmountUSD,
     approveTxRequest,
     onSubmit,
     isAutoSlippage,

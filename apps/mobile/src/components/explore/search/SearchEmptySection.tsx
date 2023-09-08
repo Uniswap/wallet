@@ -51,7 +51,7 @@ export function SearchEmptySection(): JSX.Element {
               <Flex row alignItems="center" justifyContent="space-between" mb="spacing4">
                 <SectionHeaderText icon={<RecentIcon />} title={t('Recent searches')} />
                 <TouchableArea onPress={onPressClearSearchHistory}>
-                  <Text color="accentAction" variant="buttonLabelSmall">
+                  <Text color="accent1" variant="buttonLabelSmall">
                     {t('Clear all')}
                   </Text>
                 </TouchableArea>
@@ -78,7 +78,6 @@ export function SearchEmptySection(): JSX.Element {
         }
         data={SUGGESTED_WALLETS}
         keyExtractor={walletKey}
-        listKey="wallets"
         renderItem={renderSearchItem}
       />
     </AnimatedFlex>
@@ -91,14 +90,14 @@ const walletKey = (wallet: WalletSearchResult): string => {
 
 export const TrendIcon = (): JSX.Element => {
   const theme = useAppTheme()
-  return <TrendArrowIcon color={theme.colors.textSecondary} width={theme.iconSizes.icon20} />
+  return <TrendArrowIcon color={theme.colors.neutral2} width={theme.iconSizes.icon20} />
 }
 
 export const RecentIcon = (): JSX.Element => {
   const theme = useAppTheme()
   return (
     <ClockIcon
-      color={theme.colors.textSecondary}
+      color={theme.colors.neutral2}
       height={theme.iconSizes.icon20}
       width={theme.iconSizes.icon20}
     />

@@ -11,11 +11,11 @@ import {
   NFTCollectionSearchResult,
   SearchResultType,
 } from 'src/features/explore/searchHistorySlice'
-import { sendAnalyticsEvent } from 'src/features/telemetry'
+import { sendMobileAnalyticsEvent } from 'src/features/telemetry'
 import { ElementName, MobileEventName } from 'src/features/telemetry/constants'
 import { Screens } from 'src/screens/Screens'
 import VerifiedIcon from 'ui/src/assets/icons/verified.svg'
-import { iconSizes } from 'ui/src/theme/iconSizes'
+import { iconSizes } from 'ui/src/theme'
 import { NFTViewer } from 'wallet/src/features/images/NFTViewer'
 
 type NFTCollectionItemProps = {
@@ -38,7 +38,7 @@ export function SearchNFTCollectionItem({
     })
 
     if (searchContext) {
-      sendAnalyticsEvent(MobileEventName.ExploreSearchResultClicked, {
+      sendMobileAnalyticsEvent(MobileEventName.ExploreSearchResultClicked, {
         query: searchContext.query,
         name,
         chain: chainId,
@@ -87,20 +87,20 @@ export function SearchNFTCollectionItem({
           {imageUrl ? (
             <NFTViewer uri={imageUrl} />
           ) : (
-            <Text color="textPrimary" numberOfLines={1} textAlign="center">
+            <Text color="neutral1" numberOfLines={1} textAlign="center">
               {name.slice(0, 1)}
             </Text>
           )}
         </Flex>
         <Box flexShrink={1}>
-          <Text color="textPrimary" numberOfLines={1} variant="bodyLarge">
+          <Text color="neutral1" numberOfLines={1} variant="bodyLarge">
             {name}
           </Text>
         </Box>
         <Flex grow alignItems="flex-start" width={theme.spacing.spacing36}>
           {isVerified ? (
             <VerifiedIcon
-              color={theme.colors.userThemeMagenta}
+              color={theme.colors.accent1}
               height={iconSizes.icon16}
               width={iconSizes.icon16}
             />

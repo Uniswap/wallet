@@ -1,6 +1,6 @@
-import { BlurView } from '@react-native-community/blur'
 import { ShadowProps, useResponsiveProp } from '@shopify/restyle'
 import { SharedEventName } from '@uniswap/analytics-events'
+import { BlurView } from 'expo-blur'
 import { impactAsync } from 'expo-haptics'
 import React, { memo, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -19,17 +19,17 @@ import { useAppDispatch, useAppTheme } from 'src/app/hooks'
 import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { pulseAnimation } from 'src/components/buttons/utils'
 import { GradientBackground } from 'src/components/gradients/GradientBackground'
-import { AnimatedBox, AnimatedFlex, Box, Flex } from 'src/components/layout'
+import { AnimatedBox, AnimatedFlex, Box, Flex, FlexProps } from 'src/components/layout'
 import { Text } from 'src/components/Text'
-import { IS_ANDROID } from 'src/constants/globals'
+import { IS_ANDROID, IS_IOS } from 'src/constants/globals'
 import { useIsDarkMode } from 'src/features/appearance/hooks'
 import { openModal } from 'src/features/modals/modalSlice'
-import { sendAnalyticsEvent } from 'src/features/telemetry'
+import { sendMobileAnalyticsEvent } from 'src/features/telemetry'
 import { ElementName, ModalName } from 'src/features/telemetry/constants'
 import { prepareSwapFormState } from 'src/features/transactions/swap/utils'
 import { Screens } from 'src/screens/Screens'
 import SearchIcon from 'ui/src/assets/icons/search.svg'
-import { Theme } from 'ui/src/theme/restyle/theme'
+import { Theme } from 'ui/src/theme/restyle'
 import { useHighestBalanceNativeCurrencyId } from 'wallet/src/features/dataApi/balances'
 import { useActiveAccountAddressWithThrow } from 'wallet/src/features/wallet/hooks'
 
@@ -40,7 +40,7 @@ export const SWAP_BUTTON_HEIGHT = 56
 const SWAP_BUTTON_SHADOW_OFFSET: ShadowProps<Theme>['shadowOffset'] = { width: 0, height: 4 }
 
 function sendSwapPressAnalyticsEvent(): void {
-  sendAnalyticsEvent(SharedEventName.ELEMENT_CLICKED, {
+  sendMobileAnalyticsEvent(SharedEventName.ELEMENT_CLICKED, {
     screen: Screens.Home,
     element: ElementName.Swap,
   })
@@ -62,8 +62,8 @@ export function NavBar(): JSX.Element {
           <Svg height={screenHeight} opacity={isDarkMode ? '1' : '0.3'} width="100%">
             <Defs>
               <LinearGradient id="background" x1="0%" x2="0%" y1="85%" y2="100%">
-                <Stop offset="0" stopColor={theme.colors.black} stopOpacity="0" />
-                <Stop offset="1" stopColor={theme.colors.black} stopOpacity="0.5" />
+                <Stop offset="0" stopColor={theme.colors.sporeBlack} stopOpacity="0" />
+                <Stop offset="1" stopColor={theme.colors.sporeBlack} stopOpacity="0.5" />
               </LinearGradient>
             </Defs>
             <Rect fill="url(#background)" height="100%" opacity={1} width="100%" x="0" y="0" />
@@ -150,7 +150,7 @@ const SwapFAB = memo(function _SwapFAB({ activeScale = 0.96 }: SwapTabBarButtonP
           pointerEvents="auto"
           px="spacing24"
           py="spacing16"
-          shadowColor="shadowBranded"
+          shadowColor="DEP_shadowBranded"
           shadowOffset={SWAP_BUTTON_SHADOW_OFFSET}
           shadowOpacity={isDarkMode ? 0.6 : 0.4}
           shadowRadius={theme.borderRadii.rounded20}
@@ -174,7 +174,7 @@ const SwapFAB = memo(function _SwapFAB({ activeScale = 0.96 }: SwapTabBarButtonP
               <Rect fill="url(#background)" height="100%" opacity={1} width="100%" x="0" y="0" />
             </Svg>
           </Box>
-          <Text color="textOnBrightPrimary" variant="buttonLabelMedium">
+          <Text color="sporeWhite" variant="buttonLabelMedium">
             {t('Swap')}
           </Text>
         </AnimatedBox>
@@ -213,6 +213,17 @@ function ExploreTabBarButton({ activeScale = 0.98 }: ExploreTabBarButtonProps): 
     },
   })
 
+  const contentProps: FlexProps = IS_IOS
+    ? {
+        bg: 'surface2',
+        opacity: isDarkMode ? 0.6 : 0.8,
+      }
+    : {
+        bg: 'surface1',
+        borderWidth: 1,
+        borderColor: 'surface3',
+      }
+
   return (
     <TouchableArea
       hapticFeedback
@@ -221,24 +232,23 @@ function ExploreTabBarButton({ activeScale = 0.98 }: ExploreTabBarButtonProps): 
       onPress={onPress}>
       <TapGestureHandler onGestureEvent={onGestureEvent}>
         <AnimatedFlex borderRadius="roundedFull" overflow="hidden" style={animatedStyle}>
-          <BlurView blurAmount={32} blurType={isDarkMode ? 'dark' : 'light'}>
+          <BlurView intensity={IS_IOS ? 100 : 0}>
             <Flex
+              {...contentProps}
               grow
               row
               alignItems="center"
-              bg={isDarkMode ? 'background2' : 'background1'}
               borderRadius="roundedFull"
               flex={1}
               gap="spacing8"
               justifyContent="flex-start"
-              opacity={isDarkMode ? 0.6 : 0.8}
               p="spacing16"
-              shadowColor={isDarkMode ? 'background3' : 'textTertiary'}
+              shadowColor={isDarkMode ? 'surface2' : 'neutral3'}
               shadowOffset={SWAP_BUTTON_SHADOW_OFFSET}
               shadowOpacity={isDarkMode ? 0.6 : 0.4}
               shadowRadius={theme.borderRadii.rounded20}>
-              <SearchIcon color={theme.colors.textSecondary} />
-              <Text color="textPrimary" variant="bodyLarge">
+              <SearchIcon color={theme.colors.neutral2} />
+              <Text color="neutral1" variant="bodyLarge">
                 {t('Search web3')}
               </Text>
             </Flex>

@@ -3,14 +3,14 @@ import { ScrollView, StyleSheet } from 'react-native'
 import { AddressDisplay } from 'src/components/AddressDisplay'
 import { Box, Flex } from 'src/components/layout'
 import { Text } from 'src/components/Text'
-import { dimensions } from 'ui/src/theme/restyle/sizing'
-import { spacing } from 'ui/src/theme/spacing'
+import { spacing } from 'ui/src/theme'
+import { dimensions } from 'ui/src/theme/restyle'
+import { formatUSDPrice } from 'utilities/src/format/format'
 import {
   AccountListQuery,
   useAccountListQuery,
 } from 'wallet/src/data/__generated__/types-and-hooks'
 import { Account } from 'wallet/src/features/wallet/accounts/types'
-import { formatUSDPrice } from 'wallet/src/utils/format'
 
 const ADDRESS_ROW_HEIGHT = 40
 
@@ -41,7 +41,7 @@ function _AssociatedAccountsList({ accounts }: { accounts: Account[] }): JSX.Ele
 
   return (
     <Box
-      borderColor="backgroundOutline"
+      borderColor="surface3"
       borderRadius="rounded16"
       borderWidth={1}
       maxHeight={accountsScrollViewHeight}
@@ -62,11 +62,7 @@ function _AssociatedAccountsList({ accounts }: { accounts: Account[] }): JSX.Ele
               size={24}
               variant="subheadSmall"
             />
-            <Text
-              color="textTertiary"
-              loading={loading}
-              numberOfLines={1}
-              variant="buttonLabelMicro">
+            <Text color="neutral2" loading={loading} numberOfLines={1} variant="bodyMicro">
               {formatUSDPrice(balance)}
             </Text>
           </Flex>

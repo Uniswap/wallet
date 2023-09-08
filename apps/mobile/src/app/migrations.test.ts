@@ -45,6 +45,8 @@ import {
   v44Schema,
   v45Schema,
   v46Schema,
+  v47Schema,
+  v48Schema,
   v4Schema,
   v5Schema,
   v6Schema,
@@ -63,13 +65,16 @@ import { initialModalState } from 'src/features/modals/modalSlice'
 import { ModalName } from 'src/features/telemetry/constants'
 import { initialTelemetryState } from 'src/features/telemetry/slice'
 import { initialTokensState } from 'src/features/tokens/tokensSlice'
-import { initialTransactionsState, TransactionStateMap } from 'src/features/transactions/slice'
+import { initialTweaksState } from 'src/features/tweaks/slice'
 import { initialWalletConnectState } from 'src/features/walletConnect/walletConnectSlice'
-import { account, fiatOnRampTxDetailsFailed, txDetailsConfirmed } from 'src/test/fixtures'
 import { SWAP_ROUTER_ADDRESSES } from 'wallet/src/constants/addresses'
 import { ACTIVE_CHAINS, ChainId } from 'wallet/src/constants/chains'
 import { ChainsState, initialChainsState } from 'wallet/src/features/chains/slice'
 import { initialNotificationsState } from 'wallet/src/features/notifications/slice'
+import {
+  initialTransactionsState,
+  TransactionStateMap,
+} from 'wallet/src/features/transactions/slice'
 import {
   TransactionDetails,
   TransactionStatus,
@@ -80,7 +85,8 @@ import {
   AccountType,
   SignerMnemonicAccount,
 } from 'wallet/src/features/wallet/accounts/types'
-import { initialWalletState } from 'wallet/src/features/wallet/slice'
+import { initialWalletState, SwapProtectionSetting } from 'wallet/src/features/wallet/slice'
+import { account, fiatOnRampTxDetailsFailed, txDetailsConfirmed } from 'wallet/src/test/fixtures'
 
 // helps with object assignment
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -139,6 +145,7 @@ describe('Redux state migrations', () => {
       tokenLists: {},
       tokens: initialTokensState,
       transactions: initialTransactionsState,
+      tweaks: initialTweaksState,
       wallet: initialWalletState,
       walletConnect: initialWalletConnectState,
       _persist: {
@@ -1162,5 +1169,19 @@ describe('Redux state migrations', () => {
     const v47 = migrations[47](v46Stub)
 
     expect(v47.chains.byChainId).toBe(ACTIVE_CHAINS)
+  })
+
+  it('migrates from v47 to 48', () => {
+    const v47Stub = { ...v47Schema }
+    const v48 = migrations[48](v47Stub)
+
+    expect(v48.tweaks).toEqual({})
+  })
+
+  it('migrates from v48 to 49', () => {
+    const v48Stub = { ...v48Schema }
+    const v49 = migrations[49](v48Stub)
+
+    expect(v49.wallet.settings.swapProtection).toEqual(SwapProtectionSetting.On)
   })
 })

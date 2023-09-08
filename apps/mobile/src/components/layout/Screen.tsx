@@ -3,7 +3,7 @@ import React, { useMemo } from 'react'
 import { View } from 'react-native'
 import { NativeSafeAreaViewProps, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { BoxProps } from 'src/components/layout/Box'
-import { Theme } from 'ui/src/theme/restyle/theme'
+import { Theme } from 'ui/src/theme/restyle'
 
 const SafeAreaBox = createBox<Theme>(View)
 
@@ -59,7 +59,7 @@ function SafeAreaWithInsets({ children, edges, noInsets, ...rest }: ScreenProps)
   )
 }
 
-export function Screen({ bg = 'background0', children, ...rest }: ScreenProps): JSX.Element {
+export function Screen({ bg = 'surface1', children, ...rest }: ScreenProps): JSX.Element {
   return (
     <SafeAreaWithInsets bg={bg} flex={1} sentry-label="Screen" {...rest}>
       {children}
