@@ -22,6 +22,7 @@ import {
   ExactOutputSwapTransactionInfo,
   TransactionType,
 } from 'wallet/src/features/transactions/types'
+import { getSymbolDisplayText } from 'wallet/src/utils/currency'
 import {
   areCurrencyIdsEqual,
   buildWrappedNativeCurrencyId,
@@ -101,16 +102,26 @@ export function tradeToTransactionInfo(
       }
 }
 
+// any price movement below ACCEPT_NEW_TRADE_THRESHOLD is auto-accepted for the user
+const ACCEPT_NEW_TRADE_THRESHOLD = new Percent(1, 100)
 export function requireAcceptNewTrade(oldTrade: Maybe<Trade>, newTrade: Maybe<Trade>): boolean {
-  return oldTrade?.quote?.methodParameters?.calldata !== newTrade?.quote?.methodParameters?.calldata
+  if (!oldTrade || !newTrade) return false
+
+  return (
+    oldTrade.tradeType !== newTrade.tradeType ||
+    !oldTrade.inputAmount.currency.equals(newTrade.inputAmount.currency) ||
+    !oldTrade.outputAmount.currency.equals(newTrade.outputAmount.currency) ||
+    newTrade.executionPrice.lessThan(oldTrade.worstExecutionPrice(ACCEPT_NEW_TRADE_THRESHOLD))
+  )
 }
 
 export const getRateToDisplay = (trade: Trade, showInverseRate: boolean): string => {
   const price = showInverseRate ? trade.executionPrice.invert() : trade.executionPrice
   const formattedPrice = formatPrice(price, NumberType.SwapPrice)
-  const { quoteCurrency, baseCurrency } = trade.executionPrice
-  const rate = `1 ${quoteCurrency.symbol} = ${formattedPrice} ${baseCurrency.symbol}`
-  const inverseRate = `1 ${baseCurrency.symbol} = ${formattedPrice} ${quoteCurrency.symbol}`
+  const quoteCurrencySymbol = getSymbolDisplayText(trade.executionPrice.quoteCurrency.symbol)
+  const baseCurrencySymbol = getSymbolDisplayText(trade.executionPrice.baseCurrency.symbol)
+  const rate = `1 ${quoteCurrencySymbol} = ${formattedPrice} ${baseCurrencySymbol}`
+  const inverseRate = `1 ${baseCurrencySymbol} = ${formattedPrice} ${quoteCurrencySymbol}`
   return showInverseRate ? rate : inverseRate
 }
 

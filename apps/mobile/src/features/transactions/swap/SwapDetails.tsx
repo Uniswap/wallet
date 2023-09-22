@@ -25,7 +25,7 @@ interface SwapDetailsProps {
   gasFallbackUsed?: boolean
   customSlippageTolerance?: number
   autoSlippageTolerance?: number
-  newTradeToAccept: boolean
+  newTradeRequiresAcceptance: boolean
   warning?: Warning
   onAcceptTrade: () => void
   onShowWarning?: () => void
@@ -38,7 +38,7 @@ export function SwapDetails({
   acceptedTrade,
   gasFeeUSD,
   gasFallbackUsed,
-  newTradeToAccept,
+  newTradeRequiresAcceptance,
   customSlippageTolerance,
   autoSlippageTolerance,
   trade,
@@ -68,7 +68,7 @@ export function SwapDetails({
   return (
     <TransactionDetails
       banner={
-        newTradeToAccept ? (
+        newTradeRequiresAcceptance ? (
           <Flex
             row
             alignItems="center"
@@ -117,7 +117,7 @@ export function SwapDetails({
       gasFallbackUsed={gasFallbackUsed}
       gasFeeUSD={gasFeeUSD}
       showExpandedChildren={!!customSlippageTolerance}
-      showWarning={warning && !newTradeToAccept}
+      showWarning={warning && !newTradeRequiresAcceptance}
       warning={warning}
       onShowGasWarning={onShowGasWarning}
       onShowWarning={onShowWarning}>
@@ -137,7 +137,7 @@ export function SwapDetails({
       {shouldUseMevBlocker && (
         <Flex row alignItems="center" justifyContent="space-between">
           <TouchableArea onPress={onShowSwapProtectionModal}>
-            <Flex row gap="spacing4">
+            <Flex centered row gap="spacing4">
               <Text variant="subheadSmall">{t('Swap protection')}</Text>
               <InfoCircle
                 color={theme.colors.neutral1}
@@ -146,7 +146,7 @@ export function SwapDetails({
               />
             </Flex>
           </TouchableArea>
-          <Flex row gap="spacing8">
+          <Flex centered row gap="spacing8">
             <Icons.ShieldCheck
               color={theme.colors.neutral3}
               height={theme.iconSizes.icon16}
@@ -160,7 +160,7 @@ export function SwapDetails({
       )}
       <Flex row alignItems="center" justifyContent="space-between">
         <TouchableArea onPress={onShowSlippageModal}>
-          <Flex row gap="spacing4">
+          <Flex centered row gap="spacing4">
             <Text variant="subheadSmall">{t('Max slippage')}</Text>
             <InfoCircle
               color={theme.colors.neutral1}

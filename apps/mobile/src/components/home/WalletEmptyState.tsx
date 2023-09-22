@@ -9,7 +9,6 @@ import Trace from 'src/components/Trace/Trace'
 import { UNISWAP_HELP_CENTER_WALLET_URL } from 'src/constants/urls'
 import { openModal } from 'src/features/modals/modalSlice'
 import { ElementName, ModalName } from 'src/features/telemetry/constants'
-import { opacify } from 'src/utils/colors'
 import { openUri } from 'src/utils/linking'
 import BookIcon from 'ui/src/assets/icons/book.svg'
 import DollarSign from 'ui/src/assets/icons/dollar.svg'
@@ -18,6 +17,7 @@ import ScanIcon from 'ui/src/assets/icons/scan-receive.svg'
 import { colors, iconSizes } from 'ui/src/theme'
 import { AccountType } from 'wallet/src/features/wallet/accounts/types'
 import { useActiveAccount } from 'wallet/src/features/wallet/hooks'
+import { opacify } from 'wallet/src/utils/colors'
 
 interface ActionCardItem {
   title: string
@@ -120,7 +120,7 @@ export function WalletEmptyState(): JSX.Element {
       },
       [ActionOption.Import]: {
         title: t('Import wallet'),
-        blurb: t(`Enter this wallet's recovery phrase to begin swapping and sending.`),
+        blurb: t(`Enter this wallet’s recovery phrase to begin swapping and sending.`),
         elementName: ElementName.EmptyStateImport,
         icon: (
           <IconContainer

@@ -1,4 +1,3 @@
-import { createTheme } from 'tamagui'
 import { opacify } from 'ui/src/theme/color/utils'
 
 export const colors = {
@@ -160,6 +159,7 @@ export const colors = {
   networkPolygon: '#a26af3',
   networkArbitrum: '#28A0F0',
   networkBase: '#2151F5',
+  networkBnb: '#F0B90B',
 }
 
 // TODO: map named colors to new Spore colors
@@ -271,6 +271,7 @@ export const colorsLight = {
   chain_42161: colors.networkArbitrum,
   chain_80001: colors.networkPolygon,
   chain_8453: colors.networkBase,
+  chain_56: colors.networkBnb,
 }
 
 export const colorsDark = {
@@ -328,7 +329,5 @@ export const colorsDark = {
   chain_42161: colors.networkArbitrum,
   chain_80001: colors.networkPolygon,
   chain_8453: colors.networkBase,
+  chain_56: colors.networkBnb,
 }
-
-export const tamaguiLight = createTheme(colorsLight)
-export const tamaguiDark = createTheme(colorsDark)

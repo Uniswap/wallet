@@ -4,6 +4,7 @@ import React, { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import ContextMenu from 'react-native-context-menu-view'
 import { FadeInDown, FadeOutDown } from 'react-native-reanimated'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useAppDispatch, useAppSelector, useAppTheme } from 'src/app/hooks'
 import { AppStackScreenProp } from 'src/app/navigation/types'
 import { TouchableArea } from 'src/components/buttons/TouchableArea'
@@ -23,14 +24,12 @@ import { TokenDetailsLinks } from 'src/components/TokenDetails/TokenDetailsLinks
 import { TokenDetailsStats } from 'src/components/TokenDetails/TokenDetailsStats'
 import TokenWarningModal from 'src/components/tokens/TokenWarningModal'
 import Trace from 'src/components/Trace/Trace'
-import { IS_IOS } from 'src/constants/globals'
-import { useIsDarkMode } from 'src/features/appearance/hooks'
+import { IS_ANDROID, IS_IOS } from 'src/constants/globals'
 import { useTokenContextMenu } from 'src/features/balances/hooks'
 import { openModal, selectModalState } from 'src/features/modals/modalSlice'
 import { ModalName } from 'src/features/telemetry/constants'
 import { useTokenWarningDismissed } from 'src/features/tokens/safetyHooks'
 import { Screens } from 'src/screens/Screens'
-import { useExtractedTokenColor } from 'src/utils/colors'
 import EllipsisIcon from 'ui/src/assets/icons/ellipsis.svg'
 import { iconSizes } from 'ui/src/theme'
 import { formatUSDPrice } from 'utilities/src/format/format'
@@ -44,12 +43,14 @@ import {
   useTokenDetailsScreenQuery,
 } from 'wallet/src/data/__generated__/types-and-hooks'
 import { AssetType } from 'wallet/src/entities/assets'
+import { useIsDarkMode } from 'wallet/src/features/appearance/hooks'
 import { fromGraphQLChain } from 'wallet/src/features/chains/utils'
 import { currencyIdToContractInput } from 'wallet/src/features/dataApi/utils'
 import {
   CurrencyField,
   TransactionState,
 } from 'wallet/src/features/transactions/transactionState/types'
+import { useExtractedTokenColor } from 'wallet/src/utils/colors'
 import { currencyIdToAddress, currencyIdToChain } from 'wallet/src/utils/currencyId'
 
 type Price = NonNullable<
@@ -171,6 +172,7 @@ function TokenDetails({
 }): JSX.Element {
   const dispatch = useAppDispatch()
   const theme = useAppTheme()
+  const insets = useSafeAreaInsets()
 
   const currencyChainId = currencyIdToChain(_currencyId) ?? ChainId.Mainnet
   const currencyAddress = currencyIdToAddress(_currencyId)
@@ -262,11 +264,9 @@ function TokenDetails({
       } else {
         if (swapType === TransactionType.BUY) {
           navigateToSwapBuy()
-        }
-        if (swapType === TransactionType.SELL) {
+        } else if (swapType === TransactionType.SELL) {
           navigateToSwapSell()
         }
-        return
       }
     },
     [navigateToSwapBuy, navigateToSwapSell, safetyLevel, tokenWarningDismissed]
@@ -344,7 +344,7 @@ function TokenDetails({
             />
           </Flex>
           {error ? (
-            <AnimatedBox entering={FadeInDown} exiting={FadeOutDown} px="spacing24">
+            <AnimatedBox entering={FadeInDown} exiting={FadeOutDown} gap="$none" px="$spacing24">
               <BaseCard.InlineErrorState onRetry={retry} />
             </AnimatedBox>
           ) : null}
@@ -362,7 +362,11 @@ function TokenDetails({
       </HeaderScrollScreen>
 
       {!loading && !tokenColorLoading ? (
-        <AnimatedFlex backgroundColor="surface1" entering={FadeInDown} pb={pb}>
+        <AnimatedFlex
+          backgroundColor="surface1"
+          entering={FadeInDown}
+          pb={pb}
+          style={{ marginBottom: IS_ANDROID ? insets.bottom : undefined }}>
           <TokenDetailsActionButtons
             tokenColor={tokenColor}
             onPressSwap={(): void =>

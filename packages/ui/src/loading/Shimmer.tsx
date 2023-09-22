@@ -15,9 +15,11 @@ const SHIMMER_DURATION = 2000 // 2 seconds
 
 type Props = {
   children: JSX.Element
+  contrast?: boolean
 }
+
 // inspired by tutorial found here: https://github.com/kadikraman/skeleton-loader
-export function Shimmer({ children }: Props): JSX.Element {
+export function Shimmer({ children, contrast }: Props): JSX.Element {
   const [layout, setLayout] = useState<LayoutRectangle | null>()
   const xPosition = useSharedValue(0)
 
@@ -53,7 +55,7 @@ export function Shimmer({ children }: Props): JSX.Element {
         width: layout.width,
         height: layout.height,
       }}>
-      <Box backgroundColor="$surface2" flexGrow={1} overflow="hidden" />
+      <Box backgroundColor={contrast ? '$neutral2' : '$surface3'} flexGrow={1} overflow="hidden" />
       <Reanimated.View style={[StyleSheet.absoluteFill, animatedStyle]}>
         <MaskedView
           maskElement={
@@ -65,7 +67,7 @@ export function Shimmer({ children }: Props): JSX.Element {
             />
           }
           style={StyleSheet.absoluteFill}>
-          <Box fullscreen backgroundColor="$surface3" />
+          <Box fullscreen backgroundColor="$surface2" />
         </MaskedView>
       </Reanimated.View>
     </MaskedView>

@@ -16,7 +16,6 @@ import { CloudBackupPasswordForm } from 'src/features/CloudBackup/CloudBackupPas
 import { ElementName, ModalName } from 'src/features/telemetry/constants'
 import { Screens } from 'src/screens/Screens'
 import { Icons } from 'ui/src'
-import CloudIcon from 'ui/src/assets/icons/cloud.svg'
 
 type Props = NativeStackScreenProps<
   SettingsStackParamList,
@@ -47,7 +46,7 @@ export function SettingsCloudBackupPasswordCreateScreen({
   }
 
   return (
-    <Screen mx="spacing16" my="spacing16">
+    <Screen mx="$spacing16" my="$spacing16">
       <BackHeader mb="spacing16" />
       <ScrollView bounces={false} keyboardShouldPersistTaps="handled">
         <Flex alignItems="center" justifyContent="space-between" mb="spacing24" mx="spacing12">
@@ -76,15 +75,11 @@ export function SettingsCloudBackupPasswordCreateScreen({
                   borderRadius="rounded12"
                   borderWidth={1}
                   padding="spacing12">
-                  {IS_ANDROID ? (
-                    <Icons.GoogleDrive
-                      color={theme.colors.accent1}
-                      height={theme.iconSizes.icon20}
-                      width={theme.iconSizes.icon20}
-                    />
-                  ) : (
-                    <CloudIcon color={theme.colors.accent1} />
-                  )}
+                  <Icons.OSDynamicCloudIcon
+                    color={theme.colors.accent1}
+                    height={theme.iconSizes.icon20}
+                    width={theme.iconSizes.icon20}
+                  />
                 </Box>
                 <Text textAlign="center" variant="buttonLabelMedium">
                   {IS_ANDROID

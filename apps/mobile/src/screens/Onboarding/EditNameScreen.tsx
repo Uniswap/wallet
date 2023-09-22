@@ -8,14 +8,13 @@ import { useAppDispatch, useAppTheme } from 'src/app/hooks'
 import { OnboardingStackParamList } from 'src/app/navigation/types'
 import { AnimatedButton, Button, ButtonEmphasis, ButtonSize } from 'src/components/buttons/Button'
 import { TextInput } from 'src/components/input/TextInput'
-import { Box, Flex } from 'src/components/layout'
-import { Text } from 'src/components/Text'
 import Trace from 'src/components/Trace/Trace'
-import { OnboardingScreen } from 'src/features/onboarding/OnboardingScreen'
+import { SafeKeyboardOnboardingScreen } from 'src/features/onboarding/SafeKeyboardOnboardingScreen'
 import { ImportType } from 'src/features/onboarding/utils'
 import { ElementName } from 'src/features/telemetry/constants'
 import { OnboardingScreens } from 'src/screens/Screens'
 import { useAddBackButton } from 'src/utils/useAddBackButton'
+import { Flex, Text } from 'ui/src'
 import PencilIcon from 'ui/src/assets/icons/pencil-detailed.svg'
 import { NICKNAME_MAX_LENGTH } from 'wallet/src/constants/accounts'
 import {
@@ -89,28 +88,26 @@ export function EditNameScreen({ navigation, route: { params } }: Props): JSX.El
   }
 
   return (
-    <OnboardingScreen
+    <SafeKeyboardOnboardingScreen
       subtitle={t('This is a way to keep track of your wallet. Only you will see this.')}
       title={t('Give your wallet a nickname')}>
-      <Box my="spacing24">
-        {pendingAccount ? (
-          <CustomizationSection
-            accountName={newAccountName}
-            address={pendingAccount?.address}
-            focused={focused}
-            setAccountName={setNewAccountName}
-            setFocused={setFocused}
-          />
-        ) : (
-          <ActivityIndicator />
-        )}
-      </Box>
+      {pendingAccount ? (
+        <CustomizationSection
+          accountName={newAccountName}
+          address={pendingAccount?.address}
+          focused={focused}
+          setAccountName={setNewAccountName}
+          setFocused={setFocused}
+        />
+      ) : (
+        <ActivityIndicator />
+      )}
       <Flex justifyContent="flex-end">
         <Trace logPress element={ElementName.Continue}>
           <Button label={t('Create Wallet')} onPress={onPressNext} />
         </Trace>
       </Flex>
-    </OnboardingScreen>
+    </SafeKeyboardOnboardingScreen>
   )
 }
 
@@ -135,20 +132,20 @@ function CustomizationSection({
     textInputRef.current?.focus()
   }
 
-  const gapSize = useResponsiveProp({
-    xs: 'none',
-    sm: 'spacing24',
-  })
-
   const inputSize = useResponsiveProp({
     xs: theme.textVariants.headlineSmall.fontSize,
     sm: theme.textVariants.headlineMedium.fontSize,
   })
 
   return (
-    <Flex centered gap={gapSize}>
-      <Flex centered gap="spacing24" width="100%">
-        <Flex centered row gap="none">
+    <Flex
+      centered
+      $short={{
+        gap: '$none',
+      }}
+      gap="$spacing24">
+      <Flex centered gap="$spacing24" h={200} width="100%">
+        <Flex centered row>
           <TextInput
             ref={textInputRef}
             autoFocus
@@ -176,11 +173,11 @@ function CustomizationSection({
             />
           )}
         </Flex>
-        <Flex centered gap="spacing4">
-          <Text color="neutral3" variant="bodyMicro">
+        <Flex centered gap="$spacing4">
+          <Text color="$neutral3" variant="bodyMicro">
             {t('Your public address will be')}
           </Text>
-          <Text color="neutral3" variant="buttonLabelSmall">
+          <Text color="$neutral3" variant="buttonLabelSmall">
             {shortenAddress(address)}
           </Text>
         </Flex>

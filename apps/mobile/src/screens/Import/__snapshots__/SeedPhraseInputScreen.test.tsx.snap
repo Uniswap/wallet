@@ -4,17 +4,15 @@ exports[`SeedPhraseInputScreen seed phrase initial screen rendering 1`] = `
 <View
   sentry-label="Screen"
   style={
-    [
-      {
-        "backgroundColor": "#FFFFFF",
-        "display": "flex",
-        "flex": 1,
-      },
-      {
-        "paddingLeft": undefined,
-        "paddingRight": undefined,
-      },
-    ]
+    {
+      "alignItems": "stretch",
+      "backgroundColor": "#FFFFFF",
+      "flex": 1,
+      "flexDirection": "column",
+      "gap": 0,
+      "paddingLeft": undefined,
+      "paddingRight": undefined,
+    }
   }
 >
   <View
@@ -253,7 +251,7 @@ exports[`SeedPhraseInputScreen seed phrase initial screen rendering 1`] = `
                             "lineHeight": 19,
                             "paddingHorizontal": 0,
                             "paddingVertical": 0,
-                            "textAlign": "center",
+                            "textAlign": "left",
                             "width": 8,
                           },
                         ]
@@ -368,7 +366,7 @@ exports[`SeedPhraseInputScreen seed phrase initial screen rendering 1`] = `
                           "alignItems": "center",
                           "backgroundColor": "transparent",
                           "borderColor": "#2222220D",
-                          "borderRadius": 8,
+                          "borderRadius": 12,
                           "borderWidth": 1,
                           "display": "flex",
                           "opacity": 1,

@@ -21,23 +21,28 @@ async function processAddChanges() {
   .concat(danger.git.created_files)
   .filter((file) => (file.endsWith('.ts') || file.endsWith('.tsx')) && !file.includes('dangerfile.ts'))
 
-  const addChanges = (await Promise.all(updatedTsFiles.flatMap(async (file) => {
+  const changes = (await Promise.all(updatedTsFiles.flatMap(async (file) => {
     const structuredDiff = await danger.git.structuredDiffForFile(file);
 
     return (structuredDiff?.chunks || []).flatMap((chunk) => {
-      return chunk.changes.filter((change) => change.type === 'add')
+      return chunk.changes.filter((change) => change.type === 'add' || change.type === 'normal')
     })
   }))).flatMap((x) => x)
 
   // Checks for any logging and reminds the developer not to log sensitive data
-  if (addChanges.some((change) => change.content.includes('logMessage') || change.content.includes('logger.'))) {
+  if (changes.some((change) => change.content.includes('logMessage') || change.content.includes('logger.'))) {
     warn('You are logging data. Please confirm that nothing sensitive is being logged!')
+  }
+
+  // Check for direct logging calls
+  if (changes.some((change) => change.content.includes('analytics.logEvent'))) {
+    warn(`You are using the direct analytics call. Please use the typed wrapper for your given surface if possible!`)
   }
 
   // Check for UI package imports that are longer than needed
   const validLongerImports = ['ui/src', 'ui/src/theme', 'ui/src/loading', 'ui/src/theme/restyle']
   const longestImportLength = Math.max(...validLongerImports.map((i) => i.length))
-  addChanges.forEach((change) => {
+  changes.forEach((change) => {
     const indices = getIndicesOf(`from 'ui/src/`, change.content)
 
     indices.forEach((idx) => {
@@ -50,6 +55,35 @@ async function processAddChanges() {
   })
 }
 
+async function checkCocoaPodsVersion() {
+  const updatedPodFileLock = danger.git.modified_files.find((file) => file.includes('ios/Podfile.lock'))
+  if (updatedPodFileLock) {
+    const structuredDiff = await danger.git.structuredDiffForFile(updatedPodFileLock);
+    const changedLines = (structuredDiff?.chunks || []).flatMap((chunk) => {
+      return chunk.changes.filter((change) => change.type === 'add')
+    })
+    const changedCocoaPodsVersion = changedLines.some((change) => change.content.includes('COCOAPODS: '))
+    if (changedCocoaPodsVersion) {
+      warn(`You're changing the Podfile version! Ensure you are using the correct version / this change is intentional.`)
+    }
+  }
+}
+
+async function checkApostrophes() {
+  const updatedTranslations = danger.git.modified_files.find((file) => file.includes('en.json'))
+  if (updatedTranslations) {
+    const structuredDiff = await danger.git.structuredDiffForFile(updatedTranslations);
+    const changedLines = (structuredDiff?.chunks || []).flatMap((chunk) => {
+      return chunk.changes.filter((change) => change.type === 'add' || change.type === 'normal')
+    })
+    changedLines.forEach((line) => {
+      if (line.content.includes("'")) {
+        fail("You added a string using the ' character. Please use the ’ character instead!")
+      }
+    })
+  }
+}
+
 /* Warn about storing credentials in GH and uploading env.local to 1Password */
 const envChanged = danger.git.modified_files.includes('.env.defaults')
 if (envChanged) {
@@ -60,6 +94,12 @@ if (envChanged) {
 
 // Run checks on added changes
 processAddChanges()
+
+// Check for cocoapods version change
+checkCocoaPodsVersion()
+
+// check translations use the correct apostrophes
+checkApostrophes()
 
 // Stories for new components
 const createdComponents = danger.git.created_files.filter(
@@ -101,9 +141,21 @@ if (danger.github.pr.additions < danger.github.pr.deletions) {
   )
 }
 
+// Stories congratulations
 const stories = danger.git.fileMatch('**/*stories*')
 if (stories.edited) {
   message('🙌 Thanks for keeping stories up to date!')
+}
+
+// GraphQL update warnings
+const updatedGraphQLfile = danger.git.modified_files.find((file) =>
+  file.includes('__generated__/types-and-hooks.ts')
+)
+
+if (updatedGraphQLfile) {
+  warn(
+    'You have updated the GraphQL schema. Please ensure that the Swift GraphQL Schema generation is valid by running `yarn mobile graphql:generate:swift` and rebuilding for iOS. You may need to add or remove generated files to the project.pbxproj'
+  )
 }
 
 // Migrations + schema warnings

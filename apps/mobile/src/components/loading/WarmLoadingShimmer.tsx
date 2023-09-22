@@ -58,9 +58,9 @@ export function WarmLoadingShimmer({
         <Reanimated.View style={[StyleSheet.absoluteFill, animatedStyle]}>
           <LinearGradient
             colors={[
-              theme.colors.neutral2,
-              opacify(64, theme.colors.neutral1),
-              theme.colors.neutral2,
+              opacify(0, theme.colors.neutral2.slice(0, 7)),
+              opacify(44, theme.colors.surface2.slice(0, 7)),
+              opacify(0, theme.colors.neutral2.slice(0, 7)),
             ]}
             end={{ x: 1, y: 0 }}
             start={{ x: 0, y: 0 }}

@@ -12,11 +12,8 @@ import { fonts } from 'ui/src/theme/fonts'
 // import { Theme } from 'ui/src/theme/restyle/theme'
 
 export const TextFrame = styled(TamaguiText, {
-  // TODO(EXT-61): keep investigating how to get text to wrap
+  fontFamily: '$body',
   wordWrap: 'break-word',
-  flex: 1,
-  flexGrow: 0, // Would expect the default to be this, but default seems to be 1
-  flexWrap: 'wrap',
 
   variants: {
     // TODO: leverage font tokens instead
@@ -42,13 +39,13 @@ export const TextFrame = styled(TamaguiText, {
         fontWeight: fonts.headlineSmall.fontWeight,
       },
       subheadLarge: {
-        fontFamily: '$heading',
+        fontFamily: '$subHeading',
         fontSize: fonts.subheadLarge.fontSize,
         lineHeight: fonts.subheadLarge.lineHeight,
         fontWeight: fonts.subheadLarge.fontWeight,
       },
       subheadSmall: {
-        fontFamily: '$heading',
+        fontFamily: '$subHeading',
         fontSize: fonts.subheadSmall.fontSize,
         lineHeight: fonts.subheadSmall.lineHeight,
         fontWeight: fonts.subheadSmall.fontWeight,
@@ -102,6 +99,10 @@ export const TextFrame = styled(TamaguiText, {
       },
     },
   } as const,
+
+  defaultVariants: {
+    variant: 'bodySmall',
+  },
 })
 
 type TextFrameProps = GetProps<typeof TextFrame>
@@ -121,7 +122,7 @@ export type TextProps = TextFrameProps & {
 
 // const ThemedAnimatedText = createText<Theme>(Animated.Text)
 
-const TextPlaceholder = ({ children }: PropsWithChildren<unknown>): JSX.Element => {
+export const TextPlaceholder = ({ children }: PropsWithChildren<unknown>): JSX.Element => {
   return (
     <Box alignItems="center" flexDirection="row">
       <Box alignItems="center" flexDirection="row" position="relative">
@@ -140,7 +141,7 @@ const TextPlaceholder = ({ children }: PropsWithChildren<unknown>): JSX.Element 
   )
 }
 
-const TextLoaderWrapper = ({
+export const TextLoaderWrapper = ({
   children,
   loadingShimmer,
 }: { loadingShimmer?: boolean } & PropsWithChildren<unknown>): JSX.Element => {
@@ -180,7 +181,7 @@ export const Text = ({
   if (loading) {
     return (
       <TextLoaderWrapper loadingShimmer={loading !== 'no-shimmer'}>
-        <TextFrame allowFontScaling={enableFontScaling} color="$none" opacity={0} {...rest}>
+        <TextFrame allowFontScaling={enableFontScaling} color="$transparent" opacity={0} {...rest}>
           {/* Important that `children` isn't used or rendered by <Text> when `loading` is true, because if the child of a <Text> component is a dynamic variable that might not be finished fetching yet, it'll result in an error until it's finished loading. We use `loadingPlaceholderText` to set the size of the loading element instead. */}
           {loadingPlaceholderText}
         </TextFrame>
@@ -188,5 +189,5 @@ export const Text = ({
     )
   }
 
-  return <TextFrame allowFontScaling={enableFontScaling} {...rest} />
+  return <TextFrame allowFontScaling={enableFontScaling} color="$neutral1" {...rest} />
 }

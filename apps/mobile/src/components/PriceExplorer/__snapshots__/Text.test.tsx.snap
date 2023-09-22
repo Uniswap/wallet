@@ -42,65 +42,126 @@ exports[`PriceText renders loading state 1`] = `
 >
   <View
     style={
-      [
-        {
-          "alignItems": "center",
-          "display": "flex",
-          "flexDirection": "row",
-        },
-      ]
+      {
+        "alignItems": "center",
+        "flexDirection": "row",
+      }
     }
   >
     <View
       style={
-        [
-          {
-            "alignItems": "center",
-            "display": "flex",
-            "flexDirection": "row",
-            "position": "relative",
-          },
-        ]
+        {
+          "alignItems": "center",
+          "flexDirection": "row",
+          "position": "relative",
+        }
       }
     >
       <View
         accessibilityElementsHidden={true}
         importantForAccessibility="no-hide-descendants"
       >
-        <Text
-          allowFontScaling={true}
-          maxFontSizeMultiplier={1.2}
+        <View
+          sentry-label="Flex"
           style={
             [
               {
-                "color": "transparent",
+                "alignItems": "stretch",
                 "display": "flex",
-                "fontFamily": "Basel-Book",
-                "fontSize": 53,
-                "fontWeight": "400",
-                "lineHeight": 60,
-                "opacity": 0,
+                "flexDirection": "row",
+                "justifyContent": "flex-start",
               },
             ]
           }
         >
-          $10,000
-        </Text>
+          <TextInput
+            allowFontScaling={true}
+            editable={false}
+            maxFontSizeMultiplier={1.2}
+            style={
+              [
+                [
+                  {
+                    "color": "#222222",
+                    "fontFamily": "Basel-Book",
+                    "fontSize": 53,
+                    "fontWeight": "400",
+                    "lineHeight": 60,
+                  },
+                  [
+                    {
+                      "padding": 0,
+                    },
+                    undefined,
+                  ],
+                ],
+                {
+                  "marginHorizontal": 0,
+                  "opacity": 0,
+                  "paddingHorizontal": 0,
+                  "width": 0,
+                },
+              ]
+            }
+            underlineColorAndroid="transparent"
+          />
+          <View
+            style={
+              [
+                {
+                  "display": "flex",
+                  "flexGrow": 0,
+                  "flexShrink": 0,
+                  "height": 0,
+                  "width": 0,
+                },
+              ]
+            }
+          />
+          <Text
+            style={
+              [
+                [
+                  {
+                    "color": "#222222",
+                    "fontFamily": "Basel-Book",
+                    "fontSize": 53,
+                    "fontWeight": "400",
+                    "lineHeight": 60,
+                  },
+                  [
+                    {
+                      "padding": 0,
+                    },
+                    undefined,
+                  ],
+                ],
+                {
+                  "opacity": 0,
+                },
+              ]
+            }
+          >
+            $10,000
+          </Text>
+        </View>
       </View>
       <View
         style={
-          [
-            {
-              "backgroundColor": "#2222220D",
-              "borderRadius": 4,
-              "bottom": "5%",
-              "display": "flex",
-              "left": 0,
-              "position": "absolute",
-              "right": 0,
-              "top": "5%",
-            },
-          ]
+          {
+            "alignItems": "stretch",
+            "backgroundColor": "#F9F9F9",
+            "borderBottomLeftRadius": 4,
+            "borderBottomRightRadius": 4,
+            "borderTopLeftRadius": 4,
+            "borderTopRightRadius": 4,
+            "bottom": "5%",
+            "flexDirection": "column",
+            "left": 0,
+            "position": "absolute",
+            "right": 0,
+            "top": "5%",
+          }
         }
       />
     </View>
@@ -276,71 +337,147 @@ exports[`PriceText renders without error less than a dollar 1`] = `
 
 exports[`RelativeChangeText renders loading state 1`] = `
 <View
-  onLayout={[Function]}
+  sentry-label="Flex"
+  style={
+    [
+      {
+        "alignItems": "stretch",
+        "display": "flex",
+        "flexDirection": "column",
+        "justifyContent": "flex-start",
+        "marginTop": 2,
+      },
+    ]
+  }
 >
   <View
-    style={
-      [
-        {
-          "alignItems": "center",
-          "display": "flex",
-          "flexDirection": "row",
-        },
-      ]
-    }
+    onLayout={[Function]}
   >
     <View
       style={
-        [
-          {
-            "alignItems": "center",
-            "display": "flex",
-            "flexDirection": "row",
-            "position": "relative",
-          },
-        ]
+        {
+          "alignItems": "center",
+          "flexDirection": "row",
+        }
       }
     >
       <View
-        accessibilityElementsHidden={true}
-        importantForAccessibility="no-hide-descendants"
-      >
-        <Text
-          allowFontScaling={true}
-          maxFontSizeMultiplier={1.4}
-          style={
-            [
-              {
-                "color": "transparent",
-                "display": "flex",
-                "fontFamily": "Basel-Book",
-                "fontSize": 19,
-                "fontWeight": "400",
-                "lineHeight": 24,
-                "opacity": 0,
-              },
-            ]
-          }
-        >
-          00.00%
-        </Text>
-      </View>
-      <View
         style={
-          [
+          {
+            "alignItems": "center",
+            "flexDirection": "row",
+            "position": "relative",
+          }
+        }
+      >
+        <View
+          accessibilityElementsHidden={true}
+          importantForAccessibility="no-hide-descendants"
+        >
+          <View
+            sentry-label="Flex"
+            style={
+              [
+                {
+                  "alignItems": "stretch",
+                  "display": "flex",
+                  "flexDirection": "row",
+                  "justifyContent": "flex-start",
+                },
+              ]
+            }
+          >
+            <TextInput
+              allowFontScaling={true}
+              editable={false}
+              maxFontSizeMultiplier={1.4}
+              style={
+                [
+                  [
+                    {
+                      "color": "#222222",
+                      "fontFamily": "Basel-Book",
+                      "fontSize": 19,
+                      "fontWeight": "400",
+                      "lineHeight": 24,
+                    },
+                    [
+                      {
+                        "padding": 0,
+                      },
+                      undefined,
+                    ],
+                  ],
+                  {
+                    "marginHorizontal": 0,
+                    "opacity": 0,
+                    "paddingHorizontal": 0,
+                    "width": 0,
+                  },
+                ]
+              }
+              underlineColorAndroid="transparent"
+            />
+            <View
+              style={
+                [
+                  {
+                    "display": "flex",
+                    "flexGrow": 0,
+                    "flexShrink": 0,
+                    "height": 0,
+                    "width": 0,
+                  },
+                ]
+              }
+            />
+            <Text
+              style={
+                [
+                  [
+                    {
+                      "color": "#222222",
+                      "fontFamily": "Basel-Book",
+                      "fontSize": 19,
+                      "fontWeight": "400",
+                      "lineHeight": 24,
+                    },
+                    [
+                      {
+                        "padding": 0,
+                      },
+                      undefined,
+                    ],
+                  ],
+                  {
+                    "opacity": 0,
+                  },
+                ]
+              }
+            >
+              00.00%
+            </Text>
+          </View>
+        </View>
+        <View
+          style={
             {
-              "backgroundColor": "#2222220D",
-              "borderRadius": 4,
+              "alignItems": "stretch",
+              "backgroundColor": "#F9F9F9",
+              "borderBottomLeftRadius": 4,
+              "borderBottomRightRadius": 4,
+              "borderTopLeftRadius": 4,
+              "borderTopRightRadius": 4,
               "bottom": "5%",
-              "display": "flex",
+              "flexDirection": "column",
               "left": 0,
               "position": "absolute",
               "right": 0,
               "top": "5%",
-            },
-          ]
-        }
-      />
+            }
+          }
+        />
+      </View>
     </View>
   </View>
 </View>
@@ -361,27 +498,73 @@ exports[`RelativeChangeText renders without error 1`] = `
     ]
   }
 >
-  <svg
-    data-file-name="SvgArrowChange"
-    height={16}
+  <RNSVGSvgView
+    align="xMidYMid"
+    bbHeight="16"
+    bbWidth="16"
+    fill="none"
+    focusable={false}
+    meetOrSlice={0}
+    minX={0}
+    minY={0}
     strokeWidth={2}
     style={
       [
         {
-          "color": "#40B66B",
-          "transform": [
-            {
-              "rotate": "180deg",
-            },
-          ],
+          "backgroundColor": "transparent",
+          "borderWidth": 0,
         },
         {
-          "translateY": -1,
+          "0": {
+            "color": "#40B66B",
+            "transform": [
+              {
+                "rotate": "180deg",
+              },
+            ],
+          },
+          "1": {
+            "translateY": -1,
+          },
+          "color": undefined,
+          "height": 16,
+          "width": 16,
+        },
+        {
+          "flex": 0,
+          "height": 16,
+          "width": 16,
         },
       ]
     }
-    width={16}
-  />
+    vbHeight={24}
+    vbWidth={24}
+  >
+    <RNSVGGroup
+      fill={null}
+      propList={
+        [
+          "fill",
+          "strokeWidth",
+        ]
+      }
+      strokeWidth="2"
+    >
+      <RNSVGPath
+        d="M10.6979 16.2453L6.31787 9.75247C5.58184 8.66118 6.2058 7 7.35185 7L16.6482 7C17.7942 7 18.4182 8.66243 17.6821 9.75247L13.3021 16.2453C12.623 17.2516 11.377 17.2516 10.6979 16.2453Z"
+        fill={
+          {
+            "type": 2,
+          }
+        }
+        propList={
+          [
+            "fill",
+          ]
+        }
+      />
+    </RNSVGGroup>
+  </RNSVGSvgView>
   <View
     style={
       [

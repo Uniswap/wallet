@@ -16,14 +16,13 @@ import { Text } from 'src/components/Text'
 import Trace from 'src/components/Trace/Trace'
 import { ConnectedDappsList } from 'src/components/WalletConnect/ConnectedDapps/ConnectedDappsList'
 import { getSupportedURI, URIType } from 'src/components/WalletConnect/ScanSheet/util'
-import { useIsDarkMode } from 'src/features/appearance/hooks'
 import { ElementName, ModalName } from 'src/features/telemetry/constants'
 import { useWalletConnect } from 'src/features/walletConnect/useWalletConnect'
 import { pairWithWalletConnectURI } from 'src/features/walletConnect/utils'
 import Scan from 'ui/src/assets/icons/receive.svg'
 import ScanQRIcon from 'ui/src/assets/icons/scan.svg'
-import { serializeError } from 'utilities/src/errors'
 import { logger } from 'utilities/src/logger/logger'
+import { useIsDarkMode } from 'wallet/src/features/appearance/hooks'
 import { selectActiveAccountAddress } from 'wallet/src/features/wallet/selectors'
 
 type Props = {
@@ -65,7 +64,7 @@ export function WalletConnectModal({
         Alert.alert(
           t('Invalid QR Code'),
           t(
-            "Make sure that you're scanning a valid WalletConnect or Ethereum address QR code before trying again."
+            'Make sure that you’re scanning a valid WalletConnect or Ethereum address QR code before trying again.'
           ),
           [
             {
@@ -91,7 +90,7 @@ export function WalletConnectModal({
         Alert.alert(
           t('Invalid QR Code'),
           t(
-            "WalletConnect v1 is no longer supported. The application you're trying to connect to needs to upgrade to WalletConnect v2."
+            'WalletConnect v1 is no longer supported. The application you’re trying to connect to needs to upgrade to WalletConnect v2.'
           ),
           [
             {
@@ -109,20 +108,11 @@ export function WalletConnectModal({
         setShouldFreezeCamera(true)
         try {
           await pairWithWalletConnectURI(supportedURI.value)
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } catch (errorMessage: any) {
-          logger.error(errorMessage, {
-            tags: {
-              file: 'WalletConnectModal',
-              function: 'onScanCode',
-              error: serializeError(errorMessage),
-            },
-          })
+        } catch (error) {
+          logger.error(error, { tags: { file: 'WalletConnectModal', function: 'onScanCode' } })
           Alert.alert(
             t('WalletConnect Error'),
-            t(`There was an issue with WalletConnect. \n\n Error information:\n {{error}}`, {
-              error: errorMessage,
-            }),
+            t('There was an issue with WalletConnect. Please try again'),
             [
               {
                 text: t('OK'),

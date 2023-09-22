@@ -2,17 +2,13 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { BlurView } from 'expo-blur'
 import React, { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Alert, Image, StyleSheet } from 'react-native'
+import { Alert, Image, Platform, StyleSheet } from 'react-native'
 import { useAppDispatch, useAppTheme } from 'src/app/hooks'
 import { OnboardingStackParamList } from 'src/app/navigation/types'
-import { Button, ButtonEmphasis } from 'src/components/buttons/Button'
 import { TouchableArea } from 'src/components/buttons/TouchableArea'
-import { Box, Flex } from 'src/components/layout'
 import { BiometricAuthWarningModal } from 'src/components/Settings/BiometricAuthWarningModal'
-import { Text } from 'src/components/Text'
 import Trace from 'src/components/Trace/Trace'
 import { IS_IOS } from 'src/constants/globals'
-import { useIsDarkMode } from 'src/features/appearance/hooks'
 import { BiometricAuthenticationStatus, tryLocalAuthenticate } from 'src/features/biometrics'
 import {
   biometricAuthenticationSuccessful,
@@ -24,12 +20,14 @@ import { OnboardingScreen } from 'src/features/onboarding/OnboardingScreen'
 import { ImportType } from 'src/features/onboarding/utils'
 import { ElementName } from 'src/features/telemetry/constants'
 import { OnboardingScreens } from 'src/screens/Screens'
-import { opacify } from 'src/utils/colors'
 import { openSettings } from 'src/utils/linking'
+import { Box, Button, Flex, Text } from 'ui/src'
 import { SECURITY_SCREEN_BACKGROUND_DARK, SECURITY_SCREEN_BACKGROUND_LIGHT } from 'ui/src/assets'
 import FaceIcon from 'ui/src/assets/icons/faceid-thin.svg'
 import FingerprintIcon from 'ui/src/assets/icons/fingerprint.svg'
 import { theme as FixedTheme } from 'ui/src/theme/restyle'
+import { useIsDarkMode } from 'wallet/src/features/appearance/hooks'
+import { opacify } from 'wallet/src/utils/colors'
 
 type Props = NativeStackScreenProps<OnboardingStackParamList, OnboardingScreens.Security>
 
@@ -103,15 +101,15 @@ export function SecuritySetupScreen({ route: { params } }: Props): JSX.Element {
           }
         )}
         title={t('Protect your wallet')}>
-        <Flex centered shrink my="spacing12" position="relative" py="spacing24">
-          <Box paddingTop="spacing24">
+        <Flex centered shrink my="$spacing12" position="relative" py="$spacing24">
+          <Box paddingTop="$spacing24">
             <SecurityBackgroundImage />
           </Box>
           <Box
-            borderRadius="rounded16"
+            borderRadius="$rounded16"
             borderWidth={1}
             overflow="hidden"
-            padding="spacing36"
+            padding="$spacing36"
             position="absolute"
             style={{
               borderColor: opacify(15, theme.colors.sporeWhite),
@@ -138,22 +136,20 @@ export function SecuritySetupScreen({ route: { params } }: Props): JSX.Element {
             )}
           </Box>
         </Flex>
-        <Flex gap="spacing24">
+        <Flex gap="$spacing24">
           <Trace logPress element={ElementName.Skip}>
             <TouchableArea onPress={onMaybeLaterPressed}>
-              <Text color="accent1" textAlign="center" variant="buttonLabelMedium">
+              <Text color="$accent1" textAlign="center" variant="buttonLabelMedium">
                 {t('Maybe later')}
               </Text>
             </TouchableArea>
           </Trace>
           <Trace logPress element={ElementName.Enable}>
-            <Button
-              emphasis={ButtonEmphasis.Primary}
-              label={t('Turn on {{authenticationTypeName}} ID', {
+            <Button theme="primary" onPress={onPressEnableSecurity}>
+              {t('Turn on {{authenticationTypeName}} ID', {
                 authenticationTypeName,
               })}
-              onPress={onPressEnableSecurity}
-            />
+            </Button>
           </Trace>
         </Flex>
       </OnboardingScreen>
@@ -165,7 +161,11 @@ const SecurityBackgroundImage = (): JSX.Element => {
   const isDarkMode = useIsDarkMode()
   return (
     <Image
-      source={isDarkMode ? SECURITY_SCREEN_BACKGROUND_DARK : SECURITY_SCREEN_BACKGROUND_LIGHT}
+      source={
+        isDarkMode
+          ? Platform.select(SECURITY_SCREEN_BACKGROUND_DARK)
+          : Platform.select(SECURITY_SCREEN_BACKGROUND_LIGHT)
+      }
       style={styles.image}
     />
   )

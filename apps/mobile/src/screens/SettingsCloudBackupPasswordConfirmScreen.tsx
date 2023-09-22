@@ -31,7 +31,7 @@ export function SettingsCloudBackupPasswordConfirmScreen({
   }
 
   return (
-    <Screen mx="spacing16" my="spacing16">
+    <Screen mx="$spacing16" my="$spacing16">
       <BackHeader mb="spacing16" />
       <ScrollView bounces={false} keyboardShouldPersistTaps="handled">
         <Flex alignItems="center" justifyContent="space-between" mb="spacing24" mx="spacing12">
@@ -40,7 +40,7 @@ export function SettingsCloudBackupPasswordConfirmScreen({
           </Text>
           <Text color="neutral2" textAlign="center" variant="bodySmall">
             {t(
-              "You’ll need to enter this password to recover your account. It's not stored anywhere, so it can't be recovered by anyone else."
+              'You’ll need to enter this password to recover your account. It’s not stored anywhere, so it can’t be recovered by anyone else.'
             )}
           </Text>
         </Flex>

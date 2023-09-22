@@ -13,11 +13,11 @@ import WarningModal from 'src/components/modals/WarningModal/WarningModal'
 import { Text } from 'src/components/Text'
 import { IS_ANDROID } from 'src/constants/globals'
 import { useBiometricAppSettings, useBiometricPrompt } from 'src/features/biometrics/hooks'
+import { useCloudBackups } from 'src/features/CloudBackup/hooks'
 import { deleteCloudStorageMnemonicBackup } from 'src/features/CloudBackup/RNCloudStorageBackupsManager'
 import { ElementName, ModalName } from 'src/features/telemetry/constants'
 import { Screens } from 'src/screens/Screens'
 import Checkmark from 'ui/src/assets/icons/check.svg'
-import { serializeError } from 'utilities/src/errors'
 import { logger } from 'utilities/src/logger/logger'
 import {
   EditAccountAction,
@@ -42,8 +42,8 @@ export function SettingsCloudBackupStatus({
   const theme = useAppTheme()
   const dispatch = useAppDispatch()
   const accounts = useAccounts()
-
   const mnemonicId = (accounts[address] as SignerMnemonicAccount)?.mnemonicId
+  const backups = useCloudBackups(mnemonicId)
   const associatedAccounts = Object.values(accounts).filter(
     (a) => a.type === AccountType.SignerMnemonic && a.mnemonicId === mnemonicId
   )
@@ -71,13 +71,7 @@ export function SettingsCloudBackupStatus({
       navigation.navigate(Screens.SettingsWallet, { address })
     } catch (error) {
       setShowBackupDeleteWarning(false)
-      logger.error('Unable to delete cloud storage backup', {
-        tags: {
-          file: 'SettingsCloudBackupStatus',
-          function: 'deleteBackup',
-          error: serializeError(error),
-        },
-      })
+      logger.error(error, { tags: { file: 'SettingsCloudBackupStatus', function: 'deleteBackup' } })
 
       Alert.alert(
         IS_ANDROID ? t('Google Drive error') : t('iCloud error'),
@@ -94,15 +88,17 @@ export function SettingsCloudBackupStatus({
     navigation.navigate(Screens.SettingsWallet, { address })
   }
 
+  const googleDriveEmail = backups[0]?.googleDriveEmail
+
   return (
-    <Screen mx="spacing16" my="spacing16">
+    <Screen mx="$spacing16" my="$spacing16">
       <BackHeader alignment="center" mb="spacing16" onPressBack={onPressBack}>
         <Text variant="bodyLarge">
           {IS_ANDROID ? t('Google Drive backup') : t('iCloud backup')}
         </Text>
       </BackHeader>
 
-      <Flex grow alignItems="stretch" justifyContent="space-evenly" mt="spacing16">
+      <Flex grow alignItems="stretch" justifyContent="space-evenly" mt="spacing16" mx="spacing8">
         <Flex grow gap="spacing24" justifyContent="flex-start">
           <Text color="neutral2" variant="bodySmall">
             {IS_ANDROID
@@ -115,13 +111,20 @@ export function SettingsCloudBackupStatus({
           </Text>
           <Flex row justifyContent="space-between">
             <Text variant="bodyLarge">{t('Recovery phrase')}</Text>
-            <Flex row alignItems="center" gap="spacing12" justifyContent="space-around">
-              <Text color="neutral2" variant="buttonLabelMicro">
-                {t('Backed up')}
-              </Text>
+            <Flex alignItems="flex-end" gap="spacing4">
+              <Flex row alignItems="center" gap="spacing12" justifyContent="space-around">
+                <Text color="neutral2" variant="buttonLabelMicro">
+                  {t('Backed up')}
+                </Text>
 
-              {/* @TODO: [MOB-249] Add non-backed up state once we have more options on this page  */}
-              <Checkmark color={theme.colors.statusSuccess} height={24} width={24} />
+                {/* @TODO: [MOB-249] Add non-backed up state once we have more options on this page  */}
+                <Checkmark color={theme.colors.statusSuccess} height={24} width={24} />
+              </Flex>
+              {googleDriveEmail && (
+                <Text color="neutral3" variant="buttonLabelMicro">
+                  {googleDriveEmail}
+                </Text>
+              )}
             </Flex>
           </Flex>
         </Flex>

@@ -4,7 +4,6 @@ import { TradeType } from '@uniswap/sdk-core'
 import { BigNumberish, providers } from 'ethers'
 import appsFlyer from 'react-native-appsflyer'
 import { call, delay, fork, put, race, select, take } from 'typed-redux-saga'
-import { serializeError } from 'utilities/src/errors'
 import { logger } from 'utilities/src/logger/logger'
 import { ChainId } from 'wallet/src/constants/chains'
 import { PollingInterval } from 'wallet/src/constants/misc'
@@ -29,6 +28,7 @@ import {
 } from 'wallet/src/features/transactions/slice'
 import {
   BaseSwapTransactionInfo,
+  SendTokenTransactionInfo,
   TransactionDetails,
   TransactionReceipt,
   TransactionStatus,
@@ -39,6 +39,7 @@ import { getProvider } from 'wallet/src/features/wallet/context'
 import i18n from 'wallet/src/i18n/i18n'
 import { appSelect } from 'wallet/src/state'
 import { sendWalletAnalyticsEvent } from 'wallet/src/telemetry'
+import { WalletEventName } from 'wallet/src/telemetry/constants'
 
 export function* transactionWatcher({
   apolloClient,
@@ -71,12 +72,11 @@ export function* transactionWatcher({
         yield* fork(watchTransaction, { transaction, apolloClient })
       }
     } catch (error) {
-      logger.error('Failed to fork a transaction watcher', {
+      logger.error(error, {
         tags: {
           file: 'transactionWatcherSaga',
           function: 'watchTransaction',
           txHash: transaction.hash,
-          error: serializeError(error),
         },
       })
 
@@ -143,12 +143,8 @@ export function* watchFiatOnRampTransaction(transaction: TransactionDetails) {
       })
     }
   } catch (error) {
-    logger.error('Failed while watching for a fiat on-ramp transaction', {
-      tags: {
-        file: 'transactionWatcherSaga',
-        function: 'watchFiatOnRampTransaction',
-        error: serializeError(error),
-      },
+    logger.error(error, {
+      tags: { file: 'transactionWatcherSaga', function: 'watchFiatOnRampTransaction' },
     })
   }
 }
@@ -263,14 +259,13 @@ export function logTransactionEvent(
     typeInfo,
     receipt,
     status,
-    options: { alternativeRpc },
+    options: { submitViaPrivateRpc },
   } = payload
   const { gasUsed, effectiveGasPrice, confirmedTime } = receipt ?? {}
   const { type } = typeInfo
 
   // Send analytics event for swap success and failure
   if (type === TransactionType.Swap) {
-    const swapTypeInfo = typeInfo as BaseSwapTransactionInfo
     const {
       slippageTolerance,
       quoteId,
@@ -280,7 +275,7 @@ export function logTransactionEvent(
       outputCurrencyId,
       tradeType,
       protocol,
-    } = swapTypeInfo
+    } = typeInfo as BaseSwapTransactionInfo
     const eventName =
       status === TransactionStatus.Success
         ? SwapEventName.SWAP_TRANSACTION_COMPLETED
@@ -300,8 +295,18 @@ export function logTransactionEvent(
       gasUseEstimate,
       route: routeString,
       quoteId,
-      alternativeRpc,
+      submitViaPrivateRpc,
       protocol,
+    })
+  }
+
+  // Log metrics for confirmed transfers
+  if (type === TransactionType.Send) {
+    const { tokenAddress, recipient: toAddress } = typeInfo as SendTokenTransactionInfo
+    sendWalletAnalyticsEvent(WalletEventName.TransferCompleted, {
+      chainId,
+      tokenAddress,
+      toAddress,
     })
   }
 }

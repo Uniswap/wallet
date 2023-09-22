@@ -8,11 +8,12 @@ import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { AnimatedFlex, Flex } from 'src/components/layout'
 import { WarmLoadingShimmer } from 'src/components/loading/WarmLoadingShimmer'
 import { Text } from 'src/components/Text'
-import { RelativeChange } from 'src/components/text/RelativeChange'
 import { useTokenContextMenu } from 'src/features/balances/hooks'
 import { formatNumber, formatUSDPrice, NumberType } from 'utilities/src/format/format'
 import { TokenLogo } from 'wallet/src/components/CurrencyLogo/TokenLogo'
+import { RelativeChange } from 'wallet/src/components/text/RelativeChange'
 import { PortfolioBalance } from 'wallet/src/features/dataApi/types'
+import { getSymbolDisplayText } from 'wallet/src/utils/currency'
 import { CurrencyId } from 'wallet/src/utils/currencyId'
 
 interface TokenBalanceItemProps {
@@ -44,6 +45,8 @@ export const TokenBalanceItem = memo(function _TokenBalanceItem({
     isNative: currency.isNative,
     accountHoldsToken: true,
   })
+
+  const shortenedSymbol = getSymbolDisplayText(currency.symbol)
 
   return (
     <ContextMenu
@@ -80,11 +83,11 @@ export const TokenBalanceItem = memo(function _TokenBalanceItem({
           />
           <Flex alignItems="flex-start" flexShrink={1} gap="none">
             <Text ellipsizeMode="tail" numberOfLines={1} variant="bodyLarge">
-              {currency.name ?? currency.symbol}
+              {currency.name ?? shortenedSymbol}
             </Text>
             <Flex row alignItems="center" gap="spacing8" minHeight={20}>
               <Text color="neutral2" numberOfLines={1} variant="subheadSmall">
-                {`${formatNumber(quantity)}`} {currency.symbol}
+                {`${formatNumber(quantity)}`} {shortenedSymbol}
               </Text>
             </Flex>
           </Flex>
@@ -103,15 +106,13 @@ export const TokenBalanceItem = memo(function _TokenBalanceItem({
                   variant="bodyLarge">
                   {formatUSDPrice(portfolioBalance.balanceUSD, NumberType.FiatTokenQuantity)}
                 </Text>
-                <Text color="neutral2">
-                  <RelativeChange
-                    alignRight
-                    change={relativeChange24 ?? undefined}
-                    negativeChangeColor={isWarmLoading ? 'neutral2' : 'statusCritical'}
-                    positiveChangeColor={isWarmLoading ? 'neutral2' : 'statusSuccess'}
-                    variant="subheadSmall"
-                  />
-                </Text>
+                <RelativeChange
+                  alignRight
+                  change={relativeChange24 ?? undefined}
+                  negativeChangeColor={isWarmLoading ? '$neutral2' : '$statusCritical'}
+                  positiveChangeColor={isWarmLoading ? '$neutral2' : '$statusSuccess'}
+                  variant="bodySmall"
+                />
               </Flex>
             )}
           </WarmLoadingShimmer>
