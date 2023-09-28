@@ -1,6 +1,5 @@
 import { BigNumber, BigNumberish, providers } from 'ethers'
 import { call } from 'typed-redux-saga'
-import { serializeError } from 'utilities/src/errors'
 import { logger } from 'utilities/src/logger/logger'
 import ERC1155_ABI from 'wallet/src/abis/erc1155.json'
 import ERC20_ABI from 'wallet/src/abis/erc20.json'
@@ -11,6 +10,8 @@ import { sendTransaction } from 'wallet/src/features/transactions/sendTransactio
 import { TransferTokenParams } from 'wallet/src/features/transactions/transfer/types'
 import { SendTokenTransactionInfo, TransactionType } from 'wallet/src/features/transactions/types'
 import { getContractManager, getProvider } from 'wallet/src/features/wallet/context'
+import { sendWalletAnalyticsEvent } from 'wallet/src/telemetry'
+import { WalletEventName } from 'wallet/src/telemetry/constants'
 import { isNativeCurrencyAddress } from 'wallet/src/utils/currencyId'
 import { createMonitoredSaga } from 'wallet/src/utils/saga'
 
@@ -32,14 +33,15 @@ export function* transferToken(params: Params) {
       options: { request: txRequest },
       typeInfo,
     })
-    logger.debug('transferTokenSaga', 'transferToken', 'Transfer complete')
+    sendWalletAnalyticsEvent(WalletEventName.TransferSubmitted, {
+      chainId: params.transferTokenParams.chainId,
+      tokenAddress: params.transferTokenParams.tokenAddress,
+      toAddress: params.transferTokenParams.toAddress,
+    })
+    logger.debug('transferTokenSaga', 'transferToken', 'Transfer submitted')
   } catch (error) {
-    yield* call(logger.error, 'Transfer failed', {
-      tags: {
-        file: 'transferTokenSaga',
-        function: 'transferToken',
-        error: serializeError(error),
-      },
+    yield* call(logger.error, error, {
+      tags: { file: 'transferTokenSaga', function: 'transferToken' },
     })
   }
 }

@@ -25,6 +25,7 @@ export function TokenLogo({
   hideNetworkLogo,
 }: TokenLogoProps): JSX.Element {
   const theme = useTheme()
+
   const showNetworkLogo = !hideNetworkLogo && chainId && chainId !== ChainId.Mainnet
   const httpUri = url ? uriToHttp(url)[0] : null
 
@@ -80,6 +81,7 @@ export function TokenLogo({
             adjustsFontSizeToFit
             color="$neutral1"
             flex={0}
+            minimumFontScale={0.5}
             numberOfLines={1}
             textAlign="center">
             {symbol?.slice(0, 3)}

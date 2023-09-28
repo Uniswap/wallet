@@ -1,15 +1,16 @@
+/* eslint-disable max-lines */
 import { TradeType } from '@uniswap/sdk-core'
 import { NATIVE_ADDRESS } from 'wallet/src/constants/addresses'
 import { ChainId } from 'wallet/src/constants/chains'
 import { DAI } from 'wallet/src/constants/tokens'
 import {
-  ActivityType,
   Chain,
   Currency,
   NftStandard,
   TokenStandard,
   TransactionDirection,
   TransactionStatus,
+  TransactionType as RemoteTransactionType,
 } from 'wallet/src/data/__generated__/types-and-hooks'
 import {
   NFTTradeType,
@@ -40,15 +41,16 @@ const RESPONSE_BASE = {
   id: 'base_id',
   chain: Chain.Ethereum,
   timestamp: 1,
-  transaction: {
+  details: {
+    __typename: 'TransactionDetails' as const,
     id: 'base_tranaction_id',
     hash: TEST_HASH,
     status: TransactionStatus.Confirmed,
     to: TO_ADDRESS,
     from: FROM_ADDRESS,
+    assetChanges: [], // override per test
+    type: RemoteTransactionType.Unknown, // override per test.
   },
-  type: ActivityType.Unknown, // override per test.
-  assetChanges: [], // override per test
 }
 
 /** Asset change response mocks */
@@ -118,6 +120,7 @@ const ERC721_TRANSFER_IN_ASSET_CHANGE = {
   asset: {
     id: 'asset_id',
     name: 'asset_name',
+    isSpam: false,
     nftContract: {
       id: 'nft_contract_id',
       chain: Chain.Ethereum,
@@ -148,8 +151,11 @@ const ERC721_TRANSFER_OUT_ASSET_CHANGE = {
 
 const MOCK_ERC20_APPROVE: TransactionListQueryResponse = {
   ...RESPONSE_BASE,
-  type: ActivityType.Approve,
-  assetChanges: [{ ...ERC20_APPROVE_ASSET_CHANGE, __typename: 'TokenApproval' }],
+  details: {
+    ...RESPONSE_BASE.details,
+    type: RemoteTransactionType.Approve,
+    assetChanges: [{ ...ERC20_APPROVE_ASSET_CHANGE, __typename: 'TokenApproval' }],
+  },
 }
 
 describe(parseApproveTransaction, () => {
@@ -170,20 +176,26 @@ describe(parseApproveTransaction, () => {
 
 const MOCK_721_MINT: TransactionListQueryResponse = {
   ...RESPONSE_BASE,
-  type: ActivityType.Mint,
-  assetChanges: [
-    { ...ERC721_TRANSFER_IN_ASSET_CHANGE, __typename: 'NftTransfer' },
-    { ...ERC20_TRANSFER_OUT_ASSET_CHANGE, __typename: 'TokenTransfer' },
-  ],
+  details: {
+    ...RESPONSE_BASE.details,
+    type: RemoteTransactionType.Mint,
+    assetChanges: [
+      { ...ERC721_TRANSFER_IN_ASSET_CHANGE, __typename: 'NftTransfer' },
+      { ...ERC20_TRANSFER_OUT_ASSET_CHANGE, __typename: 'TokenTransfer' },
+    ],
+  },
 }
 
 const MOCK_721_MINT_WTIH_NATIVE: TransactionListQueryResponse = {
   ...RESPONSE_BASE,
-  type: ActivityType.Mint,
-  assetChanges: [
-    { ...ERC721_TRANSFER_IN_ASSET_CHANGE, __typename: 'NftTransfer' },
-    { ...NATIVE_TRANSFER_OUT_ASSET_CHANGE, __typename: 'TokenTransfer' },
-  ],
+  details: {
+    ...RESPONSE_BASE.details,
+    type: RemoteTransactionType.Mint,
+    assetChanges: [
+      { ...ERC721_TRANSFER_IN_ASSET_CHANGE, __typename: 'NftTransfer' },
+      { ...NATIVE_TRANSFER_OUT_ASSET_CHANGE, __typename: 'TokenTransfer' },
+    ],
+  },
 }
 
 describe(parseNFTMintTransaction, () => {
@@ -226,29 +238,38 @@ describe(parseNFTMintTransaction, () => {
 
 const MOCK_ERC20_RECEIVE: TransactionListQueryResponse = {
   ...RESPONSE_BASE,
-  type: ActivityType.Receive,
-  assetChanges: [{ ...ERC20_TRANSFER_IN_ASSET_CHANGE, __typename: 'TokenTransfer' }],
+  details: {
+    ...RESPONSE_BASE.details,
+    type: RemoteTransactionType.Receive,
+    assetChanges: [{ ...ERC20_TRANSFER_IN_ASSET_CHANGE, __typename: 'TokenTransfer' }],
+  },
 }
 
 const MOCK_ERC20_RECEIVE_SPAM: TransactionListQueryResponse = {
   ...RESPONSE_BASE,
-  type: ActivityType.Receive,
-  assetChanges: [
-    {
-      ...ERC20_TRANSFER_IN_ASSET_CHANGE,
-      asset: {
-        ...ERC20_TRANSFER_IN_ASSET_CHANGE.asset,
-        project: { id: 'project_id', isSpam: true },
+  details: {
+    ...RESPONSE_BASE.details,
+    type: RemoteTransactionType.Receive,
+    assetChanges: [
+      {
+        ...ERC20_TRANSFER_IN_ASSET_CHANGE,
+        asset: {
+          ...ERC20_TRANSFER_IN_ASSET_CHANGE.asset,
+          project: { id: 'project_id', isSpam: true },
+        },
+        __typename: 'TokenTransfer',
       },
-      __typename: 'TokenTransfer',
-    },
-  ],
+    ],
+  },
 }
 
 const MOCK_ERC721_RECEIVE: TransactionListQueryResponse = {
   ...RESPONSE_BASE,
-  type: ActivityType.Receive,
-  assetChanges: [{ ...ERC721_TRANSFER_IN_ASSET_CHANGE, __typename: 'NftTransfer' }],
+  details: {
+    ...RESPONSE_BASE.details,
+    type: RemoteTransactionType.Receive,
+    assetChanges: [{ ...ERC721_TRANSFER_IN_ASSET_CHANGE, __typename: 'NftTransfer' }],
+  },
 }
 
 describe(parseReceiveTransaction, () => {
@@ -283,6 +304,7 @@ describe(parseReceiveTransaction, () => {
       assetType: 'erc-721',
       tokenAddress: 'nft_contract_address',
       sender: FROM_ADDRESS,
+      isSpam: false,
       nftSummaryInfo: {
         name: 'asset_name',
         collectionName: 'collection_name',
@@ -297,14 +319,20 @@ describe(parseReceiveTransaction, () => {
 
 const MOCK_ERC20_SEND: TransactionListQueryResponse = {
   ...RESPONSE_BASE,
-  type: ActivityType.Send,
-  assetChanges: [{ ...ERC20_TRANSFER_OUT_ASSET_CHANGE, __typename: 'TokenTransfer' }],
+  details: {
+    ...RESPONSE_BASE.details,
+    type: RemoteTransactionType.Send,
+    assetChanges: [{ ...ERC20_TRANSFER_OUT_ASSET_CHANGE, __typename: 'TokenTransfer' }],
+  },
 }
 
 const MOCK_ERC721_SEND: TransactionListQueryResponse = {
   ...RESPONSE_BASE,
-  type: ActivityType.Send,
-  assetChanges: [{ ...ERC721_TRANSFER_OUT_ASSET_CHANGE, __typename: 'NftTransfer' }],
+  details: {
+    ...RESPONSE_BASE.details,
+    type: RemoteTransactionType.Send,
+    assetChanges: [{ ...ERC721_TRANSFER_OUT_ASSET_CHANGE, __typename: 'NftTransfer' }],
+  },
 }
 
 describe(parseSendTransaction, () => {
@@ -342,48 +370,63 @@ describe(parseSendTransaction, () => {
 
 const MOCK_ERC20_SWAP: TransactionListQueryResponse = {
   ...RESPONSE_BASE,
-  type: ActivityType.Swap,
-  assetChanges: [
-    { ...ERC20_TRANSFER_OUT_ASSET_CHANGE, __typename: 'TokenTransfer' },
-    { ...ERC20_TRANSFER_IN_ASSET_CHANGE, __typename: 'TokenTransfer' },
-  ],
+  details: {
+    ...RESPONSE_BASE.details,
+    type: RemoteTransactionType.Swap,
+    assetChanges: [
+      { ...ERC20_TRANSFER_OUT_ASSET_CHANGE, __typename: 'TokenTransfer' },
+      { ...ERC20_TRANSFER_IN_ASSET_CHANGE, __typename: 'TokenTransfer' },
+    ],
+  },
 }
 
 const MOCK_NATIVE_SWAP: TransactionListQueryResponse = {
   ...RESPONSE_BASE,
-  type: ActivityType.Swap,
-  assetChanges: [
-    { ...NATIVE_TRANSFER_OUT_ASSET_CHANGE, __typename: 'TokenTransfer' },
-    { ...ERC20_TRANSFER_IN_ASSET_CHANGE, __typename: 'TokenTransfer' },
-  ],
+  details: {
+    ...RESPONSE_BASE.details,
+    type: RemoteTransactionType.Swap,
+    assetChanges: [
+      { ...NATIVE_TRANSFER_OUT_ASSET_CHANGE, __typename: 'TokenTransfer' },
+      { ...ERC20_TRANSFER_IN_ASSET_CHANGE, __typename: 'TokenTransfer' },
+    ],
+  },
 }
 
 /** NFT Purchase and Sell */
 
 const MOCK_NFT_BUY: TransactionListQueryResponse = {
   ...RESPONSE_BASE,
-  type: ActivityType.Swap,
-  assetChanges: [
-    { ...ERC721_TRANSFER_IN_ASSET_CHANGE, __typename: 'NftTransfer' },
-    { ...ERC20_TRANSFER_OUT_ASSET_CHANGE, __typename: 'TokenTransfer' },
-  ],
+  details: {
+    ...RESPONSE_BASE.details,
+    type: RemoteTransactionType.Swap,
+    assetChanges: [
+      { ...ERC721_TRANSFER_IN_ASSET_CHANGE, __typename: 'NftTransfer' },
+      { ...ERC20_TRANSFER_OUT_ASSET_CHANGE, __typename: 'TokenTransfer' },
+    ],
+  },
 }
 const MOCK_NFT_SELL: TransactionListQueryResponse = {
   ...RESPONSE_BASE,
-  type: ActivityType.Swap,
-  assetChanges: [
-    { ...ERC721_TRANSFER_OUT_ASSET_CHANGE, __typename: 'NftTransfer' },
-    { ...ERC20_TRANSFER_IN_ASSET_CHANGE, __typename: 'TokenTransfer' },
-  ],
+  details: {
+    ...RESPONSE_BASE.details,
+    type: RemoteTransactionType.Swap,
+    assetChanges: [
+      { ...ERC721_TRANSFER_OUT_ASSET_CHANGE, __typename: 'NftTransfer' },
+      { ...ERC20_TRANSFER_IN_ASSET_CHANGE, __typename: 'TokenTransfer' },
+    ],
+  },
 }
 
 const MOCK_NATIVE_WRAP: TransactionListQueryResponse = {
   ...RESPONSE_BASE,
-  type: ActivityType.Swap,
-  assetChanges: [
-    { ...NATIVE_TRANSFER_OUT_ASSET_CHANGE, __typename: 'TokenTransfer' },
-    { ...ERC20_WRAPPED_TRANSFER_IN_ASSET_CHANGE, __typename: 'TokenTransfer' },
-  ],
+  details: {
+    ...RESPONSE_BASE.details,
+    type: RemoteTransactionType.Swap,
+    assetChanges: [
+      { ...NATIVE_TRANSFER_OUT_ASSET_CHANGE, __typename: 'TokenTransfer' },
+      { ...ERC20_WRAPPED_TRANSFER_IN_ASSET_CHANGE, __typename: 'TokenTransfer' },
+    ],
+  },
 }
 
 describe(parseTradeTransaction, () => {

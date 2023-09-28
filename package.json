@@ -55,6 +55,7 @@
     "esbuild": "0.17.5",
     "jpeg-js": "0.4.4",
     "json5": "2.2.2",
+    "is-core-module": "2.13.0",
     "node-fetch": "2.6.7",
     "qs": "6.11.0",
     "react": "18.2.0",
@@ -63,13 +64,15 @@
     "react-native-svg": "13.8.0",
     "react-native-web": "0.18.12",
     "react-refresh": "^0.14.0",
+    "resolve": "1.22.4",
     "semver": "7.5.2",
     "typescript": "4.9.4",
     "ua-parser-js": "0.7.33",
     "webpack": "^5.74.0",
     "xml2js": "0.5.0",
     "yaml": "2.2.2",
-    "@shopify/flash-list@1.4.3": "patch:@shopify/flash-list@npm%3A1.4.3#./.yarn/patches/@shopify-flash-list-npm-1.4.3-dc03c28fdd.patch"
+    "@shopify/flash-list@1.4.3": "patch:@shopify/flash-list@npm%3A1.4.3#./.yarn/patches/@shopify-flash-list-npm-1.4.3-dc03c28fdd.patch",
+    "react-native@0.71.11": "patch:react-native@npm%3A0.71.11#./.yarn/patches/react-native-npm-0.71.11-c31ec9c2e7.patch"
   },
   "scripts": {
     "contracts:compile": "typechain --target ethers-v5 --out-dir packages/wallet/src/abis/types './packages/wallet/src/abis/**/*.json'",

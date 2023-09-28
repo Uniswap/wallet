@@ -9,8 +9,9 @@ import {
   withDelay,
   withTiming,
 } from 'react-native-reanimated'
-import { withAnimated } from 'src/components/animated'
-import { defaultHitslopInset, Theme } from 'ui/src/theme/restyle'
+import { withAnimated } from 'ui/src/components/factories/animated'
+import { defaultHitslopInset } from 'ui/src/theme'
+import { Theme } from 'ui/src/theme/restyle'
 
 const TouchableBox = createBox<Theme, TouchableOpacityProps>(TouchableOpacity)
 const AnimatedTouchableBox = withAnimated(TouchableBox)

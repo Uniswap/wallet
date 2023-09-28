@@ -2,22 +2,20 @@ import { ImpactFeedbackStyle, selectionAsync } from 'expo-haptics'
 import React, { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Keyboard, LayoutAnimation, StyleSheet, VirtualizedList } from 'react-native'
-import { useAppTheme } from 'src/app/hooks'
 import { TouchableArea } from 'src/components/buttons/TouchableArea'
-import { Chevron } from 'src/components/icons/Chevron'
 import { Box, Flex } from 'src/components/layout'
 import { ActionSheetModal } from 'src/components/modals/ActionSheetModal'
 import { useNetworkOptions } from 'src/components/Network/hooks'
 import { Text } from 'src/components/Text'
 import { ModalName } from 'src/features/telemetry/constants'
+import { Icons } from 'ui/src'
 import EllipsisIcon from 'ui/src/assets/icons/ellipsis.svg'
 import { colors, iconSizes } from 'ui/src/theme'
 import {
   NetworkLogo,
   SQUARE_BORDER_RADIUS as NETWORK_LOGO_SQUARE_BORDER_RADIUS,
 } from 'wallet/src/components/CurrencyLogo/NetworkLogo'
-import { ChainId } from 'wallet/src/constants/chains'
-import { useActiveChainIds } from 'wallet/src/features/chains/hooks'
+import { ALL_SUPPORTED_CHAIN_IDS, ChainId } from 'wallet/src/constants/chains'
 
 const ELLIPSIS = 'ellipsis'
 const NETWORK_ICON_SIZE = iconSizes.icon20
@@ -97,7 +95,6 @@ export function NetworkFilter({
   includeAllNetworks,
   showEllipsisInitially,
 }: NetworkFilterProps): JSX.Element {
-  const theme = useAppTheme()
   const { t } = useTranslation()
   const [showModal, setShowModal] = useState(false)
   // TODO: remove the comment below once we add it to the main swap screen
@@ -117,10 +114,9 @@ export function NetworkFilter({
     [showEllipsisIcon, selectedChain, onPressChain]
   )
 
-  const activeChains = useActiveChainIds()
   // design wants to limit amount of networks shown in the network filter,
   // when all networks is selected and for now we show all, but Arbitrum
-  const activeChainsWithoutArbitrum = activeChains.filter(
+  const activeChainsWithoutArbitrum = ALL_SUPPORTED_CHAIN_IDS.filter(
     (chainId) => chainId !== ChainId.ArbitrumOne
   )
 
@@ -147,11 +143,11 @@ export function NetworkFilter({
             // show specific network or all
             networks={networks}
           />
-          <Chevron
-            color={theme.colors.neutral3}
+          <Icons.RotatableChevron
+            color="$neutral3"
             direction="s"
-            height={theme.iconSizes.icon20}
-            width={theme.iconSizes.icon20}
+            height={iconSizes.icon20}
+            width={iconSizes.icon20}
           />
         </Flex>
       </TouchableArea>

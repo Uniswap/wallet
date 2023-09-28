@@ -4,21 +4,20 @@ import React from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { useAppDispatch } from 'src/app/hooks'
 import { OnboardingStackParamList } from 'src/app/navigation/types'
-import { Button, ButtonSize } from 'src/components/buttons/Button'
 import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { LandingBackground } from 'src/components/gradients/LandingBackground'
-import { Box, Flex } from 'src/components/layout'
 import { Screen } from 'src/components/layout/Screen'
 import { Text } from 'src/components/Text'
 import Trace from 'src/components/Trace/Trace'
-import { useIsDarkMode } from 'src/features/appearance/hooks'
 import { ImportType, OnboardingEntryPoint } from 'src/features/onboarding/utils'
 import { ElementName } from 'src/features/telemetry/constants'
 import { OnboardingScreens } from 'src/screens/Screens'
 import { openUri } from 'src/utils/linking'
 import { hideSplashScreen } from 'src/utils/splashScreen'
+import { Box, Button, Flex } from 'ui/src'
 import { useTimeout } from 'utilities/src/time/timing'
 import { uniswapUrls } from 'wallet/src/constants/urls'
+import { useIsDarkMode } from 'wallet/src/features/appearance/hooks'
 import { createAccountActions } from 'wallet/src/features/wallet/create/createAccountSaga'
 import {
   PendingAccountActions,
@@ -49,9 +48,8 @@ export function LandingScreen({ navigation }: Props): JSX.Element {
     })
   }
 
-  const outerGap = useResponsiveProp({ xs: 'spacing12', sm: 'spacing24' })
-  const buttonSize = useResponsiveProp({ xs: ButtonSize.Medium, sm: ButtonSize.Large })
-  const pb = useResponsiveProp({ xs: 'spacing12', sm: 'none' })
+  // TODO(MOB-826): improve responsiveness (pull variables from getButtonProperties into TouchableArea)
+  const buttonSize = useResponsiveProp({ xs: 'medium', sm: 'large' })
 
   // Hides lock screen on next js render cycle, ensuring this component is loaded when the screen is hidden
   useTimeout(hideSplashScreen, 1)
@@ -59,28 +57,30 @@ export function LandingScreen({ navigation }: Props): JSX.Element {
   return (
     // TODO(blocked by MOB-1082): delete bg prop
     // dark mode onboarding asset needs to be re-exported with #131313 (surface1) as background color
-    <Screen bg={isDarkMode ? 'sporeBlack' : 'surface1'} edges={['bottom']}>
+    <Screen bg={isDarkMode ? '$sporeBlack' : '$surface1'} edges={['bottom']}>
       <Flex shrink height="100%" width="100%">
         <LandingBackground />
       </Flex>
       <Flex grow height="auto">
-        <Flex grow gap={outerGap} justifyContent="flex-end" mx="spacing16">
+        <Flex
+          grow
+          $short={{ gap: '$spacing12' }}
+          gap="$spacing24"
+          justifyContent="flex-end"
+          mx="$spacing16">
           <Trace logPress element={ElementName.CreateAccount}>
-            <Button
-              hapticFeedback
-              label={t('Create a new wallet')}
-              size={buttonSize}
-              onPress={onPressCreateWallet}
-            />
+            <Button hapticFeedback size={buttonSize} onPress={onPressCreateWallet}>
+              {t('Create a new wallet')}
+            </Button>
           </Trace>
           <Trace logPress element={ElementName.ImportAccount}>
             <TouchableArea hapticFeedback alignItems="center" onPress={onPressImportWallet}>
               <Text color="accent1" variant="buttonLabelLarge">
-                {t('Import or watch a wallet')}
+                {t('Add an existing wallet')}
               </Text>
             </TouchableArea>
           </Trace>
-          <Box mx="spacing24" pb={pb}>
+          <Box $short={{ pb: '$none' }} mx="$spacing24" py="$spacing12">
             <Text color="neutral2" mx="spacing4" textAlign="center" variant="buttonLabelMicro">
               <Trans t={t}>
                 By continuing, I agree to the{' '}

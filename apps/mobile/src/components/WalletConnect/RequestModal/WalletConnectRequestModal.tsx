@@ -32,7 +32,6 @@ import {
 } from 'src/features/walletConnect/walletConnectSlice'
 import AlertTriangle from 'ui/src/assets/icons/alert-triangle.svg'
 import { iconSizes } from 'ui/src/theme'
-import { serializeError } from 'utilities/src/errors'
 import { logger } from 'utilities/src/logger/logger'
 import { useTransactionGasFee, useUSDValue } from 'wallet/src/features/gas/hooks'
 import { GasSpeed } from 'wallet/src/features/gas/types'
@@ -79,13 +78,7 @@ const getPermitInfo = (request: WalletConnectRequest): PermitInfo | undefined =>
 
     return { currencyId, amount }
   } catch (error) {
-    logger.error('Invalid WalletConnect permit info', {
-      tags: {
-        file: 'WalletConnectRequestModal',
-        function: 'getPermitInfo',
-        error: serializeError(error),
-      },
-    })
+    logger.error(error, { tags: { file: 'WalletConnectRequestModal', function: 'getPermitInfo' } })
     return undefined
   }
 }
@@ -307,7 +300,7 @@ export function WalletConnectRequestModal({ onClose, request }: Props): JSX.Elem
               <AccountDetails address={request.account} />
               {!hasSufficientFunds && (
                 <Text color="DEP_accentWarning" paddingTop="spacing8" variant="bodySmall">
-                  {t("You don't have enough {{symbol}} to complete this transaction.", {
+                  {t('You don’t have enough {{symbol}} to complete this transaction.', {
                     symbol: nativeCurrency?.symbol,
                   })}
                 </Text>

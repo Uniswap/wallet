@@ -30,7 +30,9 @@ import { openUri } from 'src/utils/linking'
 import { Icons } from 'ui/src'
 import AlertTriangleIcon from 'ui/src/assets/icons/alert-triangle.svg'
 import InfoCircle from 'ui/src/assets/icons/info-circle.svg'
+import { fonts, iconSizes, spacing } from 'ui/src/theme'
 import { formatCurrencyAmount, NumberType } from 'utilities/src/format/format'
+import { ChainId, CHAIN_INFO } from 'wallet/src/constants/chains'
 import {
   MAX_AUTO_SLIPPAGE_TOLERANCE,
   MAX_CUSTOM_SLIPPAGE_TOLERANCE,
@@ -38,9 +40,11 @@ import {
 import { SWAP_SLIPPAGE_HELP_PAGE_URL } from 'wallet/src/constants/urls'
 import { FEATURE_FLAGS } from 'wallet/src/features/experiments/constants'
 import { useFeatureFlag } from 'wallet/src/features/experiments/hooks'
+import { isPrivateRpcSupportedOnChain } from 'wallet/src/features/providers'
 import { useSwapProtectionSetting } from 'wallet/src/features/wallet/hooks'
 import { setSwapProtectionSetting, SwapProtectionSetting } from 'wallet/src/features/wallet/slice'
 import { useAppDispatch } from 'wallet/src/state'
+import { getSymbolDisplayText } from 'wallet/src/utils/currency'
 
 const SLIPPAGE_INCREMENT = 0.1
 
@@ -64,7 +68,7 @@ export default function SwapSettingsModal({
   const { t } = useTranslation()
   const [view, setView] = useState(SwapSettingsModalView.Options)
 
-  const { customSlippageTolerance, autoSlippageTolerance } = derivedSwapInfo
+  const { customSlippageTolerance, autoSlippageTolerance, chainId } = derivedSwapInfo
   const isCustomSlippage = !!customSlippageTolerance
   const currentSlippage =
     customSlippageTolerance ?? autoSlippageTolerance ?? MAX_AUTO_SLIPPAGE_TOLERANCE
@@ -83,6 +87,7 @@ export default function SwapSettingsModal({
       case SwapSettingsModalView.Options:
         return (
           <SwapSettingsOptions
+            chainId={chainId}
             isCustomSlippage={isCustomSlippage}
             setView={setView}
             slippage={currentSlippage}
@@ -91,7 +96,7 @@ export default function SwapSettingsModal({
       case SwapSettingsModalView.Slippage:
         return <SlippageSettings derivedSwapInfo={derivedSwapInfo} dispatch={dispatch} />
     }
-  }, [currentSlippage, derivedSwapInfo, dispatch, isCustomSlippage, view])
+  }, [chainId, currentSlippage, derivedSwapInfo, dispatch, isCustomSlippage, view])
 
   return (
     <BottomSheetModal
@@ -102,10 +107,7 @@ export default function SwapSettingsModal({
         <Flex row justifyContent="space-between">
           <TouchableArea onPress={(): void => setView(SwapSettingsModalView.Options)}>
             <Icons.Chevron
-              color={
-                view === SwapSettingsModalView.Options ? theme.colors.none : theme.colors.neutral3
-              }
-              direction="w"
+              color={view === SwapSettingsModalView.Options ? '$transparent' : '$neutral3'}
               height={theme.iconSizes.icon24}
               width={theme.iconSizes.icon24}
             />
@@ -128,12 +130,13 @@ function SwapSettingsOptions({
   slippage,
   isCustomSlippage,
   setView,
+  chainId,
 }: {
   slippage: number
   isCustomSlippage: boolean
   setView: (newView: SwapSettingsModalView) => void
+  chainId: ChainId
 }): JSX.Element {
-  const theme = useAppTheme()
   const { t } = useTranslation()
   const isMevBlockerFeatureEnabled = useFeatureFlag(FEATURE_FLAGS.MevBlocker)
 
@@ -156,20 +159,20 @@ function SwapSettingsOptions({
               .toFixed(2)
               .toString()}%`}</Text>
             <Icons.Chevron
-              color={theme.colors.neutral3}
-              direction="e"
-              height={theme.iconSizes.icon24}
-              width={theme.iconSizes.icon24}
+              color="$neutral3"
+              height={iconSizes.icon24}
+              style={{ transform: [{ rotate: '180deg' }] }}
+              width={iconSizes.icon24}
             />
           </Flex>
         </TouchableArea>
       </Flex>
-      {isMevBlockerFeatureEnabled && <SwapProtectionSettingsRow />}
+      {isMevBlockerFeatureEnabled && <SwapProtectionSettingsRow chainId={chainId} />}
     </Flex>
   )
 }
 
-function SwapProtectionSettingsRow(): JSX.Element {
+function SwapProtectionSettingsRow({ chainId }: { chainId: ChainId }): JSX.Element {
   const { t } = useTranslation()
   const theme = useAppTheme()
   const dispatch = useAppDispatch()
@@ -185,6 +188,13 @@ function SwapProtectionSettingsRow(): JSX.Element {
   }, [dispatch, swapProtectionSetting])
 
   const [showInfoModal, setShowInfoModal] = useState(false)
+
+  const privateRpcSupportedOnChain = isPrivateRpcSupportedOnChain(chainId)
+  const chainName = CHAIN_INFO[chainId].label
+  const subText = privateRpcSupportedOnChain
+    ? t('{{chainName}} Network', { chainName })
+    : t('Not available on {{chainName}}', { chainName })
+
   return (
     <>
       {showInfoModal && <SwapProtectionInfoModal onClose={(): void => setShowInfoModal(false)} />}
@@ -193,7 +203,7 @@ function SwapProtectionSettingsRow(): JSX.Element {
         <Flex fill row justifyContent="space-between">
           <TouchableArea onPress={(): void => setShowInfoModal(true)}>
             <Flex gap="spacing4">
-              <Flex centered row gap="spacing4">
+              <Flex row alignItems="center" gap="spacing4">
                 <Text color="neutral1" variant="subheadSmall">
                   {t('Swap protection')}
                 </Text>
@@ -204,12 +214,13 @@ function SwapProtectionSettingsRow(): JSX.Element {
                 />
               </Flex>
               <Text color="neutral2" variant="bodyMicro">
-                {t('Ethereum Network')}
+                {subText}
               </Text>
             </Flex>
           </TouchableArea>
           <Switch
-            value={swapProtectionSetting === SwapProtectionSetting.On}
+            disabled={!privateRpcSupportedOnChain}
+            value={privateRpcSupportedOnChain && swapProtectionSetting === SwapProtectionSetting.On}
             onValueChange={toggleSwapProtectionSetting}
           />
         </Flex>
@@ -466,15 +477,11 @@ function BottomLabel({
 
   if (inputWarning) {
     return (
-      <Flex
-        centered
-        row
-        gap="spacing8"
-        height={theme.textVariants.bodySmall.lineHeight * 2 + theme.spacing.spacing8}>
+      <Flex centered row gap="spacing8" height={fonts.bodySmall.lineHeight * 2 + spacing.spacing8}>
         <AlertTriangleIcon
           color={theme.colors.DEP_accentWarning}
-          height={theme.iconSizes.icon16}
-          width={theme.iconSizes.icon16}
+          height={iconSizes.icon16}
+          width={iconSizes.icon16}
         />
         <Text color="DEP_accentWarning" textAlign="center" variant="bodySmall">
           {inputWarning}
@@ -495,14 +502,14 @@ function BottomLabel({
                 trade.minimumAmountOut(slippageTolerancePercent),
                 NumberType.TokenTx
               ),
-              symbol: trade.outputAmount.currency.symbol,
+              symbol: getSymbolDisplayText(trade.outputAmount.currency.symbol),
             })
           : t('Spend at most {{amount}} {{symbol}}', {
               amount: formatCurrencyAmount(
                 trade.maximumAmountIn(slippageTolerancePercent),
                 NumberType.TokenTx
               ),
-              symbol: trade.inputAmount.currency.symbol,
+              symbol: getSymbolDisplayText(trade.inputAmount.currency.symbol),
             })}
       </Text>
       {showSlippageWarning ? (

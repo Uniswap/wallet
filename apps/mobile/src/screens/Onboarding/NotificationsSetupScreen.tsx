@@ -1,7 +1,7 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Alert, Image, StyleSheet } from 'react-native'
+import { Alert, Image, Platform, StyleSheet } from 'react-native'
 import { useAppDispatch, useAppSelector } from 'src/app/hooks'
 import { OnboardingStackParamList } from 'src/app/navigation/types'
 import { BackButton } from 'src/components/buttons/BackButton'
@@ -10,7 +10,7 @@ import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { Flex } from 'src/components/layout'
 import { Text } from 'src/components/Text'
 import Trace from 'src/components/Trace/Trace'
-import { useIsDarkMode } from 'src/features/appearance/hooks'
+import { IS_IOS } from 'src/constants/globals'
 import { useBiometricAppSettings } from 'src/features/biometrics/hooks'
 import { promptPushPermission } from 'src/features/notifications/Onesignal'
 import { useCompleteOnboardingCallback } from 'src/features/onboarding/hooks'
@@ -20,6 +20,7 @@ import { ElementName } from 'src/features/telemetry/constants'
 import { OnboardingScreens } from 'src/screens/Screens'
 import { openSettings } from 'src/utils/linking'
 import { ONBOARDING_NOTIFICATIONS_DARK, ONBOARDING_NOTIFICATIONS_LIGHT } from 'ui/src/assets'
+import { useIsDarkMode } from 'wallet/src/features/appearance/hooks'
 import {
   EditAccountAction,
   editAccountActions,
@@ -33,7 +34,7 @@ type Props = NativeStackScreenProps<OnboardingStackParamList, OnboardingScreens.
 export const showNotificationSettingsAlert = (): void => {
   Alert.alert(
     i18n.t(
-      "To receive notifications, turn on notifications for Uniswap Wallet in your device's settings."
+      'To receive notifications, turn on notifications for Uniswap Wallet in your device’s settings.'
     ),
     '',
     [
@@ -116,7 +117,7 @@ export function NotificationsSetupScreen({ navigation, route: { params } }: Prop
     <OnboardingScreen
       subtitle={t('Get notified when your transfers, swaps, and approvals complete.')}
       title={t('Turn on push notifications')}>
-      <Flex centered shrink py="spacing60">
+      <Flex centered shrink py={IS_IOS ? 'spacing60' : 'spacing16'}>
         <NotificationsBackgroundImage />
       </Flex>
       <Flex gap="spacing24">
@@ -139,7 +140,11 @@ const NotificationsBackgroundImage = (): JSX.Element => {
   const isDarkMode = useIsDarkMode()
   return (
     <Image
-      source={isDarkMode ? ONBOARDING_NOTIFICATIONS_DARK : ONBOARDING_NOTIFICATIONS_LIGHT}
+      source={
+        isDarkMode
+          ? Platform.select(ONBOARDING_NOTIFICATIONS_DARK)
+          : Platform.select(ONBOARDING_NOTIFICATIONS_LIGHT)
+      }
       style={styles.image}
     />
   )

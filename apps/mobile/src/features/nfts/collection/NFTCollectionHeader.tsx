@@ -9,8 +9,8 @@ import { Box, BoxProps, Flex } from 'src/components/layout'
 import { Loader } from 'src/components/loading'
 import { Text } from 'src/components/Text'
 import { LongText } from 'src/components/text/LongText'
+import { IS_ANDROID } from 'src/constants/globals'
 import { NFTCollectionContextMenu } from 'src/features/nfts/collection/NFTCollectionContextMenu'
-import { useExtractedColors } from 'src/utils/colors'
 import { Logos } from 'ui/src'
 import VerifiedIcon from 'ui/src/assets/icons/verified.svg'
 import { iconSizes } from 'ui/src/theme'
@@ -19,6 +19,7 @@ import { formatNumber, NumberType } from 'utilities/src/format/format'
 import { NftCollectionScreenQuery } from 'wallet/src/data/__generated__/types-and-hooks'
 import { ImageUri } from 'wallet/src/features/images/ImageUri'
 import { NFTViewer } from 'wallet/src/features/images/NFTViewer'
+import { useExtractedColors } from 'wallet/src/utils/colors'
 
 const PROFILE_IMAGE_SIZE = 72
 const PROFILE_IMAGE_WRAPPER_SIZE = PROFILE_IMAGE_SIZE + FixedTheme.spacing.spacing4
@@ -101,7 +102,7 @@ export function NFTCollectionHeader({
             borderRadius="roundedFull"
             padding="spacing12">
             <Flex centered grow height={theme.iconSizes.icon8} width={theme.iconSizes.icon8}>
-              <BackButton color="sporeWhite" size={theme.iconSizes.icon24} />
+              <BackButton color="$sporeWhite" size={iconSizes.icon24} />
             </Flex>
           </TouchableArea>
           <NFTCollectionContextMenu
@@ -213,6 +214,9 @@ export function NFTCollectionHeader({
           {/* Collection description */}
           {data?.description ? (
             <LongText
+              codeBackgroundColor={
+                IS_ANDROID ? theme.colors.surface3 : theme.colors.DEP_backgroundOverlay
+              }
               gap="none"
               initialDisplayedLines={3}
               lineBreakMode="tail"

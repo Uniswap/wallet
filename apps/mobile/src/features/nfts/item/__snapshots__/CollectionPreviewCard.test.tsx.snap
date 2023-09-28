@@ -109,11 +109,8 @@ exports[`renders collection preview card 1`] = `
                 "color": "#7D7D7D",
                 "display": "flex",
                 "flex": 0,
-                "flexGrow": 0,
-                "flexWrap": "wrap",
-                "fontFamily": "Basel-Medium",
+                "fontFamily": "Basel-Book",
                 "fontSize": 17,
-                "fontWeight": "400",
                 "lineHeight": 24,
               }
             }
@@ -231,21 +228,21 @@ exports[`renders collection preview card 1`] = `
     />
     <View
       style={
-        [
-          {
-            "alignItems": "center",
-            "borderRadius": 999999,
-            "display": "flex",
-            "justifyContent": "center",
-          },
-          {
-            "transform": [
-              {
-                "rotate": "180deg",
-              },
-            ],
-          },
-        ]
+        {
+          "alignItems": "center",
+          "borderBottomLeftRadius": 999999,
+          "borderBottomRightRadius": 999999,
+          "borderTopLeftRadius": 999999,
+          "borderTopRightRadius": 999999,
+          "flexDirection": "column",
+          "gap": 0,
+          "justifyContent": "center",
+          "transform": [
+            {
+              "rotate": "180deg",
+            },
+          ],
+        }
       }
     >
       <RNSVGSvgView
@@ -254,15 +251,21 @@ exports[`renders collection preview card 1`] = `
         bbWidth="24"
         fill="none"
         focusable={false}
-        height={24}
         meetOrSlice={0}
         minX={0}
         minY={0}
+        stroke="currentColor"
+        strokeWidth={8}
         style={
           [
             {
               "backgroundColor": "transparent",
               "borderWidth": 0,
+            },
+            {
+              "color": "#222222",
+              "height": 24,
+              "width": 24,
             },
             {
               "flex": 0,
@@ -271,17 +274,25 @@ exports[`renders collection preview card 1`] = `
             },
           ]
         }
+        tintColor="#222222"
         vbHeight={24}
-        vbWidth={26}
-        width={24}
+        vbWidth={24}
       >
         <RNSVGGroup
           fill={null}
           propList={
             [
               "fill",
+              "stroke",
+              "strokeWidth",
             ]
           }
+          stroke={
+            {
+              "type": 2,
+            }
+          }
+          strokeWidth="8"
         >
           <RNSVGPath
             d="M15 6L9 12L15 18"
@@ -301,13 +312,12 @@ exports[`renders collection preview card 1`] = `
             }
             stroke={
               {
-                "payload": 4280427042,
-                "type": 0,
+                "type": 2,
               }
             }
             strokeLinecap={1}
             strokeLinejoin={1}
-            strokeWidth="3"
+            strokeWidth="2"
           />
         </RNSVGGroup>
       </RNSVGSvgView>

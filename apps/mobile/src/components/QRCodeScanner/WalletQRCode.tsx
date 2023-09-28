@@ -10,9 +10,9 @@ import { AnimatedFlex } from 'src/components/layout'
 import { QRCodeDisplay } from 'src/components/QRCodeScanner/QRCode'
 import { Text } from 'src/components/Text'
 import { useUniconColors } from 'src/components/unicons/utils'
-import { useIsDarkMode } from 'src/features/appearance/hooks'
 import { openUri } from 'src/utils/linking'
 import { SUPPORTED_NETWORKS_PAGE_URL } from 'wallet/src/constants/urls'
+import { useIsDarkMode } from 'wallet/src/features/appearance/hooks'
 
 const QR_CODE_SIZE = 220
 const UNICON_SIZE = QR_CODE_SIZE / 2.8
@@ -74,7 +74,7 @@ export function WalletQRCode({ address }: Props): JSX.Element | null {
         />
         <Text color="neutral2" lineHeight={20} textAlign="center" variant="bodyMicro">
           {t(
-            'Only send tokens on Ethereum, Arbitrum, Optimism, Polygon, Base networks to this address.'
+            'Only send tokens on Ethereum, Arbitrum, Optimism, Polygon, Base, BNB networks to this address.'
           )}{' '}
         </Text>
         <TouchableArea height={18} onPress={onPressLearnMore}>

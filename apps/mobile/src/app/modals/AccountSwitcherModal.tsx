@@ -6,12 +6,12 @@ import { Action } from 'redux'
 import { useAppDispatch, useAppSelector, useAppTheme } from 'src/app/hooks'
 import { navigate } from 'src/app/navigation/rootNavigation'
 import { AccountList } from 'src/components/accounts/AccountList'
+import { AddressDisplay } from 'src/components/AddressDisplay'
+import { Button, ButtonEmphasis, ButtonSize } from 'src/components/buttons/Button'
 import { TouchableArea } from 'src/components/buttons/TouchableArea'
-import { Box, Flex } from 'src/components/layout'
 import { Screen } from 'src/components/layout/Screen'
 import { ActionSheetModal, MenuItemProp } from 'src/components/modals/ActionSheetModal'
 import { BottomSheetModal } from 'src/components/modals/BottomSheetModal'
-import { Text } from 'src/components/Text'
 import { IS_ANDROID } from 'src/constants/globals'
 import { isCloudStorageAvailable } from 'src/features/CloudBackup/RNCloudStorageBackupsManager'
 import { closeModal, openModal, selectModalState } from 'src/features/modals/modalSlice'
@@ -19,8 +19,9 @@ import { ImportType, OnboardingEntryPoint } from 'src/features/onboarding/utils'
 import { ElementName, ModalName } from 'src/features/telemetry/constants'
 import { OnboardingScreens, Screens } from 'src/screens/Screens'
 import { openSettings } from 'src/utils/linking'
-import PlusIcon from 'ui/src/assets/icons/plus.svg'
-import { dimensions } from 'ui/src/theme/restyle'
+import { Flex, Icons, Text } from 'ui/src'
+import { dimensions, iconSizes, spacing } from 'ui/src/theme'
+import { AccountType } from 'wallet/src/features/wallet/accounts/types'
 import { createAccountActions } from 'wallet/src/features/wallet/create/createAccountSaga'
 import {
   PendingAccountActions,
@@ -40,7 +41,7 @@ export function AccountSwitcherModal(): JSX.Element {
       backgroundColor={theme.colors.surface1}
       name={ModalName.AccountSwitcher}
       onClose={(): Action => dispatch(closeModal({ name: ModalName.AccountSwitcher }))}>
-      <Screen bg="surface1" noInsets={true}>
+      <Screen bg="$surface1" noInsets={true}>
         <AccountSwitcher
           onClose={(): void => {
             dispatch(closeModal({ name: ModalName.AccountSwitcher }))
@@ -57,8 +58,6 @@ export function AccountSwitcherModal(): JSX.Element {
  */
 export function AccountSwitcher({ onClose }: { onClose: () => void }): JSX.Element | null {
   const { t } = useTranslation()
-  const theme = useAppTheme()
-
   const activeAccountAddress = useActiveAccountAddress()
   const dispatch = useAppDispatch()
   const hasImportedSeedPhrase = useNativeAccountExists()
@@ -85,6 +84,16 @@ export function AccountSwitcher({ onClose }: { onClose: () => void }): JSX.Eleme
 
   const onCloseAddWallet = (): void => {
     setShowAddWalletModal(false)
+  }
+
+  const onManageWallet = (): void => {
+    if (!activeAccountAddress) return
+
+    dispatch(closeModal({ name: ModalName.AccountSwitcher }))
+    navigate(Screens.SettingsStack, {
+      screen: Screens.SettingsWallet,
+      params: { address: activeAccountAddress },
+    })
   }
 
   const addWalletOptions = useMemo<MenuItemProp[]>(() => {
@@ -168,27 +177,37 @@ export function AccountSwitcher({ onClose }: { onClose: () => void }): JSX.Eleme
         key: ElementName.CreateAccount,
         onPress: onPressCreateNewWallet,
         render: () => (
-          <Box alignItems="center" borderBottomColor="surface3" borderBottomWidth={1} p="spacing16">
+          <Flex
+            alignItems="center"
+            borderBottomColor="$surface3"
+            borderBottomWidth={1}
+            gap="$none"
+            p="$spacing16">
             <Text variant="bodyLarge">{t('Create a new wallet')}</Text>
-          </Box>
+          </Flex>
         ),
       },
       {
         key: ElementName.AddViewOnlyWallet,
         onPress: onPressAddViewOnlyWallet,
         render: () => (
-          <Box alignItems="center" p="spacing16">
+          <Flex alignItems="center" gap="$none" p="$spacing16">
             <Text variant="bodyLarge">{t('Add a view-only wallet')}</Text>
-          </Box>
+          </Flex>
         ),
       },
       {
         key: ElementName.ImportAccount,
         onPress: onPressImportWallet,
         render: () => (
-          <Box alignItems="center" borderTopColor="surface3" borderTopWidth={1} p="spacing16">
+          <Flex
+            alignItems="center"
+            borderTopColor="$surface3"
+            borderTopWidth={1}
+            gap="$none"
+            p="$spacing16">
             <Text variant="bodyLarge">{t('Import a new wallet')}</Text>
-          </Box>
+          </Flex>
         ),
       },
     ]
@@ -198,17 +217,27 @@ export function AccountSwitcher({ onClose }: { onClose: () => void }): JSX.Eleme
         key: ElementName.RestoreFromCloud,
         onPress: onPressRestore,
         render: () => (
-          <Box alignItems="center" borderTopColor="surface3" borderTopWidth={1} p="spacing16">
+          <Flex
+            alignItems="center"
+            borderTopColor="$surface3"
+            borderTopWidth={1}
+            gap="$none"
+            p="$spacing16">
             <Text variant="bodyLarge">
               {IS_ANDROID ? t('Restore from Google Drive') : t('Restore from iCloud')}
             </Text>
-          </Box>
+          </Flex>
         ),
       })
     }
 
     return options
   }, [activeAccountAddress, dispatch, hasImportedSeedPhrase, onClose, t])
+
+  const accountsWithoutActive = accounts.filter((a) => a.address !== activeAccountAddress)
+
+  const isViewOnly =
+    accounts.find((a) => a.address === activeAccountAddress)?.type === AccountType.Readonly
 
   if (!activeAccountAddress) {
     return null
@@ -217,26 +246,47 @@ export function AccountSwitcher({ onClose }: { onClose: () => void }): JSX.Eleme
   const fullScreenContentHeight = 0.89 * dimensions.fullHeight
 
   return (
-    <Flex fill gap="none" maxHeight={fullScreenContentHeight} mb="spacing12">
-      <Flex row alignItems="center" mb="spacing16">
-        <Box flex={1} pl="spacing24">
-          <Text color="neutral1" textAlign="left" variant="bodyLarge">
-            {t('Your wallets')}
-          </Text>
-        </Box>
+    <Flex fill gap="$none" maxHeight={fullScreenContentHeight} mb="$spacing12">
+      <Flex pb="$spacing16" pt="$spacing12">
+        <AddressDisplay
+          showCopy
+          address={activeAccountAddress}
+          direction="column"
+          horizontalGap="$spacing8"
+          showViewOnlyBadge={isViewOnly}
+          size={spacing.spacing60 - spacing.spacing4}
+        />
+        <Flex gap="$none" px="$spacing24">
+          <Button
+            emphasis={ButtonEmphasis.Secondary}
+            label={t('Manage wallet')}
+            size={ButtonSize.Small}
+            testID={ElementName.WalletSettings}
+            onPress={onManageWallet}
+          />
+        </Flex>
       </Flex>
-      <AccountList accounts={accounts} isVisible={modalState.isOpen} onPress={onPressAccount} />
-      <TouchableArea hapticFeedback my="spacing24" onPress={onPressAddWallet}>
-        <Flex row alignItems="center" ml="spacing24">
-          <Box borderColor="surface3" borderRadius="roundedFull" borderWidth={1} p="spacing12">
-            <PlusIcon
-              color={theme.colors.neutral1}
-              height={theme.iconSizes.icon16}
+      <AccountList
+        accounts={accountsWithoutActive}
+        isVisible={modalState.isOpen}
+        onPress={onPressAccount}
+      />
+      <TouchableArea hapticFeedback mb="spacing48" mt="spacing16" onPress={onPressAddWallet}>
+        <Flex row alignItems="center" ml="$spacing24">
+          <Flex
+            borderColor="$surface3"
+            borderRadius="$roundedFull"
+            borderWidth={1}
+            gap="$none"
+            p="$spacing8">
+            <Icons.Plus
+              color="$neutral2"
+              height={iconSizes.icon12}
               strokeWidth={2}
-              width={theme.iconSizes.icon16}
+              width={iconSizes.icon12}
             />
-          </Box>
-          <Text color="neutral1" variant="bodyLarge">
+          </Flex>
+          <Text color="$neutral2" variant="buttonLabelSmall">
             {t('Add wallet')}
           </Text>
         </Flex>

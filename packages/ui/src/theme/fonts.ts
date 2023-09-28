@@ -103,35 +103,41 @@ export const headingFont = createFont({
   size: {
     small: fonts.headlineSmall.fontSize,
     medium: fonts.headlineMedium.fontSize,
+    true: fonts.headlineMedium.fontSize,
     large: fonts.headlineLarge.fontSize,
   },
   weight: {
     small: '500',
     medium: '500',
+    true: '500',
     large: '500',
   },
   lineHeight: {
     small: fonts.headlineSmall.lineHeight,
     medium: fonts.headlineMedium.lineHeight,
+    true: fonts.headlineMedium.lineHeight,
     large: fonts.headlineLarge.lineHeight,
   },
 })
 
 export const subHeadingFont = createFont({
-  family: baselMedium,
+  family: baselBook,
   face: {},
   size: {
     small: fonts.subheadSmall.fontSize,
     large: fonts.subheadLarge.fontSize,
+    true: fonts.subheadLarge.fontSize,
   },
   weight: {
     small: '500',
     medium: '500',
     large: '500',
+    true: '500',
   },
   lineHeight: {
     small: fonts.subheadSmall.lineHeight,
     large: fonts.subheadLarge.lineHeight,
+    true: fonts.subheadLarge.lineHeight,
   },
 })
 
@@ -146,40 +152,46 @@ export const bodyFont = createFont({
     large: fonts.bodyLarge.fontSize,
     micro: fonts.bodyMicro.fontSize,
     medium: fonts.bodySmall.fontSize,
+    true: fonts.bodySmall.fontSize,
   },
   weight: {
-    small: '500',
-    large: '500',
-    micro: '500',
+    small: fonts.bodySmall.fontWeight,
+    large: fonts.bodyLarge.fontWeight,
+    micro: fonts.bodyMicro.fontWeight,
+    medium: fonts.bodySmall.fontWeight,
+    true: fonts.bodySmall.fontWeight,
   },
   lineHeight: {
     small: fonts.bodySmall.lineHeight,
     large: fonts.bodyLarge.lineHeight,
     micro: fonts.bodyMicro.lineHeight,
     medium: fonts.bodySmall.lineHeight,
+    true: fonts.bodySmall.lineHeight,
   },
 })
 
 export const buttonFont = createFont({
-  family: baselBook,
-  face: {},
+  family: baselMedium,
   size: {
     small: fonts.buttonLabelSmall.fontSize,
     medium: fonts.buttonLabelMedium.fontSize,
     large: fonts.buttonLabelLarge.fontSize,
     micro: fonts.buttonLabelMicro.fontSize,
+    true: fonts.buttonLabelMedium.fontSize,
   },
   weight: {
-    small: '500',
-    medium: '500',
-    large: '500',
-    micro: '500',
+    small: fonts.buttonLabelSmall.fontWeight,
+    medium: fonts.buttonLabelMedium.fontWeight,
+    large: fonts.buttonLabelLarge.fontWeight,
+    micro: fonts.buttonLabelMicro.fontWeight,
+    true: fonts.buttonLabelMedium.fontWeight,
   },
   lineHeight: {
     small: fonts.buttonLabelSmall.lineHeight,
     medium: fonts.buttonLabelMedium.lineHeight,
     large: fonts.buttonLabelLarge.lineHeight,
     micro: fonts.buttonLabelMicro.lineHeight,
+    true: fonts.buttonLabelMedium.lineHeight,
   },
 })
 

@@ -29,11 +29,6 @@ import { ModalName } from 'src/features/telemetry/constants'
 import { ExploreModalAwareView } from 'src/screens/ModalAwareView'
 import { Screens } from 'src/screens/Screens'
 import { setClipboardImage } from 'src/utils/clipboard'
-import {
-  MIN_COLOR_CONTRAST_THRESHOLD,
-  passesContrast,
-  useNearestThemeColorFromImageUri,
-} from 'src/utils/colors'
 import EllipsisIcon from 'ui/src/assets/icons/ellipsis.svg'
 import ShareIcon from 'ui/src/assets/icons/share.svg'
 import { colorsDark, iconSizes } from 'ui/src/theme'
@@ -49,6 +44,11 @@ import { pushNotification } from 'wallet/src/features/notifications/slice'
 import { AppNotificationType, CopyNotificationType } from 'wallet/src/features/notifications/types'
 import { useActiveAccountAddressWithThrow } from 'wallet/src/features/wallet/hooks'
 import { areAddressesEqual } from 'wallet/src/utils/addresses'
+import {
+  MIN_COLOR_CONTRAST_THRESHOLD,
+  passesContrast,
+  useNearestThemeColorFromImageUri,
+} from 'wallet/src/utils/colors'
 
 const MAX_NFT_IMAGE_HEIGHT = 375
 
@@ -178,8 +178,8 @@ export function NFTItemScreen({
               <Box bg="surface2" style={StyleSheet.absoluteFill} />
             )}
             <HeaderScrollScreen
-              backButtonColor="neutral1"
-              backgroundColor="none"
+              backButtonColor="$neutral1"
+              backgroundColor="$transparent"
               centerElement={
                 imageUrl ? (
                   <Box
@@ -228,7 +228,7 @@ export function NFTItemScreen({
                         width="100%">
                         <BaseCard.ErrorState
                           retryButtonLabel="Retry"
-                          title={t("Couldn't load NFT details")}
+                          title={t('Couldn’t load NFT details')}
                           onRetry={(): Promise<ApolloQueryResult<NftItemScreenQuery>> =>
                             refetch?.()
                           }
@@ -315,9 +315,9 @@ export function NFTItemScreen({
                           <AddressDisplay
                             address={owner}
                             hideAddressInSubtitle={true}
-                            horizontalGap="spacing4"
-                            size={theme.iconSizes.icon20}
-                            textColor="neutral1"
+                            horizontalGap="$spacing4"
+                            size={iconSizes.icon20}
+                            textColor="$neutral1"
                             variant="buttonLabelSmall"
                           />
                         </TouchableArea>
@@ -329,7 +329,7 @@ export function NFTItemScreen({
                 {/* Traits */}
                 {asset?.traits && asset?.traits?.length > 0 ? (
                   <Flex gap="spacing12">
-                    <Text color="neutral1" ml="spacing24" variant="buttonLabelSmall">
+                    <Text color="neutral1" ml="spacing24" variant="bodySmall">
                       {t('Traits')}
                     </Text>
                     <NFTTraitList titleTextColor={accentTextColor} traits={asset.traits} />

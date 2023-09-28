@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react'
+import AnimatedNumber from 'src/components/AnimatedNumber'
 import { Flex } from 'src/components/layout'
-import { WarmLoadingShimmer } from 'src/components/loading/WarmLoadingShimmer'
-import { DecimalNumber } from 'src/components/text/DecimalNumber'
-import { RelativeChange } from 'src/components/text/RelativeChange'
 import { iconSizes } from 'ui/src/theme'
 import { formatUSDPrice, NumberType } from 'utilities/src/format/format'
+import { RelativeChange } from 'wallet/src/components/text/RelativeChange'
 import { PollingInterval } from 'wallet/src/constants/misc'
 import { isWarmLoadingStatus } from 'wallet/src/data/utils'
 import { usePortfolioBalancesQuery } from 'wallet/src/data/__generated__/types-and-hooks'
@@ -42,28 +41,22 @@ export function PortfolioBalance({ owner }: PortfolioBalanceProps): JSX.Element 
   const totalBalance = portfolioBalance?.tokensTotalDenominatedValue?.value
 
   return (
-    <WarmLoadingShimmer isWarmLoading={isWarmLoading && !isLoading}>
-      <Flex gap="spacing4">
-        <DecimalNumber
-          adjustsFontSizeToFit={!isLoading}
-          // initially set color to textSecondary when isWarm because the shimmer mask takes a second to load, resulting in a flash of the underlying color
-          color={isWarmLoading ? 'neutral2' : undefined}
-          formattedNumber={formatUSDPrice(totalBalance, NumberType.PortfolioBalance)}
-          loading={isLoading}
-          number={totalBalance}
-          numberOfLines={1}
-          variant="headlineLarge"
-        />
-        <RelativeChange
-          absoluteChange={portfolioChange?.absolute?.value}
-          arrowSize={iconSizes.icon20}
-          change={portfolioChange?.percentage?.value}
-          loading={isLoading}
-          negativeChangeColor={isWarmLoading ? 'neutral2' : 'statusCritical'}
-          positiveChangeColor={isWarmLoading ? 'neutral2' : 'statusSuccess'}
-          variant="bodyLarge"
-        />
-      </Flex>
-    </WarmLoadingShimmer>
+    <Flex gap="spacing4">
+      <AnimatedNumber
+        colorIndicationDuration={2000}
+        loading={isWarmLoading || isLoading}
+        loadingPlaceholderText="$000.00"
+        value={formatUSDPrice(totalBalance, NumberType.PortfolioBalance)}
+      />
+      <RelativeChange
+        absoluteChange={portfolioChange?.absolute?.value}
+        arrowSize={iconSizes.icon20}
+        change={portfolioChange?.percentage?.value}
+        loading={isWarmLoading || isLoading}
+        negativeChangeColor={isWarmLoading ? '$neutral2' : '$statusCritical'}
+        positiveChangeColor={isWarmLoading ? '$neutral2' : '$statusSuccess'}
+        variant="bodyLarge"
+      />
+    </Flex>
   )
 }

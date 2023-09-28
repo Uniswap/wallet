@@ -141,7 +141,7 @@ export function ExploreSections({ listRef }: ExploreSectionsProps): JSX.Element 
       ref={listRef}
       ListEmptyComponent={
         <Box mx="spacing24" my="spacing12">
-          <Loader.Token repeat={5} />
+          <Loader.Token contrast repeat={5} />
         </Box>
       }
       ListFooterComponent={<Inset all="spacing12" />}

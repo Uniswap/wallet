@@ -9,12 +9,15 @@ import { BackHeader } from 'src/components/layout/BackHeader'
 import { Box } from 'src/components/layout/Box'
 import { Screen } from 'src/components/layout/Screen'
 import { Text } from 'src/components/Text'
-import { useCurrentAppearanceSetting } from 'src/features/appearance/hooks'
-import { AppearanceSettingType, setSelectedAppearanceSettings } from 'src/features/appearance/slice'
 import Check from 'ui/src/assets/icons/check.svg'
 import ContrastIcon from 'ui/src/assets/icons/contrast.svg'
 import MoonIcon from 'ui/src/assets/icons/moon.svg'
 import SunIcon from 'ui/src/assets/icons/sun.svg'
+import { useCurrentAppearanceSetting } from 'wallet/src/features/appearance/hooks'
+import {
+  AppearanceSettingType,
+  setSelectedAppearanceSettings,
+} from 'wallet/src/features/appearance/slice'
 
 export function SettingsAppearanceScreen(): JSX.Element {
   const { t } = useTranslation()
@@ -30,7 +33,7 @@ export function SettingsAppearanceScreen(): JSX.Element {
           Icon={ContrastIcon}
           active={currentTheme === 'system'}
           option={AppearanceSettingType.System}
-          subtitle={t("Default to your device's appearance")}
+          subtitle={t('Default to your device’s appearance')}
           title={t('Device settings')}
         />
         <AppearanceOption

@@ -18,11 +18,11 @@ import { useToggleWatchedWalletCallback } from 'src/features/favorites/hooks'
 import { selectWatchedAddressSet } from 'src/features/favorites/selectors'
 import { openModal } from 'src/features/modals/modalSlice'
 import { ElementName, ModalName } from 'src/features/telemetry/constants'
-import { useExtractedColors } from 'src/utils/colors'
-import SendIcon from 'ui/src/assets/icons/send-action.svg'
+import { Icons } from 'ui/src'
 import { iconSizes } from 'ui/src/theme'
 import { useENSAvatar } from 'wallet/src/features/ens/api'
 import { CurrencyField } from 'wallet/src/features/transactions/transactionState/types'
+import { useExtractedColors } from 'wallet/src/utils/colors'
 
 const HEADER_GRADIENT_HEIGHT = 137
 const HEADER_ICON_SIZE = 72
@@ -86,12 +86,14 @@ export default function ProfileHeader({ address }: ProfileHeaderProps): JSX.Elem
   }, [dispatch, initialSendState])
 
   const { t } = useTranslation()
+
   return (
     <Flex bg="surface1" gap="spacing16" pt="spacing36" px="spacing24">
       {/* fixed gradient */}
       <AnimatedBox
         bottom={0}
         entering={FadeIn}
+        gap="$none"
         height={HEADER_GRADIENT_HEIGHT}
         left={0}
         position="absolute"
@@ -113,8 +115,8 @@ export default function ProfileHeader({ address }: ProfileHeaderProps): JSX.Elem
           borderRadius="roundedFull"
           opacity={0.8}
           padding="spacing8">
-          <Flex centered grow height={theme.iconSizes.icon16} width={theme.iconSizes.icon16}>
-            <BackButton color="sporeWhite" size={theme.iconSizes.icon24} />
+          <Flex centered grow height={iconSizes.icon16} width={iconSizes.icon16}>
+            <BackButton color="$sporeWhite" size={iconSizes.icon24} />
           </Flex>
         </TouchableArea>
         <ProfileContextMenu address={address} />
@@ -123,12 +125,12 @@ export default function ProfileHeader({ address }: ProfileHeaderProps): JSX.Elem
       {/* button content */}
       <Flex row alignItems="flex-start" justifyContent="space-between">
         <AddressDisplay
+          showCopy
+          showIconBackground
           address={address}
-          captionVariant="subheadSmall"
+          captionVariant="bodySmall"
           contentAlign="flex-start"
           direction="column"
-          showCopy={true}
-          showIconBackground={true}
           size={HEADER_ICON_SIZE}
           textAlign="flex-start"
           variant="headlineSmall"
@@ -160,10 +162,10 @@ export default function ProfileHeader({ address }: ProfileHeaderProps): JSX.Elem
               testID={ElementName.Send}
               onPress={onPressSend}>
               <Flex row alignItems="center" gap="spacing8">
-                <SendIcon
-                  color={theme.colors.neutral2}
-                  height={theme.iconSizes.icon20}
-                  width={theme.iconSizes.icon20}
+                <Icons.SendAction
+                  color="$neutral2"
+                  height={iconSizes.icon20}
+                  width={iconSizes.icon20}
                 />
                 <Text color="neutral2" lineHeight={20} variant="buttonLabelMedium">
                   {t('Send')}

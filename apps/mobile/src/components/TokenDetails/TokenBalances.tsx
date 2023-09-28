@@ -15,6 +15,7 @@ import { TokenLogo } from 'wallet/src/components/CurrencyLogo/TokenLogo'
 import { PortfolioBalance } from 'wallet/src/features/dataApi/types'
 import { AccountType } from 'wallet/src/features/wallet/accounts/types'
 import { useActiveAccount, useDisplayName } from 'wallet/src/features/wallet/hooks'
+import { getSymbolDisplayText } from 'wallet/src/utils/currency'
 import { CurrencyId } from 'wallet/src/utils/currencyId'
 import { SendButton } from './SendButton'
 
@@ -105,14 +106,14 @@ export function CurrentChainBalance({
     <Flex row>
       <Flex fill gap="spacing4">
         <Text color="neutral2" variant="subheadSmall">
-          {isReadonly ? t("{{owner}}'s balance", { owner: displayName }) : t('Your balance')}
+          {isReadonly ? t('{{owner}}’s balance', { owner: displayName }) : t('Your balance')}
         </Text>
         <Text variant="subheadLarge">
           {formatNumber(balance.balanceUSD, NumberType.FiatTokenDetails)}
         </Text>
         <Text color="neutral2" variant="bodySmall">
           {formatNumber(balance.quantity, NumberType.TokenNonTx)}{' '}
-          {balance.currencyInfo.currency.symbol}
+          {getSymbolDisplayText(balance.currencyInfo.currency.symbol)}
         </Text>
       </Flex>
       <Flex alignItems="flex-end" justifyContent="center">
@@ -153,7 +154,7 @@ function OtherChainBalance({
           </Flex>
           <Text color="neutral2" variant="bodyLarge">
             {formatNumber(balance.quantity, NumberType.TokenNonTx)}{' '}
-            {balance.currencyInfo.currency.symbol}
+            {getSymbolDisplayText(balance.currencyInfo.currency.symbol)}
           </Text>
         </Flex>
       </TouchableArea>

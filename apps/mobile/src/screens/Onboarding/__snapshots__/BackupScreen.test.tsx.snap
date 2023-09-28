@@ -4,16 +4,14 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
 <View
   sentry-label="Screen"
   style={
-    [
-      {
-        "backgroundColor": "#FFFFFF",
-        "display": "flex",
-        "flex": 1,
-      },
-      {
-        "paddingTop": 200,
-      },
-    ]
+    {
+      "alignItems": "stretch",
+      "backgroundColor": "#FFFFFF",
+      "flex": 1,
+      "flexDirection": "column",
+      "gap": 0,
+      "paddingTop": 200,
+    }
   }
 >
   <View
@@ -54,17 +52,17 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
       }
     >
       <View
-        sentry-label="Flex"
         style={
-          [
-            {
-              "alignItems": "center",
-              "display": "flex",
-              "flexDirection": "column",
-              "justifyContent": "center",
-              "margin": 12,
-            },
-          ]
+          {
+            "alignItems": "center",
+            "flexDirection": "column",
+            "gap": 12,
+            "justifyContent": "center",
+            "marginBottom": 12,
+            "marginLeft": 12,
+            "marginRight": 12,
+            "marginTop": 12,
+          }
         }
       >
         <Text
@@ -87,18 +85,6 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
         >
           Choose a backup for your wallet
         </Text>
-        <View
-          style={
-            [
-              {
-                "display": "flex",
-                "flexGrow": 0,
-                "flexShrink": 0,
-                "height": 12,
-              },
-            ]
-          }
-        />
         <Text
           allowFontScaling={true}
           maxFontSizeMultiplier={1.4}
@@ -115,7 +101,7 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
             ]
           }
         >
-          Remember, backups are your lifeline. They're your ticket back in if something goes wrong.
+          Remember, backups are your lifeline. They’re your ticket back in if something goes wrong.
         </Text>
       </View>
       <View
@@ -131,45 +117,35 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
         }
       />
       <View
-        sentry-label="Flex"
         style={
-          [
-            {
-              "alignItems": "stretch",
-              "display": "flex",
-              "flex": 1,
-              "flexDirection": "column",
-              "flexGrow": 1,
-              "justifyContent": "space-between",
-            },
-          ]
+          {
+            "alignItems": "stretch",
+            "flex": 1,
+            "flexDirection": "column",
+            "flexGrow": 1,
+            "gap": 16,
+            "justifyContent": "space-between",
+          }
         }
       >
         <View
-          sentry-label="Flex"
           style={
-            [
-              {
-                "alignItems": "stretch",
-                "display": "flex",
-                "flexDirection": "column",
-                "flexGrow": 1,
-                "justifyContent": "space-between",
-              },
-            ]
+            {
+              "alignItems": "stretch",
+              "flexDirection": "column",
+              "flexGrow": 1,
+              "gap": 16,
+              "justifyContent": "space-between",
+            }
           }
         >
           <View
-            sentry-label="Flex"
             style={
-              [
-                {
-                  "alignItems": "stretch",
-                  "display": "flex",
-                  "flexDirection": "column",
-                  "justifyContent": "flex-start",
-                },
-              ]
+              {
+                "alignItems": "stretch",
+                "flexDirection": "column",
+                "gap": 12,
+              }
             }
           >
             <View
@@ -251,11 +227,63 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
                     ]
                   }
                 >
-                  <svg
-                    color="#FC72FF"
-                    data-file-name="SvgCloud"
-                    height={16}
-                  />
+                  <RNSVGSvgView
+                    align="xMidYMid"
+                    bbHeight="16"
+                    bbWidth="16"
+                    fill="none"
+                    focusable={false}
+                    meetOrSlice={0}
+                    minX={0}
+                    minY={0}
+                    strokeWidth={8}
+                    style={
+                      [
+                        {
+                          "backgroundColor": "transparent",
+                          "borderWidth": 0,
+                        },
+                        {
+                          "color": "#FC72FF",
+                          "height": 16,
+                          "width": 16,
+                        },
+                        {
+                          "flex": 0,
+                          "height": 16,
+                          "width": 16,
+                        },
+                      ]
+                    }
+                    tintColor="#FC72FF"
+                    vbHeight={24}
+                    vbWidth={24}
+                  >
+                    <RNSVGGroup
+                      fill={null}
+                      propList={
+                        [
+                          "fill",
+                          "strokeWidth",
+                        ]
+                      }
+                      strokeWidth="8"
+                    >
+                      <RNSVGPath
+                        d="M15.03 9.09003C15.35 9.03003 15.67 9 16 9C18.76 9 21 11.24 21 14C21 16.76 18.76 19 16 19H9.5C5.91 19 3 16.09 3 12.5C3 8.91 5.91 6 9.5 6C11.146 6 12.648 6.61297 13.792 7.62097C14.274 8.04597 14.692 8.54103 15.03 9.09003Z"
+                        fill={
+                          {
+                            "type": 2,
+                          }
+                        }
+                        propList={
+                          [
+                            "fill",
+                          ]
+                        }
+                      />
+                    </RNSVGGroup>
+                  </RNSVGSvgView>
                 </View>
                 <View
                   style={
@@ -363,18 +391,6 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
                 </View>
               </View>
             </View>
-            <View
-              style={
-                [
-                  {
-                    "display": "flex",
-                    "flexGrow": 0,
-                    "flexShrink": 0,
-                    "height": 12,
-                  },
-                ]
-              }
-            />
             <View
               accessibilityState={
                 {
@@ -560,7 +576,7 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
                         ]
                       }
                     >
-                      Top-notch security with no third parties. You're in control.
+                      Top-notch security with no third parties. You’re in control.
                     </Text>
                   </View>
                 </View>
@@ -569,28 +585,12 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
           </View>
           <View
             style={
-              [
-                {
-                  "display": "flex",
-                  "flexGrow": 0,
-                  "flexShrink": 0,
-                  "height": 16,
-                },
-              ]
-            }
-          />
-          <View
-            sentry-label="Flex"
-            style={
-              [
-                {
-                  "alignItems": "stretch",
-                  "display": "flex",
-                  "flexDirection": "column",
-                  "flexGrow": 1,
-                  "justifyContent": "flex-end",
-                },
-              ]
+              {
+                "alignItems": "stretch",
+                "flexDirection": "column",
+                "gap": 12,
+                "justifyContent": "flex-end",
+              }
             }
           >
             <View
@@ -639,16 +639,13 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
               }
             >
               <View
-                sentry-label="Flex"
                 style={
-                  [
-                    {
-                      "alignItems": "center",
-                      "display": "flex",
-                      "flexDirection": "row",
-                      "justifyContent": "center",
-                    },
-                  ]
+                  {
+                    "alignItems": "center",
+                    "flexDirection": "row",
+                    "gap": 4,
+                    "justifyContent": "center",
+                  }
                 }
               >
                 <svg
@@ -657,134 +654,72 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
                   height={24}
                   width={24}
                 />
-                <View
-                  style={
-                    [
-                      {
-                        "display": "flex",
-                        "flexGrow": 0,
-                        "flexShrink": 0,
-                        "height": 4,
-                        "width": 4,
-                      },
-                    ]
-                  }
-                />
                 <Text
                   allowFontScaling={true}
-                  maxFontSizeMultiplier={1.4}
                   style={
-                    [
-                      {
-                        "color": "#222222",
-                        "display": "flex",
-                        "fontFamily": "Basel-Book",
-                        "fontSize": 17,
-                        "fontWeight": "400",
-                        "lineHeight": 24,
-                      },
-                    ]
+                    {
+                      "color": "#222222",
+                      "display": "flex",
+                      "fontFamily": "Basel-Book",
+                      "fontSize": 17,
+                      "lineHeight": 24,
+                    }
                   }
+                  suppressHighlighting={true}
                 >
                   Learn about wallet safety and recovery
                 </Text>
               </View>
             </View>
             <View
-              style={
-                [
-                  {
-                    "display": "flex",
-                    "flexGrow": 0,
-                    "flexShrink": 0,
-                    "height": 16,
-                  },
-                ]
-              }
-            />
-            <View
-              accessibilityState={
-                {
-                  "busy": undefined,
-                  "checked": undefined,
-                  "disabled": true,
-                  "expanded": undefined,
-                  "selected": undefined,
-                }
-              }
-              accessibilityValue={
-                {
-                  "max": undefined,
-                  "min": undefined,
-                  "now": undefined,
-                  "text": undefined,
-                }
-              }
-              accessible={true}
-              collapsable={false}
-              focusable={true}
-              hitSlop={
-                {
-                  "bottom": 5,
-                  "left": 5,
-                  "right": 5,
-                  "top": 5,
-                }
-              }
-              onClick={[Function]}
-              onResponderGrant={[Function]}
-              onResponderMove={[Function]}
-              onResponderRelease={[Function]}
-              onResponderTerminate={[Function]}
-              onResponderTerminationRequest={[Function]}
-              onStartShouldSetResponder={[Function]}
+              onBlur={[Function]}
+              onFocus={[Function]}
+              pointerEvents="none"
               style={
                 {
                   "alignItems": "center",
                   "backgroundColor": "#FC72FF",
-                  "borderColor": "transparent",
-                  "borderRadius": 16,
-                  "borderWidth": 1,
-                  "display": "flex",
+                  "borderBottomColor": "transparent",
+                  "borderBottomLeftRadius": 16,
+                  "borderBottomRightRadius": 16,
+                  "borderBottomWidth": 1,
+                  "borderLeftColor": "transparent",
+                  "borderLeftWidth": 1,
+                  "borderRightColor": "transparent",
+                  "borderRightWidth": 1,
+                  "borderStyle": "solid",
+                  "borderTopColor": "transparent",
+                  "borderTopLeftRadius": 16,
+                  "borderTopRightRadius": 16,
+                  "borderTopWidth": 1,
+                  "flexDirection": "row",
+                  "gap": 8,
+                  "height": "auto",
+                  "justifyContent": "center",
                   "opacity": 0.4,
+                  "paddingBottom": 12,
+                  "paddingLeft": 12,
+                  "paddingRight": 12,
+                  "paddingTop": 12,
                 }
               }
+              userSelect="none"
             >
-              <View
-                sentry-label="Flex"
+              <Text
+                maxFontSizeMultiplier={1.2}
                 style={
-                  [
-                    {
-                      "alignItems": "center",
-                      "display": "flex",
-                      "flexDirection": "row",
-                      "justifyContent": "flex-start",
-                      "paddingHorizontal": 12,
-                      "paddingVertical": 12,
-                    },
-                  ]
-                }
-              >
-                <Text
-                  allowFontScaling={true}
-                  maxFontSizeMultiplier={1.2}
-                  style={
-                    [
-                      {
-                        "color": "#FFFFFF",
-                        "display": "flex",
-                        "fontFamily": "Basel-Medium",
-                        "fontSize": 19,
-                        "fontWeight": "500",
-                        "lineHeight": 24,
-                        "textAlign": "center",
-                      },
-                    ]
+                  {
+                    "color": "#CECECE",
+                    "display": "flex",
+                    "fontFamily": "Basel-Medium",
+                    "fontSize": 19,
+                    "lineHeight": 24,
                   }
-                >
-                  Select backup to continue
-                </Text>
-              </View>
+                }
+                suppressHighlighting={true}
+              >
+                Select backup to continue
+              </Text>
             </View>
           </View>
         </View>
@@ -798,16 +733,14 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
 <View
   sentry-label="Screen"
   style={
-    [
-      {
-        "backgroundColor": "#FFFFFF",
-        "display": "flex",
-        "flex": 1,
-      },
-      {
-        "paddingTop": 200,
-      },
-    ]
+    {
+      "alignItems": "stretch",
+      "backgroundColor": "#FFFFFF",
+      "flex": 1,
+      "flexDirection": "column",
+      "gap": 0,
+      "paddingTop": 200,
+    }
   }
 >
   <View
@@ -848,17 +781,17 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
       }
     >
       <View
-        sentry-label="Flex"
         style={
-          [
-            {
-              "alignItems": "center",
-              "display": "flex",
-              "flexDirection": "column",
-              "justifyContent": "center",
-              "margin": 12,
-            },
-          ]
+          {
+            "alignItems": "center",
+            "flexDirection": "column",
+            "gap": 12,
+            "justifyContent": "center",
+            "marginBottom": 12,
+            "marginLeft": 12,
+            "marginRight": 12,
+            "marginTop": 12,
+          }
         }
       >
         <Text
@@ -881,18 +814,6 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
         >
           Choose a backup for your wallet
         </Text>
-        <View
-          style={
-            [
-              {
-                "display": "flex",
-                "flexGrow": 0,
-                "flexShrink": 0,
-                "height": 12,
-              },
-            ]
-          }
-        />
         <Text
           allowFontScaling={true}
           maxFontSizeMultiplier={1.4}
@@ -909,7 +830,7 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
             ]
           }
         >
-          Remember, backups are your lifeline. They're your ticket back in if something goes wrong.
+          Remember, backups are your lifeline. They’re your ticket back in if something goes wrong.
         </Text>
       </View>
       <View
@@ -925,45 +846,35 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
         }
       />
       <View
-        sentry-label="Flex"
         style={
-          [
-            {
-              "alignItems": "stretch",
-              "display": "flex",
-              "flex": 1,
-              "flexDirection": "column",
-              "flexGrow": 1,
-              "justifyContent": "space-between",
-            },
-          ]
+          {
+            "alignItems": "stretch",
+            "flex": 1,
+            "flexDirection": "column",
+            "flexGrow": 1,
+            "gap": 16,
+            "justifyContent": "space-between",
+          }
         }
       >
         <View
-          sentry-label="Flex"
           style={
-            [
-              {
-                "alignItems": "stretch",
-                "display": "flex",
-                "flexDirection": "column",
-                "flexGrow": 1,
-                "justifyContent": "space-between",
-              },
-            ]
+            {
+              "alignItems": "stretch",
+              "flexDirection": "column",
+              "flexGrow": 1,
+              "gap": 16,
+              "justifyContent": "space-between",
+            }
           }
         >
           <View
-            sentry-label="Flex"
             style={
-              [
-                {
-                  "alignItems": "stretch",
-                  "display": "flex",
-                  "flexDirection": "column",
-                  "justifyContent": "flex-start",
-                },
-              ]
+              {
+                "alignItems": "stretch",
+                "flexDirection": "column",
+                "gap": 12,
+              }
             }
           >
             <View
@@ -1045,11 +956,63 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
                     ]
                   }
                 >
-                  <svg
-                    color="#FC72FF"
-                    data-file-name="SvgCloud"
-                    height={16}
-                  />
+                  <RNSVGSvgView
+                    align="xMidYMid"
+                    bbHeight="16"
+                    bbWidth="16"
+                    fill="none"
+                    focusable={false}
+                    meetOrSlice={0}
+                    minX={0}
+                    minY={0}
+                    strokeWidth={8}
+                    style={
+                      [
+                        {
+                          "backgroundColor": "transparent",
+                          "borderWidth": 0,
+                        },
+                        {
+                          "color": "#FC72FF",
+                          "height": 16,
+                          "width": 16,
+                        },
+                        {
+                          "flex": 0,
+                          "height": 16,
+                          "width": 16,
+                        },
+                      ]
+                    }
+                    tintColor="#FC72FF"
+                    vbHeight={24}
+                    vbWidth={24}
+                  >
+                    <RNSVGGroup
+                      fill={null}
+                      propList={
+                        [
+                          "fill",
+                          "strokeWidth",
+                        ]
+                      }
+                      strokeWidth="8"
+                    >
+                      <RNSVGPath
+                        d="M15.03 9.09003C15.35 9.03003 15.67 9 16 9C18.76 9 21 11.24 21 14C21 16.76 18.76 19 16 19H9.5C5.91 19 3 16.09 3 12.5C3 8.91 5.91 6 9.5 6C11.146 6 12.648 6.61297 13.792 7.62097C14.274 8.04597 14.692 8.54103 15.03 9.09003Z"
+                        fill={
+                          {
+                            "type": 2,
+                          }
+                        }
+                        propList={
+                          [
+                            "fill",
+                          ]
+                        }
+                      />
+                    </RNSVGGroup>
+                  </RNSVGSvgView>
                 </View>
                 <View
                   style={
@@ -1157,18 +1120,6 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
                 </View>
               </View>
             </View>
-            <View
-              style={
-                [
-                  {
-                    "display": "flex",
-                    "flexGrow": 0,
-                    "flexShrink": 0,
-                    "height": 12,
-                  },
-                ]
-              }
-            />
             <View
               accessibilityState={
                 {
@@ -1354,7 +1305,7 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
                         ]
                       }
                     >
-                      Top-notch security with no third parties. You're in control.
+                      Top-notch security with no third parties. You’re in control.
                     </Text>
                   </View>
                 </View>
@@ -1363,28 +1314,12 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
           </View>
           <View
             style={
-              [
-                {
-                  "display": "flex",
-                  "flexGrow": 0,
-                  "flexShrink": 0,
-                  "height": 16,
-                },
-              ]
-            }
-          />
-          <View
-            sentry-label="Flex"
-            style={
-              [
-                {
-                  "alignItems": "stretch",
-                  "display": "flex",
-                  "flexDirection": "column",
-                  "flexGrow": 1,
-                  "justifyContent": "flex-end",
-                },
-              ]
+              {
+                "alignItems": "stretch",
+                "flexDirection": "column",
+                "gap": 12,
+                "justifyContent": "flex-end",
+              }
             }
           >
             <View
@@ -1433,16 +1368,13 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
               }
             >
               <View
-                sentry-label="Flex"
                 style={
-                  [
-                    {
-                      "alignItems": "center",
-                      "display": "flex",
-                      "flexDirection": "row",
-                      "justifyContent": "center",
-                    },
-                  ]
+                  {
+                    "alignItems": "center",
+                    "flexDirection": "row",
+                    "gap": 4,
+                    "justifyContent": "center",
+                  }
                 }
               >
                 <svg
@@ -1451,81 +1383,27 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
                   height={24}
                   width={24}
                 />
-                <View
-                  style={
-                    [
-                      {
-                        "display": "flex",
-                        "flexGrow": 0,
-                        "flexShrink": 0,
-                        "height": 4,
-                        "width": 4,
-                      },
-                    ]
-                  }
-                />
                 <Text
                   allowFontScaling={true}
-                  maxFontSizeMultiplier={1.4}
                   style={
-                    [
-                      {
-                        "color": "#222222",
-                        "display": "flex",
-                        "fontFamily": "Basel-Book",
-                        "fontSize": 17,
-                        "fontWeight": "400",
-                        "lineHeight": 24,
-                      },
-                    ]
+                    {
+                      "color": "#222222",
+                      "display": "flex",
+                      "fontFamily": "Basel-Book",
+                      "fontSize": 17,
+                      "lineHeight": 24,
+                    }
                   }
+                  suppressHighlighting={true}
                 >
                   Learn about wallet safety and recovery
                 </Text>
               </View>
             </View>
             <View
-              style={
-                [
-                  {
-                    "display": "flex",
-                    "flexGrow": 0,
-                    "flexShrink": 0,
-                    "height": 16,
-                  },
-                ]
-              }
-            />
-            <View
-              accessibilityState={
-                {
-                  "busy": undefined,
-                  "checked": undefined,
-                  "disabled": false,
-                  "expanded": undefined,
-                  "selected": undefined,
-                }
-              }
-              accessibilityValue={
-                {
-                  "max": undefined,
-                  "min": undefined,
-                  "now": undefined,
-                  "text": undefined,
-                }
-              }
-              accessible={true}
-              collapsable={false}
-              focusable={true}
-              hitSlop={
-                {
-                  "bottom": 5,
-                  "left": 5,
-                  "right": 5,
-                  "top": 5,
-                }
-              }
+              onBlur={[Function]}
               onClick={[Function]}
+              onFocus={[Function]}
               onResponderGrant={[Function]}
               onResponderMove={[Function]}
               onResponderRelease={[Function]}
@@ -1536,49 +1414,45 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
                 {
                   "alignItems": "center",
                   "backgroundColor": "#FC72FF",
-                  "borderColor": "transparent",
-                  "borderRadius": 16,
-                  "borderWidth": 1,
-                  "display": "flex",
-                  "opacity": 1,
+                  "borderBottomColor": "transparent",
+                  "borderBottomLeftRadius": 16,
+                  "borderBottomRightRadius": 16,
+                  "borderBottomWidth": 1,
+                  "borderLeftColor": "transparent",
+                  "borderLeftWidth": 1,
+                  "borderRightColor": "transparent",
+                  "borderRightWidth": 1,
+                  "borderStyle": "solid",
+                  "borderTopColor": "transparent",
+                  "borderTopLeftRadius": 16,
+                  "borderTopRightRadius": 16,
+                  "borderTopWidth": 1,
+                  "flexDirection": "row",
+                  "gap": 8,
+                  "height": "auto",
+                  "justifyContent": "center",
+                  "paddingBottom": 12,
+                  "paddingLeft": 12,
+                  "paddingRight": 12,
+                  "paddingTop": 12,
                 }
               }
             >
-              <View
-                sentry-label="Flex"
+              <Text
+                maxFontSizeMultiplier={1.2}
                 style={
-                  [
-                    {
-                      "alignItems": "center",
-                      "display": "flex",
-                      "flexDirection": "row",
-                      "justifyContent": "flex-start",
-                      "paddingHorizontal": 12,
-                      "paddingVertical": 12,
-                    },
-                  ]
-                }
-              >
-                <Text
-                  allowFontScaling={true}
-                  maxFontSizeMultiplier={1.2}
-                  style={
-                    [
-                      {
-                        "color": "#FFFFFF",
-                        "display": "flex",
-                        "fontFamily": "Basel-Medium",
-                        "fontSize": 19,
-                        "fontWeight": "500",
-                        "lineHeight": 24,
-                        "textAlign": "center",
-                      },
-                    ]
+                  {
+                    "color": "#FFFFFF",
+                    "display": "flex",
+                    "fontFamily": "Basel-Medium",
+                    "fontSize": 19,
+                    "lineHeight": 24,
                   }
-                >
-                  Continue
-                </Text>
-              </View>
+                }
+                suppressHighlighting={true}
+              >
+                Continue
+              </Text>
             </View>
           </View>
         </View>

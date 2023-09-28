@@ -28,7 +28,7 @@ export function FavoriteWalletsGrid({ showLoading }: { showLoading: boolean }): 
   }, [watchedWalletsSet.size])
 
   return (
-    <AnimatedBox entering={FadeIn}>
+    <AnimatedBox entering={FadeIn} gap="$none">
       <FavoriteHeaderRow
         editingTitle={t('Edit favorite wallets')}
         isEditing={isEditing}
@@ -58,10 +58,10 @@ function FavoriteWalletsGridLoader(): JSX.Element {
   return (
     <Flex row gap="spacing8">
       <Box style={ITEM_FLEX}>
-        <Loader.Favorite height={48} />
+        <Loader.Favorite contrast height={48} />
       </Box>
       <Box style={ITEM_FLEX}>
-        <Loader.Favorite height={48} />
+        <Loader.Favorite contrast height={48} />
       </Box>
     </Flex>
   )

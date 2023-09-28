@@ -13,7 +13,6 @@ import { BaseCard } from 'src/components/layout/BaseCard'
 import { Flex } from 'src/components/layout/Flex'
 import { Loader } from 'src/components/loading'
 import { Text } from 'src/components/Text'
-import { RelativeChange } from 'src/components/text/RelativeChange'
 import { useTokenDetailsNavigation } from 'src/components/TokenDetails/hooks'
 import { removeFavoriteToken } from 'src/features/favorites/slice'
 import { openModal } from 'src/features/modals/modalSlice'
@@ -22,6 +21,7 @@ import { ElementName, ModalName, SectionName } from 'src/features/telemetry/cons
 import { usePollOnFocusOnly } from 'src/utils/hooks'
 import { formatUSDPrice } from 'utilities/src/format/format'
 import { TokenLogo } from 'wallet/src/components/CurrencyLogo/TokenLogo'
+import { RelativeChange } from 'wallet/src/components/text/RelativeChange'
 import { PollingInterval } from 'wallet/src/constants/misc'
 import { isNonPollingRequestInFlight } from 'wallet/src/data/utils'
 import { useFavoriteTokenCardQuery } from 'wallet/src/data/__generated__/types-and-hooks'
@@ -32,6 +32,7 @@ import {
   CurrencyField,
   TransactionState,
 } from 'wallet/src/features/transactions/transactionState/types'
+import { getSymbolDisplayText } from 'wallet/src/utils/currency'
 
 export const FAVORITE_TOKEN_CARD_LOADER_HEIGHT = 102
 
@@ -153,7 +154,7 @@ function FavoriteTokenCard({
                   symbol={token?.symbol ?? undefined}
                   url={token?.project?.logoUrl ?? undefined}
                 />
-                <Text variant="bodyLarge">{token?.symbol}</Text>
+                <Text variant="bodyLarge">{getSymbolDisplayText(token?.symbol)}</Text>
               </Flex>
               {isEditing ? (
                 <RemoveButton onPress={onRemove} />
