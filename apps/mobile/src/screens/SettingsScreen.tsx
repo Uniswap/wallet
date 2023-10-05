@@ -1,5 +1,4 @@
 import { useNavigation } from '@react-navigation/core'
-import { useTheme } from '@shopify/restyle'
 import { default as React, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Image, ListRenderItemInfo, SectionList, StyleSheet } from 'react-native'
@@ -12,7 +11,6 @@ import {
   useSettingsStackNavigation,
 } from 'src/app/navigation/types'
 import { AddressDisplay } from 'src/components/AddressDisplay'
-import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { AnimatedFlex } from 'src/components/layout'
 import { HeaderScrollScreen } from 'src/components/layout/screens/HeaderScrollScreen'
 import {
@@ -21,11 +19,12 @@ import {
   SettingsSectionItem,
   SettingsSectionItemComponent,
 } from 'src/components/Settings/SettingsRow'
-import { APP_FEEDBACK_LINK, GET_HELP_LINK } from 'src/constants/urls'
-import { useDeviceSupportsBiometricAuth } from 'src/features/biometrics/hooks'
+import { APP_FEEDBACK_LINK } from 'src/constants/urls'
+import { useBiometricContext } from 'src/features/biometrics/context'
+import { useBiometricName, useDeviceSupportsBiometricAuth } from 'src/features/biometrics/hooks'
 import { Screens } from 'src/screens/Screens'
 import { getFullAppVersion } from 'src/utils/version'
-import { Flex, Icons, Text } from 'ui/src'
+import { Flex, Icons, Text, TouchableArea, useSporeColors } from 'ui/src'
 import { AVATARS_DARK, AVATARS_LIGHT } from 'ui/src/assets'
 import BookOpenIcon from 'ui/src/assets/icons/book-open.svg'
 import ContrastIcon from 'ui/src/assets/icons/contrast.svg'
@@ -46,19 +45,20 @@ import { resetWallet, setFinishedOnboarding } from 'wallet/src/features/wallet/s
 
 export function SettingsScreen(): JSX.Element {
   const navigation = useNavigation<SettingsStackNavigationProp & OnboardingStackNavigationProp>()
-  const theme = useTheme()
+  const colors = useSporeColors()
+  const { deviceSupportsBiometrics } = useBiometricContext()
   const { t } = useTranslation()
 
   // check if device supports biometric authentication, if not, hide option
   const { touchId: isTouchIdSupported, faceId: isFaceIdSupported } =
     useDeviceSupportsBiometricAuth()
-  const authenticationTypeName = isTouchIdSupported ? 'Touch' : 'Face'
 
+  const authenticationTypeName = useBiometricName(isTouchIdSupported, true)
   const currentAppearanceSetting = useCurrentAppearanceSetting()
 
   const sections: SettingsSection[] = useMemo((): SettingsSection[] => {
     const iconProps: SvgProps = {
-      color: theme.colors.neutral2,
+      color: colors.neutral2.val,
       height: iconSizes.icon24,
       strokeLinecap: 'round',
       strokeLinejoin: 'round',
@@ -82,16 +82,20 @@ export function SettingsScreen(): JSX.Element {
                 : t('Light mode'),
             icon: <ContrastIcon {...iconProps} />,
           },
-          {
-            screen: Screens.SettingsBiometricAuth,
-            isHidden: !isTouchIdSupported && !isFaceIdSupported,
-            text: t('{{authenticationTypeName}} ID', { authenticationTypeName }),
-            icon: isTouchIdSupported ? (
-              <FingerprintIcon {...iconProps} />
-            ) : (
-              <FaceIdIcon {...iconProps} />
-            ),
-          },
+          ...(deviceSupportsBiometrics
+            ? [
+                {
+                  screen: Screens.SettingsBiometricAuth as Screens.SettingsBiometricAuth,
+                  isHidden: !isTouchIdSupported && !isFaceIdSupported,
+                  text: authenticationTypeName,
+                  icon: isTouchIdSupported ? (
+                    <FingerprintIcon {...iconProps} />
+                  ) : (
+                    <FaceIdIcon {...iconProps} />
+                  ),
+                },
+              ]
+            : []),
           // @TODO: [MOB-250] add back testnet toggle once we support testnets
         ],
       },
@@ -110,7 +114,7 @@ export function SettingsScreen(): JSX.Element {
           {
             screen: Screens.WebView,
             screenProps: {
-              uriLink: GET_HELP_LINK,
+              uriLink: uniswapUrls.helpUrl,
               headerTitle: t('Get Help'),
             },
             text: t('Get Help'),
@@ -146,11 +150,6 @@ export function SettingsScreen(): JSX.Element {
         isHidden: !__DEV__,
         data: [
           {
-            screen: Screens.SettingsChains,
-            text: t('Chains'),
-            icon: <UniswapIcon {...iconProps} />,
-          },
-          {
             screen: Screens.Dev,
             text: t('Dev Options'),
             icon: <UniswapIcon {...iconProps} />,
@@ -160,9 +159,10 @@ export function SettingsScreen(): JSX.Element {
       },
     ]
   }, [
-    theme.colors.neutral2,
+    colors.neutral2.val,
     t,
     currentAppearanceSetting,
+    deviceSupportsBiometrics,
     isTouchIdSupported,
     isFaceIdSupported,
     authenticationTypeName,
@@ -175,13 +175,13 @@ export function SettingsScreen(): JSX.Element {
   >): JSX.Element | null => {
     if (item.isHidden) return null
     if ('component' in item) return item.component
-    return <SettingsRow key={item.screen} navigation={navigation} page={item} theme={theme} />
+    return <SettingsRow key={item.screen} navigation={navigation} page={item} />
   }
 
   return (
     <HeaderScrollScreen
       alwaysShowCenterElement
-      centerElement={<Text variant="bodyLarge">{t('Settings')}</Text>}>
+      centerElement={<Text variant="body1">{t('Settings')}</Text>}>
       <Flex px="$spacing24" py="$spacing12">
         <SectionList
           ItemSeparatorComponent={renderItemSeparator}
@@ -192,8 +192,8 @@ export function SettingsScreen(): JSX.Element {
           renderItem={renderItem}
           renderSectionFooter={(): JSX.Element => <Flex pt="$spacing24" />}
           renderSectionHeader={({ section: { subTitle } }): JSX.Element => (
-            <Flex bg="$surface1" gap="$none" pb="$spacing12">
-              <Text color="$neutral2" variant="bodyLarge">
+            <Flex bg="$surface1" pb="$spacing12">
+              <Text color="$neutral2" variant="body1">
                 {subTitle}
               </Text>
             </Flex>
@@ -209,7 +209,6 @@ export function SettingsScreen(): JSX.Element {
 const renderItemSeparator = (): JSX.Element => <Flex pt="$spacing8" />
 
 function OnboardingRow({ iconProps }: { iconProps: SvgProps }): JSX.Element {
-  const theme = useTheme()
   const { t } = useTranslation()
   const dispatch = useDispatch()
   const navigation = useSettingsStackNavigation()
@@ -221,22 +220,17 @@ function OnboardingRow({ iconProps }: { iconProps: SvgProps }): JSX.Element {
         dispatch(resetWallet())
         dispatch(setFinishedOnboarding({ finishedOnboarding: false }))
       }}>
-      <Flex
-        alignItems="center"
-        flexDirection="row"
-        gap="$none"
-        justifyContent="space-between"
-        py="$spacing4">
-        <Flex alignItems="center" flexDirection="row" gap="$none">
+      <Flex row alignItems="center" justifyContent="space-between" py="$spacing4">
+        <Flex row alignItems="center">
           <Flex centered height={32} width={32}>
             <UniswapIcon {...iconProps} />
           </Flex>
-          <Text ml="$spacing12" variant="bodyLarge">
+          <Text ml="$spacing12" variant="body1">
             {t('Onboarding')}
           </Text>
         </Flex>
         <Icons.RotatableChevron
-          color={theme.colors.neutral3}
+          color="$neutral3"
           direction="e"
           height={iconSizes.icon24}
           width={iconSizes.icon24}
@@ -278,14 +272,14 @@ function WalletSettings(): JSX.Element {
   }
 
   return (
-    <Flex flexDirection="column" gap="$none" mb="$spacing16">
+    <Flex mb="$spacing16">
       <Flex row justifyContent="space-between">
-        <Text color="$neutral2" variant="bodyLarge">
+        <Text color="$neutral2" variant="body1">
           {t('Wallet settings')}
         </Text>
         {allAccounts.length > DEFAULT_ACCOUNTS_TO_DISPLAY && (
           <TouchableArea onPress={toggleViewAll}>
-            <Text color="$neutral2" mb="$spacing12" variant="subheadSmall">
+            <Text color="$neutral2" mb="$spacing12" variant="subheading2">
               {showAll ? t('View less') : t('View all')}
             </Text>
           </TouchableArea>
@@ -296,20 +290,16 @@ function WalletSettings(): JSX.Element {
         .map((account) => (
           <TouchableArea
             key={account.address}
-            pl="spacing4"
-            py="spacing12"
+            pl="$spacing4"
+            py="$spacing12"
             onPress={(): void => handleNavigation(account.address)}>
-            <Flex
-              alignItems="center"
-              flexDirection="row"
-              gap="$none"
-              justifyContent="space-between">
+            <Flex row alignItems="center" justifyContent="space-between">
               <Flex shrink>
                 <AddressDisplay
                   address={account.address}
-                  captionVariant="subheadSmall"
+                  captionVariant="subheading2"
                   size={iconSizes.icon40}
-                  variant="bodyLarge"
+                  variant="body1"
                 />
               </Flex>
               <Icons.RotatableChevron
@@ -350,10 +340,10 @@ function FooterSettings(): JSX.Element {
           gap="none"
           mt="spacing16">
           <Flex gap="$spacing4">
-            <Text color="$neutral3" textAlign="center" variant="bodySmall">
+            <Text color="$neutral3" textAlign="center" variant="body2">
               {t('Made with love, ')}
             </Text>
-            <Text color="$neutral3" textAlign="center" variant="bodySmall">
+            <Text color="$neutral3" textAlign="center" variant="body2">
               {t('Uniswap Team 🦄')}
             </Text>
           </Flex>
@@ -367,8 +357,8 @@ function FooterSettings(): JSX.Element {
       <Text
         color="$neutral3"
         mt="$spacing8"
-        paddingBottom="$spacing24"
-        variant="bodySmall"
+        pb="$spacing24"
+        variant="body2"
         onLongPress={(): void => {
           setShowSignature(true)
         }}>

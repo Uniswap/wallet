@@ -2,9 +2,8 @@ import { ImpactFeedbackStyle } from 'expo-haptics'
 import React, { memo, useMemo } from 'react'
 import { TextInputProps } from 'react-native'
 import { getNumberFormatSettings } from 'react-native-localize'
-import { TouchableArea } from 'src/components/buttons/TouchableArea'
-import { AnimatedBox, Box } from 'src/components/layout'
-import { Text } from 'src/components/Text'
+import { AnimatedBox } from 'src/components/layout'
+import { Flex, Text, TouchableArea } from 'ui/src'
 
 // if this setting is changed in phone settings the app would be restarted
 const { decimalSeparator } = getNumberFormatSettings()
@@ -19,7 +18,7 @@ type KeyProps = {
   disabled?: (value: string) => boolean
   label: string
   hidden?: boolean
-  paddingTop?: 'spacing12'
+  paddingTop?: '$spacing12'
   align: 'flex-start' | 'center' | 'flex-end'
 }
 
@@ -51,21 +50,21 @@ export function _DecimalPad({
         label: '1',
         action: KeyAction.Insert,
         align: 'center',
-        paddingTop: 'spacing12',
+        paddingTop: '$spacing12',
         disabled: () => disabled,
       },
       {
         label: '2',
         action: KeyAction.Insert,
         align: 'center',
-        paddingTop: 'spacing12',
+        paddingTop: '$spacing12',
         disabled: () => disabled,
       },
       {
         label: '3',
         action: KeyAction.Insert,
         align: 'center',
-        paddingTop: 'spacing12',
+        paddingTop: '$spacing12',
         disabled: () => disabled,
       },
       { label: '4', action: KeyAction.Insert, align: 'center', disabled: () => disabled },
@@ -91,10 +90,10 @@ export function _DecimalPad({
     ]
   }, [disabled, hideDecimal, cursorAtStart])
   return (
-    <AnimatedBox flexDirection="row" flexWrap="wrap" gap="$none">
+    <AnimatedBox flexDirection="row" flexWrap="wrap">
       {keys.map((key, i) =>
         key.hidden ? (
-          <Box key={i} alignItems={key.align} height="25%" width={i % 3 === 1 ? '50%' : '25%'} />
+          <Flex key={i} alignItems={key.align} height="25%" width={i % 3 === 1 ? '50%' : '25%'} />
         ) : (
           <KeyButton
             {...key}
@@ -196,17 +195,14 @@ function KeyButton({
       disabled={isDisabled}
       hapticStyle={ImpactFeedbackStyle.Light}
       justifyContent="center"
-      padding="spacing16"
-      paddingTop={paddingTop}
+      p="$spacing16"
+      pt={paddingTop}
       scaleTo={1.125}
       testID={'decimal-pad-' + label}
       width={index % 3 === 1 ? '50%' : '25%'}
       onLongPress={onLongPress}
       onPress={onPress}>
-      <Text
-        color={isDisabled ? 'neutral2' : 'neutral1'}
-        textAlign="center"
-        variant="headlineMedium">
+      <Text color={isDisabled ? '$neutral2' : '$neutral1'} textAlign="center" variant="heading2">
         {
           label === '.' ? decimalSeparator : label
           /* respect phone settings to show decimal separator in the numpad,

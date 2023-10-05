@@ -1,18 +1,13 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { ScrollView } from 'react-native'
 import { useAppDispatch } from 'src/app/hooks'
 import { navigate } from 'src/app/navigation/rootNavigation'
 import { BackButton } from 'src/components/buttons/BackButton'
-import { TouchableArea } from 'src/components/buttons/TouchableArea'
-import { Box } from 'src/components/layout/Box'
 import { SheetScreen } from 'src/components/layout/SheetScreen'
-import { Text } from 'src/components/Text'
 import { resetDismissedWarnings } from 'src/features/tokens/tokensSlice'
 import { Screens } from 'src/screens/Screens'
+import { Flex, Text, TouchableArea } from 'ui/src'
 import { logger } from 'utilities/src/logger/logger'
-import { ChainId } from 'wallet/src/constants/chains'
-import { useActiveChainIds } from 'wallet/src/features/chains/hooks'
-import { setChainActiveStatus } from 'wallet/src/features/chains/slice'
 import { pushNotification } from 'wallet/src/features/notifications/slice'
 import { AppNotificationType } from 'wallet/src/features/notifications/types'
 import { createAccountActions } from 'wallet/src/features/wallet/create/createAccountSaga'
@@ -22,7 +17,6 @@ import { resetWallet } from 'wallet/src/features/wallet/slice'
 export function DevScreen(): JSX.Element {
   const dispatch = useAppDispatch()
   const activeAccount = useActiveAccount()
-  const [currentChain] = useState(ChainId.Goerli)
 
   const onPressResetTokenWarnings = (): void => {
     dispatch(resetDismissedWarnings())
@@ -34,13 +28,6 @@ export function DevScreen(): JSX.Element {
 
   const activateWormhole = (s: Screens): void => {
     navigate(s)
-  }
-
-  const activeChains = useActiveChainIds()
-  const onPressToggleTestnets = (): void => {
-    // always rely on the state of goerli
-    const isGoerliActive = activeChains.includes(ChainId.Goerli)
-    dispatch(setChainActiveStatus({ chainId: ChainId.Goerli, isActive: !isGoerliActive }))
   }
 
   const onPressShowError = (): void => {
@@ -71,58 +58,44 @@ export function DevScreen(): JSX.Element {
 
   return (
     <SheetScreen>
-      <Box
-        flexDirection="row"
-        justifyContent="flex-end"
-        pb="spacing12"
-        pt="spacing36"
-        px="spacing16">
+      <Flex row justifyContent="flex-end" pb="$spacing12" pt="$spacing36" px="$spacing16">
         <BackButton />
-      </Box>
+      </Flex>
       <ScrollView>
-        <Box alignItems="center">
-          <Text color="neutral1" textAlign="center" variant="headlineSmall">
+        <Flex alignItems="center">
+          <Text color="$neutral1" textAlign="center" variant="heading3">
             {`Your Account: ${activeAccount?.address || 'none'}`}
           </Text>
-          <Text mt="spacing16" textAlign="center" variant="headlineSmall">
+          <Text mt="$spacing16" textAlign="center" variant="heading3">
             🌀🌀Screen Stargate🌀🌀
           </Text>
-          <Box alignItems="center" flexDirection="row" flexWrap="wrap" justifyContent="center">
+          <Flex centered row flexWrap="wrap">
             {Object.values(Screens).map((s) => (
               <TouchableArea
                 key={s}
-                m="spacing8"
+                m="$spacing8"
                 testID={`dev_screen/${s}`}
                 onPress={(): void => activateWormhole(s)}>
-                <Text color="neutral1">{s}</Text>
+                <Text color="$neutral1">{s}</Text>
               </TouchableArea>
             ))}
-          </Box>
-          <Text mt="spacing12" textAlign="center" variant="bodyLarge">
+          </Flex>
+          <Text mt="$spacing12" textAlign="center" variant="body1">
             🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀
           </Text>
-          <TouchableArea mt="spacing16" onPress={onPressCreate}>
-            <Text color="neutral1">Create account</Text>
+          <TouchableArea mt="$spacing16" onPress={onPressCreate}>
+            <Text color="$neutral1">Create account</Text>
           </TouchableArea>
-          <TouchableArea mt="spacing12" onPress={onPressToggleTestnets}>
-            <Text color="neutral1">Toggle testnets</Text>
+          <TouchableArea mt="$spacing12" onPress={onPressResetTokenWarnings}>
+            <Text color="$neutral1">Reset token warnings</Text>
           </TouchableArea>
-          <TouchableArea mt="spacing12" onPress={onPressResetTokenWarnings}>
-            <Text color="neutral1">Reset token warnings</Text>
+          <TouchableArea mt="$spacing12" onPress={onPressShowError}>
+            <Text color="$neutral1">Show global error</Text>
           </TouchableArea>
-          <TouchableArea mt="spacing12" onPress={onPressShowError}>
-            <Text color="neutral1">Show global error</Text>
+          <TouchableArea mt="$spacing12" onPress={onPressResetOnboarding}>
+            <Text color="$neutral1">Reset onboarding</Text>
           </TouchableArea>
-          <TouchableArea mt="spacing12" onPress={onPressResetOnboarding}>
-            <Text color="neutral1">Reset onboarding</Text>
-          </TouchableArea>
-          <Text color="neutral1" mt="spacing36" textAlign="center">
-            {`Active Chains: ${activeChains}`}
-          </Text>
-          <Text color="neutral1" mt="spacing12" textAlign="center">
-            {`Current Chain: ${currentChain}`}
-          </Text>
-        </Box>
+        </Flex>
       </ScrollView>
     </SheetScreen>
   )

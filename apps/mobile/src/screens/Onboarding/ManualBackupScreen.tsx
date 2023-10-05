@@ -7,24 +7,20 @@ import { addScreenshotListener } from 'expo-screen-capture'
 import React, { useEffect, useReducer, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TouchableOpacity } from 'react-native-gesture-handler'
-import { useAppDispatch, useAppTheme } from 'src/app/hooks'
+import { useAppDispatch } from 'src/app/hooks'
 import { OnboardingStackParamList } from 'src/app/navigation/types'
-import {
-  DEFAULT_MNEMONIC_DISPLAY_HEIGHT,
-  FULL_MNEMONIC_DISPLAY_HEIGHT,
-} from 'src/components/mnemonic/constants'
 import { HiddenMnemonicWordView } from 'src/components/mnemonic/HiddenMnemonicWordView'
 import { MnemonicConfirmation } from 'src/components/mnemonic/MnemonicConfirmation'
 import { MnemonicDisplay } from 'src/components/mnemonic/MnemonicDisplay'
 import { BottomSheetModal } from 'src/components/modals/BottomSheetModal'
 import WarningModal from 'src/components/modals/WarningModal/WarningModal'
-import { Text } from 'src/components/Text'
 import { useLockScreenOnBlur } from 'src/features/authentication/lockScreenContext'
 import { OnboardingScreen } from 'src/features/onboarding/OnboardingScreen'
 import { sendMobileAnalyticsEvent } from 'src/features/telemetry'
 import { ElementName, ManualPageViewScreen, ModalName } from 'src/features/telemetry/constants'
 import { OnboardingScreens } from 'src/screens/Screens'
-import { Button, Flex } from 'ui/src'
+import { Button, Flex, Text, useSporeColors } from 'ui/src'
+import { iconSizes } from 'ui/src/theme'
 import {
   EditAccountAction,
   editAccountActions,
@@ -82,11 +78,6 @@ export function ManualBackupScreen({ navigation, route: { params } }: Props): JS
       navigation.navigate({ name: OnboardingScreens.Notifications, params, merge: true })
     }
   }, [activeAccount?.backups, navigation, params])
-
-  const mnemonicDisplayHeight = useResponsiveProp({
-    xs: DEFAULT_MNEMONIC_DISPLAY_HEIGHT,
-    sm: FULL_MNEMONIC_DISPLAY_HEIGHT,
-  })
 
   const responsiveTitle = useResponsiveProp({
     xs: undefined,
@@ -174,32 +165,32 @@ export function ManualBackupScreen({ navigation, route: { params } }: Props): JS
 }
 
 const SeedWarningModal = ({ onPress }: { onPress: () => void }): JSX.Element => {
-  const theme = useAppTheme()
+  const colors = useSporeColors()
   const { t } = useTranslation()
   return (
     <BottomSheetModal
-      backgroundColor={theme.colors.surface2}
+      backgroundColor={colors.surface2.val}
       hideHandlebar={true}
       isDismissible={false}
       name={ModalName.SeedPhraseWarningModal}>
       <Flex centered gap="$spacing12" pb="$spacing48" pt="$spacing36" px="$spacing24">
-        <Flex centered backgroundColor="$surface2" borderRadius="$roundedFull" padding="$spacing8">
+        <Flex centered backgroundColor="$surface2" borderRadius="$roundedFull" p="$spacing8">
           <LockIcon
-            color={theme.colors.neutral1}
-            height={theme.iconSizes.icon24}
-            width={theme.iconSizes.icon24}
+            color={colors.neutral1.val}
+            height={iconSizes.icon24}
+            width={iconSizes.icon24}
           />
         </Flex>
-        <Text color="neutral1" variant="bodyLarge">
+        <Text color="$neutral1" variant="body1">
           {t('Do this step in a private place')}
         </Text>
-        <Text color="neutral2" textAlign="center" variant="bodySmall">
+        <Text color="$neutral2" textAlign="center" variant="body2">
           {t(
             'Your recovery phrase is what grants you (and anyone who has it) access to your funds. Be sure to store it in a memorable, safe space.'
           )}
         </Text>
         <TouchableOpacity onPress={onPress}>
-          <Text color="accent1" paddingTop="spacing24" variant="buttonLabelMedium">
+          <Text color="$accent1" pt="$spacing24" variant="buttonLabel2">
             {t('I’m ready')}
           </Text>
         </TouchableOpacity>

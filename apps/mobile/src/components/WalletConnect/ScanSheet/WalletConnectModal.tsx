@@ -3,24 +3,23 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Alert } from 'react-native'
 import 'react-native-reanimated'
-import { useAppSelector, useAppTheme } from 'src/app/hooks'
+import { useAppSelector } from 'src/app/hooks'
 import { useEagerExternalProfileRootNavigation } from 'src/app/navigation/hooks'
-import { TouchableArea } from 'src/components/buttons/TouchableArea'
-import { Flex } from 'src/components/layout'
 import { BackButtonView } from 'src/components/layout/BackButtonView'
 import { BottomSheetModal } from 'src/components/modals/BottomSheetModal'
 import { ScannerModalState } from 'src/components/QRCodeScanner/constants'
 import { QRCodeScanner } from 'src/components/QRCodeScanner/QRCodeScanner'
 import { WalletQRCode } from 'src/components/QRCodeScanner/WalletQRCode'
-import { Text } from 'src/components/Text'
 import Trace from 'src/components/Trace/Trace'
 import { ConnectedDappsList } from 'src/components/WalletConnect/ConnectedDapps/ConnectedDappsList'
 import { getSupportedURI, URIType } from 'src/components/WalletConnect/ScanSheet/util'
 import { ElementName, ModalName } from 'src/features/telemetry/constants'
 import { useWalletConnect } from 'src/features/walletConnect/useWalletConnect'
 import { pairWithWalletConnectURI } from 'src/features/walletConnect/utils'
+import { Flex, Text, TouchableArea, useSporeColors } from 'ui/src'
 import Scan from 'ui/src/assets/icons/receive.svg'
 import ScanQRIcon from 'ui/src/assets/icons/scan.svg'
+import { iconSizes } from 'ui/src/theme'
 import { logger } from 'utilities/src/logger/logger'
 import { useIsDarkMode } from 'wallet/src/features/appearance/hooks'
 import { selectActiveAccountAddress } from 'wallet/src/features/wallet/selectors'
@@ -35,7 +34,7 @@ export function WalletConnectModal({
   onClose,
 }: Props): JSX.Element | null {
   const { t } = useTranslation()
-  const theme = useAppTheme()
+  const colors = useSporeColors()
   const isDarkMode = useIsDarkMode()
   const activeAddress = useAppSelector(selectActiveAccountAddress)
   const { sessions, hasPendingSessionError } = useWalletConnect(activeAddress)
@@ -171,7 +170,7 @@ export function WalletConnectModal({
   return (
     <BottomSheetModal
       fullScreen
-      backgroundColor={theme.colors.surface1}
+      backgroundColor={colors.surface1.val}
       name={ModalName.WalletConnectScan}
       onClose={onClose}>
       <>
@@ -200,24 +199,32 @@ export function WalletConnectModal({
             <WalletQRCode address={activeAddress} />
           </Trace>
         )}
-        <Flex centered mb="spacing48" mt="spacing16" mx="spacing16">
+        <Flex centered mb="$spacing48" mt="$spacing16" mx="$spacing16">
           <TouchableArea
             hapticFeedback
-            borderColor={isDarkMode ? 'none' : 'surface3'}
-            borderRadius="roundedFull"
+            borderColor={isDarkMode ? '$transparent' : '$surface3'}
+            borderRadius="$roundedFull"
             borderWidth={1}
-            p="spacing16"
-            paddingEnd="spacing24"
-            style={{ backgroundColor: theme.colors.DEP_backgroundOverlay }}
+            p="$spacing16"
+            paddingEnd="$spacing24"
+            style={{ backgroundColor: colors.DEP_backgroundOverlay.val }}
             testID={ElementName.QRCodeModalToggle}
             onPress={onPressBottomToggle}>
-            <Flex row alignItems="center" gap="spacing12">
+            <Flex row alignItems="center" gap="$spacing12">
               {currentScreenState === ScannerModalState.ScanQr ? (
-                <Scan color={theme.colors.neutral1} height={24} width={24} />
+                <Scan
+                  color={colors.neutral1.val}
+                  height={iconSizes.icon24}
+                  width={iconSizes.icon24}
+                />
               ) : (
-                <ScanQRIcon color={theme.colors.neutral1} height={24} width={24} />
+                <ScanQRIcon
+                  color={colors.neutral1.val}
+                  height={iconSizes.icon24}
+                  width={iconSizes.icon24}
+                />
               )}
-              <Text color="neutral1" variant="buttonLabelMedium">
+              <Text color="$neutral1" variant="buttonLabel2">
                 {currentScreenState === ScannerModalState.ScanQr
                   ? t('Show my QR code')
                   : t('Scan a QR code')}

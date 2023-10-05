@@ -4,17 +4,15 @@ import React from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { useAppDispatch } from 'src/app/hooks'
 import { OnboardingStackParamList } from 'src/app/navigation/types'
-import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { LandingBackground } from 'src/components/gradients/LandingBackground'
 import { Screen } from 'src/components/layout/Screen'
-import { Text } from 'src/components/Text'
 import Trace from 'src/components/Trace/Trace'
 import { ImportType, OnboardingEntryPoint } from 'src/features/onboarding/utils'
 import { ElementName } from 'src/features/telemetry/constants'
 import { OnboardingScreens } from 'src/screens/Screens'
 import { openUri } from 'src/utils/linking'
 import { hideSplashScreen } from 'src/utils/splashScreen'
-import { Box, Button, Flex } from 'ui/src'
+import { Button, Flex, Text, TouchableArea } from 'ui/src'
 import { useTimeout } from 'utilities/src/time/timing'
 import { uniswapUrls } from 'wallet/src/constants/urls'
 import { useIsDarkMode } from 'wallet/src/features/appearance/hooks'
@@ -75,32 +73,32 @@ export function LandingScreen({ navigation }: Props): JSX.Element {
           </Trace>
           <Trace logPress element={ElementName.ImportAccount}>
             <TouchableArea hapticFeedback alignItems="center" onPress={onPressImportWallet}>
-              <Text color="accent1" variant="buttonLabelLarge">
+              <Text color="$accent1" variant="buttonLabel1">
                 {t('Add an existing wallet')}
               </Text>
             </TouchableArea>
           </Trace>
-          <Box $short={{ pb: '$none' }} mx="$spacing24" py="$spacing12">
-            <Text color="neutral2" mx="spacing4" textAlign="center" variant="buttonLabelMicro">
+          <Flex $short={{ pb: '$none' }} mx="$spacing24" py="$spacing12">
+            <Text color="$neutral2" mx="$spacing4" textAlign="center" variant="buttonLabel4">
               <Trans t={t}>
                 By continuing, I agree to the{' '}
                 <Text
-                  color={isDarkMode ? 'accent1' : 'accent1'}
-                  variant="buttonLabelMicro"
+                  color="$accent1"
+                  variant="buttonLabel4"
                   onPress={(): Promise<void> => openUri(uniswapUrls.termsOfServiceUrl)}>
                   Terms of Service
                 </Text>{' '}
                 and consent to the{' '}
                 <Text
-                  color={isDarkMode ? 'accent1' : 'accent1'}
-                  variant="buttonLabelMicro"
+                  color="$accent1"
+                  variant="buttonLabel4"
                   onPress={(): Promise<void> => openUri(uniswapUrls.privacyPolicyUrl)}>
                   Privacy Policy
                 </Text>
                 .
               </Trans>
             </Text>
-          </Box>
+          </Flex>
         </Flex>
       </Flex>
     </Screen>

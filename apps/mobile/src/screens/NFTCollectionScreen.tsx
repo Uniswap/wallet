@@ -6,14 +6,11 @@ import { useTranslation } from 'react-i18next'
 import { ListRenderItemInfo } from 'react-native'
 import { useAnimatedScrollHandler, useSharedValue, withTiming } from 'react-native-reanimated'
 import { AppStackScreenProp, useAppStackNavigation } from 'src/app/navigation/types'
-import { TouchableArea } from 'src/components/buttons/TouchableArea'
-import { Box, Flex } from 'src/components/layout'
 import { AnimatedFlashList } from 'src/components/layout/AnimatedFlashList'
 import { BaseCard } from 'src/components/layout/BaseCard'
 import { Screen } from 'src/components/layout/Screen'
 import { ScrollHeader } from 'src/components/layout/screens/ScrollHeader'
 import { Loader } from 'src/components/loading'
-import { Text } from 'src/components/Text'
 import Trace from 'src/components/Trace/Trace'
 import { IS_IOS } from 'src/constants/globals'
 import { ListPriceBadge } from 'src/features/nfts/collection/ListPriceCard'
@@ -26,7 +23,8 @@ import { NFTItem } from 'src/features/nfts/types'
 import { getNFTAssetKey } from 'src/features/nfts/utils'
 import { ExploreModalAwareView } from 'src/screens/ModalAwareView'
 import { Screens } from 'src/screens/Screens'
-import { dimensions } from 'ui/src/theme'
+import { Flex, Text, TouchableArea } from 'ui/src'
+import { dimensions, iconSizes, spacing } from 'ui/src/theme'
 import { theme } from 'ui/src/theme/restyle'
 import { isError } from 'wallet/src/data/utils'
 import {
@@ -141,14 +139,14 @@ export function NFTCollectionScreen({
       marginRight: middle ? theme.spacing.spacing8 : last ? theme.spacing.spacing16 : 0,
       marginBottom: theme.spacing.spacing8,
     }
-    const priceColor = IS_IOS ? 'sporeWhite' : 'neutral1'
+    const priceColor = IS_IOS ? '$sporeWhite' : '$neutral1'
 
     return (
-      <Box
+      <Flex
+        fill
         aspectRatio={1}
-        backgroundColor="surface3"
-        borderRadius="rounded16"
-        flex={1}
+        bg="$surface3"
+        borderRadius="$rounded16"
         overflow="hidden"
         style={containerStyle}>
         {typeof item === 'string' ? (
@@ -171,19 +169,18 @@ export function NFTCollectionScreen({
             />
             {item.listPrice && (
               <ListPriceBadge
-                bottom={theme.spacing.spacing4}
-                gap="none"
+                bottom={spacing.spacing4}
                 iconColor={priceColor}
-                iconSize="icon12"
+                iconSize={iconSizes.icon12}
                 position="absolute"
                 price={item.listPrice}
-                right={theme.spacing.spacing4}
+                right={spacing.spacing4}
                 textColor={priceColor}
               />
             )}
           </TouchableArea>
         )}
-      </Box>
+      </Flex>
     )
   }
 
@@ -212,7 +209,7 @@ export function NFTCollectionScreen({
   if (isError(networkStatus, !!data)) {
     return (
       <Screen noInsets={true}>
-        <Flex grow>
+        <Flex grow gap="$spacing16">
           <NFTCollectionHeader data={undefined} loading={true} />
           <BaseCard.ErrorState
             description={t('Something went wrong.')}
@@ -236,9 +233,7 @@ export function NFTCollectionScreen({
           <ScrollHeader
             fullScreen
             centerElement={
-              collectionData?.name ? (
-                <Text variant="bodyLarge">{collectionData.name}</Text>
-              ) : undefined
+              collectionData?.name ? <Text variant="body1">{collectionData.name}</Text> : undefined
             }
             listRef={listRef}
             rightElement={

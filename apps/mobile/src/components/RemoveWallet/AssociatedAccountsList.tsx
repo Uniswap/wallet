@@ -1,10 +1,9 @@
 import React from 'react'
 import { ScrollView, StyleSheet } from 'react-native'
 import { AddressDisplay } from 'src/components/AddressDisplay'
-import { Box, Flex } from 'src/components/layout'
-import { Text } from 'src/components/Text'
+import { Flex, Text } from 'ui/src'
 import { dimensions, spacing } from 'ui/src/theme'
-import { formatUSDPrice } from 'utilities/src/format/format'
+import { formatUSDPrice, NumberType } from 'utilities/src/format/format'
 import {
   AccountListQuery,
   useAccountListQuery,
@@ -39,13 +38,13 @@ function _AssociatedAccountsList({ accounts }: { accounts: Account[] }): JSX.Ele
     spacing.spacing12 // 12 is the ScrollView vertical padding
 
   return (
-    <Box
-      borderColor="surface3"
-      borderRadius="rounded16"
+    <Flex
+      borderColor="$surface3"
+      borderRadius="$rounded16"
       borderWidth={1}
       maxHeight={accountsScrollViewHeight}
-      mb="spacing16"
-      px="spacing12"
+      mb="$spacing16"
+      px="$spacing12"
       width="100%">
       <ScrollView bounces={false} contentContainerStyle={styles.accounts}>
         {sortedAddressesByBalance.map(({ address, balance }, index) => (
@@ -54,20 +53,20 @@ function _AssociatedAccountsList({ accounts }: { accounts: Account[] }): JSX.Ele
             row
             alignItems="center"
             justifyContent="space-between"
-            pb={index !== accounts.length - 1 ? 'spacing16' : undefined}>
+            pb={index !== accounts.length - 1 ? '$spacing16' : undefined}>
             <AddressDisplay
               hideAddressInSubtitle
               address={address}
               size={24}
-              variant="subheadSmall"
+              variant="subheading2"
             />
-            <Text color="neutral2" loading={loading} numberOfLines={1} variant="bodyMicro">
-              {formatUSDPrice(balance)}
+            <Text color="$neutral2" loading={loading} numberOfLines={1} variant="body3">
+              {formatUSDPrice(balance, NumberType.PortfolioBalance)}
             </Text>
           </Flex>
         ))}
       </ScrollView>
-    </Box>
+    </Flex>
   )
 }
 

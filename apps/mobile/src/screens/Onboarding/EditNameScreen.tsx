@@ -3,10 +3,8 @@ import { useResponsiveProp } from '@shopify/restyle'
 import React, { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, TextInput as NativeTextInput } from 'react-native'
-import { FadeIn, FadeOut } from 'react-native-reanimated'
-import { useAppDispatch, useAppTheme } from 'src/app/hooks'
+import { useAppDispatch } from 'src/app/hooks'
 import { OnboardingStackParamList } from 'src/app/navigation/types'
-import { AnimatedButton, Button, ButtonEmphasis, ButtonSize } from 'src/components/buttons/Button'
 import { TextInput } from 'src/components/input/TextInput'
 import Trace from 'src/components/Trace/Trace'
 import { SafeKeyboardOnboardingScreen } from 'src/features/onboarding/SafeKeyboardOnboardingScreen'
@@ -14,8 +12,8 @@ import { ImportType } from 'src/features/onboarding/utils'
 import { ElementName } from 'src/features/telemetry/constants'
 import { OnboardingScreens } from 'src/screens/Screens'
 import { useAddBackButton } from 'src/utils/useAddBackButton'
-import { Flex, Text } from 'ui/src'
-import PencilIcon from 'ui/src/assets/icons/pencil-detailed.svg'
+import { AnimatePresence, Button, Flex, Icons, Text, useSporeColors } from 'ui/src'
+import { fonts } from 'ui/src/theme'
 import { NICKNAME_MAX_LENGTH } from 'wallet/src/constants/accounts'
 import {
   EditAccountAction,
@@ -50,10 +48,6 @@ export function EditNameScreen({ navigation, route: { params } }: Props): JSX.El
   }, [pendingAccount, t])
 
   const [newAccountName, setNewAccountName] = useState<string>('')
-
-  // we default it to `true` to avoid flickering of a pencil icon,
-  // because CustomizationSection has `autoFocus=true`
-  const [focused, setFocused] = useState(true)
 
   useAddBackButton(navigation)
 
@@ -95,16 +89,14 @@ export function EditNameScreen({ navigation, route: { params } }: Props): JSX.El
         <CustomizationSection
           accountName={newAccountName}
           address={pendingAccount?.address}
-          focused={focused}
           setAccountName={setNewAccountName}
-          setFocused={setFocused}
         />
       ) : (
         <ActivityIndicator />
       )}
       <Flex justifyContent="flex-end">
         <Trace logPress element={ElementName.Continue}>
-          <Button label={t('Create Wallet')} onPress={onPressNext} />
+          <Button onPress={onPressNext}>{t('Create Wallet')}</Button>
         </Trace>
       </Flex>
     </SafeKeyboardOnboardingScreen>
@@ -115,26 +107,26 @@ function CustomizationSection({
   address,
   accountName,
   setAccountName,
-  focused,
-  setFocused,
 }: {
   address: Address
   accountName: string
   setAccountName: Dispatch<SetStateAction<string>>
-  focused: boolean
-  setFocused: Dispatch<SetStateAction<boolean>>
 }): JSX.Element {
   const { t } = useTranslation()
-  const theme = useAppTheme()
+  const colors = useSporeColors()
   const textInputRef = useRef<NativeTextInput>(null)
+
+  // we default it to `true` to avoid flickering of a pencil icon,
+  // because CustomizationSection has `autoFocus=true`
+  const [focused, setFocused] = useState(true)
 
   const focusInputWithKeyboard = (): void => {
     textInputRef.current?.focus()
   }
 
   const inputSize = useResponsiveProp({
-    xs: theme.textVariants.headlineSmall.fontSize,
-    sm: theme.textVariants.headlineMedium.fontSize,
+    xs: fonts.heading3.fontSize,
+    sm: fonts.heading2.fontSize,
   })
 
   return (
@@ -151,10 +143,10 @@ function CustomizationSection({
             autoFocus
             backgroundColor="none"
             fontSize={inputSize}
-            maxFontSizeMultiplier={theme.textVariants.headlineMedium.maxFontSizeMultiplier}
+            maxFontSizeMultiplier={fonts.heading2.maxFontSizeMultiplier}
             maxLength={NICKNAME_MAX_LENGTH}
             placeholder="Nickname"
-            placeholderTextColor={theme.colors.neutral3}
+            placeholderTextColor={colors.neutral3.val}
             testID="customize/name"
             textAlign="center"
             value={accountName}
@@ -162,22 +154,25 @@ function CustomizationSection({
             onChangeText={setAccountName}
             onFocus={(): void => setFocused(true)}
           />
-          {!focused && (
-            <AnimatedButton
-              IconName={PencilIcon}
-              emphasis={ButtonEmphasis.Secondary}
-              entering={FadeIn}
-              exiting={FadeOut}
-              size={ButtonSize.Small}
-              onPress={focusInputWithKeyboard}
-            />
-          )}
+          <AnimatePresence>
+            {focused && (
+              <Button
+                fadeIn
+                fadeOut
+                animation="lazy"
+                icon={<Icons.Pencil fill="$color" />}
+                size="small"
+                theme="secondary"
+                onPress={focusInputWithKeyboard}
+              />
+            )}
+          </AnimatePresence>
         </Flex>
         <Flex centered gap="$spacing4">
-          <Text color="$neutral3" variant="bodyMicro">
+          <Text color="$neutral3" variant="body3">
             {t('Your public address will be')}
           </Text>
-          <Text color="$neutral3" variant="buttonLabelSmall">
+          <Text color="$neutral3" variant="buttonLabel3">
             {shortenAddress(address)}
           </Text>
         </Flex>

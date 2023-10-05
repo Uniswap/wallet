@@ -17,8 +17,8 @@ import {
   useWindowDimensions,
 } from 'react-native'
 import Animated, { useAnimatedProps } from 'react-native-reanimated'
-import { Flex } from 'src/components/layout'
 import { DEFAULT_FONT_SCALE } from 'src/components/Text'
+import { Flex } from 'ui/src'
 import { TextLoaderWrapper } from 'ui/src/components/text/Text'
 import { textVariants, Theme } from 'ui/src/theme/restyle'
 
@@ -55,7 +55,7 @@ export const BaseAnimatedText = ({
   if (loading) {
     return (
       <TextLoaderWrapper loadingShimmer={loading !== 'no-shimmer'}>
-        <Flex row gap="none">
+        <Flex row>
           {/* Use empty input for loading shimmer height calculation (it is different
           than the text component height) */}
           <AnimatedTextInput
@@ -104,7 +104,7 @@ export const AnimatedText = (
   const { fontScale } = useWindowDimensions()
   const enableFontScaling = fontScale > DEFAULT_FONT_SCALE
 
-  const variant = useResponsiveProp(props.variant ?? 'bodySmall') as keyof typeof textVariants
+  const variant = useResponsiveProp(props.variant ?? 'body2') as keyof typeof textVariants
   const multiplier = textVariants[variant].maxFontSizeMultiplier
 
   return (

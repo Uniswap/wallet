@@ -1,25 +1,24 @@
 import Fuse from 'fuse.js'
 import React from 'react'
-
-import { Flex } from 'src/components/layout'
-import { Text, TextProps } from 'src/components/Text'
+import { Flex, Text, TextProps } from 'ui/src'
+import { TextVariantTokens } from 'ui/src/theme'
 
 interface TextWithFuseMatchesProps {
   text: string
   matches?: readonly Fuse.FuseResultMatch[]
-  variant?: TextProps['variant']
-  numberOfLines?: TextProps['numberOfLines']
+  variant?: TextVariantTokens
+  numberOfLines?: Pick<TextProps, 'numberOfLines'>
 }
 
 export function TextWithFuseMatches({
   matches,
   text,
-  variant = 'bodyLarge',
+  variant = 'body1',
   numberOfLines = 1,
 }: TextWithFuseMatchesProps & TextProps): JSX.Element {
   if (!matches || matches.length === 0) {
     return (
-      <Text color="neutral1" numberOfLines={numberOfLines} variant={variant}>
+      <Text color="$neutral1" numberOfLines={numberOfLines} variant={variant}>
         {text}
       </Text>
     )
@@ -49,13 +48,13 @@ export function TextWithFuseMatches({
       {pieces.map((p, i) => {
         if (p[1])
           return (
-            <Text key={`${i}${p[0]}`} color="neutral1" variant={variant}>
+            <Text key={`${i}${p[0]}`} color="$neutral1" variant={variant}>
               {p[0]}
             </Text>
           )
         else
           return (
-            <Text key={`${i}${p[0]}`} color="neutral3" variant={variant}>
+            <Text key={`${i}${p[0]}`} color="$neutral3" variant={variant}>
               {p[0]}
             </Text>
           )
@@ -63,5 +62,9 @@ export function TextWithFuseMatches({
     </>
   )
 
-  return <Flex row>{elements}</Flex>
+  return (
+    <Flex row gap="$spacing16">
+      {elements}
+    </Flex>
+  )
 }

@@ -5,11 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { Keyboard, TextInput } from 'react-native'
 import { useAppDispatch, useAppSelector } from 'src/app/hooks'
 import { OnboardingStackParamList } from 'src/app/navigation/types'
-import { Button } from 'src/components/buttons/Button'
-import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { PasswordInput } from 'src/components/input/PasswordInput'
-import { Flex } from 'src/components/layout/Flex'
-import { Text } from 'src/components/Text'
 import { IS_ANDROID } from 'src/constants/globals'
 import {
   incrementPasswordAttempts,
@@ -25,6 +21,7 @@ import { ImportType } from 'src/features/onboarding/utils'
 import { ElementName } from 'src/features/telemetry/constants'
 import { OnboardingScreens } from 'src/screens/Screens'
 import { useAddBackButton } from 'src/utils/useAddBackButton'
+import { Button, Flex, Text, TouchableArea } from 'ui/src'
 import { ONE_HOUR_MS, ONE_MINUTE_MS } from 'utilities/src/time/time'
 import { importAccountActions } from 'wallet/src/features/wallet/import/importAccountSaga'
 import { ImportAccountType } from 'wallet/src/features/wallet/import/types'
@@ -185,17 +182,17 @@ export function RestoreCloudBackupPasswordScreen({
       <Flex>
         {isRestoringMnemonic && (
           <TouchableArea onPress={navigateToEnterRecoveryPhrase}>
-            <Text color="accent1" mb="spacing12" textAlign="center" variant="buttonLabelSmall">
+            <Text color="$accent1" mb="$spacing12" textAlign="center" variant="buttonLabel3">
               {t('Enter your recovery phrase instead')}
             </Text>
           </TouchableArea>
         )}
         <Button
           disabled={!enteredPassword || isLockedOut}
-          label={t('Continue')}
           testID={ElementName.Submit}
-          onPress={onPasswordSubmit}
-        />
+          onPress={onPasswordSubmit}>
+          {t('Continue')}
+        </Button>
       </Flex>
     </OnboardingScreen>
   )

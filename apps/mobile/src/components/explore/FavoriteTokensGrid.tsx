@@ -6,9 +6,10 @@ import { FavoriteHeaderRow } from 'src/components/explore/FavoriteHeaderRow'
 import FavoriteTokenCard, {
   FAVORITE_TOKEN_CARD_LOADER_HEIGHT,
 } from 'src/components/explore/FavoriteTokenCard'
-import { AnimatedBox, Box, Flex } from 'src/components/layout'
+import { AnimatedBox } from 'src/components/layout'
 import { Loader } from 'src/components/loading'
 import { selectFavoriteTokens } from 'src/features/favorites/selectors'
+import { Flex } from 'ui/src'
 
 const NUM_COLUMNS = 2
 const ITEM_FLEX = { flex: 1 / NUM_COLUMNS }
@@ -29,7 +30,7 @@ export function FavoriteTokensGrid({ showLoading }: { showLoading: boolean }): J
   }, [favoriteCurrencyIds.length])
 
   return (
-    <AnimatedBox entering={FadeIn} gap="$none">
+    <AnimatedBox entering={FadeIn}>
       <FavoriteHeaderRow
         editingTitle={t('Edit favorite tokens')}
         isEditing={isEditing}
@@ -39,7 +40,7 @@ export function FavoriteTokensGrid({ showLoading }: { showLoading: boolean }): J
       {showLoading ? (
         <FavoriteTokensGridLoader />
       ) : (
-        <Box flexDirection="row" flexWrap="wrap">
+        <Flex row flexWrap="wrap">
           {favoriteCurrencyIds.map((currencyId) => (
             <FavoriteTokenCard
               key={currencyId}
@@ -49,7 +50,7 @@ export function FavoriteTokensGrid({ showLoading }: { showLoading: boolean }): J
               style={HALF_WIDTH}
             />
           ))}
-        </Box>
+        </Flex>
       )}
     </AnimatedBox>
   )
@@ -57,13 +58,13 @@ export function FavoriteTokensGrid({ showLoading }: { showLoading: boolean }): J
 
 function FavoriteTokensGridLoader(): JSX.Element {
   return (
-    <Flex row gap="spacing8">
-      <Box style={ITEM_FLEX}>
+    <Flex row>
+      <Flex m="$spacing4" style={ITEM_FLEX}>
         <Loader.Favorite contrast height={FAVORITE_TOKEN_CARD_LOADER_HEIGHT} />
-      </Box>
-      <Box style={ITEM_FLEX}>
+      </Flex>
+      <Flex m="$spacing4" style={ITEM_FLEX}>
         <Loader.Favorite contrast height={FAVORITE_TOKEN_CARD_LOADER_HEIGHT} />
-      </Box>
+      </Flex>
     </Flex>
   )
 }

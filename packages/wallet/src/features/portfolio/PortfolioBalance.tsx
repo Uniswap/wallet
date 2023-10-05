@@ -1,4 +1,4 @@
-import { Flex, getTokenValue, Icons, Text, XStack, YStack } from 'ui/src'
+import { Flex, getTokenValue, Icons, Text } from 'ui/src'
 import { theme } from 'ui/src/theme/restyle'
 import { usePortfolioUSDBalance } from 'wallet/src/features/portfolio/hooks'
 
@@ -19,35 +19,35 @@ export function PortfolioBalance({ address }: WalletBalanceProps): JSX.Element {
   return (
     <Flex>
       {loading ? (
-        <YStack>
-          <Text color="$neutral3" fontWeight="600" variant="headlineLarge">
+        <Flex>
+          <Text color="$neutral3" fontWeight="600" variant="heading1">
             $-,---.--
           </Text>
-          <Text color="$neutral3" variant="bodyLarge">
+          <Text color="$neutral3" variant="body1">
             --%
           </Text>
-        </YStack>
+        </Flex>
       ) : error ? (
-        <Text color="$statusCritical" variant="bodyLarge">
+        <Text color="$statusCritical" variant="body1">
           Error: {JSON.stringify(error)}
         </Text>
       ) : (
-        <YStack gap="$spacing12">
-          <YStack>
-            <Text variant="headlineLarge">${portfolioBalanceUSD?.toFixed(2)}</Text>
-            <XStack alignItems="center">
+        <Flex gap="$spacing12">
+          <Flex>
+            <Text variant="heading1">${portfolioBalanceUSD?.toFixed(2)}</Text>
+            <Flex row alignItems="center">
               <Icons.ArrowChange
                 color={arrowColor}
                 rotation={isPositiveChange ? 180 : 0}
                 size={getTokenValue('$icon.20')}
               />
-              <Text color="$neutral2" variant="bodyLarge">
+              <Text color="$neutral2" variant="body1">
                 {/* TODO(EXT-298): add absolute change here too, share from mobile */}
                 {formattedChange}
               </Text>
-            </XStack>
-          </YStack>
-        </YStack>
+            </Flex>
+          </Flex>
+        </Flex>
       )}
     </Flex>
   )

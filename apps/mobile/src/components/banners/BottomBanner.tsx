@@ -1,7 +1,7 @@
 import React from 'react'
 import { FadeIn, FadeOut, useAnimatedStyle, withTiming } from 'react-native-reanimated'
 import { AnimatedFlex } from 'src/components/layout'
-import { Text } from 'src/components/Text'
+import { Text } from 'ui/src'
 import { Theme } from 'ui/src/theme/restyle'
 
 export const BANNER_HEIGHT = 45
@@ -54,7 +54,7 @@ export function BottomBanner({
       style={animatedStyle}
       zIndex="modal">
       {icon}
-      <Text variant="bodySmall">{text}</Text>
+      <Text variant="body2">{text}</Text>
     </AnimatedFlex>
   )
 }

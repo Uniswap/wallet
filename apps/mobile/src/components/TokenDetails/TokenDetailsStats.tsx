@@ -1,10 +1,9 @@
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useAppTheme } from 'src/app/hooks'
-import { Flex } from 'src/components/layout'
-import { Text } from 'src/components/Text'
 import { LongText } from 'src/components/text/LongText'
+import { Flex, Text, useSporeColors } from 'ui/src'
 import StatsIcon from 'ui/src/assets/icons/chart-bar.svg'
+import { iconSizes } from 'ui/src/theme'
 import { formatNumber, NumberType } from 'utilities/src/format/format'
 import { TokenDetailsScreenQuery } from 'wallet/src/data/__generated__/types-and-hooks'
 
@@ -17,16 +16,16 @@ function StatsRow({
   children: JSX.Element
   tokenColor?: Nullable<string>
 }): JSX.Element {
-  const theme = useAppTheme()
+  const colors = useSporeColors()
   return (
-    <Flex row justifyContent="space-between" paddingLeft="spacing2">
-      <Flex row alignItems="center" gap="spacing8" justifyContent="flex-start">
+    <Flex row justifyContent="space-between" pl="$spacing2">
+      <Flex row alignItems="center" gap="$spacing8" justifyContent="flex-start">
         <StatsIcon
-          color={tokenColor ?? theme.colors.neutral3}
-          height={theme.iconSizes.icon12}
-          width={theme.iconSizes.icon12}
+          color={tokenColor ?? colors.neutral3.val}
+          height={iconSizes.icon12}
+          width={iconSizes.icon12}
         />
-        <Text color="neutral1" variant="bodySmall">
+        <Text color="$neutral1" variant="body2">
           {label}
         </Text>
       </Flex>
@@ -56,7 +55,7 @@ export function TokenDetailsMarketData({
   const FormattedValue = useCallback(
     ({ value, numberType }: { value?: number; numberType: NumberType }) => {
       return (
-        <Text loading={isLoading} variant="bodySmall">
+        <Text loading={isLoading} variant="body2">
           {formatNumber(value, numberType)}
         </Text>
       )
@@ -65,7 +64,7 @@ export function TokenDetailsMarketData({
   )
 
   return (
-    <Flex gap="spacing8">
+    <Flex gap="$spacing8">
       <StatsRow label={t('24h Uniswap volume')} tokenColor={tokenColor}>
         <FormattedValue numberType={NumberType.FiatTokenStats} value={volume} />
       </StatsRow>
@@ -90,7 +89,7 @@ export function TokenDetailsStats({
   tokenColor?: Maybe<string>
 }): JSX.Element {
   const { t } = useTranslation()
-  const theme = useAppTheme()
+  const colors = useSporeColors()
 
   const tokenData = data?.token
   const tokenProjectData = tokenData?.project
@@ -98,27 +97,27 @@ export function TokenDetailsStats({
   const marketData = tokenProjectData?.markets ? tokenProjectData.markets[0] : null
 
   return (
-    <Flex gap="spacing24">
+    <Flex gap="$spacing24">
       {tokenProjectData?.description && (
-        <Flex gap="spacing4">
+        <Flex gap="$spacing4">
           {tokenProjectData?.name && (
-            <Text color="neutral2" variant="subheadSmall">
+            <Text color="$neutral2" variant="subheading2">
               {t('About {{ token }}', { token: tokenProjectData.name })}
             </Text>
           )}
-          <Flex gap="spacing16">
+          <Flex gap="$spacing16">
             <LongText
-              gap="spacing2"
+              gap="$spacing2"
               initialDisplayedLines={5}
-              linkColor={tokenColor ?? theme.colors.neutral1}
-              readMoreOrLessColor={tokenColor ?? theme.colors.neutral2}
+              linkColor={tokenColor ?? colors.neutral1.val}
+              readMoreOrLessColor={tokenColor ?? colors.neutral2.val}
               text={tokenProjectData.description.trim()}
             />
           </Flex>
         </Flex>
       )}
-      <Flex gap="spacing4">
-        <Text color="neutral2" variant="subheadSmall">
+      <Flex gap="$spacing4">
+        <Text color="$neutral2" variant="subheading2">
           {t('Stats')}
         </Text>
         <TokenDetailsMarketData

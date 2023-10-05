@@ -4,14 +4,12 @@ import { StackScreenProps } from '@react-navigation/stack'
 import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Alert } from 'react-native'
-import { useAppTheme } from 'src/app/hooks'
 import {
   AppStackParamList,
   OnboardingStackParamList,
   useOnboardingStackNavigation,
 } from 'src/app/navigation/types'
 import { BackButton } from 'src/components/buttons/BackButton'
-import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { EducationContentType } from 'src/components/education'
 import Trace from 'src/components/Trace/Trace'
 import { IS_ANDROID } from 'src/constants/globals'
@@ -22,9 +20,10 @@ import { ImportType } from 'src/features/onboarding/utils'
 import { ElementName } from 'src/features/telemetry/constants'
 import { OnboardingScreens, Screens } from 'src/screens/Screens'
 import { openSettings } from 'src/utils/linking'
-import { Button, Flex, Icons, Text } from 'ui/src'
+import { Button, Flex, Icons, Text, TouchableArea, useSporeColors } from 'ui/src'
 import InfoCircle from 'ui/src/assets/icons/info-circle.svg'
 import PaperIcon from 'ui/src/assets/icons/paper-stack.svg'
+import { iconSizes } from 'ui/src/theme'
 import { useAsyncData } from 'utilities/src/react/hooks'
 import { BackupType } from 'wallet/src/features/wallet/accounts/types'
 import { useActiveAccount } from 'wallet/src/features/wallet/hooks'
@@ -36,7 +35,7 @@ type Props = CompositeScreenProps<
 
 export function BackupScreen({ navigation, route: { params } }: Props): JSX.Element {
   const { t } = useTranslation()
-  const theme = useAppTheme()
+  const colors = useSporeColors()
   const { navigate } = useOnboardingStackNavigation()
 
   const { data: cloudStorageAvailable } = useAsyncData(isCloudStorageAvailable)
@@ -141,9 +140,9 @@ export function BackupScreen({ navigation, route: { params } }: Props): JSX.Elem
       elementName={ElementName.AddCloudBackup}
       icon={
         <Icons.OSDynamicCloudIcon
-          color={theme.colors.accent1}
-          height={theme.iconSizes.icon16}
-          width={theme.iconSizes.icon16}
+          color={colors.accent1.val}
+          height={iconSizes.icon16}
+          width={iconSizes.icon16}
         />
       }
       title={IS_ANDROID ? t('Backup with Google Drive') : t('Backup with iCloud')}
@@ -156,7 +155,7 @@ export function BackupScreen({ navigation, route: { params } }: Props): JSX.Elem
         blurb={t('Top-notch security with no third parties. You’re in control.')}
         disabled={hasManualBackup}
         elementName={ElementName.AddManualBackup}
-        icon={<PaperIcon color={theme.colors.accent1} height={theme.iconSizes.icon16} />}
+        icon={<PaperIcon color={colors.accent1.val} height={iconSizes.icon16} />}
         title={t('Backup with recovery phrase')}
         onPress={onPressManualBackup}
       />
@@ -172,14 +171,14 @@ export function BackupScreen({ navigation, route: { params } }: Props): JSX.Elem
       <Flex grow justifyContent="space-between">
         <Flex gap="$spacing12">{options}</Flex>
         <Flex gap="$spacing12" justifyContent="flex-end">
-          <TouchableArea alignSelf="center" py="none" onPress={onPressEducationButton}>
+          <TouchableArea alignSelf="center" py="$none" onPress={onPressEducationButton}>
             <Flex centered row gap="$spacing4">
               <InfoCircle
-                color={theme.colors.neutral2}
-                height={theme.iconSizes.icon24}
-                width={theme.iconSizes.icon24}
+                color={colors.neutral2.val}
+                height={iconSizes.icon24}
+                width={iconSizes.icon24}
               />
-              <Text color="$neutral1" variant="subheadSmall">
+              <Text color="$neutral1" variant="subheading2">
                 {t('Learn about wallet safety and recovery')}
               </Text>
             </Flex>

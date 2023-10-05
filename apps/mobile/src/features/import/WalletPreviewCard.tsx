@@ -1,10 +1,8 @@
 import React from 'react'
-import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { SelectionCircle } from 'src/components/input/SelectionCircle'
-import { Box, Flex } from 'src/components/layout'
-import { Text } from 'src/components/Text'
 import { Unicon } from 'src/components/unicons/Unicon'
 import { ElementName } from 'src/features/telemetry/constants'
+import { Flex, Text, TouchableArea } from 'ui/src'
 import { formatUSDPrice, NumberType } from 'utilities/src/format/format'
 import { ChainId } from 'wallet/src/constants/chains'
 import { useIsDarkMode } from 'wallet/src/features/appearance/hooks'
@@ -35,37 +33,37 @@ export default function WalletPreviewCard({
   const { name: ensName } = useENS(ChainId.Mainnet, address)
   const isDarkMode = useIsDarkMode()
 
-  const unselectedBorderColor = isDarkMode ? 'none' : 'surface3'
+  const unselectedBorderColor = isDarkMode ? '$transparent' : '$surface3'
 
   return (
     <TouchableArea
-      backgroundColor="surface2"
-      borderColor={selected ? 'accent1' : unselectedBorderColor}
-      borderRadius="rounded20"
+      backgroundColor="$surface2"
+      borderColor={selected ? '$accent1' : unselectedBorderColor}
+      borderRadius="$rounded20"
       borderWidth={1}
-      px="spacing16"
-      py="spacing16"
+      px="$spacing16"
+      py="$spacing16"
       onPress={(): void => onSelect(address)}
       {...rest}>
       <Flex row alignItems="center" justifyContent="space-between">
         <Flex
           row
           alignItems="center"
-          gap="spacing12"
+          gap="$spacing12"
           height={ADDRESS_WRAPPER_HEIGHT}
           justifyContent="flex-start">
           <Unicon address={address} size={UNICON_SIZE} />
-          <Box>
-            <Text variant="bodyLarge">{ensName ?? shortenAddress(address)}</Text>
+          <Flex>
+            <Text variant="body1">{ensName ?? shortenAddress(address)}</Text>
             {balance ? (
-              <Text color="neutral2" variant="subheadSmall">
+              <Text color="$neutral2" variant="subheading2">
                 {formatUSDPrice(balance, NumberType.FiatTokenQuantity)}
               </Text>
             ) : null}
-          </Box>
+          </Flex>
         </Flex>
         {!hideSelectionCircle && (
-          <SelectionCircle selected={selected} size="icon16" unselectedColor="neutral2" />
+          <SelectionCircle selected={selected} size="icon16" unselectedColor="$neutral2" />
         )}
       </Flex>
     </TouchableArea>

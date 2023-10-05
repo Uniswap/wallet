@@ -22,9 +22,7 @@ import Animated, {
   withDelay,
   withTiming,
 } from 'react-native-reanimated'
-import { useAppTheme } from 'src/app/hooks'
 import { AddressDisplay } from 'src/components/AddressDisplay'
-import { Button } from 'src/components/buttons/Button'
 import { GradientBackground } from 'src/components/gradients/GradientBackground'
 import { UniconThemedGradient } from 'src/components/gradients/UniconThemedGradient'
 import { Arrow } from 'src/components/icons/Arrow'
@@ -44,10 +42,10 @@ import {
   textSlideUpAtEnd,
   videoFadeOut,
 } from 'src/screens/Onboarding/QRAnimation/animations'
-import { Box, Flex, Text } from 'ui/src'
+import { Button, Flex, Text, useSporeColors } from 'ui/src'
 import { ONBOARDING_QR_ETCHING_VIDEO_DARK, ONBOARDING_QR_ETCHING_VIDEO_LIGHT } from 'ui/src/assets'
 import LockIcon from 'ui/src/assets/icons/lock.svg'
-import { opacify } from 'ui/src/theme'
+import { fonts, iconSizes, opacify } from 'ui/src/theme'
 import { flex } from 'ui/src/theme/restyle'
 import { useIsDarkMode } from 'wallet/src/features/appearance/hooks'
 
@@ -60,7 +58,7 @@ export function QRAnimation({
   isNewWallet: boolean
   onPressNext: () => void
 }): JSX.Element {
-  const theme = useAppTheme()
+  const colors = useSporeColors()
   const { t } = useTranslation()
   const video = useRef<Video>(null)
 
@@ -158,22 +156,22 @@ export function QRAnimation({
 
   const finalTitleMaxFontSizeMultiplier = useResponsiveProp({
     xs: 1.1,
-    sm: theme.textVariants.headlineSmall.maxFontSizeMultiplier,
+    sm: fonts.heading3.maxFontSizeMultiplier,
   })
 
   const finalBodyMaxFontSizeMultiplier = useResponsiveProp({
     xs: 1.1,
-    sm: theme.textVariants.bodyLarge.maxFontSizeMultiplier,
+    sm: fonts.body1.maxFontSizeMultiplier,
   })
 
   const titleSize = useResponsiveProp({
-    xs: 'subheadSmall',
-    sm: 'subheadLarge',
+    xs: 'subheading2',
+    sm: 'subheading1',
   })
 
   const bodySize = useResponsiveProp({
-    xs: 'bodyMicro',
-    sm: 'bodySmall',
+    xs: 'body3',
+    sm: 'body2',
   })
 
   return (
@@ -183,7 +181,7 @@ export function QRAnimation({
           <UniconThemedGradient
             borderRadius="rounded16"
             gradientEndColor={uniconColors.glow}
-            gradientStartColor={theme.colors.surface1}
+            gradientStartColor={colors.surface1.val}
             opacity={isDarkMode ? 0.3 : 0.2}
           />
         </GradientBackground>
@@ -210,7 +208,7 @@ export function QRAnimation({
                   </Canvas>
                 </Animated.View>
                 <Animated.View entering={qrScaleIn}>
-                  <Box
+                  <Flex
                     bg="$surface1"
                     borderColor="$surface3"
                     borderRadius="$rounded20"
@@ -222,15 +220,15 @@ export function QRAnimation({
                       <QRCodeDisplay
                         hideOutline
                         address={activeAddress}
-                        backgroundColor="surface1"
-                        containerBackgroundColor="surface1"
+                        backgroundColor="$surface1"
+                        containerBackgroundColor="$surface1"
                         logoSize={UNICON_SIZE}
                         overlayOpacityPercent={10}
-                        safeAreaColor="surface1"
+                        safeAreaColor="$surface1"
                         size={QR_CODE_SIZE}
                       />
                     </Animated.View>
-                  </Box>
+                  </Flex>
                   <Animated.View entering={videoFadeOut} style={[styles.video]}>
                     <View style={styles.video}>
                       <Video
@@ -275,9 +273,9 @@ export function QRAnimation({
                       showCopy
                       address={activeAddress}
                       captionTextColor="$neutral3"
-                      captionVariant="subheadSmall"
+                      captionVariant="subheading2"
                       showAccountIcon={false}
-                      variant="headlineSmall"
+                      variant="heading3"
                     />
                   </Flex>
                 </Animated.View>
@@ -308,28 +306,24 @@ export function QRAnimation({
         <Animated.View entering={letsGoButtonFadeIn}>
           <Trace logPress element={ElementName.Next}>
             <Button
-              CustomIcon={
+              icon={
                 <Flex grow row alignItems="center" justifyContent="space-between">
-                  <Flex row alignItems="center" space="$spacing8">
-                    <Box
+                  <Flex row alignItems="center" gap="$spacing8">
+                    <Flex
                       borderRadius="$roundedFull"
-                      padding="$spacing8"
-                      style={{ backgroundColor: opacify(10, theme.colors.sporeWhite) }}>
+                      p="$spacing8"
+                      style={{ backgroundColor: opacify(10, colors.sporeWhite.val) }}>
                       <LockIcon
-                        color={theme.colors.sporeWhite}
-                        height={theme.iconSizes.icon16}
-                        width={theme.iconSizes.icon16}
+                        color={colors.sporeWhite.val}
+                        height={iconSizes.icon16}
+                        width={iconSizes.icon16}
                       />
-                    </Box>
-                    <Text color="$sporeWhite" variant="buttonLabelMedium">
+                    </Flex>
+                    <Text color="$sporeWhite" variant="buttonLabel2">
                       {t('Let’s keep it safe')}
                     </Text>
                   </Flex>
-                  <Arrow
-                    color={theme.colors.sporeWhite}
-                    direction="e"
-                    size={theme.iconSizes.icon24}
-                  />
+                  <Arrow color={colors.sporeWhite.val} direction="e" size={iconSizes.icon24} />
                 </Flex>
               }
               onPress={onPressNext}

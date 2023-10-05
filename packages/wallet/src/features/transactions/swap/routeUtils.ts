@@ -2,6 +2,7 @@ import { MixedRouteSDK } from '@uniswap/router-sdk'
 import { Currency, CurrencyAmount, Token, TradeType } from '@uniswap/sdk-core'
 import { Pair, Route as V2Route } from '@uniswap/v2-sdk'
 import { FeeAmount, Pool, Route as V3Route } from '@uniswap/v3-sdk'
+import { BigNumber } from 'ethers'
 import { MAX_AUTO_SLIPPAGE_TOLERANCE } from 'wallet/src/constants/transactions'
 import {
   PoolType,
@@ -20,8 +21,12 @@ export function transformQuoteToTrade(
   deadline: number | undefined,
   slippageTolerance: number | undefined,
   quoteResult: QuoteResult | undefined
-): Trade {
+): Trade | null {
   const routes = computeRoutes(tokenInIsNative, tokenOutIsNative, quoteResult)
+
+  if (!routes) {
+    return null
+  }
 
   return new Trade({
     quote: quoteResult,
@@ -145,8 +150,20 @@ const parseToken = ({
   chainId,
   decimals,
   symbol,
+  name,
+  buyFeeBps,
+  sellFeeBps,
 }: QuoteResult['route'][0][0]['tokenIn']): Token => {
-  return new Token(chainId, address, parseInt(decimals.toString(), 10), symbol)
+  return new Token(
+    chainId,
+    address,
+    parseInt(decimals.toString(), 10),
+    symbol,
+    name,
+    false,
+    buyFeeBps ? BigNumber.from(buyFeeBps) : undefined,
+    sellFeeBps ? BigNumber.from(sellFeeBps) : undefined
+  )
 }
 
 const parsePoolOrPair = (pool: V3PoolInRoute | V2PoolInRoute): Pool | Pair => {

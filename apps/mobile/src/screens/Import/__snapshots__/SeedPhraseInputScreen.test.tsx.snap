@@ -9,7 +9,6 @@ exports[`SeedPhraseInputScreen seed phrase initial screen rendering 1`] = `
       "backgroundColor": "#FFFFFF",
       "flex": 1,
       "flexDirection": "column",
-      "gap": 0,
       "paddingLeft": undefined,
       "paddingRight": undefined,
     }
@@ -71,66 +70,48 @@ exports[`SeedPhraseInputScreen seed phrase initial screen rendering 1`] = `
           }
         >
           <View
-            sentry-label="Flex"
             style={
-              [
-                {
-                  "alignItems": "stretch",
-                  "display": "flex",
-                  "flexDirection": "column",
-                  "justifyContent": "flex-start",
-                  "margin": 12,
-                },
-              ]
+              {
+                "alignItems": "stretch",
+                "flexDirection": "column",
+                "gap": 12,
+                "marginBottom": 12,
+                "marginLeft": 12,
+                "marginRight": 12,
+                "marginTop": 12,
+              }
             }
           >
             <Text
               allowFontScaling={true}
-              maxFontSizeMultiplier={1.2}
               style={
-                [
-                  {
-                    "color": "#222222",
-                    "display": "flex",
-                    "fontFamily": "Basel-Book",
-                    "fontSize": 25,
-                    "fontWeight": "400",
-                    "lineHeight": 32,
-                    "paddingTop": 0,
-                    "textAlign": "center",
-                  },
-                ]
+                {
+                  "color": "#222222",
+                  "display": "flex",
+                  "fontFamily": "Basel-Medium",
+                  "fontSize": 25,
+                  "lineHeight": 32,
+                  "paddingTop": 0,
+                  "textAlign": "center",
+                }
               }
+              suppressHighlighting={true}
             >
               Enter your recovery phrase
             </Text>
-            <View
-              style={
-                [
-                  {
-                    "display": "flex",
-                    "flexGrow": 0,
-                    "flexShrink": 0,
-                    "height": 12,
-                  },
-                ]
-              }
-            />
             <Text
               allowFontScaling={true}
-              maxFontSizeMultiplier={1.4}
               style={
-                [
-                  {
-                    "color": "#7D7D7D",
-                    "display": "flex",
-                    "fontFamily": "Basel-Book",
-                    "fontSize": 17,
-                    "lineHeight": 24,
-                    "textAlign": "center",
-                  },
-                ]
+                {
+                  "color": "#7D7D7D",
+                  "display": "flex",
+                  "fontFamily": "Basel-Book",
+                  "fontSize": 17,
+                  "lineHeight": 24,
+                  "textAlign": "center",
+                }
               }
+              suppressHighlighting={true}
             >
               Your recovery phrase will only be stored locally on your device.
             </Text>
@@ -148,79 +129,72 @@ exports[`SeedPhraseInputScreen seed phrase initial screen rendering 1`] = `
             }
           />
           <View
-            sentry-label="Flex"
             style={
-              [
-                {
-                  "alignItems": "stretch",
-                  "display": "flex",
-                  "flexDirection": "column",
-                  "flexGrow": 1,
-                  "justifyContent": "space-between",
-                },
-              ]
+              {
+                "alignItems": "stretch",
+                "flexDirection": "column",
+                "flexGrow": 1,
+                "justifyContent": "space-between",
+              }
             }
           >
             <View
-              sentry-label="Flex"
               style={
-                [
-                  {
-                    "alignItems": "stretch",
-                    "display": "flex",
-                    "flexDirection": "column",
-                    "justifyContent": "flex-start",
-                  },
-                ]
+                {
+                  "alignItems": "stretch",
+                  "flexDirection": "column",
+                  "gap": 8,
+                }
               }
             >
               <View
                 onTouchEnd={[Function]}
-                sentry-label="Flex"
                 style={
-                  [
-                    {
-                      "alignItems": "stretch",
-                      "display": "flex",
-                      "flexDirection": "column",
-                      "justifyContent": "flex-start",
-                    },
-                  ]
+                  {
+                    "alignItems": "stretch",
+                    "flexDirection": "column",
+                    "gap": 16,
+                  }
                 }
               >
                 <View
-                  sentry-label="Flex"
                   style={
-                    [
-                      {
-                        "alignItems": "center",
-                        "backgroundColor": "#F9F9F9",
-                        "borderColor": "#F9F9F9",
-                        "borderRadius": 20,
-                        "borderWidth": 1,
-                        "display": "flex",
-                        "flexDirection": "column",
-                        "flexShrink": 1,
-                        "justifyContent": "center",
-                        "minHeight": 120,
-                        "paddingHorizontal": 36,
-                        "paddingVertical": 16,
-                        "width": "100%",
-                      },
-                    ]
+                    {
+                      "alignItems": "center",
+                      "backgroundColor": "#F9F9F9",
+                      "borderBottomColor": "#F9F9F9",
+                      "borderBottomLeftRadius": 20,
+                      "borderBottomRightRadius": 20,
+                      "borderBottomWidth": 1,
+                      "borderLeftColor": "#F9F9F9",
+                      "borderLeftWidth": 1,
+                      "borderRightColor": "#F9F9F9",
+                      "borderRightWidth": 1,
+                      "borderStyle": "solid",
+                      "borderTopColor": "#F9F9F9",
+                      "borderTopLeftRadius": 20,
+                      "borderTopRightRadius": 20,
+                      "borderTopWidth": 1,
+                      "flexDirection": "column",
+                      "flexShrink": 1,
+                      "justifyContent": "center",
+                      "minHeight": 120,
+                      "paddingBottom": 16,
+                      "paddingLeft": 36,
+                      "paddingRight": 36,
+                      "paddingTop": 16,
+                      "width": "100%",
+                    }
                   }
                 >
                   <View
                     style={
-                      [
-                        {
-                          "alignItems": "flex-end",
-                          "display": "flex",
-                          "flexDirection": "row",
-                          "justifyContent": "center",
-                          "width": "100%",
-                        },
-                      ]
+                      {
+                        "alignItems": "flex-end",
+                        "flexDirection": "row",
+                        "justifyContent": "center",
+                        "width": "100%",
+                      }
                     }
                   >
                     <TextInput
@@ -251,7 +225,7 @@ exports[`SeedPhraseInputScreen seed phrase initial screen rendering 1`] = `
                             "lineHeight": 19,
                             "paddingHorizontal": 0,
                             "paddingVertical": 0,
-                            "textAlign": "left",
+                            "textAlign": "center",
                             "width": 8,
                           },
                         ]
@@ -261,32 +235,17 @@ exports[`SeedPhraseInputScreen seed phrase initial screen rendering 1`] = `
                     />
                   </View>
                   <View
-                    style={
-                      [
-                        {
-                          "display": "flex",
-                          "flexGrow": 0,
-                          "flexShrink": 0,
-                          "height": 0,
-                        },
-                      ]
-                    }
-                  />
-                  <View
                     onLayout={[Function]}
-                    sentry-label="Flex"
                     style={
-                      [
-                        {
-                          "alignItems": "center",
-                          "display": "flex",
-                          "flexDirection": "row",
-                          "flexGrow": 1,
-                          "justifyContent": "center",
-                          "paddingTop": 4,
-                          "position": "absolute",
-                        },
-                      ]
+                      {
+                        "alignItems": "center",
+                        "flexDirection": "row",
+                        "flexGrow": 1,
+                        "gap": 8,
+                        "justifyContent": "center",
+                        "paddingTop": 4,
+                        "position": "absolute",
+                      }
                     }
                   >
                     <Text
@@ -295,66 +254,23 @@ exports[`SeedPhraseInputScreen seed phrase initial screen rendering 1`] = `
                       maxFontSizeMultiplier={1.4}
                       numberOfLines={1}
                       style={
-                        [
-                          {
-                            "color": "#7D7D7D",
-                            "display": "flex",
-                            "fontFamily": "Basel-Book",
-                            "fontSize": 19,
-                            "fontWeight": "400",
-                            "lineHeight": 24,
-                          },
-                          {
-                            "flexShrink": 1,
-                          },
-                        ]
+                        {
+                          "color": "#7D7D7D",
+                          "display": "flex",
+                          "flexShrink": 1,
+                          "fontFamily": "Basel-Book",
+                          "fontSize": 19,
+                          "lineHeight": 24,
+                        }
                       }
+                      suppressHighlighting={true}
                     >
                       Type or
                     </Text>
                     <View
-                      style={
-                        [
-                          {
-                            "display": "flex",
-                            "flexGrow": 0,
-                            "flexShrink": 0,
-                            "height": 8,
-                            "width": 8,
-                          },
-                        ]
-                      }
-                    />
-                    <View
-                      accessibilityState={
-                        {
-                          "busy": undefined,
-                          "checked": undefined,
-                          "disabled": false,
-                          "expanded": undefined,
-                          "selected": undefined,
-                        }
-                      }
-                      accessibilityValue={
-                        {
-                          "max": undefined,
-                          "min": undefined,
-                          "now": undefined,
-                          "text": undefined,
-                        }
-                      }
-                      accessible={true}
-                      collapsable={false}
-                      focusable={true}
-                      hitSlop={
-                        {
-                          "bottom": 5,
-                          "left": 5,
-                          "right": 5,
-                          "top": 5,
-                        }
-                      }
+                      onBlur={[Function]}
                       onClick={[Function]}
+                      onFocus={[Function]}
                       onResponderGrant={[Function]}
                       onResponderMove={[Function]}
                       onResponderRelease={[Function]}
@@ -364,104 +280,68 @@ exports[`SeedPhraseInputScreen seed phrase initial screen rendering 1`] = `
                       style={
                         {
                           "alignItems": "center",
-                          "backgroundColor": "transparent",
-                          "borderColor": "#2222220D",
-                          "borderRadius": 12,
-                          "borderWidth": 1,
-                          "display": "flex",
+                          "backgroundColor": "#2222220D",
+                          "borderBottomColor": "transparent",
+                          "borderBottomLeftRadius": 8,
+                          "borderBottomRightRadius": 8,
+                          "borderBottomWidth": 1,
+                          "borderLeftColor": "transparent",
+                          "borderLeftWidth": 1,
+                          "borderRightColor": "transparent",
+                          "borderRightWidth": 1,
+                          "borderStyle": "solid",
+                          "borderTopColor": "transparent",
+                          "borderTopLeftRadius": 8,
+                          "borderTopRightRadius": 8,
+                          "borderTopWidth": 1,
+                          "flexDirection": "row",
+                          "gap": 4,
+                          "height": "auto",
+                          "justifyContent": "center",
                           "opacity": 1,
+                          "paddingBottom": 8,
+                          "paddingLeft": 8,
+                          "paddingRight": 8,
+                          "paddingTop": 8,
                         }
                       }
                     >
-                      <View
-                        sentry-label="Flex"
+                      <svg
+                        color="#222222"
+                        data-file-name="SvgPaste"
+                        size={12}
+                      />
+                      <Text
+                        maxFontSizeMultiplier={1.2}
                         style={
-                          [
-                            {
-                              "alignItems": "center",
-                              "display": "flex",
-                              "flexDirection": "row",
-                              "justifyContent": "flex-start",
-                              "paddingHorizontal": 8,
-                              "paddingVertical": 8,
-                            },
-                          ]
-                        }
-                      >
-                        <svg
-                          color="#222222"
-                          data-file-name="SvgPaste"
-                          height={16}
-                          strokeWidth={2}
-                          width={16}
-                        />
-                        <View
-                          style={
-                            [
-                              {
-                                "display": "flex",
-                                "flexGrow": 0,
-                                "flexShrink": 0,
-                                "height": 4,
-                                "width": 4,
-                              },
-                            ]
-                          }
-                        />
-                        <Text
-                          allowFontScaling={true}
-                          maxFontSizeMultiplier={1.2}
-                          style={
-                            [
-                              {
-                                "color": "#222222",
-                                "display": "flex",
-                                "fontFamily": "Basel-Medium",
-                                "fontSize": 17,
-                                "fontWeight": "500",
-                                "lineHeight": 24,
-                                "textAlign": "center",
-                              },
-                            ]
-                          }
-                        >
-                          Paste
-                        </Text>
-                      </View>
-                    </View>
-                    <View
-                      style={
-                        [
                           {
+                            "color": "#222222",
                             "display": "flex",
-                            "flexGrow": 0,
-                            "flexShrink": 0,
-                            "height": 8,
-                            "width": 8,
-                          },
-                        ]
-                      }
-                    />
+                            "fontFamily": "Basel-Medium",
+                            "fontSize": 17,
+                            "lineHeight": 24,
+                          }
+                        }
+                        suppressHighlighting={true}
+                      >
+                        Paste
+                      </Text>
+                    </View>
                     <Text
                       adjustsFontSizeToFit={true}
                       allowFontScaling={true}
-                      maxFontSizeMultiplier={1.4}
                       numberOfLines={1}
                       style={
-                        [
-                          {
-                            "color": "#7D7D7D",
-                            "display": "flex",
-                            "fontFamily": "Basel-Book",
-                            "fontSize": 19,
-                            "fontWeight": "400",
-                            "lineHeight": 24,
-                          },
-                          {
-                            "flexShrink": 1,
-                          },
-                        ]
+                        {
+                          "color": "#7D7D7D",
+                          "display": "flex",
+                          "flexShrink": 1,
+                          "fontFamily": "Basel-Book",
+                          "fontSize": 19,
+                          "lineHeight": 24,
+                        }
                       }
+                      suppressHighlighting={true}
                     >
                       recovery phrase
                     </Text>
@@ -469,53 +349,20 @@ exports[`SeedPhraseInputScreen seed phrase initial screen rendering 1`] = `
                 </View>
                 <View
                   style={
-                    [
-                      {
-                        "display": "flex",
-                        "flexGrow": 0,
-                        "flexShrink": 0,
-                        "height": 16,
-                      },
-                    ]
-                  }
-                />
-                <View
-                  sentry-label="Flex"
-                  style={
-                    [
-                      {
-                        "alignItems": "stretch",
-                        "display": "flex",
-                        "flexDirection": "column",
-                        "justifyContent": "flex-start",
-                      },
-                    ]
+                    {
+                      "alignItems": "stretch",
+                      "flexDirection": "column",
+                    }
                   }
                 />
               </View>
               <View
                 style={
-                  [
-                    {
-                      "display": "flex",
-                      "flexGrow": 0,
-                      "flexShrink": 0,
-                      "height": 8,
-                    },
-                  ]
-                }
-              />
-              <View
-                sentry-label="Flex"
-                style={
-                  [
-                    {
-                      "alignItems": "center",
-                      "display": "flex",
-                      "flexDirection": "column",
-                      "justifyContent": "center",
-                    },
-                  ]
+                  {
+                    "alignItems": "center",
+                    "flexDirection": "column",
+                    "justifyContent": "center",
+                  }
                 }
               >
                 <View
@@ -556,26 +403,22 @@ exports[`SeedPhraseInputScreen seed phrase initial screen rendering 1`] = `
                   onStartShouldSetResponder={[Function]}
                   style={
                     {
-                      "display": "flex",
                       "opacity": 1,
                     }
                   }
                 >
                   <Text
                     allowFontScaling={true}
-                    maxFontSizeMultiplier={1.4}
                     style={
-                      [
-                        {
-                          "color": "#FC72FF",
-                          "display": "flex",
-                          "fontFamily": "Basel-Book",
-                          "fontSize": 17,
-                          "fontWeight": "400",
-                          "lineHeight": 24,
-                        },
-                      ]
+                      {
+                        "color": "#FC72FF",
+                        "display": "flex",
+                        "fontFamily": "Basel-Book",
+                        "fontSize": 17,
+                        "lineHeight": 24,
+                      }
                     }
+                    suppressHighlighting={true}
                   >
                     How do I find my recovery phrase?
                   </Text>
@@ -583,100 +426,55 @@ exports[`SeedPhraseInputScreen seed phrase initial screen rendering 1`] = `
               </View>
             </View>
             <View
-              style={
-                [
-                  {
-                    "display": "flex",
-                    "flexGrow": 0,
-                    "flexShrink": 0,
-                    "height": 16,
-                  },
-                ]
-              }
-            />
-            <View
-              accessibilityState={
-                {
-                  "busy": undefined,
-                  "checked": undefined,
-                  "disabled": true,
-                  "expanded": undefined,
-                  "selected": undefined,
-                }
-              }
-              accessibilityValue={
-                {
-                  "max": undefined,
-                  "min": undefined,
-                  "now": undefined,
-                  "text": undefined,
-                }
-              }
-              accessible={true}
-              collapsable={false}
-              focusable={true}
-              hitSlop={
-                {
-                  "bottom": 5,
-                  "left": 5,
-                  "right": 5,
-                  "top": 5,
-                }
-              }
-              onClick={[Function]}
-              onResponderGrant={[Function]}
-              onResponderMove={[Function]}
-              onResponderRelease={[Function]}
-              onResponderTerminate={[Function]}
-              onResponderTerminationRequest={[Function]}
-              onStartShouldSetResponder={[Function]}
+              onBlur={[Function]}
+              onFocus={[Function]}
+              pointerEvents="none"
               style={
                 {
                   "alignItems": "center",
                   "backgroundColor": "#FC72FF",
-                  "borderColor": "transparent",
-                  "borderRadius": 16,
-                  "borderWidth": 1,
-                  "display": "flex",
+                  "borderBottomColor": "transparent",
+                  "borderBottomLeftRadius": 16,
+                  "borderBottomRightRadius": 16,
+                  "borderBottomWidth": 1,
+                  "borderLeftColor": "transparent",
+                  "borderLeftWidth": 1,
+                  "borderRightColor": "transparent",
+                  "borderRightWidth": 1,
+                  "borderStyle": "solid",
+                  "borderTopColor": "transparent",
+                  "borderTopLeftRadius": 16,
+                  "borderTopRightRadius": 16,
+                  "borderTopWidth": 1,
+                  "flexDirection": "row",
+                  "gap": 8,
+                  "height": "auto",
+                  "justifyContent": "center",
                   "opacity": 0.4,
+                  "paddingBottom": 12,
+                  "paddingLeft": 12,
+                  "paddingRight": 12,
+                  "paddingTop": 12,
                 }
               }
+              testID="seed-input-submit"
+              userSelect="none"
             >
-              <View
-                sentry-label="Flex"
+              <Text
+                maxFontSizeMultiplier={1.2}
                 style={
-                  [
-                    {
-                      "alignItems": "center",
-                      "display": "flex",
-                      "flexDirection": "row",
-                      "justifyContent": "flex-start",
-                      "paddingHorizontal": 12,
-                      "paddingVertical": 12,
-                    },
-                  ]
-                }
-              >
-                <Text
-                  allowFontScaling={true}
-                  maxFontSizeMultiplier={1.2}
-                  style={
-                    [
-                      {
-                        "color": "#FFFFFF",
-                        "display": "flex",
-                        "fontFamily": "Basel-Medium",
-                        "fontSize": 19,
-                        "fontWeight": "500",
-                        "lineHeight": 24,
-                        "textAlign": "center",
-                      },
-                    ]
+                  {
+                    "color": "#FFFFFF",
+                    "display": "flex",
+                    "fontFamily": "Basel-Medium",
+                    "fontSize": 19,
+                    "lineHeight": 24,
                   }
-                >
-                  Continue
-                </Text>
-              </View>
+                }
+                suppressHighlighting={true}
+              >
+                Continue
+              </Text>
             </View>
           </View>
         </View>

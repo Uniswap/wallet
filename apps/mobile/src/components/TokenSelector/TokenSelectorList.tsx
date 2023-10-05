@@ -3,18 +3,18 @@ import { Currency } from '@uniswap/sdk-core'
 import React, { memo, useCallback, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { SectionList } from 'react-native'
-import { useAppTheme } from 'src/app/hooks'
-import { Box, Flex, Inset } from 'src/components/layout'
+import { Inset } from 'src/components/layout'
 import { BaseCard } from 'src/components/layout/BaseCard'
 import { Loader } from 'src/components/loading'
 import { useBottomSheetFocusHook } from 'src/components/modals/hooks'
-import { Text } from 'src/components/Text'
 import { TokenOptionItem } from 'src/components/TokenSelector/TokenOptionItem'
 import {
   renderSuggestedTokenItem,
   suggestedTokensKeyExtractor,
 } from 'src/components/TokenSelector/TokenSelectorSwapOutputList'
 import { TokenOption } from 'src/components/TokenSelector/types'
+import { Flex, Text } from 'ui/src'
+import { fonts } from 'ui/src/theme'
 import { ChainId } from 'wallet/src/constants/chains'
 import { CurrencyId } from 'wallet/src/utils/currencyId'
 
@@ -82,7 +82,7 @@ function TokenOptionItemWrapper({
 }
 
 function Footer(): JSX.Element {
-  return <Inset all="spacing36" />
+  return <Inset all="$spacing36" />
 }
 
 interface TokenSelectorListProps {
@@ -111,7 +111,6 @@ function _TokenSelectorList({
   showTokenAddress,
 }: TokenSelectorListProps): JSX.Element {
   const { t } = useTranslation()
-  const theme = useAppTheme()
   const sectionListRef = useRef<SectionList<TokenOption>>(null)
 
   useEffect(() => {
@@ -167,35 +166,35 @@ function _TokenSelectorList({
   if (hasError) {
     return (
       <>
-        <Box flexGrow={1} justifyContent="center">
+        <Flex grow justifyContent="center">
           <BaseCard.ErrorState
             retryButtonLabel={t('Retry')}
             title={errorText ?? t('Couldn’t load tokens')}
             onRetry={refetch}
           />
-        </Box>
+        </Flex>
         {/*
           This is needed to position error message roughly in the center of
           the sheet initially when modal is opened to 65% only
         */}
-        <Box flexGrow={1} />
+        <Flex grow />
       </>
     )
   }
 
   if (loading) {
     return (
-      <Box>
-        <Box py="spacing16" width={80}>
-          <Loader.Box height={theme.textVariants.subheadSmall.lineHeight} />
-        </Box>
+      <Flex grow>
+        <Flex py="$spacing16" width={80}>
+          <Loader.Box height={fonts.subheading2.lineHeight} />
+        </Flex>
         <Loader.Token repeat={5} />
-      </Box>
+      </Flex>
     )
   }
 
   return (
-    <Box flexGrow={1}>
+    <Flex grow>
       <BottomSheetSectionList<TokenOption | TokenOption[], SuggestedTokenSection | TokenSection>
         ref={sectionListRef}
         ListEmptyComponent={emptyElement}
@@ -211,14 +210,14 @@ function _TokenSelectorList({
         showsVerticalScrollIndicator={false}
         windowSize={4}
       />
-    </Box>
+    </Flex>
   )
 }
 
 export function SectionHeader({ title }: { title: string }): JSX.Element {
   return (
-    <Flex backgroundColor="surface1" py="spacing16">
-      <Text color="neutral2" variant="subheadSmall">
+    <Flex backgroundColor="$surface1" py="$spacing16">
+      <Text color="$neutral2" variant="subheading2">
         {title}
       </Text>
     </Flex>

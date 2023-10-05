@@ -2,17 +2,14 @@ import React, { forwardRef, useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Keyboard, LayoutChangeEvent, TextInput as NativeTextInput, ViewStyle } from 'react-native'
 import { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated'
-import { useAppTheme } from 'src/app/hooks'
-import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { TextInput, TextInputProps } from 'src/components/input/TextInput'
-import { AnimatedBox, AnimatedFlex, Box } from 'src/components/layout'
+import { AnimatedBox, AnimatedFlex } from 'src/components/layout'
 import { SHADOW_OFFSET_SMALL } from 'src/components/layout/BaseCard'
-import { Text } from 'src/components/Text'
 import { sendMobileAnalyticsEvent } from 'src/features/telemetry'
 import { MobileEventName } from 'src/features/telemetry/constants'
-import SearchIcon from 'ui/src/assets/icons/search.svg'
+import { Flex, Icons, Text, TouchableArea, useSporeColors } from 'ui/src'
 import X from 'ui/src/assets/icons/x.svg'
-import { dimensions } from 'ui/src/theme'
+import { dimensions, fonts, iconSizes, spacing } from 'ui/src/theme'
 import { Theme } from 'ui/src/theme/restyle'
 import { useIsDarkMode } from 'wallet/src/features/appearance/hooks'
 
@@ -39,7 +36,7 @@ export type SearchTextInputProps = TextInputProps & {
 
 export const SearchTextInput = forwardRef<NativeTextInput, SearchTextInputProps>(
   function _SearchTextInput(props, ref) {
-    const theme = useAppTheme()
+    const colors = useSporeColors()
     const isDarkMode = useIsDarkMode()
     const { t } = useTranslation()
     const {
@@ -116,7 +113,7 @@ export const SearchTextInput = forwardRef<NativeTextInput, SearchTextInputProps>
     const textInputStyle = useAnimatedStyle(() => {
       return {
         marginRight: withSpring(
-          showCancelButton && isFocus.value ? cancelButtonWidth.value + theme.spacing.spacing12 : 0,
+          showCancelButton && isFocus.value ? cancelButtonWidth.value + spacing.spacing12 : 0,
           springConfig
         ),
       }
@@ -160,27 +157,23 @@ export const SearchTextInput = forwardRef<NativeTextInput, SearchTextInputProps>
       : null
 
     return (
-      <Box alignItems="center" flexDirection="row" flexShrink={1}>
+      <Flex row shrink alignItems="center">
         <AnimatedFlex
+          fill
+          grow
           row
           alignItems="center"
           backgroundColor={backgroundColorValue}
           borderRadius="roundedFull"
-          flex={1}
-          flexGrow={1}
           gap="spacing8"
           minHeight={48}
           px="spacing16"
           py={py}
           style={textInputStyle}
           {...shadowProps}>
-          <Box py="spacing4">
-            <SearchIcon
-              color={theme.colors.neutral2}
-              height={theme.iconSizes.icon20}
-              width={theme.iconSizes.icon20}
-            />
-          </Box>
+          <Flex py="$spacing4">
+            <Icons.Search color="$neutral2" height={iconSizes.icon20} width={iconSizes.icon20} />
+          </Flex>
           <TextInput
             ref={ref}
             autoCapitalize="none"
@@ -189,11 +182,11 @@ export const SearchTextInput = forwardRef<NativeTextInput, SearchTextInputProps>
             backgroundColor="none"
             borderWidth={0}
             flex={1}
-            fontFamily={theme.textVariants.bodyLarge.fontFamily}
-            fontSize={theme.textVariants.bodyLarge.fontSize}
-            maxFontSizeMultiplier={theme.textVariants.bodyLarge.maxFontSizeMultiplier}
+            fontFamily={fonts.body1.family}
+            fontSize={fonts.body1.fontSize}
+            maxFontSizeMultiplier={fonts.body1.maxFontSizeMultiplier}
             placeholder={placeholder}
-            placeholderTextColor={theme.colors.neutral2}
+            placeholderTextColor={colors.neutral2.val}
             px="none"
             py="none"
             returnKeyType="done"
@@ -205,26 +198,23 @@ export const SearchTextInput = forwardRef<NativeTextInput, SearchTextInputProps>
           />
 
           {showClearButtonJS ? (
-            <AnimatedBox gap="$none" style={[clearButtonStyle]}>
+            <AnimatedBox style={[clearButtonStyle]}>
               <ClearButton clearIcon={clearIcon} onPress={onClear} />
             </AnimatedBox>
           ) : (
-            <AnimatedBox gap="$none" style={[endAdornmentStyle]}>
-              {endAdornment}
-            </AnimatedBox>
+            <AnimatedBox style={[endAdornmentStyle]}>{endAdornment}</AnimatedBox>
           )}
         </AnimatedFlex>
         {showCancelButton && (
           <AnimatedBox
-            gap="$none"
             style={[cancelButtonStyle, CancelButtonDefaultStyle]}
             onLayout={onCancelLayout}>
             <TouchableArea onPress={onPressCancel}>
-              <Text variant="buttonLabelMedium">{t('Cancel')}</Text>
+              <Text variant="buttonLabel2">{t('Cancel')}</Text>
             </TouchableArea>
           </AnimatedBox>
         )}
-      </Box>
+      </Flex>
     )
   }
 )
@@ -240,15 +230,20 @@ interface ClearButtonProps {
 }
 
 function ClearButton(props: ClearButtonProps): JSX.Element {
-  const theme = useAppTheme()
+  const colors = useSporeColors()
 
-  const { onPress, clearIcon = <X color={theme.colors.neutral2} height={16} width={16} /> } = props
+  const {
+    onPress,
+    clearIcon = (
+      <X color={colors.neutral2.val} height={iconSizes.icon16} width={iconSizes.icon16} />
+    ),
+  } = props
 
   return (
     <TouchableArea
-      backgroundColor="surface3"
-      borderRadius="roundedFull"
-      p="spacing4"
+      backgroundColor="$surface3"
+      borderRadius="$roundedFull"
+      p="$spacing4"
       onPress={onPress}>
       {clearIcon}
     </TouchableArea>

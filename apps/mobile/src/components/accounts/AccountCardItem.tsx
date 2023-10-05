@@ -5,13 +5,11 @@ import ContextMenu from 'react-native-context-menu-view'
 import { useAppDispatch } from 'src/app/hooks'
 import { navigate } from 'src/app/navigation/rootNavigation'
 import { AddressDisplay } from 'src/components/AddressDisplay'
-import { TouchableArea } from 'src/components/buttons/TouchableArea'
-import { Box, Flex } from 'src/components/layout'
-import { Text } from 'src/components/Text'
 import { closeModal, openModal } from 'src/features/modals/modalSlice'
 import { ModalName } from 'src/features/telemetry/constants'
 import { Screens } from 'src/screens/Screens'
 import { setClipboard } from 'src/utils/clipboard'
+import { Flex, Text, TouchableArea } from 'ui/src'
 import { iconSizes } from 'ui/src/theme'
 import { formatUSDPrice, NumberType } from 'utilities/src/format/format'
 import { pushNotification } from 'wallet/src/features/notifications/slice'
@@ -36,10 +34,10 @@ function PortfolioValue({
 
   return (
     <Text
-      color="neutral2"
+      color="$neutral2"
       loading={isLoading}
       loadingPlaceholderText="$000.00"
-      variant="subheadSmall">
+      variant="subheading2">
       {formatUSDPrice(portfolioValue, NumberType.PortfolioBalance)}
     </Text>
   )
@@ -77,12 +75,7 @@ export function AccountCardItem({
 
   const onPressRemoveWallet = (): void => {
     dispatch(closeModal({ name: ModalName.AccountSwitcher }))
-    dispatch(
-      openModal({
-        name: ModalName.RemoveWallet,
-        initialState: { address },
-      })
-    )
+    dispatch(openModal({ name: ModalName.RemoveWallet, initialState: { address } }))
   }
 
   const menuActions = useMemo(() => {
@@ -113,20 +106,20 @@ export function AccountCardItem({
       }}>
       <TouchableArea
         hapticFeedback
-        pb="spacing12"
-        pt="spacing8"
-        px="spacing24"
+        pb="$spacing12"
+        pt="$spacing8"
+        px="$spacing24"
         onPress={(): void => onPress(address)}>
-        <Flex row alignItems="flex-start" testID={`account_item/${address}`}>
-          <Box flex={1}>
+        <Flex row alignItems="flex-start" gap="$spacing16" testID={`account_item/${address}`}>
+          <Flex fill>
             <AddressDisplay
               address={address}
-              captionVariant="bodyMicro"
+              captionVariant="body3"
               gapBetweenLines="$spacing2"
               showViewOnlyBadge={isViewOnly}
               size={iconSizes.icon36}
             />
-          </Box>
+          </Flex>
           <PortfolioValue
             isPortfolioValueLoading={isPortfolioValueLoading}
             portfolioValue={portfolioValue}

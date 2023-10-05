@@ -4,19 +4,17 @@ import React, { PropsWithChildren } from 'react'
 import { KeyboardAvoidingView, StyleSheet } from 'react-native'
 import { FadeIn, FadeOut } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { useAppTheme } from 'src/app/hooks'
 import { AnimatedFlex } from 'src/components/layout'
 import { Screen } from 'src/components/layout/Screen'
-import { Text } from 'src/components/Text'
 import { IS_IOS } from 'src/constants/globals'
-import { Flex } from 'ui/src'
-import { Theme } from 'ui/src/theme/restyle'
+import { Flex, SpaceTokens, Text } from 'ui/src'
+import { fonts } from 'ui/src/theme'
 
 type OnboardingScreenProps = {
   subtitle?: string
   title?: string
-  paddingTop?: keyof Theme['spacing']
-  childrenGap?: keyof Theme['spacing']
+  paddingTop?: SpaceTokens
+  childrenGap?: SpaceTokens
   keyboardAvoidingViewEnabled?: boolean
 }
 
@@ -24,26 +22,25 @@ export function OnboardingScreen({
   title,
   subtitle,
   children,
-  paddingTop = 'none',
+  paddingTop = '$none',
   keyboardAvoidingViewEnabled = true,
 }: PropsWithChildren<OnboardingScreenProps>): JSX.Element {
   const headerHeight = useHeaderHeight()
   const insets = useSafeAreaInsets()
-  const theme = useAppTheme()
 
   const subtitleMaxFontScaleMultiplier = useResponsiveProp({
     xs: 1.1,
-    sm: theme.textVariants.bodySmall.maxFontSizeMultiplier,
+    sm: fonts.body2.maxFontSizeMultiplier,
   })
 
   const titleSize = useResponsiveProp({
-    xs: 'subheadLarge',
-    sm: 'headlineSmall',
+    xs: 'subheading1',
+    sm: 'heading3',
   })
 
   const subtitleSize = useResponsiveProp({
-    xs: 'bodyMicro',
-    sm: 'bodySmall',
+    xs: 'body3',
+    sm: 'body2',
   })
 
   const gapSize = useResponsiveProp({
@@ -72,17 +69,13 @@ export function OnboardingScreen({
           {/* Text content */}
           <Flex centered gap="$spacing12" m="$spacing12">
             {title && (
-              <Text
-                allowFontScaling={false}
-                paddingTop={paddingTop}
-                textAlign="center"
-                variant={titleSize}>
+              <Text allowFontScaling={false} pt={paddingTop} textAlign="center" variant={titleSize}>
                 {title}
               </Text>
             )}
             {subtitle ? (
               <Text
-                color="neutral2"
+                color="$neutral2"
                 maxFontSizeMultiplier={subtitleMaxFontScaleMultiplier}
                 textAlign="center"
                 variant={subtitleSize}>

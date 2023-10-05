@@ -7,7 +7,6 @@ exports[`AccountList renders without error 1`] = `
       "alignItems": "stretch",
       "flexDirection": "column",
       "flexShrink": 1,
-      "gap": 0,
       "position": "relative",
     }
   }
@@ -37,7 +36,6 @@ exports[`AccountList renders without error 1`] = `
             "alignItems": "stretch",
             "flex": 1,
             "flexDirection": "column",
-            "gap": 16,
             "paddingBottom": 8,
             "paddingLeft": 24,
             "paddingRight": 24,
@@ -119,7 +117,6 @@ exports[`AccountList renders without error 1`] = `
           onStartShouldSetResponder={[Function]}
           style={
             {
-              "display": "flex",
               "opacity": 1,
               "paddingBottom": 12,
               "paddingHorizontal": 24,
@@ -128,27 +125,22 @@ exports[`AccountList renders without error 1`] = `
           }
         >
           <View
-            sentry-label="Flex"
             style={
-              [
-                {
-                  "alignItems": "flex-start",
-                  "display": "flex",
-                  "flexDirection": "row",
-                  "justifyContent": "flex-start",
-                },
-              ]
+              {
+                "alignItems": "flex-start",
+                "flexDirection": "row",
+                "gap": 16,
+              }
             }
             testID="account_item/0x82D56A352367453f74FC0dC7B071b311da373Fa6"
           >
             <View
               style={
-                [
-                  {
-                    "display": "flex",
-                    "flex": 1,
-                  },
-                ]
+                {
+                  "alignItems": "stretch",
+                  "flex": 1,
+                  "flexDirection": "column",
+                }
               }
             >
               <View
@@ -162,12 +154,11 @@ exports[`AccountList renders without error 1`] = `
               >
                 <View
                   style={
-                    [
-                      {
-                        "display": "flex",
-                        "position": "relative",
-                      },
-                    ]
+                    {
+                      "alignItems": "stretch",
+                      "flexDirection": "column",
+                      "position": "relative",
+                    }
                   }
                 >
                   <View
@@ -189,7 +180,6 @@ exports[`AccountList renders without error 1`] = `
                         "borderTopRightRadius": 999999,
                         "borderTopWidth": 0,
                         "flexDirection": "column",
-                        "gap": 0,
                         "padding": 0,
                         "position": "relative",
                       }
@@ -197,24 +187,22 @@ exports[`AccountList renders without error 1`] = `
                   >
                     <View
                       style={
-                        [
-                          {
-                            "display": "flex",
-                            "height": 36,
-                            "width": 36,
-                          },
-                        ]
+                        {
+                          "alignItems": "stretch",
+                          "flexDirection": "column",
+                          "height": 36,
+                          "width": 36,
+                        }
                       }
                     >
                       <View
                         style={
-                          [
-                            {
-                              "display": "flex",
-                              "height": 36,
-                              "width": 36,
-                            },
-                          ]
+                          {
+                            "alignItems": "stretch",
+                            "flexDirection": "column",
+                            "height": 36,
+                            "width": 36,
+                          }
                         }
                       >
                         <View
@@ -388,34 +376,18 @@ exports[`AccountList renders without error 1`] = `
                 </View>
               </View>
             </View>
-            <View
-              style={
-                [
-                  {
-                    "display": "flex",
-                    "flexGrow": 0,
-                    "flexShrink": 0,
-                    "height": 16,
-                    "width": 16,
-                  },
-                ]
-              }
-            />
             <Text
               allowFontScaling={true}
-              maxFontSizeMultiplier={1.4}
               style={
-                [
-                  {
-                    "color": "#7D7D7D",
-                    "display": "flex",
-                    "fontFamily": "Basel-Book",
-                    "fontSize": 17,
-                    "fontWeight": "400",
-                    "lineHeight": 24,
-                  },
-                ]
+                {
+                  "color": "#7D7D7D",
+                  "display": "flex",
+                  "fontFamily": "Basel-Book",
+                  "fontSize": 17,
+                  "lineHeight": 24,
+                }
               }
+              suppressHighlighting={true}
             >
               $55.00
             </Text>

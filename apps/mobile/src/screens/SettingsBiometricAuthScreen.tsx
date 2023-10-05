@@ -4,18 +4,17 @@ import { Alert, ListRenderItemInfo } from 'react-native'
 import { FlatList } from 'react-native-gesture-handler'
 import { useAppDispatch } from 'src/app/hooks'
 import { Switch } from 'src/components/buttons/Switch'
-import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { BackHeader } from 'src/components/layout/BackHeader'
-import { Box } from 'src/components/layout/Box'
-import { Flex } from 'src/components/layout/Flex'
 import { Screen } from 'src/components/layout/Screen'
 import { BiometricAuthWarningModal } from 'src/components/Settings/BiometricAuthWarningModal'
-import { Text } from 'src/components/Text'
+import { IS_IOS } from 'src/constants/globals'
+import { enroll } from 'src/features/biometrics'
 import {
+  checkOsBiometricAuthEnabled,
   useBiometricAppSettings,
+  useBiometricName,
   useBiometricPrompt,
   useDeviceSupportsBiometricAuth,
-  useOsBiometricAuthEnabled,
 } from 'src/features/biometrics/hooks'
 import {
   BiometricSettingType,
@@ -23,6 +22,7 @@ import {
   setRequiredForTransactions,
 } from 'src/features/biometrics/slice'
 import { openSettings } from 'src/utils/linking'
+import { Flex, Text, TouchableArea } from 'ui/src'
 
 interface BiometricAuthSetting {
   onValueChange: (newValue: boolean) => void
@@ -46,9 +46,8 @@ export function SettingsBiometricAuthScreen(): JSX.Element {
   )
   const onCloseModal = useCallback(() => setShowUnsafeWarningModal(false), [])
 
-  const osBiometricAuthEnabled = useOsBiometricAuthEnabled()
   const { touchId } = useDeviceSupportsBiometricAuth()
-  const authenticationTypeName = touchId ? 'Touch' : 'Face'
+  const authenticationTypeName = useBiometricName(touchId)
 
   const { requiredForAppAccess, requiredForTransactions } = useBiometricAppSettings()
   const { trigger } = useBiometricPrompt<BiometricPromptTriggerArgs>(
@@ -67,20 +66,26 @@ export function SettingsBiometricAuthScreen(): JSX.Element {
   )
 
   const options: BiometricAuthSetting[] = useMemo((): BiometricAuthSetting[] => {
+    const capitalizedAuthTypeName =
+      authenticationTypeName.charAt(0).toUpperCase() + authenticationTypeName.slice(1)
     const handleFaceIdTurnedOff = (): void => {
-      Alert.alert(
-        t(
-          '{{authenticationTypeName}} ID is currently turned off for Uniswap Wallet—you can turn it on in your system settings.',
-          { authenticationTypeName }
-        ),
-        '',
-        [
-          { text: t('Settings'), onPress: openSettings },
-          {
-            text: t('Cancel'),
-          },
-        ]
-      )
+      IS_IOS
+        ? Alert.alert(
+            t(
+              '{{capitalizedAuthTypeName}} is currently turned off for Uniswap Wallet—you can turn it on in your system settings.',
+              { capitalizedAuthTypeName }
+            ),
+            '',
+            [{ text: t('Settings'), onPress: openSettings }, { text: t('Cancel') }]
+          )
+        : Alert.alert(
+            t(
+              '{{capitalizedAuthTypeName}} is not set up on your device. To use {{authenticationTypeName}}, set up it first in settings.',
+              { capitalizedAuthTypeName, authenticationTypeName }
+            ),
+            '',
+            [{ text: t('Set up'), onPress: enroll }, { text: t('Cancel') }]
+          )
     }
 
     return [
@@ -92,7 +97,7 @@ export function SettingsBiometricAuthScreen(): JSX.Element {
             return
           }
 
-          if (osBiometricAuthEnabled) {
+          if (await checkOsBiometricAuthEnabled()) {
             await trigger({
               biometricAppSettingType: BiometricSettingType.RequiredForAppAccess,
               newValue: newRequiredForAppAccessValue,
@@ -104,7 +109,7 @@ export function SettingsBiometricAuthScreen(): JSX.Element {
         },
         value: requiredForAppAccess,
         text: t('App access'),
-        subText: t('Require {{authenticationTypeName}} ID to open app', { authenticationTypeName }),
+        subText: t('Require {{authenticationTypeName}} to open app', { authenticationTypeName }),
       },
       {
         onValueChange: async (newRequiredForTransactionsValue): Promise<void> => {
@@ -114,38 +119,32 @@ export function SettingsBiometricAuthScreen(): JSX.Element {
             return
           }
 
-          if (osBiometricAuthEnabled) {
+          if (await checkOsBiometricAuthEnabled()) {
             await trigger({
               biometricAppSettingType: BiometricSettingType.RequiredForTransactions,
               newValue: newRequiredForTransactionsValue,
             })
+            return
           }
 
           handleFaceIdTurnedOff()
         },
         value: requiredForTransactions,
         text: t('Transactions'),
-        subText: t('Require {{authenticationTypeName}} ID to transact', { authenticationTypeName }),
+        subText: t('Require {{authenticationTypeName}} to transact', { authenticationTypeName }),
       },
     ]
-  }, [
-    requiredForAppAccess,
-    t,
-    authenticationTypeName,
-    requiredForTransactions,
-    osBiometricAuthEnabled,
-    trigger,
-  ])
+  }, [requiredForAppAccess, t, authenticationTypeName, requiredForTransactions, trigger])
 
   const renderItem = ({
     item: { text, subText, value, onValueChange },
   }: ListRenderItemInfo<BiometricAuthSetting>): JSX.Element => {
     return (
-      <Box alignItems="center" flexDirection="row" justifyContent="space-between">
+      <Flex row alignItems="center" justifyContent="space-between">
         <Flex row>
-          <Flex gap="none">
-            <Text variant="bodyLarge">{text}</Text>
-            <Text color="neutral2" variant="bodyMicro">
+          <Flex>
+            <Text variant="body1">{text}</Text>
+            <Text color="$neutral2" variant="body3">
               {subText}
             </Text>
           </Flex>
@@ -157,7 +156,7 @@ export function SettingsBiometricAuthScreen(): JSX.Element {
           }}>
           <Switch pointerEvents="none" value={value} onValueChange={onValueChange} />
         </TouchableArea>
-      </Box>
+      </Flex>
     )
   }
 
@@ -181,22 +180,20 @@ export function SettingsBiometricAuthScreen(): JSX.Element {
         />
       )}
       <Screen>
-        <BackHeader alignment="center" mx="spacing16" pt="spacing16">
-          <Text variant="bodyLarge">
-            {t('{{authenticationTypeName}} ID', { authenticationTypeName })}
-          </Text>
+        <BackHeader alignment="center" mx="$spacing16" pt="$spacing16">
+          <Text variant="body1">{t('{{authenticationTypeName}}', { authenticationTypeName })}</Text>
         </BackHeader>
-        <Box p="spacing24">
+        <Flex p="$spacing24">
           <FlatList
             ItemSeparatorComponent={renderItemSeparator}
             data={options}
             renderItem={renderItem}
             scrollEnabled={false}
           />
-        </Box>
+        </Flex>
       </Screen>
     </>
   )
 }
 
-const renderItemSeparator = (): JSX.Element => <Flex pt="spacing24" />
+const renderItemSeparator = (): JSX.Element => <Flex pt="$spacing24" />

@@ -1,9 +1,7 @@
 import React from 'react'
 import { FlatList, ListRenderItemInfo, StyleSheet } from 'react-native'
-import { useAppTheme } from 'src/app/hooks'
-import { Box, Flex } from 'src/components/layout'
-import { Text } from 'src/components/Text'
-import { theme as FixedTheme } from 'ui/src/theme/restyle'
+import { Flex, Text, useSporeColors } from 'ui/src'
+import { spacing } from 'ui/src/theme'
 import { NftAssetTrait } from 'wallet/src/data/__generated__/types-and-hooks'
 
 export function NFTTraitCard({
@@ -13,16 +11,16 @@ export function NFTTraitCard({
   trait: NftAssetTrait
   titleTextColor?: string
 }): JSX.Element {
-  const theme = useAppTheme()
+  const colors = useSporeColors()
   return (
-    <Flex bg="surface3" borderRadius="rounded16" gap="spacing4" px="spacing16" py="spacing12">
+    <Flex bg="$surface3" borderRadius="$rounded16" gap="$spacing4" px="$spacing16" py="$spacing12">
       <Text
         fontSize={14}
-        style={{ color: titleTextColor ?? theme.colors.neutral2 }}
-        variant="buttonLabelMicro">
+        style={{ color: titleTextColor ?? colors.neutral2.val }}
+        variant="buttonLabel4">
         {trait.name}
       </Text>
-      <Text color="neutral1" variant="subheadSmall">
+      <Text color="$neutral1" variant="subheading2">
         {trait.value}
       </Text>
     </Flex>
@@ -53,11 +51,11 @@ export function NFTTraitList({
 }
 
 function Separator(): JSX.Element {
-  return <Box width={FixedTheme.spacing.spacing8} />
+  return <Flex width={spacing.spacing8} />
 }
 
 const Styles = StyleSheet.create({
   listContainer: {
-    paddingHorizontal: FixedTheme.spacing.spacing24,
+    paddingHorizontal: spacing.spacing24,
   },
 })

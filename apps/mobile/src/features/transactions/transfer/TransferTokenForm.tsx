@@ -5,19 +5,15 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Keyboard, StyleSheet } from 'react-native'
 import { FadeIn, FadeOut, FadeOutDown } from 'react-native-reanimated'
-import { useAppTheme } from 'src/app/hooks'
-import { Button, ButtonSize } from 'src/components/buttons/Button'
-import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { TransferArrowButton } from 'src/components/buttons/TransferArrowButton'
 import { CurrencyInputPanel } from 'src/components/input/CurrencyInputPanel'
 import { DecimalPad } from 'src/components/input/DecimalPad'
 import { RecipientInputPanel } from 'src/components/input/RecipientInputPanel'
 import { TextInputProps } from 'src/components/input/TextInput'
-import { AnimatedFlex, Box, Flex } from 'src/components/layout'
+import { AnimatedFlex } from 'src/components/layout'
 import { Warning, WarningAction, WarningSeverity } from 'src/components/modals/WarningModal/types'
 import WarningModal, { getAlertColor } from 'src/components/modals/WarningModal/WarningModal'
 import { NFTTransfer } from 'src/components/NFT/NFTTransfer'
-import { Text } from 'src/components/Text'
 import { TokenSelectorFlow } from 'src/components/TokenSelector/TokenSelector'
 import { ElementName, ModalName } from 'src/features/telemetry/constants'
 import {
@@ -34,9 +30,10 @@ import {
 import { TransferFormSpeedbumps } from 'src/features/transactions/transfer/TransferFormWarnings'
 import { BlockedAddressWarning } from 'src/features/trm/BlockedAddressWarning'
 import { useWalletRestore } from 'src/features/wallet/hooks'
+import { Button, Flex, Text, TouchableArea, useSporeColors } from 'ui/src'
 import AlertTriangleIcon from 'ui/src/assets/icons/alert-triangle.svg'
 import InfoCircleFilled from 'ui/src/assets/icons/info-circle-filled.svg'
-import { dimensions } from 'ui/src/theme'
+import { dimensions, iconSizes, spacing } from 'ui/src/theme'
 import { usePrevious } from 'utilities/src/react/hooks'
 import { useUSDCValue } from 'wallet/src/features/routing/useUSDCPrice'
 import { CurrencyField } from 'wallet/src/features/transactions/transactionState/types'
@@ -64,7 +61,7 @@ export function TransferTokenForm({
   showingSelectorScreen,
 }: TransferTokenProps): JSX.Element {
   const { t } = useTranslation()
-  const theme = useAppTheme()
+  const colors = useSporeColors()
 
   const {
     currencyAmounts,
@@ -200,9 +197,9 @@ export function TransferTokenForm({
   const { showNativeKeyboard, onDecimalPadLayout, isLayoutPending, onInputPanelLayout } =
     useShouldShowNativeKeyboard()
 
-  const TRANSFER_DIRECTION_BUTTON_SIZE = theme.iconSizes.icon20
-  const TRANSFER_DIRECTION_BUTTON_INNER_PADDING = theme.spacing.spacing12
-  const TRANSFER_DIRECTION_BUTTON_BORDER_WIDTH = theme.spacing.spacing4
+  const TRANSFER_DIRECTION_BUTTON_SIZE = iconSizes.icon20
+  const TRANSFER_DIRECTION_BUTTON_INNER_PADDING = spacing.spacing12
+  const TRANSFER_DIRECTION_BUTTON_BORDER_WIDTH = spacing.spacing4
   const SendWarningIcon = transferWarning?.icon ?? AlertTriangleIcon
 
   return (
@@ -213,9 +210,9 @@ export function TransferTokenForm({
           confirmText={t('Close')}
           icon={
             <SendWarningIcon
-              color={theme.colors[transferWarningColor.text]}
-              height={theme.iconSizes.icon24}
-              width={theme.iconSizes.icon24}
+              color={transferWarningColor.text}
+              height={iconSizes.icon24}
+              width={iconSizes.icon24}
             />
           }
           modalName={ModalName.SendWarning}
@@ -233,7 +230,7 @@ export function TransferTokenForm({
         showSpeedbumpModal={showSpeedbumpModal}
         onNext={goToNext}
       />
-      <Flex grow gap="spacing8" justifyContent="space-between">
+      <Flex grow gap="$spacing8" justifyContent="space-between">
         <AnimatedFlex
           entering={FadeIn}
           exiting={FadeOut}
@@ -242,7 +239,7 @@ export function TransferTokenForm({
           {nftIn ? (
             <NFTTransfer asset={nftIn} nftSize={dimensions.fullHeight / 4} />
           ) : (
-            <Box backgroundColor="surface2" borderRadius="rounded20" justifyContent="center">
+            <Flex backgroundColor="$surface2" borderRadius="$rounded20" justifyContent="center">
               <CurrencyInputPanel
                 currencyAmount={currencyAmounts[CurrencyField.INPUT]}
                 currencyBalance={currencyBalances[CurrencyField.INPUT]}
@@ -269,11 +266,11 @@ export function TransferTokenForm({
                 }}
                 onShowTokenSelector={(): void => onShowTokenSelector(CurrencyField.INPUT)}
               />
-            </Box>
+            </Flex>
           )}
 
-          <Box zIndex="popover">
-            <Box
+          <Flex zIndex="$popover">
+            <Flex
               alignItems="center"
               height={
                 TRANSFER_DIRECTION_BUTTON_SIZE +
@@ -281,27 +278,22 @@ export function TransferTokenForm({
                 TRANSFER_DIRECTION_BUTTON_BORDER_WIDTH
               }
               style={StyleSheet.absoluteFill}>
-              <Box
+              <Flex
                 alignItems="center"
                 bottom={TRANSFER_DIRECTION_BUTTON_SIZE / 2}
                 position="absolute">
-                <TransferArrowButton
-                  disabled
-                  bg={recipient ? 'surface2' : 'surface2'}
-                  padding="spacing8"
-                />
-              </Box>
-            </Box>
-          </Box>
+                <TransferArrowButton disabled bg="$surface2" padding="$spacing8" />
+              </Flex>
+            </Flex>
+          </Flex>
 
-          <Box>
+          <Flex>
             <Flex
-              backgroundColor={recipient ? 'surface2' : 'none'}
-              borderBottomLeftRadius={transferWarning || isBlocked ? 'none' : 'rounded20'}
-              borderBottomRightRadius={transferWarning || isBlocked ? 'none' : 'rounded20'}
-              borderTopLeftRadius="rounded20"
-              borderTopRightRadius="rounded20"
-              gap="none"
+              backgroundColor={recipient ? '$surface2' : '$transparent'}
+              borderBottomLeftRadius={transferWarning || isBlocked ? '$none' : '$rounded20'}
+              borderBottomRightRadius={transferWarning || isBlocked ? '$none' : '$rounded20'}
+              borderTopLeftRadius="$rounded20"
+              borderTopRightRadius="$rounded20"
               justifyContent="center">
               {recipient && (
                 <RecipientInputPanel
@@ -312,24 +304,24 @@ export function TransferTokenForm({
               {walletNeedsRestore && (
                 <TouchableArea onPress={onRestorePress}>
                   <Flex
+                    grow
                     row
                     alignItems="center"
                     alignSelf="stretch"
-                    backgroundColor="surface2"
-                    borderBottomLeftRadius="rounded16"
-                    borderBottomRightRadius="rounded16"
-                    borderTopColor="surface1"
+                    backgroundColor="$surface2"
+                    borderBottomLeftRadius="$rounded16"
+                    borderBottomRightRadius="$rounded16"
+                    borderTopColor="$surface1"
                     borderTopWidth={1}
-                    flexGrow={1}
-                    gap="spacing8"
-                    px="spacing12"
-                    py="spacing12">
+                    gap="$spacing8"
+                    px="$spacing12"
+                    py="$spacing12">
                     <InfoCircleFilled
-                      color={theme.colors.DEP_accentWarning}
-                      height={theme.iconSizes.icon20}
-                      width={theme.iconSizes.icon20}
+                      color={colors.DEP_accentWarning.val}
+                      height={iconSizes.icon20}
+                      width={iconSizes.icon20}
                     />
-                    <Text color="DEP_accentWarning" variant="subheadSmall">
+                    <Text color="$DEP_accentWarning" variant="subheading2">
                       {t('Restore your wallet to send')}
                     </Text>
                   </Flex>
@@ -337,25 +329,25 @@ export function TransferTokenForm({
               )}
             </Flex>
             {transferWarning && !isBlocked ? (
-              <TouchableArea mt="spacing1" onPress={onTransferWarningClick}>
+              <TouchableArea mt="$spacing1" onPress={onTransferWarningClick}>
                 <Flex
+                  grow
                   row
                   alignItems="center"
                   alignSelf="stretch"
                   backgroundColor={transferWarningColor.background}
-                  borderBottomLeftRadius="rounded16"
-                  borderBottomRightRadius="rounded16"
-                  flexGrow={1}
-                  gap="spacing8"
-                  px="spacing16"
-                  py="spacing12">
+                  borderBottomLeftRadius="$rounded16"
+                  borderBottomRightRadius="$rounded16"
+                  gap="$spacing8"
+                  px="$spacing16"
+                  py="$spacing12">
                   <SendWarningIcon
-                    color={theme.colors[transferWarningColor.text]}
-                    height={theme.iconSizes.icon16}
+                    color={transferWarningColor.text}
+                    height={iconSizes.icon16}
                     strokeWidth={1.5}
-                    width={theme.iconSizes.icon16}
+                    width={iconSizes.icon16}
                   />
-                  <Text color={transferWarningColor.text} variant="subheadSmall">
+                  <Text color={transferWarningColor.text} variant="subheading2">
                     {transferWarning.title}
                   </Text>
                 </Flex>
@@ -363,19 +355,19 @@ export function TransferTokenForm({
             ) : null}
             {isBlocked ? (
               <BlockedAddressWarning
+                grow
                 row
                 alignItems="center"
                 alignSelf="stretch"
-                backgroundColor="surface2"
-                borderBottomLeftRadius="rounded16"
-                borderBottomRightRadius="rounded16"
-                flexGrow={1}
-                mt="spacing2"
-                px="spacing16"
-                py="spacing12"
+                backgroundColor="$surface2"
+                borderBottomLeftRadius="$rounded16"
+                borderBottomRightRadius="$rounded16"
+                mt="$spacing2"
+                px="$spacing16"
+                py="$spacing12"
               />
             ) : null}
-          </Box>
+          </Flex>
         </AnimatedFlex>
         <AnimatedFlex
           bottom={0}
@@ -400,11 +392,11 @@ export function TransferTokenForm({
           )}
           <Button
             disabled={actionButtonDisabled}
-            label={t('Review transfer')}
-            size={ButtonSize.Large}
+            size="large"
             testID={ElementName.ReviewTransfer}
-            onPress={onPressReview}
-          />
+            onPress={onPressReview}>
+            {t('Review transfer')}
+          </Button>
         </AnimatedFlex>
       </Flex>
     </>

@@ -5,8 +5,8 @@ import { useTranslation } from 'react-i18next'
 import { TouchableWithoutFeedback } from 'react-native'
 import { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { useAppTheme } from 'src/app/hooks'
-import { AnimatedFlex, Box, Flex } from 'src/components/layout'
+import { AnimatedFlex } from 'src/components/layout'
+import { useBottomSheetContext } from 'src/components/modals/BottomSheetContext'
 import { HandleBar } from 'src/components/modals/HandleBar'
 import { Warning, WarningSeverity } from 'src/components/modals/WarningModal/types'
 import WarningModal from 'src/components/modals/WarningModal/WarningModal'
@@ -14,17 +14,20 @@ import Trace from 'src/components/Trace/Trace'
 import { IS_ANDROID } from 'src/constants/globals'
 import { ModalName, SectionName } from 'src/features/telemetry/constants'
 import { DerivedSwapInfo } from 'src/features/transactions/swap/hooks'
+import { SwapSettingsModal } from 'src/features/transactions/swap/modals/SwapSettingsModal'
 import { SwapForm } from 'src/features/transactions/swap/SwapForm'
 import { SwapReview } from 'src/features/transactions/swap/SwapReview'
-import SwapSettingsModal from 'src/features/transactions/swap/SwapSettingsModal'
 import { SwapStatus } from 'src/features/transactions/swap/SwapStatus'
 import { HeaderContent } from 'src/features/transactions/TransactionFlowHeaderContent'
+import { transactionStateActions } from 'src/features/transactions/transactionState/transactionState'
 import { DerivedTransferInfo } from 'src/features/transactions/transfer/hooks'
 import { TransferReview } from 'src/features/transactions/transfer/TransferReview'
 import { TransferStatus } from 'src/features/transactions/transfer/TransferStatus'
 import { TransferTokenForm } from 'src/features/transactions/transfer/TransferTokenForm'
+import { Flex, useSporeColors } from 'ui/src'
 import EyeIcon from 'ui/src/assets/icons/eye.svg'
-import { dimensions } from 'ui/src/theme'
+import { dimensions, iconSizes } from 'ui/src/theme'
+import { GasFeeResult } from 'wallet/src/features/gas/types'
 import { ANIMATE_SPRING_CONFIG } from 'wallet/src/features/transactions/utils'
 
 export enum TransactionStep {
@@ -42,9 +45,7 @@ export interface TransactionFlowProps {
   onClose: () => void
   approveTxRequest?: providers.TransactionRequest
   txRequest?: providers.TransactionRequest
-  totalGasFee?: string
-  gasFeeUSD?: string
-  gasFallbackUsed?: boolean
+  gasFee: GasFeeResult
   step: TransactionStep
   setStep: (newStep: TransactionStep) => void
   warnings: Warning[]
@@ -58,8 +59,7 @@ type InnerContentProps = Pick<
   | 'derivedInfo'
   | 'onClose'
   | 'dispatch'
-  | 'totalGasFee'
-  | 'gasFallbackUsed'
+  | 'gasFee'
   | 'txRequest'
   | 'approveTxRequest'
   | 'warnings'
@@ -68,7 +68,7 @@ type InnerContentProps = Pick<
   step: number
   setStep: (step: TransactionStep) => void
   showingSelectorScreen: boolean
-  gasFeeUSD?: string
+  gasFee: GasFeeResult
 }
 
 function isSwapInfo(
@@ -84,9 +84,7 @@ export function TransactionFlow({
   derivedInfo,
   approveTxRequest,
   txRequest,
-  totalGasFee,
-  gasFeeUSD,
-  gasFallbackUsed,
+  gasFee,
   step,
   setStep,
   onClose,
@@ -96,9 +94,11 @@ export function TransactionFlow({
   isUSDInput,
   showUSDToggle,
 }: TransactionFlowProps): JSX.Element {
-  const theme = useAppTheme()
+  const colors = useSporeColors()
   const insets = useSafeAreaInsets()
   const { t } = useTranslation()
+
+  const { isSheetReady } = useBottomSheetContext()
 
   const [showViewOnlyModal, setShowViewOnlyModal] = useState(false)
   const [showSettingsModal, setShowSettingsModal] = useState(false)
@@ -124,15 +124,21 @@ export function TransactionFlow({
     transform: [{ translateX: screenXOffset.value }],
   }))
 
+  const setCustomSlippageTolerance = useCallback(
+    (newCustomSlippageTolerance: number | undefined): void =>
+      dispatch(transactionStateActions.setCustomSlippageTolerance(newCustomSlippageTolerance)),
+    [dispatch]
+  )
+
   return (
     <TouchableWithoutFeedback>
-      <Box style={{ marginTop: insets.top }}>
+      <Flex style={{ marginTop: insets.top }}>
         <HandleBar backgroundColor="none" />
         <AnimatedFlex grow row gap="none" height="100%" style={wrapperStyle}>
           <Flex
-            gap="spacing16"
-            pb={IS_ANDROID ? 'spacing32' : 'spacing16'}
-            px="spacing16"
+            gap="$spacing16"
+            pb={IS_ANDROID ? '$spacing32' : '$spacing16'}
+            px="$spacing16"
             style={{ marginBottom: insets.bottom }}
             width="100%">
             {step !== TransactionStep.SUBMITTED && (
@@ -148,18 +154,16 @@ export function TransactionFlow({
                 step={step}
               />
             )}
-            {renderInnerContentRouter && (
+            {renderInnerContentRouter && isSheetReady && (
               <InnerContentRouter
                 approveTxRequest={approveTxRequest}
                 derivedInfo={derivedInfo}
                 dispatch={dispatch}
                 exactValue={exactValue}
-                gasFallbackUsed={gasFallbackUsed}
-                gasFeeUSD={gasFeeUSD}
+                gasFee={gasFee}
                 setStep={setStep}
                 showingSelectorScreen={!!showRecipientSelector}
                 step={step}
-                totalGasFee={totalGasFee}
                 txRequest={txRequest}
                 warnings={warnings}
                 onClose={onClose}
@@ -176,9 +180,9 @@ export function TransactionFlow({
               confirmText={t('Dismiss')}
               icon={
                 <EyeIcon
-                  color={theme.colors.neutral2}
-                  height={theme.iconSizes.icon24}
-                  width={theme.iconSizes.icon24}
+                  color={colors.neutral2.val}
+                  height={iconSizes.icon24}
+                  width={iconSizes.icon24}
                 />
               }
               modalName={ModalName.SwapWarning}
@@ -191,7 +195,7 @@ export function TransactionFlow({
           {isSwap && showSettingsModal ? (
             <SwapSettingsModal
               derivedSwapInfo={derivedInfo}
-              dispatch={dispatch}
+              setCustomSlippageTolerance={setCustomSlippageTolerance}
               onClose={(): void => {
                 setShowSettingsModal(false)
               }}
@@ -200,7 +204,7 @@ export function TransactionFlow({
 
           {showRecipientSelector && recipientSelector ? recipientSelector : null}
         </AnimatedFlex>
-      </Box>
+      </Flex>
     </TouchableWithoutFeedback>
   )
 }
@@ -238,7 +242,6 @@ function InnerContentRouter(props: InnerContentProps): JSX.Element {
 
 interface SwapInnerContentProps extends InnerContentProps {
   derivedSwapInfo: DerivedSwapInfo
-  gasFeeUSD?: string
   onFormNext: () => void
   onReviewNext: () => void
   onReviewPrev: () => void
@@ -249,9 +252,7 @@ function SwapInnerContent({
   derivedSwapInfo,
   onClose,
   dispatch,
-  totalGasFee,
-  gasFeeUSD,
-  gasFallbackUsed,
+  gasFee,
   approveTxRequest,
   txRequest,
   warnings,
@@ -295,9 +296,7 @@ function SwapInnerContent({
           approveTxRequest={approveTxRequest}
           derivedSwapInfo={derivedSwapInfo}
           exactValue={exactValue}
-          gasFallbackUsed={gasFallbackUsed}
-          gasFeeUSD={gasFeeUSD}
-          totalGasFee={totalGasFee}
+          gasFee={gasFee}
           txRequest={txRequest}
           warnings={warnings}
           onNext={onReviewNext}
@@ -323,7 +322,7 @@ function TransferInnerContent({
   onClose,
   dispatch,
   step,
-  gasFeeUSD,
+  gasFee,
   txRequest,
   warnings,
   onFormNext,
@@ -359,7 +358,7 @@ function TransferInnerContent({
         <Trace logImpression section={SectionName.TransferReview}>
           <TransferReview
             derivedTransferInfo={derivedTransferInfo}
-            gasFeeUSD={gasFeeUSD}
+            gasFee={gasFee}
             txRequest={txRequest}
             warnings={warnings}
             onNext={onReviewNext}

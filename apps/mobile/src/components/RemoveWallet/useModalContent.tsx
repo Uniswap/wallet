@@ -1,13 +1,13 @@
 import React, { useMemo } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { SvgProps } from 'react-native-svg'
-import { ButtonEmphasis } from 'src/components/buttons/Button'
 import { concatListOfAccountNames } from 'src/components/RemoveWallet/utils'
-import { Text } from 'src/components/Text'
 import { IS_ANDROID } from 'src/constants/globals'
+import { Text } from 'ui/src'
 import AlertTriangleIcon from 'ui/src/assets/icons/alert-triangle.svg'
 import TrashIcon from 'ui/src/assets/icons/trash.svg'
 import WalletIcon from 'ui/src/assets/icons/wallet-filled.svg'
+import { ThemeNames } from 'ui/src/theme'
 import { Theme } from 'ui/src/theme/restyle'
 import { Account, AccountType } from 'wallet/src/features/wallet/accounts/types'
 import { useDisplayName } from 'wallet/src/features/wallet/hooks'
@@ -31,7 +31,7 @@ interface ModalContentResult {
   Icon: React.ComponentType<SvgProps>
   iconColorLabel: keyof Theme['colors']
   actionButtonLabel?: string
-  actionButtonEmphasis?: ButtonEmphasis
+  actionButtonTheme?: ThemeNames
 }
 
 export const useModalContent = ({
@@ -54,9 +54,12 @@ export const useModalContent = ({
       return {
         title: (
           <Trans t={t}>
-            {/* https://react.i18next.com/latest/trans-component#interpolation */}
-            {/* @ts-expect-error: react-i18next uses this ^ syntax and it's not canonic */}
-            You’re removing <Text color="statusCritical">{{ wallet: account?.name }}</Text>
+            <Text color="$neutral1" variant="body1">
+              You’re removing{' '}
+              <Text color="$statusCritical" variant="body1">
+                {{ wallet: account?.name }}
+              </Text>
+            </Text>
           </Trans>
         ),
         description: t(
@@ -65,7 +68,7 @@ export const useModalContent = ({
         Icon: TrashIcon,
         iconColorLabel: 'statusCritical',
         actionButtonLabel: t('Continue'),
-        actionButtonEmphasis: ButtonEmphasis.Detrimental,
+        actionButtonTheme: 'detrimental',
       }
     }
 
@@ -79,7 +82,7 @@ export const useModalContent = ({
         Icon: WalletIcon,
         iconColorLabel: 'neutral2',
         actionButtonLabel: t('Continue'),
-        actionButtonEmphasis: ButtonEmphasis.Secondary,
+        actionButtonTheme: 'secondary',
       }
     }
 
@@ -88,20 +91,25 @@ export const useModalContent = ({
       return {
         title: (
           <Trans t={t}>
-            You’re removing your <Text color="statusCritical">recovery phrase</Text>
+            <Text color="$neutral1" variant="body1">
+              You’re removing your{' '}
+              <Text color="$statusCritical" variant="body1">
+                recovery phrase
+              </Text>
+            </Text>
           </Trans>
         ),
         description: IS_ANDROID ? (
           <Trans t={t}>
             Make sure you’ve written down your recovery phrase or backed it up on Google Drive.{' '}
-            <Text color="neutral2" maxFontSizeMultiplier={1.4} variant="buttonLabelSmall">
+            <Text color="$neutral2" maxFontSizeMultiplier={1.4} variant="buttonLabel3">
               You will not be able to access your funds otherwise.
             </Text>
           </Trans>
         ) : (
           <Trans t={t}>
             Make sure you’ve written down your recovery phrase or backed it up on iCloud.{' '}
-            <Text color="neutral2" maxFontSizeMultiplier={1.4} variant="buttonLabelSmall">
+            <Text color="$neutral2" maxFontSizeMultiplier={1.4} variant="buttonLabel3">
               You will not be able to access your funds otherwise.
             </Text>
           </Trans>
@@ -121,16 +129,17 @@ export const useModalContent = ({
       return {
         title: (
           <Trans t={t}>
-            {/* https://react.i18next.com/latest/trans-component#interpolation */}
-            {/* @ts-expect-error: react-i18next uses this ^ syntax and it's not canonic */}
-            You’re removing <Text color="statusCritical">{{ wallet: account?.name }}</Text>
+            <Text color="$neutral1" variant="body1">
+              You’re removing{' '}
+              <Text color="$statusCritical" variant="body1">
+                {{ wallet: account?.name }}
+              </Text>
+            </Text>
           </Trans>
         ),
         description: (
           <Trans t={t}>
             It shares the same recovery phrase as{' '}
-            {/* https://react.i18next.com/latest/trans-component#interpolation */}
-            {/* @ts-expect-error: react-i18next uses this ^ syntax and it's not canonic */}
             <Text fontWeight="bold">{{ wallets: associatedAccountNames }}</Text>. Your recovery
             phrase will remain stored until you delete all remaining wallets.
           </Trans>
@@ -138,7 +147,7 @@ export const useModalContent = ({
         Icon: TrashIcon,
         iconColorLabel: 'statusCritical',
         actionButtonLabel: t('Remove'),
-        actionButtonEmphasis: ButtonEmphasis.Detrimental,
+        actionButtonTheme: 'detrimental',
       }
     }
 
@@ -147,9 +156,13 @@ export const useModalContent = ({
       return {
         title: (
           <Trans t={t}>
-            You’re removing {/* https://react.i18next.com/latest/trans-component#interpolation */}
-            {/* @ts-expect-error: react-i18next uses this ^ syntax and it's not canonic */}
-            <Text color="neutral2">{{ wallet: viewOnlyDisplayName?.name }}</Text>
+            <Text color="$neutral1" variant="body1">
+              You’re removing {/* https://react.i18next.com/latest/trans-component#interpolation */}
+              {/* @ts-expect-error: react-i18next uses this ^ syntax and it's not canonic */}
+              <Text color="neutral2" variant="body1">
+                {{ wallet: viewOnlyDisplayName?.name }}
+              </Text>
+            </Text>
           </Trans>
         ),
         description: t(
@@ -158,7 +171,7 @@ export const useModalContent = ({
         Icon: TrashIcon,
         iconColorLabel: 'neutral2',
         actionButtonLabel: t('Remove'),
-        actionButtonEmphasis: ButtonEmphasis.Secondary,
+        actionButtonTheme: 'secondary',
       }
     }
   }, [

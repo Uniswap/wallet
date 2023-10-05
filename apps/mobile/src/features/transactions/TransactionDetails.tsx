@@ -1,35 +1,32 @@
 import { SwapEventName } from '@uniswap/analytics-events'
 import React, { PropsWithChildren, ReactNode, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useAppTheme } from 'src/app/hooks'
 import { AccountDetails } from 'src/components/accounts/AccountDetails'
-import { TouchableArea } from 'src/components/buttons/TouchableArea'
-import { Box } from 'src/components/layout/Box'
-import { Flex } from 'src/components/layout/Flex'
-import { Separator } from 'src/components/layout/Separator'
 import { Warning } from 'src/components/modals/WarningModal/types'
 import { getAlertColor } from 'src/components/modals/WarningModal/WarningModal'
 import { NetworkFee } from 'src/components/Network/NetworkFee'
-import { Text } from 'src/components/Text'
 import { sendMobileAnalyticsEvent } from 'src/features/telemetry'
-import AlertTriangle from 'ui/src/assets/icons/alert-triangle.svg'
+import { FeeOnTransferInfo } from 'src/features/transactions/swap/FeeOnTransferInfo'
+import { Box, Flex, Icons, Separator, Text, TouchableArea, useSporeColors } from 'ui/src'
 import AnglesMaximize from 'ui/src/assets/icons/angles-maximize.svg'
 import AnglesMinimize from 'ui/src/assets/icons/angles-minimize.svg'
+import { iconSizes } from 'ui/src/theme'
 import { ChainId } from 'wallet/src/constants/chains'
+import { GasFeeResult } from 'wallet/src/features/gas/types'
 import { useActiveAccountAddressWithThrow } from 'wallet/src/features/wallet/hooks'
 
-const ALERT_ICONS_SIZE = 18
+const ALERT_ICONS_SIZE = iconSizes.icon16
 
 interface TransactionDetailsProps {
   banner?: ReactNode
   chainId: ChainId
-  gasFeeUSD?: string
-  gasFallbackUsed?: boolean
+  gasFee: GasFeeResult
   showExpandedChildren?: boolean
   showWarning?: boolean
   warning?: Warning
+  feeOnTransferInfo?: FeeOnTransferInfo
+  onShowNetworkFeeInfo: () => void
   onShowWarning?: () => void
-  onShowGasWarning?: () => void
 }
 
 export function TransactionDetails({
@@ -37,14 +34,14 @@ export function TransactionDetails({
   children,
   showExpandedChildren,
   chainId,
-  gasFeeUSD,
-  gasFallbackUsed,
+  gasFee,
   showWarning,
   warning,
-  onShowGasWarning,
+  feeOnTransferInfo,
+  onShowNetworkFeeInfo,
   onShowWarning,
 }: PropsWithChildren<TransactionDetailsProps>): JSX.Element {
-  const theme = useAppTheme()
+  const colors = useSporeColors()
   const { t } = useTranslation()
   const userAddress = useActiveAccountAddressWithThrow()
   const warningColor = getAlertColor(warning?.severity)
@@ -59,77 +56,86 @@ export function TransactionDetails({
   }
 
   return (
-    <Box>
+    <Flex>
       {showWarning && warning && onShowWarning && (
-        <TouchableArea mb="spacing8" onPress={onShowWarning}>
+        <TouchableArea mb="$spacing8" onPress={onShowWarning}>
           <Flex
+            grow
             row
             alignItems="center"
             backgroundColor={warningColor.background}
-            borderRadius="rounded16"
-            flexGrow={1}
-            gap="spacing8"
-            px="spacing16"
-            py="spacing8">
-            <AlertTriangle
-              color={theme.colors[warningColor?.text]}
+            borderRadius="$rounded16"
+            gap="$spacing8"
+            px="$spacing16"
+            py="$spacing8">
+            <Icons.AlertTriangle
+              color={warningColor?.text}
               height={ALERT_ICONS_SIZE}
               width={ALERT_ICONS_SIZE}
             />
-            <Flex flexGrow={1} py="spacing2">
-              <Text color={warningColor.text} variant="subheadSmall">
+            <Flex grow py="$spacing2">
+              <Text color={warningColor.text} variant="body3">
                 {warning.title}
               </Text>
             </Flex>
           </Flex>
         </TouchableArea>
       )}
-      <Flex backgroundColor="surface2" borderRadius="rounded16" gap="none">
+      {gasFee.error && (
+        <Box
+          backgroundColor="$DEP_accentCriticalSoft"
+          borderRadius="$rounded16"
+          mb="$spacing12"
+          p="$spacing12">
+          <Text color="$statusCritical">{t('This transaction is expected to fail')}</Text>
+        </Box>
+      )}
+      <Flex backgroundColor="$surface2" borderRadius="$rounded16">
         {!showWarning && (
           <>
             {banner}
-            <Separator color="surface2" width={1} />
+            <Separator borderColor="$surface2" width={1} />
           </>
         )}
-        <Flex gap="spacing12" px="spacing12" py="spacing12">
-          {showChildren ? <Flex gap="spacing12">{children}</Flex> : null}
+        <Flex gap="$spacing12" pt={banner ? '$none' : '$spacing8'} px="$spacing12">
+          {showChildren ? <Flex gap="$spacing12">{children}</Flex> : null}
+          {feeOnTransferInfo && <FeeOnTransferInfo {...feeOnTransferInfo} />}
           <NetworkFee
             chainId={chainId}
-            gasFallbackUsed={gasFallbackUsed}
-            gasFeeUSD={gasFeeUSD}
-            onShowGasWarning={onShowGasWarning}
+            gasFee={gasFee}
+            onShowNetworkFeeInfo={onShowNetworkFeeInfo}
           />
         </Flex>
-        <Separator color="surface2" width={1} />
-        <Box px="spacing12" py="spacing12">
-          <AccountDetails address={userAddress} iconSize={20} />
-        </Box>
+        <Separator borderColor="$surface2" width={1} />
+        <Flex px="$spacing12" py="$spacing12">
+          <AccountDetails address={userAddress} iconSize={iconSizes.icon20} />
+        </Flex>
       </Flex>
       {children ? (
         <TouchableArea
           alignItems="center"
           flexDirection="row"
           justifyContent="center"
-          py="spacing8"
+          pt="$spacing12"
           onPress={onPressToggleShowChildren}>
-          <Text color="neutral3" variant="bodySmall">
+          <Text color="$neutral3" variant="body3">
             {showChildren ? t('Show less') : t('Show more')}
           </Text>
           {showChildren ? (
             <AnglesMinimize
-              color={theme.colors.neutral3}
-              height={theme.iconSizes.icon20}
-              width={theme.iconSizes.icon20}
+              color={colors.neutral3.val}
+              height={iconSizes.icon20}
+              width={iconSizes.icon20}
             />
           ) : (
             <AnglesMaximize
-              color={theme.colors.neutral3}
-              height={theme.iconSizes.icon20}
-              width={theme.iconSizes.icon20}
+              color={colors.neutral3.val}
+              height={iconSizes.icon20}
+              width={iconSizes.icon20}
             />
           )}
         </TouchableArea>
       ) : null}
-    </Box>
+    </Flex>
   )
 }

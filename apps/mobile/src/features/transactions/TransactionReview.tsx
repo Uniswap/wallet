@@ -4,20 +4,18 @@ import { notificationAsync } from 'expo-haptics'
 import React, { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FadeInUp, FadeOut } from 'react-native-reanimated'
-import { useAppTheme } from 'src/app/hooks'
 import { AddressDisplay } from 'src/components/AddressDisplay'
-import { Button, ButtonEmphasis, ButtonSize } from 'src/components/buttons/Button'
 import { TransferArrowButton } from 'src/components/buttons/TransferArrowButton'
 import { Arrow } from 'src/components/icons/Arrow'
 import { AmountInput } from 'src/components/input/AmountInput'
 import { RecipientPrevTransfers } from 'src/components/input/RecipientInputPanel'
-import { AnimatedFlex, Box, Flex } from 'src/components/layout'
+import { AnimatedFlex } from 'src/components/layout'
 import { NFTTransfer } from 'src/components/NFT/NFTTransfer'
-import { Text } from 'src/components/Text'
 import { useBiometricAppSettings, useBiometricPrompt } from 'src/features/biometrics/hooks'
 import { GQLNftAsset } from 'src/features/nfts/hooks'
 import { ElementName } from 'src/features/telemetry/constants'
-import { dimensions, iconSizes } from 'ui/src/theme'
+import { Button, Flex, Text, useSporeColors } from 'ui/src'
+import { dimensions, fonts, iconSizes } from 'ui/src/theme'
 import { formatNumberOrString, NumberType } from 'utilities/src/format/format'
 import { CurrencyLogo } from 'wallet/src/components/CurrencyLogo/CurrencyLogo'
 import { CurrencyInfo } from 'wallet/src/features/dataApi/types'
@@ -67,44 +65,46 @@ export function TransactionReview({
   usdTokenEquivalentAmount,
   onPrev,
 }: TransactionReviewProps): JSX.Element {
-  const theme = useAppTheme()
+  const colors = useSporeColors()
   const { t } = useTranslation()
 
   const { trigger: actionButtonTrigger } = useBiometricPrompt(actionButtonProps.onPress)
   const { requiredForTransactions } = useBiometricAppSettings()
 
-  const spacingGap = { xs: 'none', sm: 'spacing12' }
-  const innerGap = useResponsiveProp({ xs: 'none', sm: 'spacing16' })
+  const spacingGap = { xs: '$none', sm: '$spacing4' }
+  const innerGap = useResponsiveProp({ xs: '$none', sm: '$spacing12' })
 
   const fontFamily = useResponsiveProp({
-    xs: theme.textVariants.headlineSmall.fontFamily,
-    sm: theme.textVariants.headlineLarge.fontFamily,
+    xs: fonts.heading3.family,
+    sm: fonts.heading2.family,
   })
 
   const fontSize = useResponsiveProp({
-    xs: theme.textVariants.headlineSmall.fontSize,
-    sm: theme.textVariants.headlineLarge.fontSize,
+    xs: fonts.heading3.fontSize,
+    sm: fonts.heading2.fontSize,
   })
 
   const lineHeight =
     useResponsiveProp({
-      xs: theme.textVariants.headlineSmall.lineHeight,
-      sm: theme.textVariants.headlineLarge.lineHeight,
-    }) ?? theme.textVariants.headlineLarge.lineHeight
+      xs: fonts.heading3.lineHeight,
+      sm: fonts.heading2.lineHeight - 16,
+    }) ?? fonts.heading2.lineHeight
 
   const maxFontSizeMultiplier = useResponsiveProp({
-    xs: theme.textVariants.headlineSmall.maxFontSizeMultiplier,
-    sm: theme.textVariants.headlineLarge.maxFontSizeMultiplier,
+    xs: fonts.heading3.maxFontSizeMultiplier,
+    sm: fonts.heading2.maxFontSizeMultiplier,
   })
 
   const equivalentValueTextVariant = useResponsiveProp({
-    xs: 'bodySmall',
-    sm: 'bodyLarge',
+    xs: 'body2',
+    sm: 'body1',
   })
 
-  const arrowPadding = useResponsiveProp({ xs: 'spacing4', sm: 'spacing8' })
+  const arrowPadding = useResponsiveProp({ xs: '$spacing4', sm: '$spacing8' })
 
-  const amountAndEquivalentValueGap = useResponsiveProp({ xs: 'spacing4', sm: 'spacing4' })
+  const amountAndEquivalentValueGap = useResponsiveProp({ xs: '$spacing4', sm: '$spacing4' })
+
+  const bottomPadding = useResponsiveProp({ xs: '$spacing4', sm: '$none' })
 
   const formattedInputUsdValue = inputCurrencyUSDValue
     ? formatNumberOrString(inputCurrencyUSDValue?.toExact(), NumberType.FiatTokenQuantity)
@@ -119,9 +119,11 @@ export function TransactionReview({
         {currencyInInfo ? (
           <Flex centered gap={innerGap}>
             <Flex centered gap={amountAndEquivalentValueGap}>
-              <Text color="neutral2" variant="bodyLarge">
-                {recipient ? t('Sending') : t('You pay')}
-              </Text>
+              {recipient && (
+                <Text color="$neutral2" variant="body1">
+                  {t('Sending')}
+                </Text>
+              )}
               <AmountInput
                 alignSelf="stretch"
                 backgroundColor="none"
@@ -141,13 +143,13 @@ export function TransactionReview({
                 textAlign="center"
                 value={formattedAmountIn}
               />
-              {inputCurrencyUSDValue && !isUSDInput ? (
-                <Text color="neutral2" variant={equivalentValueTextVariant}>
+              {recipient && inputCurrencyUSDValue && !isUSDInput ? (
+                <Text color="$neutral2" variant={equivalentValueTextVariant}>
                   {formattedInputUsdValue}
                 </Text>
               ) : null}
               {isUSDInput ? (
-                <Text color="neutral2" variant={equivalentValueTextVariant}>
+                <Text color="$neutral2" variant={equivalentValueTextVariant}>
                   {/* when sending a token with USD input, show the amount of the token being sent */}
                   {usdTokenEquivalentAmount}
                 </Text>
@@ -156,18 +158,20 @@ export function TransactionReview({
             <CurrencyLogoWithLabel currencyInfo={currencyInInfo} />
           </Flex>
         ) : nftIn ? (
-          <Flex mt="spacing60">
+          <Flex mt="$spacing60">
             <NFTTransfer asset={nftIn} nftSize={dimensions.fullHeight / 5} />
           </Flex>
         ) : null}
-        <TransferArrowButton disabled bg="none" borderColor="none" padding={arrowPadding} />
+        <TransferArrowButton
+          disabled
+          bg="$transparent"
+          borderColor="$transparent"
+          padding={arrowPadding}
+        />
         {currencyOutInfo && formattedAmountOut ? (
-          <Flex centered gap={innerGap} pb={{ xs: 'spacing4', sm: 'none' }}>
+          <Flex centered gap={innerGap} pb={bottomPadding}>
             <Flex centered gap={amountAndEquivalentValueGap}>
-              <Text color="neutral2" variant="bodyLarge">
-                {t('You receive')}
-              </Text>
-              <Box height={lineHeight} justifyContent="center" overflow="hidden">
+              <Flex height={lineHeight} justifyContent="center" overflow="hidden">
                 <AmountInput
                   alignSelf="stretch"
                   backgroundColor="none"
@@ -183,9 +187,9 @@ export function TransactionReview({
                   textAlign="center"
                   value={formattedAmountOut}
                 />
-              </Box>
+              </Flex>
               {outputCurrencyUSDValue ? (
-                <Text color="neutral2" variant={equivalentValueTextVariant}>
+                <Text color="$neutral2" variant={equivalentValueTextVariant}>
                   {formattedOutputUsdValue}
                 </Text>
               ) : null}
@@ -193,16 +197,16 @@ export function TransactionReview({
             <CurrencyLogoWithLabel currencyInfo={currencyOutInfo} />
           </Flex>
         ) : recipient ? (
-          <Flex centered gap="spacing12">
-            <Text color="neutral2" variant="bodyLarge">
+          <Flex centered gap="$spacing12">
+            <Text color="$neutral2" variant="body1">
               {t('To')}
             </Text>
-            <Flex centered gap="spacing8">
+            <Flex centered gap="$spacing8">
               <AddressDisplay
                 hideAddressInSubtitle
                 address={recipient}
                 size={24}
-                variant="headlineMedium"
+                variant="heading2"
               />
               <RecipientPrevTransfers recipient={recipient} />
             </Flex>
@@ -211,20 +215,17 @@ export function TransactionReview({
       </AnimatedFlex>
       <AnimatedFlex entering={FadeInUp} exiting={FadeOut} gap="spacing12" justifyContent="flex-end">
         {transactionDetails}
-        <Flex row gap="spacing8">
+        <Flex row gap="$spacing8">
           <Button
-            CustomIcon={
-              <Arrow color={theme.colors.neutral1} direction="w" size={theme.iconSizes.icon24} />
-            }
-            emphasis={ButtonEmphasis.Tertiary}
-            size={ButtonSize.Large}
+            icon={<Arrow color={colors.neutral1.val} direction="w" size={iconSizes.icon24} />}
+            size="large"
+            theme="tertiary"
             onPress={onPrev}
           />
           <Button
             fill
             disabled={actionButtonProps.disabled}
-            label={actionButtonProps.label}
-            size={ButtonSize.Large}
+            size="large"
             testID={actionButtonProps.name}
             onPress={async (): Promise<void> => {
               await notificationAsync()
@@ -233,8 +234,9 @@ export function TransactionReview({
               } else {
                 actionButtonProps.onPress()
               }
-            }}
-          />
+            }}>
+            {actionButtonProps.label}
+          </Button>
         </Flex>
       </AnimatedFlex>
     </>
@@ -242,12 +244,12 @@ export function TransactionReview({
 }
 
 function CurrencyLogoWithLabel({ currencyInfo }: { currencyInfo: CurrencyInfo }): JSX.Element {
-  const gap = useResponsiveProp({ xs: 'spacing4', sm: 'spacing8' })
+  const gap = useResponsiveProp({ xs: '$spacing4', sm: '$spacing8' })
   const size = useResponsiveProp({ xs: iconSizes.icon20, sm: iconSizes.icon24 })
   return (
     <Flex centered row gap={gap}>
       <CurrencyLogo currencyInfo={currencyInfo} size={size} />
-      <Text color="neutral1" variant="buttonLabelLarge">
+      <Text color="$neutral1" variant="buttonLabel1">
         {getSymbolDisplayText(currencyInfo.currency.symbol)}
       </Text>
     </Flex>

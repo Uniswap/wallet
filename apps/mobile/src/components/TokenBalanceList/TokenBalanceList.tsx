@@ -5,9 +5,8 @@ import { useTranslation } from 'react-i18next'
 import { RefreshControl } from 'react-native'
 import { FadeInDown, FadeOut } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { useAppTheme } from 'src/app/hooks'
 import { useAdaptiveFooter } from 'src/components/home/hooks'
-import { AnimatedBox, Box } from 'src/components/layout'
+import { AnimatedBox } from 'src/components/layout'
 import { AnimatedFlashList } from 'src/components/layout/AnimatedFlashList'
 import { BaseCard } from 'src/components/layout/BaseCard'
 import {
@@ -21,6 +20,7 @@ import { TokenBalanceItem } from 'src/components/TokenBalanceList/TokenBalanceIt
 import { IS_ANDROID } from 'src/constants/globals'
 import { useTokenBalancesGroupedByVisibility } from 'src/features/balances/hooks'
 import { Screens } from 'src/screens/Screens'
+import { Flex, useSporeColors } from 'ui/src'
 import { dimensions, zIndices } from 'ui/src/theme'
 import { isError, isNonPollingRequestInFlight, isWarmLoadingStatus } from 'wallet/src/data/utils'
 import { usePortfolioBalances } from 'wallet/src/features/dataApi/balances'
@@ -56,7 +56,7 @@ export const TokenBalanceList = forwardRef<FlashList<any>, TokenBalanceListProps
     ref
   ) {
     const { t } = useTranslation()
-    const theme = useAppTheme()
+    const colors = useSporeColors()
     const insets = useSafeAreaInsets()
 
     const { onContentSizeChange, adaptiveFooter, footerHeight } = useAdaptiveFooter(
@@ -79,8 +79,6 @@ export const TokenBalanceList = forwardRef<FlashList<any>, TokenBalanceListProps
     } = usePortfolioBalances({
       address: owner,
       shouldPoll: true,
-      hideSmallBalances: false,
-      hideSpamTokens: false,
       onCompleted,
       fetchPolicy: 'cache-and-network',
     })
@@ -115,11 +113,11 @@ export const TokenBalanceList = forwardRef<FlashList<any>, TokenBalanceListProps
             insets.top + (IS_ANDROID && headerHeight ? headerHeight + TAB_BAR_HEIGHT : 0)
           }
           refreshing={refreshing ?? false}
-          tintColor={theme.colors.neutral3}
+          tintColor={colors.neutral3.val}
           onRefresh={onRefresh}
         />
       )
-    }, [refreshing, headerHeight, onRefresh, theme.colors.neutral3, insets.top])
+    }, [refreshing, headerHeight, onRefresh, colors.neutral3.val, insets.top])
 
     // Note: `PerformanceView` must wrap the entire return statement to properly track interactive states.
     return (
@@ -131,29 +129,25 @@ export const TokenBalanceList = forwardRef<FlashList<any>, TokenBalanceListProps
         }>
         {!balancesById ? (
           isNonPollingRequestInFlight(networkStatus) ? (
-            <Box px="spacing24" style={containerProps?.loadingContainerStyle}>
+            <Flex px="$spacing24" style={containerProps?.loadingContainerStyle}>
               <Loader.Token repeat={4} />
-            </Box>
+            </Flex>
           ) : (
-            <Box
-              flex={1}
-              flexGrow={1}
-              justifyContent="center"
-              style={containerProps?.emptyContainerStyle}>
+            <Flex fill grow justifyContent="center" style={containerProps?.emptyContainerStyle}>
               <BaseCard.ErrorState
                 retryButtonLabel="Retry"
                 title={t('Couldn’t load token balances')}
                 onRetry={(): void | undefined => refetch?.()}
               />
-            </Box>
+            </Flex>
           )
         ) : (
           <AnimatedFlashList
             ref={ref}
             ListEmptyComponent={
-              <Box flexGrow={1} px="spacing24" style={containerProps?.emptyContainerStyle}>
+              <Flex grow px="$spacing24" style={containerProps?.emptyContainerStyle}>
                 {empty}
-              </Box>
+              </Flex>
             }
             // we add a footer to cover any possible space, so user can scroll the top menu all the way to the top
             ListFooterComponent={adaptiveFooter}
@@ -161,12 +155,7 @@ export const TokenBalanceList = forwardRef<FlashList<any>, TokenBalanceListProps
             ListFooterComponentStyle={{ zIndex: zIndices.negative }}
             ListHeaderComponent={
               isError(networkStatus, !!balancesById) ? (
-                <AnimatedBox
-                  entering={FadeInDown}
-                  exiting={FadeOut}
-                  gap="$none"
-                  px="$spacing24"
-                  py="$spacing8">
+                <AnimatedBox entering={FadeInDown} exiting={FadeOut} px="$spacing24" py="$spacing8">
                   <BaseCard.InlineErrorState
                     title={t('Failed to fetch token balances')}
                     onRetry={refetch}

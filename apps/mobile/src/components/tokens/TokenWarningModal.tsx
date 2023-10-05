@@ -1,21 +1,18 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAppTheme } from 'src/app/hooks'
-import { Button, ButtonEmphasis } from 'src/components/buttons/Button'
-import { TouchableArea } from 'src/components/buttons/TouchableArea'
-import { Flex } from 'src/components/layout'
 import { BottomSheetModal } from 'src/components/modals/BottomSheetModal'
-import { Text } from 'src/components/Text'
 import { getTokenSafetyHeaderText } from 'src/components/tokens/utils'
 import WarningIcon from 'src/components/tokens/WarningIcon'
 import { ElementName, ModalName } from 'src/features/telemetry/constants'
 import { useTokenSafetyLevelColors } from 'src/features/tokens/safetyHooks'
 import { ExplorerDataType, getExplorerLink, openUri } from 'src/utils/linking'
+import { Button, Flex, Text, TouchableArea } from 'ui/src'
 import ExternalLinkIcon from 'ui/src/assets/icons/external-link.svg'
 import { AppTFunction } from 'ui/src/i18n/types'
-import { iconSizes, opacify } from 'ui/src/theme'
+import { iconSizes, imageSizes, opacify, ThemeNames } from 'ui/src/theme'
 import { TokenLogo } from 'wallet/src/components/CurrencyLogo/TokenLogo'
-import { TOKEN_WARNING_HELP_PAGE_URL } from 'wallet/src/constants/urls'
+import { uniswapUrls } from 'wallet/src/constants/urls'
 import { SafetyLevel } from 'wallet/src/data/__generated__/types-and-hooks'
 import { currencyIdToAddress, currencyIdToChain } from 'wallet/src/utils/currencyId'
 
@@ -73,7 +70,7 @@ export default function TokenWarningModal({
   const closeButtonText = hideAcceptButton ? t('Close') : t('Back')
 
   const onPressLearnMore = async (): Promise<void> => {
-    await openUri(TOKEN_WARNING_HELP_PAGE_URL)
+    await openUri(uniswapUrls.helpArticleUrls.tokenWarning)
   }
 
   const showWarningIcon =
@@ -83,28 +80,28 @@ export default function TokenWarningModal({
 
   return (
     <BottomSheetModal name={ModalName.TokenWarningModal} onClose={onClose}>
-      <Flex centered gap="spacing16" mb="spacing16" p="spacing12">
+      <Flex centered gap="$spacing16" mb="$spacing16" p="$spacing12">
         {showWarningIcon ? (
-          <Flex centered gap="spacing16">
+          <Flex centered gap="$spacing16">
             <Flex
               centered
-              borderRadius="rounded12"
-              p="spacing12"
+              borderRadius="$rounded12"
+              p="$spacing12"
               style={{
                 backgroundColor: opacify(12, theme.colors[warningColor]),
               }}>
-              <WarningIcon safetyLevel={safetyLevel} width={theme.iconSizes.icon24} />
+              <WarningIcon safetyLevel={safetyLevel} width={iconSizes.icon24} />
             </Flex>
-            <Text variant="buttonLabelMedium">{getTokenSafetyHeaderText(safetyLevel, t)}</Text>
+            <Text variant="buttonLabel2">{getTokenSafetyHeaderText(safetyLevel, t)}</Text>
           </Flex>
         ) : (
-          <TokenLogo size={theme.imageSizes.image48} url={tokenLogoUrl} />
+          <TokenLogo size={imageSizes.image48} url={tokenLogoUrl} />
         )}
-        <Flex centered gap="spacing4" width="90%">
-          <Text color="neutral2" textAlign="center" variant="bodySmall">
+        <Flex centered gap="$spacing4" width="90%">
+          <Text color="$neutral2" textAlign="center" variant="body2">
             {getTokenSafetyBodyText(safetyLevel, t)}{' '}
             <TouchableArea height={18} onPress={onPressLearnMore}>
-              <Text color="accent1" variant="buttonLabelSmall">
+              <Text color="$accent1" variant="buttonLabel3">
                 {t('Learn more')}
               </Text>
             </TouchableArea>
@@ -112,19 +109,19 @@ export default function TokenWarningModal({
         </Flex>
         <TouchableArea
           alignItems="center"
-          bg="accent2"
-          borderRadius="rounded16"
+          bg="$accent2"
+          borderRadius="$rounded16"
           flexDirection="row"
-          mx="spacing48"
-          px="spacing12"
-          py="spacing8"
+          mx="$spacing48"
+          px="$spacing12"
+          py="$spacing8"
           onPress={(): Promise<void> => openUri(explorerLink)}>
           <Text
-            color="accent1"
+            color="$accent1"
             ellipsizeMode="tail"
-            mx="spacing8"
+            mx="$spacing8"
             numberOfLines={1}
-            variant="buttonLabelMicro">
+            variant="buttonLabel4">
             {explorerLink}
           </Text>
           <ExternalLinkIcon
@@ -133,22 +130,18 @@ export default function TokenWarningModal({
             width={iconSizes.icon16}
           />
         </TouchableArea>
-        <Flex centered row mt="spacing16">
-          <Button
-            fill
-            emphasis={ButtonEmphasis.Tertiary}
-            label={closeButtonText}
-            testID={ElementName.Cancel}
-            onPress={onClose}
-          />
+        <Flex centered row gap="$spacing16" mt="$spacing16">
+          <Button fill testID={ElementName.Cancel} theme="tertiary" onPress={onClose}>
+            {closeButtonText}
+          </Button>
           {!hideAcceptButton && (
             <Button
               fill
-              emphasis={getButtonEmphasis(safetyLevel)}
-              label={showWarningIcon ? t('I understand') : t('Continue')}
               testID={ElementName.TokenWarningAccept}
-              onPress={onAccept}
-            />
+              theme={getButtonTheme(safetyLevel)}
+              onPress={onAccept}>
+              {showWarningIcon ? t('I understand') : t('Continue')}
+            </Button>
           )}
         </Flex>
       </Flex>
@@ -156,12 +149,12 @@ export default function TokenWarningModal({
   )
 }
 
-function getButtonEmphasis(safetyLevel: Maybe<SafetyLevel>): ButtonEmphasis | undefined {
+function getButtonTheme(safetyLevel: Maybe<SafetyLevel>): ThemeNames | undefined {
   switch (safetyLevel) {
     case SafetyLevel.MediumWarning:
-      return ButtonEmphasis.Secondary
+      return 'secondary'
     case SafetyLevel.StrongWarning:
-      return ButtonEmphasis.Detrimental
+      return 'detrimental'
     default:
       return undefined
   }

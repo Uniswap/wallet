@@ -5,12 +5,9 @@ import { Alert, Image, Platform, StyleSheet } from 'react-native'
 import { useAppDispatch, useAppSelector } from 'src/app/hooks'
 import { OnboardingStackParamList } from 'src/app/navigation/types'
 import { BackButton } from 'src/components/buttons/BackButton'
-import { Button } from 'src/components/buttons/Button'
-import { TouchableArea } from 'src/components/buttons/TouchableArea'
-import { Flex } from 'src/components/layout'
-import { Text } from 'src/components/Text'
 import Trace from 'src/components/Trace/Trace'
 import { IS_IOS } from 'src/constants/globals'
+import { useBiometricContext } from 'src/features/biometrics/context'
 import { useBiometricAppSettings } from 'src/features/biometrics/hooks'
 import { promptPushPermission } from 'src/features/notifications/Onesignal'
 import { useCompleteOnboardingCallback } from 'src/features/onboarding/hooks'
@@ -19,6 +16,7 @@ import { ImportType, OnboardingEntryPoint } from 'src/features/onboarding/utils'
 import { ElementName } from 'src/features/telemetry/constants'
 import { OnboardingScreens } from 'src/screens/Screens'
 import { openSettings } from 'src/utils/linking'
+import { Button, Flex, Text, TouchableArea } from 'ui/src'
 import { ONBOARDING_NOTIFICATIONS_DARK, ONBOARDING_NOTIFICATIONS_LIGHT } from 'ui/src/assets'
 import { useIsDarkMode } from 'wallet/src/features/appearance/hooks'
 import {
@@ -53,6 +51,7 @@ export function NotificationsSetupScreen({ navigation, route: { params } }: Prop
   const dispatch = useAppDispatch()
   const addresses = Object.keys(accounts)
   const hasSeedPhrase = useNativeAccountExists()
+  const { deviceSupportsBiometrics } = useBiometricContext()
 
   const onCompleteOnboarding = useCompleteOnboardingCallback(params.entryPoint, params.importType)
 
@@ -88,6 +87,7 @@ export function NotificationsSetupScreen({ navigation, route: { params } }: Prop
   const navigateToNextScreen = useCallback(async () => {
     // Skip security setup if already enabled or already imported seed phrase
     if (
+      !deviceSupportsBiometrics ||
       isBiometricAuthEnabled ||
       (params.entryPoint === OnboardingEntryPoint.Sidebar && hasSeedPhrase)
     ) {
@@ -95,7 +95,14 @@ export function NotificationsSetupScreen({ navigation, route: { params } }: Prop
     } else {
       navigation.navigate({ name: OnboardingScreens.Security, params, merge: true })
     }
-  }, [hasSeedPhrase, isBiometricAuthEnabled, navigation, onCompleteOnboarding, params])
+  }, [
+    deviceSupportsBiometrics,
+    hasSeedPhrase,
+    isBiometricAuthEnabled,
+    navigation,
+    onCompleteOnboarding,
+    params,
+  ])
 
   const onPressEnableNotifications = useCallback(async () => {
     promptPushPermission(() => {
@@ -117,19 +124,21 @@ export function NotificationsSetupScreen({ navigation, route: { params } }: Prop
     <OnboardingScreen
       subtitle={t('Get notified when your transfers, swaps, and approvals complete.')}
       title={t('Turn on push notifications')}>
-      <Flex centered shrink py={IS_IOS ? 'spacing60' : 'spacing16'}>
+      <Flex centered shrink py={IS_IOS ? '$spacing60' : '$spacing16'}>
         <NotificationsBackgroundImage />
       </Flex>
-      <Flex gap="spacing24">
+      <Flex gap="$spacing24">
         <Trace logPress element={ElementName.Skip}>
           <TouchableArea onPress={navigateToNextScreen}>
-            <Text color="accent1" textAlign="center" variant="buttonLabelMedium">
+            <Text color="$accent1" textAlign="center" variant="buttonLabel2">
               {t('Maybe later')}
             </Text>
           </TouchableArea>
         </Trace>
         <Trace logPress element={ElementName.Enable}>
-          <Button label={t('Turn on notifications')} onPress={onPressEnableNotifications} />
+          <Button testID="turn-on-notifications" onPress={onPressEnableNotifications}>
+            {t('Turn on notifications')}
+          </Button>
         </Trace>
       </Flex>
     </OnboardingScreen>
@@ -154,5 +163,6 @@ const styles = StyleSheet.create({
   image: {
     height: '100%',
     resizeMode: 'contain',
+    width: '100%',
   },
 })

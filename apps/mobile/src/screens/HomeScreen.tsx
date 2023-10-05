@@ -21,16 +21,15 @@ import Animated, {
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { SvgProps } from 'react-native-svg'
 import { SceneRendererProps, TabBar } from 'react-native-tab-view'
-import { useAppDispatch, useAppTheme } from 'src/app/hooks'
+import { useAppDispatch } from 'src/app/hooks'
 import { NavBar, SWAP_BUTTON_HEIGHT } from 'src/app/navigation/NavBar'
 import { AppStackScreenProp } from 'src/app/navigation/types'
 import { AccountHeader } from 'src/components/accounts/AccountHeader'
-import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { pulseAnimation } from 'src/components/buttons/utils'
 import { ActivityTab, ACTIVITY_TAB_DATA_DEPENDENCIES } from 'src/components/home/ActivityTab'
 import { NftsTab, NFTS_TAB_DATA_DEPENDENCIES } from 'src/components/home/NftsTab'
 import { TokensTab, TOKENS_TAB_DATA_DEPENDENCIES } from 'src/components/home/TokensTab'
-import { AnimatedBox, AnimatedFlex, Box, Flex } from 'src/components/layout'
+import { AnimatedBox, AnimatedFlex } from 'src/components/layout'
 import { SHADOW_OFFSET_SMALL } from 'src/components/layout/BaseCard'
 import { Delay, Delayed } from 'src/components/layout/Delayed'
 import { Screen } from 'src/components/layout/Screen'
@@ -45,7 +44,6 @@ import {
   useScrollSync,
 } from 'src/components/layout/TabHelpers'
 import { ScannerModalState } from 'src/components/QRCodeScanner/constants'
-import { Text } from 'src/components/Text'
 import Trace from 'src/components/Trace/Trace'
 import TraceTabView from 'src/components/Trace/TraceTabView'
 import { apolloClient } from 'src/data/usePersistedApolloClient'
@@ -63,10 +61,11 @@ import { useWalletRestore } from 'src/features/wallet/hooks'
 import { removePendingSession } from 'src/features/walletConnect/walletConnectSlice'
 import { Screens } from 'src/screens/Screens'
 import { hideSplashScreen } from 'src/utils/splashScreen'
+import { Flex, Text, TouchableArea, useSporeColors } from 'ui/src'
 import BuyIcon from 'ui/src/assets/icons/buy.svg'
 import ScanIcon from 'ui/src/assets/icons/scan-receive.svg'
 import SendIcon from 'ui/src/assets/icons/send-action.svg'
-import { dimensions } from 'ui/src/theme'
+import { dimensions, iconSizes, spacing } from 'ui/src/theme'
 import { ONE_SECOND_MS } from 'utilities/src/time/time'
 import { useInterval, useTimeout } from 'utilities/src/time/timing'
 import { setNotificationStatus } from 'wallet/src/features/notifications/slice'
@@ -89,7 +88,7 @@ export enum TabIndex {
 export function HomeScreen(props?: AppStackScreenProp<Screens.Home>): JSX.Element {
   const activeAccount = useActiveAccountWithThrow()
   const { t } = useTranslation()
-  const theme = useAppTheme()
+  const colors = useSporeColors()
   const insets = useSafeAreaInsets()
   const dispatch = useAppDispatch()
 
@@ -102,8 +101,8 @@ export function HomeScreen(props?: AppStackScreenProp<Screens.Home>): JSX.Elemen
 
   const listBottomPadding =
     useResponsiveProp({
-      xs: theme.spacing.spacing36,
-      sm: theme.spacing.spacing12,
+      xs: spacing.spacing36,
+      sm: spacing.spacing12,
     }) ?? 0
 
   const [tabIndex, setTabIndex] = useState(props?.route?.params?.tab ?? TabIndex.Tokens)
@@ -249,13 +248,13 @@ export function HomeScreen(props?: AppStackScreenProp<Screens.Home>): JSX.Elemen
 
   const contentHeader = useMemo(() => {
     return (
-      <Flex bg="surface1" gap="spacing12" pb="spacing16" px="spacing24">
-        <Box pb="spacing12">
+      <Flex bg="$surface1" gap="$spacing12" pb="$spacing16" px="$spacing24">
+        <Flex pb="$spacing12">
           <AccountHeader />
-        </Box>
-        <Box pb="spacing4">
+        </Flex>
+        <Flex pb="$spacing4">
           <PortfolioBalance owner={activeAccount.address} />
-        </Box>
+        </Flex>
         <QuickActions sentry-label="QuickActions" />
       </Flex>
     )
@@ -283,10 +282,10 @@ export function HomeScreen(props?: AppStackScreenProp<Screens.Home>): JSX.Elemen
 
   const emptyContainerStyle = useMemo<StyleProp<ViewStyle>>(
     () => ({
-      paddingTop: theme.spacing.spacing60,
+      paddingTop: spacing.spacing60,
       paddingBottom: insets.bottom,
     }),
-    [insets.bottom, theme.spacing.spacing60]
+    [insets.bottom]
   )
 
   const sharedProps = useMemo<TabContentProps>(
@@ -315,7 +314,7 @@ export function HomeScreen(props?: AppStackScreenProp<Screens.Home>): JSX.Elemen
     backgroundColor: interpolateColor(
       currentScrollValue.value,
       [0, headerHeightDiff],
-      [theme.colors.surface1, theme.colors.surface1]
+      [colors.surface1.val, colors.surface1.val]
     ),
   }))
 
@@ -332,14 +331,14 @@ export function HomeScreen(props?: AppStackScreenProp<Screens.Home>): JSX.Elemen
               {...sceneProps}
               indicatorStyle={TAB_STYLES.activeTabIndicator}
               navigationState={{ index: tabIndex, routes }}
-              pressColor={theme.colors.surface3} // Android only
+              pressColor={colors.surface3.val} // Android only
               renderLabel={renderTabLabel}
               style={[
                 TAB_STYLES.tabBar,
                 {
-                  backgroundColor: theme.colors.surface1,
-                  borderBottomColor: theme.colors.surface3,
-                  paddingLeft: theme.spacing.spacing12,
+                  backgroundColor: colors.surface1.val,
+                  borderBottomColor: colors.surface3.val,
+                  paddingLeft: spacing.spacing12,
                 },
               ]}
               tabStyle={style}
@@ -352,15 +351,14 @@ export function HomeScreen(props?: AppStackScreenProp<Screens.Home>): JSX.Elemen
       )
     },
     [
+      colors.surface1.val,
+      colors.surface3.val,
       contentHeader,
       handleHeaderLayout,
       headerContainerStyle,
       routes,
       tabBarStyle,
       tabIndex,
-      theme.colors.surface1,
-      theme.colors.surface3,
-      theme.spacing.spacing12,
     ]
   )
 
@@ -469,7 +467,6 @@ export function HomeScreen(props?: AppStackScreenProp<Screens.Home>): JSX.Elemen
       </View>
       <NavBar />
       <AnimatedBox
-        gap="$none"
         height={insets.top}
         position="absolute"
         style={statusBarStyle}
@@ -504,7 +501,7 @@ function QuickActions(): JSX.Element {
   const showFiatOnRamp = activeAccount.type === AccountType.SignerMnemonic
 
   return (
-    <Flex centered row gap="spacing8">
+    <Flex centered row gap="$spacing8">
       {showFiatOnRamp ? (
         <ActionButton
           Icon={BuyIcon}
@@ -557,7 +554,7 @@ function ActionButton({
   activeScale?: number
   iconScale?: number
 }): JSX.Element {
-  const theme = useAppTheme()
+  const colors = useSporeColors()
   const scale = useSharedValue(1)
   const animatedStyle = useAnimatedStyle(
     () => ({
@@ -600,12 +597,12 @@ function ActionButton({
               },
             ]}>
             <Icon
-              color={theme.colors.accent1}
-              height={theme.iconSizes.icon20 * iconScale}
+              color={colors.accent1.val}
+              height={iconSizes.icon20 * iconScale}
               strokeWidth={2}
-              width={theme.iconSizes.icon20 * iconScale}
+              width={iconSizes.icon20 * iconScale}
             />
-            <Text color="accent1" marginLeft="spacing8" variant="buttonLabelMedium">
+            <Text color="$accent1" marginLeft="$spacing8" variant="buttonLabel2">
               {label}
             </Text>
           </AnimatedFlex>

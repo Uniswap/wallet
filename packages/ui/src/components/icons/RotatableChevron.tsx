@@ -1,12 +1,14 @@
 import { memo } from 'react'
-import { ColorTokens, Flex, Icons, StackProps } from 'ui/src'
+import { ColorTokens } from 'tamagui'
+import * as Icons from 'ui/src/components/icons/allIcons'
+import { Flex, FlexProps } from 'ui/src/components/layout'
 
 type Props = {
   width?: string | number
   height?: string | number
   direction?: 'n' | 'e' | 's' | 'w'
   color?: ColorTokens
-} & Omit<StackProps, 'direction'>
+} & Omit<FlexProps, 'direction'>
 
 function _RotatableChevron({
   color,
@@ -36,7 +38,6 @@ function _RotatableChevron({
     <Flex
       centered
       borderRadius="$roundedFull"
-      gap="$none"
       style={{ transform: [{ rotate: degree }] }}
       {...rest}>
       <Icons.Chevron color={color} height={height} width={width} />

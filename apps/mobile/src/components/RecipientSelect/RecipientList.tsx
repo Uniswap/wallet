@@ -3,9 +3,8 @@ import React from 'react'
 import { ListRenderItemInfo, SectionListData } from 'react-native'
 import { FadeIn, FadeOut } from 'react-native-reanimated'
 import { AddressDisplay } from 'src/components/AddressDisplay'
-import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { AnimatedFlex, Inset } from 'src/components/layout'
-import { Text } from 'src/components/Text'
+import { Text, TouchableArea } from 'ui/src'
 import { SearchableRecipient } from 'wallet/src/features/address/types'
 
 interface RecipientListProps {
@@ -24,7 +23,7 @@ export function RecipientList({ onPress, sections }: RecipientListProps): JSX.El
 
   return (
     <BottomSheetSectionList
-      ListFooterComponent={<Inset all="spacing36" />}
+      ListFooterComponent={<Inset all="$spacing36" />}
       keyExtractor={key}
       keyboardDismissMode="on-drag"
       keyboardShouldPersistTaps="always"
@@ -38,7 +37,7 @@ export function RecipientList({ onPress, sections }: RecipientListProps): JSX.El
 function SectionHeader(info: { section: SectionListData<SearchableRecipient> }): JSX.Element {
   return (
     <AnimatedFlex backgroundColor="surface1" entering={FadeIn} exiting={FadeOut} py="spacing8">
-      <Text color="neutral2" variant="subheadSmall">
+      <Text color="$neutral2" variant="subheading2">
         {info.section.title}
       </Text>
     </AnimatedFlex>
