@@ -1,10 +1,7 @@
 import { useResponsiveProp } from '@shopify/restyle'
 import React from 'react'
-import { useAppTheme } from 'src/app/hooks'
-import { TouchableArea } from 'src/components/buttons/TouchableArea'
-import { Box, Flex } from 'src/components/layout'
-import { Text } from 'src/components/Text'
-import Check from 'ui/src/assets/icons/check.svg'
+import { Flex, Icons, Text, TouchableArea } from 'ui/src'
+import { iconSizes } from 'ui/src/theme'
 import { useIsDarkMode } from 'wallet/src/features/appearance/hooks'
 
 export type CheckBoxProps = {
@@ -14,7 +11,6 @@ export type CheckBoxProps = {
 }
 
 export function CheckBox({ text, checked, onCheckPressed }: CheckBoxProps): JSX.Element {
-  const theme = useAppTheme()
   const isDarkMode = useIsDarkMode()
 
   const onPress = (): void => {
@@ -22,35 +18,35 @@ export function CheckBox({ text, checked, onCheckPressed }: CheckBoxProps): JSX.
   }
 
   const fontSize = useResponsiveProp({
-    xs: 'buttonLabelMicro',
-    sm: 'subheadSmall',
+    xs: 'buttonLabel4',
+    sm: 'subheading2',
   })
 
   return (
     <TouchableArea onPress={onPress}>
-      <Flex row gap="spacing12">
-        <Box
+      <Flex row gap="$spacing12">
+        <Flex
           alignItems="center"
-          backgroundColor={checked ? 'neutral1' : 'surface2'}
-          borderColor={checked ? 'neutral1' : 'neutral3'}
-          borderRadius="roundedFull"
+          backgroundColor={checked ? '$neutral1' : '$surface2'}
+          borderColor={checked ? '$neutral1' : '$neutral3'}
+          borderRadius="$roundedFull"
           borderWidth={1.5}
-          height={theme.iconSizes.icon24}
+          height={iconSizes.icon24}
           justifyContent="center"
-          mt="spacing4"
-          p="spacing2"
-          width={theme.iconSizes.icon24}>
+          mt="$spacing4"
+          p="$spacing2"
+          width={iconSizes.icon24}>
           {checked ? (
-            <Check
-              color={isDarkMode ? theme.colors.sporeBlack : theme.colors.sporeWhite}
-              height={theme.iconSizes.icon16}
-              width={theme.iconSizes.icon16}
+            <Icons.Check
+              color={isDarkMode ? '$sporeBlack' : '$sporeWhite'}
+              height={iconSizes.icon16}
+              width={iconSizes.icon16}
             />
           ) : null}
-        </Box>
-        <Box flexShrink={1}>
+        </Flex>
+        <Flex shrink>
           {typeof text === 'string' ? <Text variant={fontSize}>{text}</Text> : text}
-        </Box>
+        </Flex>
       </Flex>
     </TouchableArea>
   )

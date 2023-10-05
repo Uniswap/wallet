@@ -2,11 +2,10 @@ import { Currency, CurrencyAmount } from '@uniswap/sdk-core'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { StyleProp, ViewStyle } from 'react-native'
-import { TouchableArea } from 'src/components/buttons/TouchableArea'
-import { Text } from 'src/components/Text'
 import Trace from 'src/components/Trace/Trace'
 import { ElementName } from 'src/features/telemetry/constants'
 import { maxAmountSpend } from 'src/utils/balance'
+import { Text, TouchableArea } from 'ui/src'
 
 interface MaxAmountButtonProps {
   currencyAmount: CurrencyAmount<Currency> | null | undefined
@@ -40,7 +39,7 @@ export function MaxAmountButton({
   return (
     <Trace logPress element={ElementName.SetMax}>
       <TouchableArea disabled={disableMaxButton} style={style} onPress={onPress}>
-        <Text color={disableMaxButton ? 'neutral3' : 'accent1'} variant="subheadSmall">
+        <Text color={disableMaxButton ? '$neutral3' : '$accent1'} variant="subheading2">
           {t('Max')}
         </Text>
       </TouchableArea>

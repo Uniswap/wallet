@@ -8,10 +8,9 @@ import {
 import { useAnimatedStyle, useSharedValue, withDelay, withSpring } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useAppDispatch, useAppSelector } from 'src/app/hooks'
-import { TouchableArea } from 'src/components/buttons/TouchableArea'
-import { AnimatedBox, Flex } from 'src/components/layout'
-import { Text } from 'src/components/Text'
+import { AnimatedBox } from 'src/components/layout'
 import { selectActiveAccountNotifications } from 'src/features/notifications/selectors'
+import { Flex, Text, TouchableArea } from 'ui/src'
 import { useTimeout } from 'utilities/src/time/timing'
 import { popNotification } from 'wallet/src/features/notifications/slice'
 
@@ -107,9 +106,8 @@ export function NotificationToast({
         borderColor={useSmallDisplay ? '$transparent' : '$surface2'}
         borderRadius="$rounded16"
         borderWidth={1}
-        gap="$none"
         left={0}
-        marginHorizontal="$spacing16"
+        mx="$spacing16"
         pointerEvents="box-none"
         position="absolute"
         right={0}
@@ -148,34 +146,34 @@ export function NotificationContent({
   return (
     <TouchableArea
       alignItems="center"
-      bg="surface2"
-      borderRadius="rounded16"
+      bg="$surface2"
+      borderRadius="$rounded16"
       flex={1}
       flexDirection="row"
       minHeight={NOTIFICATION_HEIGHT}
-      px="spacing16"
-      py="spacing16"
+      px="$spacing16"
+      py="$spacing16"
       onPress={onPress}
       onPressIn={onPressIn}>
-      <Flex row alignItems="center" gap="spacing8" justifyContent="space-between" width="100%">
+      <Flex row alignItems="center" gap="$spacing8" justifyContent="space-between" width="100%">
         <Flex
           row
           shrink
           alignItems="center"
           flexBasis={actionButton ? '75%' : '100%'}
-          gap="spacing8"
+          gap="$spacing8"
           justifyContent="flex-start">
           {icon}
           <Flex row shrink alignItems="center">
-            <Text numberOfLines={2} variant="bodySmall">
+            <Text numberOfLines={2} variant="body2">
               {title}
             </Text>
           </Flex>
         </Flex>
         {actionButton && (
-          <Flex shrink alignItems="flex-end" flexBasis="25%" gap="spacing4">
-            <TouchableArea p="spacing8" onPress={actionButton.onPress}>
-              <Text color="accent1">{actionButton.title}</Text>
+          <Flex shrink alignItems="flex-end" flexBasis="25%" gap="$spacing4">
+            <TouchableArea p="$spacing8" onPress={actionButton.onPress}>
+              <Text color="$accent1">{actionButton.title}</Text>
             </TouchableArea>
           </Flex>
         )}
@@ -193,16 +191,16 @@ export function NotificationContentSmall({
   return (
     <Flex row flexShrink={1} justifyContent="center" pointerEvents="box-none">
       <TouchableArea
-        bg="surface2"
-        borderColor="surface2"
-        borderRadius="roundedFull"
+        bg="$surface2"
+        borderColor="$surface2"
+        borderRadius="$roundedFull"
         borderWidth={1}
-        p="spacing12"
+        p="$spacing12"
         onPress={onPress}
         onPressIn={onPressIn}>
-        <Flex row alignItems="center" gap="spacing8" justifyContent="flex-start" pr="spacing4">
+        <Flex row alignItems="center" gap="$spacing8" justifyContent="flex-start" pr="$spacing4">
           {icon}
-          <Text adjustsFontSizeToFit numberOfLines={1} variant="bodyLarge">
+          <Text adjustsFontSizeToFit numberOfLines={1} variant="body1">
             {title}
           </Text>
         </Flex>

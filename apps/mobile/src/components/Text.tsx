@@ -2,8 +2,8 @@ import { createText, useResponsiveProp } from '@shopify/restyle'
 import React, { ComponentProps, PropsWithChildren } from 'react'
 import { useWindowDimensions } from 'react-native'
 import Animated from 'react-native-reanimated'
-import { Box } from 'src/components/layout'
 import { HiddenFromScreenReaders } from 'src/components/text/HiddenFromScreenReaders'
+import { Flex } from 'ui/src'
 import { Shimmer } from 'ui/src/loading'
 import { textVariants, Theme } from 'ui/src/theme/restyle'
 
@@ -24,20 +24,20 @@ const ThemedAnimatedText = createText<Theme>(Animated.Text)
 
 const TextPlaceholder = ({ children }: PropsWithChildren<unknown>): JSX.Element => {
   return (
-    <Box alignItems="center" flexDirection="row">
-      <Box alignItems="center" flexDirection="row" position="relative">
+    <Flex row alignItems="center">
+      <Flex row alignItems="center" gap="$spacing16" position="relative">
         <HiddenFromScreenReaders>{children}</HiddenFromScreenReaders>
-        <Box
-          bg="surface3"
-          borderRadius="rounded4"
+        <Flex
+          bg="$surface3"
+          borderRadius="$rounded4"
           bottom="5%"
           left={0}
           position="absolute"
           right={0}
           top="5%"
         />
-      </Box>
-    </Box>
+      </Flex>
+    </Flex>
   )
 }
 
@@ -67,7 +67,7 @@ export const Text = ({
   ...rest
 }: TextProps): JSX.Element => {
   const { fontScale } = useWindowDimensions()
-  const variant = useResponsiveProp(rest.variant ?? 'bodySmall') as keyof typeof textVariants
+  const variant = useResponsiveProp(rest.variant ?? 'body2') as keyof typeof textVariants
   const enableFontScaling = allowFontScaling ?? fontScale > DEFAULT_FONT_SCALE
   const multiplier = maxFontSizeMultiplier ?? textVariants[variant].maxFontSizeMultiplier
 

@@ -5,50 +5,49 @@ import React, { PropsWithChildren } from 'react'
 import { KeyboardAvoidingView, ScrollView, StyleSheet } from 'react-native'
 import { FadeIn, FadeOut } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { useAppTheme } from 'src/app/hooks'
-import { AnimatedFlex, Flex } from 'src/components/layout'
+import { AnimatedFlex } from 'src/components/layout'
 import { Screen } from 'src/components/layout/Screen'
-import { Text } from 'src/components/Text'
 import { IS_IOS } from 'src/constants/globals'
 import { useKeyboardLayout } from 'src/utils/useKeyboardLayout'
+import { Flex, SpaceTokens, Text, useSporeColors } from 'ui/src'
 import { opacify } from 'ui/src/theme'
-import { flex, Theme } from 'ui/src/theme/restyle'
+import { flex } from 'ui/src/theme/restyle'
 
 type OnboardingScreenProps = {
   subtitle?: string
   title: string
-  paddingTop?: keyof Theme['spacing']
-  childrenGap?: keyof Theme['spacing']
+  paddingTop?: SpaceTokens
+  childrenGap?: SpaceTokens
 }
 
 export function SafeKeyboardOnboardingScreen({
   title,
   subtitle,
   children,
-  paddingTop = 'none',
+  paddingTop = '$none',
 }: PropsWithChildren<OnboardingScreenProps>): JSX.Element {
   const headerHeight = useHeaderHeight()
-  const theme = useAppTheme()
+  const colors = useSporeColors()
   const insets = useSafeAreaInsets()
   const keyboard = useKeyboardLayout()
 
   const titleSize = useResponsiveProp({
-    xs: 'bodyLarge',
-    sm: 'headlineSmall',
+    xs: 'body1',
+    sm: 'heading3',
   })
 
   const subtitleSize = useResponsiveProp({
-    xs: 'bodyMicro',
-    sm: 'bodySmall',
+    xs: 'body3',
+    sm: 'body2',
   })
 
   const header = (
-    <Flex gap="spacing12" m="spacing12">
-      <Text paddingTop={paddingTop} textAlign="center" variant={titleSize}>
+    <Flex gap="$spacing12" m="$spacing12">
+      <Text pt={paddingTop} textAlign="center" variant={titleSize}>
         {title}
       </Text>
       {subtitle ? (
-        <Text color="neutral2" textAlign="center" variant={subtitleSize}>
+        <Text color="$neutral2" textAlign="center" variant={subtitleSize}>
           {subtitle}
         </Text>
       ) : null}
@@ -69,7 +68,7 @@ export function SafeKeyboardOnboardingScreen({
 
   const topGradient = (
     <LinearGradient
-      colors={[theme.colors.surface1, opacify(0, theme.colors.surface1)]}
+      colors={[colors.surface1.val, opacify(0, colors.surface1.val)]}
       locations={[0.6, 0.8]}
       style={[
         styles.gradient,

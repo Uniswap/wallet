@@ -2,18 +2,18 @@ import React, { memo, useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Keyboard } from 'react-native'
 import { FadeIn, FadeOut } from 'react-native-reanimated'
-import { useAppTheme } from 'src/app/hooks'
-import { TouchableArea } from 'src/components/buttons/TouchableArea'
-import { AnimatedFlex, Flex } from 'src/components/layout'
+import { AnimatedFlex } from 'src/components/layout'
+import { useBottomSheetContext } from 'src/components/modals/BottomSheetContext'
 import { filterRecipientByNameAndAddress } from 'src/components/RecipientSelect/filter'
 import { useRecipients } from 'src/components/RecipientSelect/hooks'
 import { RecipientList } from 'src/components/RecipientSelect/RecipientList'
 import { RecipientScanModal } from 'src/components/RecipientSelect/RecipientScanModal'
 import { filterSections } from 'src/components/RecipientSelect/utils'
-import { Text } from 'src/components/Text'
 import { SearchBar } from 'src/components/TokenSelector/SearchBar'
 import { ElementName } from 'src/features/telemetry/constants'
+import { Flex, Text, TouchableArea, useSporeColors } from 'ui/src'
 import ScanQRIcon from 'ui/src/assets/icons/scan.svg'
+import { iconSizes } from 'ui/src/theme'
 
 interface RecipientSelectProps {
   onSelectRecipient: (newRecipientAddress: string) => void
@@ -22,15 +22,11 @@ interface RecipientSelectProps {
 }
 
 function QRScannerIconButton({ onPress }: { onPress: () => void }): JSX.Element {
-  const theme = useAppTheme()
+  const colors = useSporeColors()
 
   return (
     <TouchableArea hapticFeedback testID={ElementName.SelectRecipient} onPress={onPress}>
-      <ScanQRIcon
-        color={theme.colors.neutral2}
-        height={theme.iconSizes.icon20}
-        width={theme.iconSizes.icon20}
-      />
+      <ScanQRIcon color={colors.neutral2.val} height={iconSizes.icon20} width={iconSizes.icon20} />
     </TouchableArea>
   )
 }
@@ -41,6 +37,8 @@ export function _RecipientSelect({
   recipient,
 }: RecipientSelectProps): JSX.Element {
   const { t } = useTranslation()
+  const { isSheetReady } = useBottomSheetContext()
+
   const [showQRScanner, setShowQRScanner] = useState(false)
   const { sections, searchableRecipientOptions, pattern, onChangePattern, loading } =
     useRecipients()
@@ -83,18 +81,20 @@ export function _RecipientSelect({
           onChangeText={onChangePattern}
         />
         {noResults ? (
-          <Flex centered gap="spacing12" mt="spacing24" px="spacing24">
-            <Text variant="buttonLabelMedium">{t('No results found')}</Text>
-            <Text color="neutral3" textAlign="center" variant="bodyLarge">
+          <Flex centered gap="$spacing12" mt="$spacing24" px="$spacing24">
+            <Text variant="buttonLabel2">{t('No results found')}</Text>
+            <Text color="$neutral3" textAlign="center" variant="body1">
               {t('The address you typed either does not exist or is spelled incorrectly.')}
             </Text>
           </Flex>
         ) : (
           // Show either suggested recipients or filtered sections based on query
-          <RecipientList
-            sections={filteredSections.length === 0 ? sections : filteredSections}
-            onPress={onSelectRecipient}
-          />
+          isSheetReady && (
+            <RecipientList
+              sections={filteredSections.length === 0 ? sections : filteredSections}
+              onPress={onSelectRecipient}
+            />
+          )
         )}
       </AnimatedFlex>
       {showQRScanner && (

@@ -1,15 +1,11 @@
 import { getSdkError } from '@walletconnect/utils'
 import React, { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useAppDispatch, useAppSelector, useAppTheme } from 'src/app/hooks'
+import { useAppDispatch, useAppSelector } from 'src/app/hooks'
 import { AccountDetails } from 'src/components/accounts/AccountDetails'
-import { Button, ButtonEmphasis } from 'src/components/buttons/Button'
 import { LinkButton } from 'src/components/buttons/LinkButton'
-import { TouchableArea } from 'src/components/buttons/TouchableArea'
-import { AnimatedFlex, Box, Flex } from 'src/components/layout'
-import { Separator } from 'src/components/layout/Separator'
+import { AnimatedFlex } from 'src/components/layout'
 import { BottomSheetModal } from 'src/components/modals/BottomSheetModal'
-import { Text } from 'src/components/Text'
 import { DappHeaderIcon } from 'src/components/WalletConnect/DappHeaderIcon'
 import { NetworkLogos } from 'src/components/WalletConnect/NetworkLogos'
 import { PendingConnectionSwitchAccountModal } from 'src/components/WalletConnect/ScanSheet/PendingConnectionSwitchAccountModal'
@@ -25,8 +21,10 @@ import {
   removePendingSession,
   WalletConnectPendingSession,
 } from 'src/features/walletConnect/walletConnectSlice'
+import { Button, Flex, Separator, Text, TouchableArea, useSporeColors } from 'ui/src'
 import Checkmark from 'ui/src/assets/icons/check.svg'
 import X from 'ui/src/assets/icons/x.svg'
+import { iconSizes } from 'ui/src/theme'
 import { ONE_SECOND_MS } from 'utilities/src/time/time'
 import { ChainId } from 'wallet/src/constants/chains'
 import { pushNotification } from 'wallet/src/features/notifications/slice'
@@ -55,43 +53,63 @@ enum PendingConnectionModalState {
 }
 
 const SitePermissions = (): JSX.Element => {
-  const theme = useAppTheme()
+  const colors = useSporeColors()
   const { t } = useTranslation()
 
+  const normalInfoTextSize = 'body2'
+  const shortInfoTextSize = 'body3'
+
   return (
-    <Flex gap="spacing12" p="spacing16">
-      <Text color="neutral2" variant="subheadSmall">
+    <Flex gap="$spacing12" px="$spacing16" py="$spacing8">
+      <Text $short={{ variant: 'body3' }} color="$neutral2" variant="subheading2">
         {t('App permissions')}
       </Text>
-      <Flex row alignItems="flex-start" gap="spacing8">
-        <Box mt="spacing2">
-          <Checkmark color={theme.colors.statusSuccess} height={16} width={16} />
-        </Box>
-        <Box flex={1}>
-          <Text color="neutral1" variant="bodySmall">
+      <Flex row alignItems="flex-start" gap="$spacing8">
+        <Flex mt="$spacing2">
+          <Checkmark
+            color={colors.statusSuccess.val}
+            height={iconSizes.icon16}
+            width={iconSizes.icon16}
+          />
+        </Flex>
+        <Flex fill>
+          <Text
+            $short={{ variant: shortInfoTextSize }}
+            color="$neutral1"
+            variant={normalInfoTextSize}>
             {t('View your wallet address')}
           </Text>
-        </Box>
+        </Flex>
       </Flex>
-      <Flex row alignItems="flex-start" gap="spacing8">
-        <Box mt="spacing2">
-          <Checkmark color={theme.colors.statusSuccess} height={16} width={16} />
-        </Box>
-        <Box flex={1}>
-          <Text color="neutral1" variant="bodySmall">
+      <Flex row alignItems="flex-start" gap="$spacing8">
+        <Flex mt="$spacing2">
+          <Checkmark
+            color={colors.statusSuccess.val}
+            height={iconSizes.icon16}
+            width={iconSizes.icon16}
+          />
+        </Flex>
+        <Flex fill>
+          <Text
+            $short={{ variant: shortInfoTextSize }}
+            color="$neutral1"
+            variant={normalInfoTextSize}>
             {t('View your token balances')}
           </Text>
-        </Box>
+        </Flex>
       </Flex>
-      <Flex row alignItems="flex-start" gap="spacing8">
-        <Box mt="spacing2">
-          <X color={theme.colors.statusCritical} height={16} width={16} />
-        </Box>
-        <Box flex={1}>
-          <Text color="neutral1" variant="bodySmall">
+      <Flex row alignItems="flex-start" gap="$spacing8">
+        <Flex mt="$spacing2">
+          <X color={colors.statusCritical.val} height={iconSizes.icon16} width={iconSizes.icon16} />
+        </Flex>
+        <Flex fill>
+          <Text
+            $short={{ variant: shortInfoTextSize }}
+            color="$neutral1"
+            variant={normalInfoTextSize}>
             {t('Transfer your assets without consent')}
           </Text>
-        </Box>
+        </Flex>
       </Flex>
     </Flex>
   )
@@ -101,15 +119,9 @@ const NetworksRow = ({ chains }: { chains: ChainId[] }): JSX.Element => {
   const { t } = useTranslation()
 
   return (
-    <Flex
-      row
-      shrink
-      alignItems="center"
-      gap="spacing12"
-      justifyContent="space-between"
-      p="spacing12">
-      <Flex grow row gap="spacing8" justifyContent="space-between">
-        <Text color="neutral1" variant="subheadSmall">
+    <Flex row shrink alignItems="center" justifyContent="space-between" px="$spacing12">
+      <Flex grow row justifyContent="space-between">
+        <Text color="$neutral1" variant="subheading2">
           {t('Networks')}
         </Text>
         <NetworkLogos chains={chains} />
@@ -134,8 +146,8 @@ const SwitchAccountRow = ({ activeAddress, setModalState }: SwitchAccountProps):
   return (
     <TouchableArea
       disabled={!accountIsSwitchable}
-      m="none"
-      p="spacing12"
+      m="$none"
+      p="$spacing12"
       testID={ElementName.WCDappSwitchAccount}
       onPress={onPress}>
       <AccountDetails address={activeAddress} chevron={accountIsSwitchable} />
@@ -145,7 +157,7 @@ const SwitchAccountRow = ({ activeAddress, setModalState }: SwitchAccountProps):
 
 export const PendingConnectionModal = ({ pendingSession, onClose }: Props): JSX.Element => {
   const { t } = useTranslation()
-  const theme = useAppTheme()
+  const colors = useSporeColors()
   const activeAddress = useActiveAccountAddressWithThrow()
   const dispatch = useAppDispatch()
   const activeAccount = useActiveAccountWithThrow()
@@ -221,54 +233,59 @@ export const PendingConnectionModal = ({ pendingSession, onClose }: Props): JSX.
   return (
     <BottomSheetModal name={ModalName.WCPendingConnection} onClose={onClose}>
       <AnimatedFlex
+        fill
         backgroundColor="surface1"
         borderRadius="rounded12"
-        flex={1}
-        gap="spacing24"
         overflow="hidden"
         px="spacing24"
-        py="spacing60">
-        <Flex alignItems="center" flex={1} gap="spacing16" justifyContent="flex-end">
+        py="spacing24">
+        <Flex fill alignItems="center" gap="$spacing16" justifyContent="flex-end">
           <DappHeaderIcon dapp={pendingSession.dapp} />
-          <Text fontWeight="bold" textAlign="center" variant="headlineSmall">
+          <Text
+            $short={{ variant: 'subheading2' }}
+            fontWeight="bold"
+            textAlign="center"
+            variant="heading3">
             {t('{{ dappName }} wants to connect to your wallet', {
               dappName: truncateDappName(dappName),
             })}{' '}
           </Text>
           <LinkButton
-            backgroundColor="surface2"
-            borderRadius="rounded16"
-            color={theme.colors.accent1}
-            iconColor={theme.colors.accent1}
+            backgroundColor="$surface2"
+            borderRadius="$rounded16"
+            color={colors.accent1.val}
+            iconColor={colors.accent1.val}
             label={pendingSession.dapp.url}
-            mb="spacing12"
-            px="spacing8"
-            py="spacing4"
-            size={theme.iconSizes.icon12}
-            textVariant="buttonLabelMicro"
+            mb="$spacing12"
+            px="$spacing8"
+            py="$spacing4"
+            size={iconSizes.icon12}
+            textVariant="buttonLabel4"
             url={pendingSession.dapp.url}
           />
         </Flex>
-        <Flex bg="surface2" borderRadius="rounded16" gap="spacing2">
+        <Flex bg="$surface2" borderRadius="$rounded16" gap="$spacing2">
           <SitePermissions />
-          <Separator color="surface1" width={1} />
+          <Separator borderColor="$surface1" width={1} />
           <NetworksRow chains={pendingSession.chains} />
-          <Separator color="surface1" width={1} />
+          <Separator borderColor="$surface1" width={1} />
           <SwitchAccountRow activeAddress={activeAddress} setModalState={setModalState} />
-          <Box />
+          <Flex />
         </Flex>
-        <Flex flexDirection="row" gap="spacing8" justifyContent="space-between">
+        <Flex flexDirection="row" gap="$spacing8" justifyContent="space-between">
           <Button
             fill
-            emphasis={ButtonEmphasis.Secondary}
-            label={t('Cancel')}
-            onPress={(): Promise<void> => onPressSettleConnection(false)}
-          />
+            testID="cancel-pending-connection"
+            theme="secondary"
+            onPress={(): Promise<void> => onPressSettleConnection(false)}>
+            {t('Cancel')}
+          </Button>
           <Button
             fill
-            label={t('Connect')}
-            onPress={(): Promise<void> => onPressSettleConnection(true)}
-          />
+            testID="connect-pending-connection"
+            onPress={(): Promise<void> => onPressSettleConnection(true)}>
+            {t('Connect')}
+          </Button>
         </Flex>
       </AnimatedFlex>
       {modalState === PendingConnectionModalState.SwitchAccount && (

@@ -78,7 +78,6 @@ exports[`renders a relative change 1`] = `
       {
         "alignItems": "stretch",
         "flexDirection": "column",
-        "gap": 16,
       }
     }
   >
@@ -96,7 +95,7 @@ exports[`renders a relative change 1`] = `
       suppressHighlighting={true}
       wordWrap="break-word"
     >
-      12.00%
+      12%
     </span>
   </div>
 </div>
@@ -180,7 +179,6 @@ exports[`renders placeholders with absolute change 1`] = `
       {
         "alignItems": "stretch",
         "flexDirection": "column",
-        "gap": 16,
       }
     }
   >
@@ -198,7 +196,7 @@ exports[`renders placeholders with absolute change 1`] = `
       suppressHighlighting={true}
       wordWrap="break-word"
     >
-      $100.00 (12.00%)
+      $100.00 (12%)
     </span>
   </div>
 </div>
@@ -220,7 +218,6 @@ exports[`renders placeholders without a change 1`] = `
       {
         "alignItems": "stretch",
         "flexDirection": "column",
-        "gap": 16,
       }
     }
   >

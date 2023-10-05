@@ -1,6 +1,5 @@
 import { useFocusEffect, useNavigation } from '@react-navigation/core'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
-import { useTheme } from '@shopify/restyle'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ListRenderItemInfo, SectionList } from 'react-native'
@@ -12,11 +11,8 @@ import {
   SettingsStackParamList,
 } from 'src/app/navigation/types'
 import { AddressDisplay } from 'src/components/AddressDisplay'
-import { Button, ButtonEmphasis } from 'src/components/buttons/Button'
 import { Switch } from 'src/components/buttons/Switch'
-import { Flex } from 'src/components/layout'
 import { BackHeader } from 'src/components/layout/BackHeader'
-import { Box } from 'src/components/layout/Box'
 import { Screen } from 'src/components/layout/Screen'
 import {
   SettingsRow,
@@ -24,7 +20,6 @@ import {
   SettingsSectionItem,
   SettingsSectionItemComponent,
 } from 'src/components/Settings/SettingsRow'
-import { Text } from 'src/components/Text'
 import { IS_ANDROID } from 'src/constants/globals'
 import { openModal } from 'src/features/modals/modalSlice'
 import {
@@ -37,13 +32,16 @@ import { ElementName, ModalName } from 'src/features/telemetry/constants'
 import { useWalletRestore } from 'src/features/wallet/hooks'
 import { showNotificationSettingsAlert } from 'src/screens/Onboarding/NotificationsSetupScreen'
 import { OnboardingScreens, Screens } from 'src/screens/Screens'
-import { Icons } from 'ui/src'
+import { Button, Flex, Icons, Text, useSporeColors } from 'ui/src'
 import NotificationIcon from 'ui/src/assets/icons/bell.svg'
 import ChartIcon from 'ui/src/assets/icons/chart.svg'
 import EditIcon from 'ui/src/assets/icons/edit.svg'
 import GlobalIcon from 'ui/src/assets/icons/global.svg'
 import KeyIcon from 'ui/src/assets/icons/key.svg'
 import ShieldQuestionIcon from 'ui/src/assets/icons/shield-question.svg'
+import { iconSizes } from 'ui/src/theme'
+import { ChainId } from 'wallet/src/constants/chains'
+import { useENS } from 'wallet/src/features/ens/useENS'
 import {
   EditAccountAction,
   editAccountActions,
@@ -65,9 +63,10 @@ export function SettingsWallet({
 }: Props): JSX.Element {
   const dispatch = useAppDispatch()
   const { t } = useTranslation()
-  const theme = useTheme()
+  const colors = useSporeColors()
   const addressToAccount = useAccounts()
   const currentAccount = addressToAccount[address]
+  const ensName = useENS(ChainId.Mainnet, address)?.name
   const readonly = currentAccount?.type === AccountType.Readonly
   const navigation = useNavigation<SettingsStackNavigationProp & OnboardingStackNavigationProp>()
 
@@ -147,12 +146,12 @@ export function SettingsWallet({
   }
 
   const iconProps: SvgProps = {
-    color: theme.colors.neutral3,
-    height: theme.iconSizes.icon24,
+    color: colors.neutral2.val,
+    height: iconSizes.icon24,
     strokeLinecap: 'round',
     strokeLinejoin: 'round',
     strokeWidth: '2',
-    width: theme.iconSizes.icon24,
+    width: iconSizes.icon24,
   }
 
   const sections: SettingsSection[] = [
@@ -162,8 +161,9 @@ export function SettingsWallet({
         {
           screen: Screens.SettingsWalletEdit,
           text: t('Nickname'),
-          icon: <EditIcon fill={theme.colors.neutral2} {...iconProps} />,
+          icon: <EditIcon fill={colors.neutral2.val} {...iconProps} />,
           screenProps: { address },
+          isHidden: !!ensName,
         },
         {
           action: (
@@ -224,9 +224,9 @@ export function SettingsWallet({
           text: IS_ANDROID ? t('Google Drive Backup') : t('iCloud backup'),
           icon: (
             <Icons.OSDynamicCloudIcon
-              color={theme.colors.neutral3}
-              height={theme.iconSizes.icon24}
-              width={theme.iconSizes.icon24}
+              color={colors.neutral3.val}
+              height={iconSizes.icon24}
+              width={iconSizes.icon24}
             />
           ),
           isHidden: readonly,
@@ -244,7 +244,7 @@ export function SettingsWallet({
       return item.component
     }
     if (item.isHidden) return null
-    return <SettingsRow key={item.screen} navigation={navigation} page={item} theme={theme} />
+    return <SettingsRow key={item.screen} navigation={navigation} page={item} />
   }
 
   const onRemoveWallet = (): void => {
@@ -258,45 +258,42 @@ export function SettingsWallet({
 
   return (
     <Screen>
-      <BackHeader alignment="center" mx="spacing16" pt="spacing16">
+      <BackHeader alignment="center" mx="$spacing16" pt="$spacing16">
         <Flex shrink>
           <AddressDisplay
             hideAddressInSubtitle
             address={address}
             showAccountIcon={false}
-            variant="bodyLarge"
+            variant="body1"
           />
         </Flex>
       </BackHeader>
 
-      <Flex fill p="spacing24">
-        <Box flex={1}>
+      <Flex fill p="$spacing24">
+        <Flex fill>
           <SectionList
             ItemSeparatorComponent={renderItemSeparator}
             keyExtractor={(_item, index): string => 'wallet_settings' + index}
             renderItem={renderItem}
-            renderSectionFooter={(): JSX.Element => <Flex pt="spacing24" />}
+            renderSectionFooter={(): JSX.Element => <Flex pt="$spacing24" />}
             renderSectionHeader={({ section: { subTitle } }): JSX.Element => (
-              <Box bg="surface1" pb="spacing12">
-                <Text color="neutral2" variant="bodyLarge">
+              <Flex bg="$surface1" pb="$spacing12">
+                <Text color="$neutral2" variant="body1">
                   {subTitle}
                 </Text>
-              </Box>
+              </Flex>
             )}
             sections={sections.filter((p) => !p.isHidden)}
             showsVerticalScrollIndicator={false}
             stickySectionHeadersEnabled={false}
           />
-        </Box>
-        <Button
-          emphasis={ButtonEmphasis.Detrimental}
-          label={t('Remove wallet')}
-          testID={ElementName.Remove}
-          onPress={onRemoveWallet}
-        />
+        </Flex>
+        <Button testID={ElementName.Remove} theme="detrimental" onPress={onRemoveWallet}>
+          {t('Remove wallet')}
+        </Button>
       </Flex>
     </Screen>
   )
 }
 
-const renderItemSeparator = (): JSX.Element => <Flex pt="spacing8" />
+const renderItemSeparator = (): JSX.Element => <Flex pt="$spacing8" />

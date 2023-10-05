@@ -1,24 +1,22 @@
 import { useNetInfo } from '@react-native-community/netinfo'
 import { getSdkError } from '@walletconnect/utils'
 import { providers } from 'ethers'
-import React, { PropsWithChildren, useMemo, useRef } from 'react'
+import React, { PropsWithChildren, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { StyleProp, ViewStyle } from 'react-native'
-import { useAppDispatch, useAppSelector, useAppTheme } from 'src/app/hooks'
+import { useAppDispatch, useAppSelector } from 'src/app/hooks'
 import { AccountDetails } from 'src/components/accounts/AccountDetails'
-import { Button, ButtonEmphasis, ButtonSize } from 'src/components/buttons/Button'
-import { Box, BoxProps, Flex } from 'src/components/layout'
 import { BaseCard } from 'src/components/layout/BaseCard'
 import { BottomSheetModal } from 'src/components/modals/BottomSheetModal'
 import { NetworkFee } from 'src/components/Network/NetworkFee'
 import { NetworkPill } from 'src/components/Network/NetworkPill'
-import { Text } from 'src/components/Text'
 import { ClientDetails, PermitInfo } from 'src/components/WalletConnect/RequestModal/ClientDetails'
 import { useHasSufficientFunds } from 'src/components/WalletConnect/RequestModal/hooks'
 import { RequestDetails } from 'src/components/WalletConnect/RequestModal/RequestDetails'
 import { useBiometricAppSettings, useBiometricPrompt } from 'src/features/biometrics/hooks'
 import { sendMobileAnalyticsEvent } from 'src/features/telemetry'
 import { ElementName, MobileEventName, ModalName } from 'src/features/telemetry/constants'
+import { NetworkFeeInfoModal } from 'src/features/transactions/swap/modals/NetworkFeeInfoModal'
 import { BlockedAddressWarning } from 'src/features/trm/BlockedAddressWarning'
 import { wcWeb3Wallet } from 'src/features/walletConnect/saga'
 import { selectDidOpenFromDeepLink } from 'src/features/walletConnect/selectors'
@@ -30,10 +28,11 @@ import {
   TransactionRequest,
   WalletConnectRequest,
 } from 'src/features/walletConnect/walletConnectSlice'
+import { Button, Flex, Text, useSporeColors } from 'ui/src'
 import AlertTriangle from 'ui/src/assets/icons/alert-triangle.svg'
 import { iconSizes } from 'ui/src/theme'
 import { logger } from 'utilities/src/logger/logger'
-import { useTransactionGasFee, useUSDValue } from 'wallet/src/features/gas/hooks'
+import { useTransactionGasFee } from 'wallet/src/features/gas/hooks'
 import { GasSpeed } from 'wallet/src/features/gas/types'
 import { NativeCurrency } from 'wallet/src/features/tokens/NativeCurrency'
 import { useIsBlocked } from 'wallet/src/features/trm/hooks'
@@ -96,22 +95,27 @@ function SectionContainer({
   style,
 }: PropsWithChildren<{ style?: StyleProp<ViewStyle> }>): JSX.Element | null {
   return children ? (
-    <Box p="spacing16" style={style}>
+    <Flex p="$spacing16" style={style}>
       {children}
-    </Box>
+    </Flex>
   ) : null
 }
 
-const spacerProps: BoxProps = {
-  borderBottomColor: 'surface2',
-  borderBottomWidth: 1,
-}
-
 export function WalletConnectRequestModal({ onClose, request }: Props): JSX.Element | null {
-  const theme = useAppTheme()
+  const colors = useSporeColors()
   const netInfo = useNetInfo()
   const didOpenFromDeepLink = useAppSelector(selectDidOpenFromDeepLink)
   const chainId = request.chainId
+
+  const [showNetworkFeeInfoModal, setShowNetworkFeeInfoModal] = useState(false)
+
+  const onShowNetworkFeeInfo = (): void => {
+    setShowNetworkFeeInfoModal(true)
+  }
+
+  const onCloseNetworkFeeInfo = (): void => {
+    setShowNetworkFeeInfoModal(false)
+  }
 
   const tx: providers.TransactionRequest | null = useMemo(() => {
     if (!isTransactionRequest(request)) {
@@ -125,12 +129,11 @@ export function WalletConnectRequestModal({ onClose, request }: Props): JSX.Elem
   const signerAccount = signerAccounts.find((account) =>
     areAddressesEqual(account.address, request.account)
   )
-  const gasFeeInfo = useTransactionGasFee(tx, GasSpeed.Urgent).data
-  const gasFeeUSD = useUSDValue(chainId, gasFeeInfo?.gasFee)
+  const gasFee = useTransactionGasFee(tx, GasSpeed.Urgent)
   const hasSufficientFunds = useHasSufficientFunds({
     account: request.account,
     chainId,
-    gasFeeInfo,
+    gasFee,
     value: isTransactionRequest(request) ? request.transaction.value : undefined,
   })
 
@@ -143,7 +146,7 @@ export function WalletConnectRequestModal({ onClose, request }: Props): JSX.Elem
 
     if (isBlocked || isBlockedLoading) return false
 
-    if (methodCostsGas(request)) return !!(tx && hasSufficientFunds && gasFeeInfo)
+    if (methodCostsGas(request)) return !!(tx && hasSufficientFunds && gasFee.value)
 
     if (isTransactionRequest(request)) return !!tx
 
@@ -193,13 +196,13 @@ export function WalletConnectRequestModal({ onClose, request }: Props): JSX.Elem
   const onConfirm = async (): Promise<void> => {
     if (!confirmEnabled || !signerAccount) return
     if (request.type === EthMethod.EthSendTransaction) {
-      if (!gasFeeInfo) return // appeasing typescript
+      if (!gasFee.params) return // appeasing typescript
       dispatch(
         signWcRequestActions.trigger({
           sessionId: request.sessionId,
           requestInternalId: request.internalId,
           method: request.type,
-          transaction: { ...tx, ...gasFeeInfo.params },
+          transaction: { ...tx, ...gasFee.params },
           account: signerAccount,
           dapp: request.dapp,
           chainId,
@@ -259,101 +262,108 @@ export function WalletConnectRequestModal({ onClose, request }: Props): JSX.Elem
   const permitInfo = getPermitInfo(request)
 
   return (
-    <BottomSheetModal name={ModalName.WCSignRequest} onClose={handleClose}>
-      <Flex gap="spacing24" paddingBottom="spacing48" paddingHorizontal="spacing16" pt="spacing36">
-        <ClientDetails permitInfo={permitInfo} request={request} />
-        <Flex gap="spacing12">
-          <Flex
-            backgroundColor="surface2"
-            borderRadius="rounded16"
-            gap="none"
-            spacerProps={spacerProps}>
-            {!permitInfo && (
-              <SectionContainer style={requestMessageStyle}>
-                <Flex gap="spacing12">
-                  <RequestDetails request={request} />
-                </Flex>
-              </SectionContainer>
-            )}
-            <Box px="spacing16" py="spacing12">
-              {methodCostsGas(request) ? (
-                <NetworkFee chainId={chainId} gasFeeUSD={gasFeeUSD} />
-              ) : (
-                <Flex row alignItems="center" justifyContent="space-between">
-                  <Text color="neutral1" variant="subheadSmall">
-                    {t('Network')}
-                  </Text>
-                  <NetworkPill
-                    showIcon
+    <>
+      {showNetworkFeeInfoModal && <NetworkFeeInfoModal onClose={onCloseNetworkFeeInfo} />}
+      <BottomSheetModal name={ModalName.WCSignRequest} onClose={handleClose}>
+        <Flex gap="$spacing24" pb="$spacing48" pt="$spacing36" px="$spacing16">
+          <ClientDetails permitInfo={permitInfo} request={request} />
+          <Flex gap="$spacing12">
+            <Flex
+              backgroundColor="$surface2"
+              borderBottomColor="$surface2"
+              borderBottomWidth={1}
+              borderRadius="$rounded16">
+              {!permitInfo && (
+                <SectionContainer style={requestMessageStyle}>
+                  <Flex gap="$spacing12">
+                    <RequestDetails request={request} />
+                  </Flex>
+                </SectionContainer>
+              )}
+              <Flex px="$spacing16" py="$spacing12">
+                {methodCostsGas(request) ? (
+                  <NetworkFee
                     chainId={chainId}
-                    gap="spacing4"
-                    pl="spacing4"
-                    pr="spacing8"
-                    py="spacing2"
-                    textVariant="subheadSmall"
+                    gasFee={gasFee}
+                    onShowNetworkFeeInfo={onShowNetworkFeeInfo}
                   />
-                </Flex>
-              )}
-            </Box>
+                ) : (
+                  <Flex row alignItems="center" justifyContent="space-between">
+                    <Text color="$neutral1" variant="subheading2">
+                      {t('Network')}
+                    </Text>
+                    <NetworkPill
+                      showIcon
+                      chainId={chainId}
+                      gap="$spacing4"
+                      pl="$spacing4"
+                      pr="$spacing8"
+                      py="$spacing2"
+                      textVariant="subheading2"
+                    />
+                  </Flex>
+                )}
+              </Flex>
 
-            <SectionContainer>
-              <AccountDetails address={request.account} />
-              {!hasSufficientFunds && (
-                <Text color="DEP_accentWarning" paddingTop="spacing8" variant="bodySmall">
-                  {t('You don’t have enough {{symbol}} to complete this transaction.', {
-                    symbol: nativeCurrency?.symbol,
-                  })}
-                </Text>
-              )}
-            </SectionContainer>
-          </Flex>
-          {!netInfo.isInternetReachable ? (
-            <BaseCard.InlineErrorState
-              backgroundColor="DEP_accentWarningSoft"
-              icon={
-                <AlertTriangle
-                  color={theme.colors.DEP_accentWarning}
-                  height={theme.iconSizes.icon16}
-                  width={theme.iconSizes.icon16}
-                />
-              }
-              textColor="DEP_accentWarning"
-              title={t('Internet or network connection error')}
-            />
-          ) : (
-            <WarningSection
-              isBlockedAddress={isBlocked}
-              request={request}
-              showUnsafeWarning={isPotentiallyUnsafe(request)}
-            />
-          )}
-          <Flex row gap="spacing12">
-            <Button
-              fill
-              emphasis={ButtonEmphasis.Tertiary}
-              label={t('Cancel')}
-              size={ButtonSize.Medium}
-              testID={ElementName.Cancel}
-              onPress={onReject}
-            />
-            <Button
-              fill
-              disabled={!confirmEnabled}
-              label={isTransactionRequest(request) ? t('Accept') : t('Sign')}
-              size={ButtonSize.Medium}
-              testID={ElementName.Confirm}
-              onPress={async (): Promise<void> => {
-                if (requiredForTransactions) {
-                  await actionButtonTrigger()
-                } else {
-                  await onConfirm()
+              <SectionContainer>
+                <AccountDetails address={request.account} />
+                {!hasSufficientFunds && (
+                  <Text color="$DEP_accentWarning" pt="$spacing8" variant="body2">
+                    {t('You don’t have enough {{symbol}} to complete this transaction.', {
+                      symbol: nativeCurrency?.symbol,
+                    })}
+                  </Text>
+                )}
+              </SectionContainer>
+            </Flex>
+            {!netInfo.isInternetReachable ? (
+              <BaseCard.InlineErrorState
+                backgroundColor="$DEP_accentWarningSoft"
+                icon={
+                  <AlertTriangle
+                    color={colors.DEP_accentWarning.val}
+                    height={iconSizes.icon16}
+                    width={iconSizes.icon16}
+                  />
                 }
-              }}
-            />
+                textColor="$DEP_accentWarning"
+                title={t('Internet or network connection error')}
+              />
+            ) : (
+              <WarningSection
+                isBlockedAddress={isBlocked}
+                request={request}
+                showUnsafeWarning={isPotentiallyUnsafe(request)}
+              />
+            )}
+            <Flex row gap="$spacing12">
+              <Button
+                fill
+                size="medium"
+                testID={ElementName.Cancel}
+                theme="tertiary"
+                onPress={onReject}>
+                {t('Cancel')}
+              </Button>
+              <Button
+                fill
+                disabled={!confirmEnabled}
+                size="medium"
+                testID={ElementName.Confirm}
+                onPress={async (): Promise<void> => {
+                  if (requiredForTransactions) {
+                    await actionButtonTrigger()
+                  } else {
+                    await onConfirm()
+                  }
+                }}>
+                {isTransactionRequest(request) ? t('Accept') : t('Sign')}
+              </Button>
+            </Flex>
           </Flex>
         </Flex>
-      </Flex>
-    </BottomSheetModal>
+      </BottomSheetModal>
+    </>
   )
 }
 
@@ -366,7 +376,7 @@ function WarningSection({
   showUnsafeWarning: boolean
   isBlockedAddress: boolean
 }): JSX.Element | null {
-  const theme = useAppTheme()
+  const colors = useSporeColors()
   const { t } = useTranslation()
 
   if (!showUnsafeWarning && !isBlockedAddress) return null
@@ -376,13 +386,13 @@ function WarningSection({
   }
 
   return (
-    <Flex centered row alignSelf="center" gap="spacing8">
+    <Flex centered row alignSelf="center" gap="$spacing8">
       <AlertTriangle
-        color={theme.colors.DEP_accentWarning}
+        color={colors.DEP_accentWarning.val}
         height={iconSizes.icon16}
         width={iconSizes.icon16}
       />
-      <Text color="neutral2" fontStyle="italic" variant="bodyMicro">
+      <Text color="$neutral2" fontStyle="italic" variant="body3">
         {t('Be careful: this {{ requestType }} may transfer assets', {
           requestType: isTransactionRequest(request) ? 'transaction' : 'message',
         })}

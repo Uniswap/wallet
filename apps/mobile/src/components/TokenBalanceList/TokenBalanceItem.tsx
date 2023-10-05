@@ -2,13 +2,12 @@ import { ImpactFeedbackStyle } from 'expo-haptics'
 import React, { memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import ContextMenu from 'react-native-context-menu-view'
-import { FadeIn, FadeOut } from 'react-native-reanimated'
-import { useAppTheme } from 'src/app/hooks'
-import { TouchableArea } from 'src/components/buttons/TouchableArea'
-import { AnimatedFlex, Flex } from 'src/components/layout'
+import { FadeIn } from 'react-native-reanimated'
+import { AnimatedFlex } from 'src/components/layout'
 import { WarmLoadingShimmer } from 'src/components/loading/WarmLoadingShimmer'
-import { Text } from 'src/components/Text'
 import { useTokenContextMenu } from 'src/features/balances/hooks'
+import { Flex, Text, TouchableArea } from 'ui/src'
+import { borderRadii } from 'ui/src/theme'
 import { formatNumber, formatUSDPrice, NumberType } from 'utilities/src/format/format'
 import { TokenLogo } from 'wallet/src/components/CurrencyLogo/TokenLogo'
 import { RelativeChange } from 'wallet/src/components/text/RelativeChange'
@@ -32,7 +31,6 @@ export const TokenBalanceItem = memo(function _TokenBalanceItem({
   const { quantity, currencyInfo, relativeChange24, balanceUSD } = portfolioBalance
   const { currency, currencyId, isSpam } = currencyInfo
   const { t } = useTranslation()
-  const theme = useAppTheme()
 
   const onPress = (): void => {
     onPressToken?.(currencyInfo.currencyId)
@@ -53,27 +51,28 @@ export const TokenBalanceItem = memo(function _TokenBalanceItem({
       actions={menuActions}
       disabled={menuActions.length === 0}
       style={{
-        borderRadius: theme.borderRadii.rounded16,
-        paddingHorizontal: theme.spacing.spacing12,
+        borderRadius: borderRadii.rounded16,
       }}
       onPress={onContextMenuPress}>
       <TouchableArea
         hapticFeedback
         alignItems="flex-start"
-        bg="none"
+        bg="$surface1"
+        borderRadius="$rounded16"
         flexDirection="row"
         hapticStyle={ImpactFeedbackStyle.Light}
         justifyContent="space-between"
         minHeight={TOKEN_BALANCE_ITEM_HEIGHT}
-        px="spacing12"
-        py="spacing8"
+        px="$spacing24"
+        py="$spacing8"
         onPress={onPress}>
         <AnimatedFlex
           row
+          shrink
           alignItems="center"
+          // use only entering animation without exiting animation as it caused
+          // crashes on Android when the list was re-rendered
           entering={FadeIn}
-          exiting={FadeOut}
-          flexShrink={1}
           gap="spacing12"
           overflow="hidden">
           <TokenLogo
@@ -81,37 +80,38 @@ export const TokenBalanceItem = memo(function _TokenBalanceItem({
             symbol={currency.symbol}
             url={currencyInfo.logoUrl ?? undefined}
           />
-          <Flex alignItems="flex-start" flexShrink={1} gap="none">
-            <Text ellipsizeMode="tail" numberOfLines={1} variant="bodyLarge">
+          <Flex shrink alignItems="flex-start">
+            <Text ellipsizeMode="tail" numberOfLines={1} variant="body1">
               {currency.name ?? shortenedSymbol}
             </Text>
-            <Flex row alignItems="center" gap="spacing8" minHeight={20}>
-              <Text color="neutral2" numberOfLines={1} variant="subheadSmall">
+            <Flex row alignItems="center" gap="$spacing8" minHeight={20}>
+              <Text color="$neutral2" numberOfLines={1} variant="subheading2">
                 {`${formatNumber(quantity)}`} {shortenedSymbol}
               </Text>
             </Flex>
           </Flex>
         </AnimatedFlex>
-        <AnimatedFlex entering={FadeIn} exiting={FadeOut} justifyContent="space-between">
+        <AnimatedFlex
+          // use only entering animation without exiting animation as it caused
+          // crashes on Android when the list was re-rendered
+          entering={FadeIn}
+          justifyContent="space-between">
           <WarmLoadingShimmer isWarmLoading={isWarmLoading}>
             {!portfolioBalance.balanceUSD ? (
-              <Flex centered flex={1}>
-                <Text color="neutral2">{t('N/A')}</Text>
+              <Flex centered fill>
+                <Text color="$neutral2">{t('N/A')}</Text>
               </Flex>
             ) : (
-              <Flex alignItems="flex-end" gap="spacing4" pl="spacing8">
-                <Text
-                  color={isWarmLoading ? 'neutral2' : 'neutral1'}
-                  numberOfLines={1}
-                  variant="bodyLarge">
+              <Flex alignItems="flex-end" gap="$spacing4" pl="$spacing8">
+                <Text color="$neutral1" numberOfLines={1} variant="body1">
                   {formatUSDPrice(portfolioBalance.balanceUSD, NumberType.FiatTokenQuantity)}
                 </Text>
                 <RelativeChange
                   alignRight
                   change={relativeChange24 ?? undefined}
-                  negativeChangeColor={isWarmLoading ? '$neutral2' : '$statusCritical'}
-                  positiveChangeColor={isWarmLoading ? '$neutral2' : '$statusSuccess'}
-                  variant="bodySmall"
+                  negativeChangeColor="$statusCritical"
+                  positiveChangeColor="$statusSuccess"
+                  variant="body2"
                 />
               </Flex>
             )}

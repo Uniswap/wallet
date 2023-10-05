@@ -457,26 +457,26 @@ PODS:
     - "GoogleUtilities/NSData+zlib (~> 7.4)"
   - fmt (6.2.1)
   - glog (0.3.5)
-  - GoogleDataTransport (9.2.1):
+  - GoogleDataTransport (9.2.5):
     - GoogleUtilities/Environment (~> 7.7)
     - nanopb (< 2.30910.0, >= 2.30908.0)
     - PromisesObjC (< 3.0, >= 1.2)
-  - GoogleUtilities/AppDelegateSwizzler (7.11.0):
+  - GoogleUtilities/AppDelegateSwizzler (7.11.5):
     - GoogleUtilities/Environment
     - GoogleUtilities/Logger
     - GoogleUtilities/Network
-  - GoogleUtilities/Environment (7.11.0):
+  - GoogleUtilities/Environment (7.11.5):
     - PromisesObjC (< 3.0, >= 1.2)
-  - GoogleUtilities/Logger (7.11.0):
+  - GoogleUtilities/Logger (7.11.5):
     - GoogleUtilities/Environment
-  - GoogleUtilities/Network (7.11.0):
+  - GoogleUtilities/Network (7.11.5):
     - GoogleUtilities/Logger
     - "GoogleUtilities/NSData+zlib"
     - GoogleUtilities/Reachability
-  - "GoogleUtilities/NSData+zlib (7.11.0)"
-  - GoogleUtilities/Reachability (7.11.0):
+  - "GoogleUtilities/NSData+zlib (7.11.5)"
+  - GoogleUtilities/Reachability (7.11.5):
     - GoogleUtilities/Logger
-  - GoogleUtilities/UserDefaults (7.11.0):
+  - GoogleUtilities/UserDefaults (7.11.5):
     - GoogleUtilities/Logger
   - "gRPC-C++ (1.28.2)":
     - "gRPC-C++/Implementation (= 1.28.2)"
@@ -539,7 +539,7 @@ PODS:
     - RNPermissions
   - Permission-Notifications (3.6.0):
     - RNPermissions
-  - PromisesObjC (2.2.0)
+  - PromisesObjC (2.3.1)
   - RCT-Folly (2021.07.22.00):
     - boost
     - DoubleConversion
@@ -1012,7 +1012,7 @@ PODS:
 
 DEPENDENCIES:
   - "amplitude-react-native (from `../../../node_modules/@amplitude/analytics-react-native`)"
-  - Apollo
+  - Apollo (= 1.2.1)
   - Argon2Swift
   - boost (from `../../../node_modules/react-native/third-party-podspecs/boost.podspec`)
   - DoubleConversion (from `../../../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
@@ -1102,7 +1102,7 @@ DEPENDENCIES:
   - RNScreens (from `../../../node_modules/react-native-screens`)
   - "RNSentry (from `../../../node_modules/@sentry/react-native`)"
   - RNSVG (from `../../../node_modules/react-native-svg`)
-  - UIImageColors
+  - UIImageColors (= 2.1.0)
   - Yoga (from `../../../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -1324,7 +1324,7 @@ SPEC CHECKSUMS:
   Apollo: fe380f40e55e501a2499dd5885fab0cdf082b2bb
   AppsFlyerFramework: 88a6eed37ad52bcee4ad74232efa8e22809d06c9
   Argon2Swift: 99482c1b8122a03524b61e41c4903a9548e7c33b
-  boost: 57d2868c099736d80fcd648bf211b4431e51a558
+  boost: a7c83b31436843459a1961bfd74b96033dc77234
   BoringSSL-GRPC: 8edf627ee524575e2f8d19d56f068b448eea3879
   DoubleConversion: 5189b271737e1565bdce30deb4a08d647e3f5f54
   EthersRS: fcaf94e30ebdd795bfe1f9332cec8175566ba066
@@ -1356,8 +1356,8 @@ SPEC CHECKSUMS:
   FirebaseRemoteConfig: f6365883d7950d784ee97bcdbbf1e442d4fa6119
   fmt: ff9d55029c625d3757ed641535fd4a75fedc7ce9
   glog: 04b94705f318337d7ead9e6d17c019bd9b1f6b1b
-  GoogleDataTransport: ea169759df570f4e37bdee1623ec32a7e64e67c4
-  GoogleUtilities: c2bdc4cf2ce786c4d2e6b3bcfd599a25ca78f06f
+  GoogleDataTransport: 54dee9d48d14580407f8f5fbf2f496e92437a2f2
+  GoogleUtilities: 13e2c67ede716b8741c7989e26893d151b2b2084
   "gRPC-C++": 13d8ccef97d5c3c441b7e3c529ef28ebee86fad2
   gRPC-Core: 4afa11bfbedf7cdecd04de535a9e046893404ed5
   GTMSessionFetcher: 5595ec75acf5be50814f81e9189490412bad82ba
@@ -1371,8 +1371,8 @@ SPEC CHECKSUMS:
   OneSignalXCFramework: 087934ab0d4d7445fcf1c015c7c782359e26c020
   Permission-FaceID: aaf43b353c25aaa2c1a501f93fa33dcb0f76e6c8
   Permission-Notifications: 7f2a467ab97a130a847519705340830d52cfc5f0
-  PromisesObjC: 09985d6d70fbe7878040aa746d78236e6946d2ef
-  RCT-Folly: 424b8c9a7a0b9ab2886ffe9c3b041ef628fd4fb1
+  PromisesObjC: c50d2056b5253dadbd6c2bea79b0674bd5a52fa4
+  RCT-Folly: 0080d0a6ebf2577475bda044aa59e2ca1f909cda
   RCTRequired: f6187ec763637e6a57f5728dd9a3bdabc6d6b4e0
   RCTTypeSafety: a01aca2dd3b27fa422d5239252ad38e54e958750
   React: 741b4f5187e7a2137b69c88e65f940ba40600b4b
@@ -1441,6 +1441,6 @@ SPEC CHECKSUMS:
   Yoga: f7decafdc5e8c125e6fa0da38a687e35238420fa
   ZXingObjC: fdbb269f25dd2032da343e06f10224d62f537bdb
 
-PODFILE CHECKSUM: c838f95981815b8d9de458b670ed4bbb1ddc25fa
+PODFILE CHECKSUM: 9f13062fc9373184e90d8def82fec1671f3f5b9e
 
 COCOAPODS: 1.11.3

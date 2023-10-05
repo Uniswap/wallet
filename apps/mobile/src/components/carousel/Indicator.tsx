@@ -1,6 +1,7 @@
 import React from 'react'
 import { Extrapolate, interpolate, SharedValue, useAnimatedStyle } from 'react-native-reanimated'
-import { AnimatedBox, Box, Flex } from 'src/components/layout'
+import { AnimatedBox } from 'src/components/layout'
+import { Flex } from 'ui/src'
 import { dimensions } from 'ui/src/theme'
 
 const { fullWidth } = dimensions
@@ -17,15 +18,15 @@ export function Indicator({
     <Flex
       row
       alignItems="center"
-      gap="spacing8"
+      gap="$spacing8"
       justifyContent="space-evenly"
       width={INDICATOR_WIDTH}>
       {[...Array(stepCount)].map((_, i) => (
-        <Box
+        <Flex
           key={`indicator-${i}`}
-          bg="neutral1"
-          borderRadius="rounded16"
-          flex={1}
+          fill
+          bg="$neutral1"
+          borderRadius="$rounded16"
           height={4}
           opacity={i === currentStep ? 1 : 0.2}
         />
@@ -42,7 +43,7 @@ export function AnimatedIndicator({
   stepCount: number
 }): JSX.Element {
   return (
-    <Flex centered row gap="spacing12" px="spacing24">
+    <Flex centered row gap="$spacing12" px="$spacing24">
       {[...Array(stepCount)].map((_, i) => (
         <AnimatedIndicatorPill index={i} scroll={scroll} />
       ))}
@@ -67,10 +68,9 @@ function AnimatedIndicatorPill({
   return (
     <AnimatedBox
       key={`indicator-${index}`}
+      fill
       bg="$neutral1"
       borderRadius="$rounded16"
-      flex={1}
-      gap="$none"
       height={4}
       style={style}
     />

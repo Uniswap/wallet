@@ -1,5 +1,5 @@
-import { Text } from 'ui/src'
 import { Flex } from 'ui/src/components/layout/Flex'
+import { Text } from 'ui/src/components/text/Text'
 import { iconSizes } from 'ui/src/theme/iconSizes'
 
 interface TransactionLoaderProps {
@@ -32,13 +32,13 @@ export function TransactionLoader({ opacity }: TransactionLoaderProps): JSX.Elem
             height={TXN_HISTORY_LOADER_ICON_SIZE}
             width={TXN_HISTORY_LOADER_ICON_SIZE}
           />
-          <Flex shrink gap="$none">
+          <Flex shrink>
             <Flex row alignItems="center" gap="$spacing4">
               <Text
                 loading
                 loadingPlaceholderText="Contract Interaction"
                 numberOfLines={1}
-                variant="bodyLarge"
+                variant="body1"
               />
             </Flex>
             <Text
@@ -46,7 +46,7 @@ export function TransactionLoader({ opacity }: TransactionLoaderProps): JSX.Elem
               color="$neutral2"
               loadingPlaceholderText="Caption Text"
               numberOfLines={1}
-              variant="subheadSmall"
+              variant="subheading2"
             />
           </Flex>
         </Flex>

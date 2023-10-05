@@ -2,7 +2,6 @@
 import { providers } from 'ethers'
 import React, { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useAppTheme } from 'src/app/hooks'
 import { Warning, WarningAction, WarningSeverity } from 'src/components/modals/WarningModal/types'
 import WarningModal from 'src/components/modals/WarningModal/WarningModal'
 import Trace from 'src/components/Trace/Trace'
@@ -13,9 +12,11 @@ import {
   useSwapCallback,
   useWrapCallback,
 } from 'src/features/transactions/swap/hooks'
-import SlippageInfoModal from 'src/features/transactions/swap/SlippageInfoModal'
+import { FeeOnTransferInfoModal } from 'src/features/transactions/swap/modals/FeeOnTransferInfoModal'
+import { NetworkFeeInfoModal } from 'src/features/transactions/swap/modals/NetworkFeeInfoModal'
+import { SlippageInfoModal } from 'src/features/transactions/swap/modals/SlippageInfoModal'
+import { SwapProtectionInfoModal } from 'src/features/transactions/swap/modals/SwapProtectionModal'
 import { SwapDetails } from 'src/features/transactions/swap/SwapDetails'
-import { SwapProtectionInfoModal } from 'src/features/transactions/swap/SwapProtectionModal'
 import {
   getActionElementName,
   getActionName,
@@ -23,8 +24,8 @@ import {
 } from 'src/features/transactions/swap/utils'
 import { TransactionDetails } from 'src/features/transactions/TransactionDetails'
 import { TransactionReview } from 'src/features/transactions/TransactionReview'
-import { Icons } from 'ui/src'
 import { formatCurrencyAmount, formatNumberOrString, NumberType } from 'utilities/src/format/format'
+import { GasFeeResult } from 'wallet/src/features/gas/types'
 import { CurrencyField } from 'wallet/src/features/transactions/transactionState/types'
 import { AccountType } from 'wallet/src/features/wallet/accounts/types'
 import { useActiveAccountWithThrow } from 'wallet/src/features/wallet/hooks'
@@ -35,9 +36,7 @@ interface SwapFormProps {
   derivedSwapInfo: DerivedSwapInfo
   approveTxRequest?: providers.TransactionRequest
   txRequest?: providers.TransactionRequest
-  totalGasFee?: string
-  gasFeeUSD?: string
-  gasFallbackUsed?: boolean
+  gasFee: GasFeeResult
   warnings: Warning[]
   exactValue: string
 }
@@ -48,18 +47,16 @@ export function SwapReview({
   derivedSwapInfo,
   approveTxRequest,
   txRequest,
-  totalGasFee,
-  gasFeeUSD,
-  gasFallbackUsed,
+  gasFee,
   warnings,
   exactValue,
 }: SwapFormProps): JSX.Element | null {
   const { t } = useTranslation()
-  const theme = useAppTheme()
   const account = useActiveAccountWithThrow()
   const [showWarningModal, setShowWarningModal] = useState(false)
-  const [showGasWarningModal, setShowGasWarningModal] = useState(false)
+  const [showNetworkFeeInfoModal, setShowNetworkFeeInfoModal] = useState(false)
   const [showSlippageModal, setShowSlippageModal] = useState(false)
+  const [showFOTInfoModal, setShowFOTInfoModal] = useState(false)
   const [warningAcknowledged, setWarningAcknowledged] = useState(false)
   const [shouldSubmitTx, setShouldSubmitTx] = useState(false)
   const [showSwapProtectionModal, setShowSwapProtectionModal] = useState(false)
@@ -99,7 +96,7 @@ export function SwapReview({
   const onSwap = useSwapCallback(
     approveTxRequest,
     txRequest,
-    totalGasFee,
+    gasFee,
     trade,
     currencyAmountsUSDValue[CurrencyField.INPUT],
     currencyAmountsUSDValue[CurrencyField.OUTPUT],
@@ -141,14 +138,6 @@ export function SwapReview({
     setShowWarningModal(false)
   }, [])
 
-  const onShowGasWarning = useCallback(() => {
-    setShowGasWarningModal(true)
-  }, [])
-
-  const onCloseGasWarning = useCallback(() => {
-    setShowGasWarningModal(false)
-  }, [])
-
   const onShowSlippageModal = useCallback(() => {
     setShowSlippageModal(true)
   }, [])
@@ -160,15 +149,33 @@ export function SwapReview({
   const onShowSwapProtectionModal = useCallback(() => {
     setShowSwapProtectionModal(true)
   }, [])
+
   const onCloseSwapProtectionModal = useCallback(() => {
     setShowSwapProtectionModal(false)
+  }, [])
+
+  const onShowFOTInfo = useCallback(() => {
+    setShowFOTInfoModal(true)
+  }, [])
+
+  const onCloseFOTInfo = useCallback(() => {
+    setShowFOTInfoModal(false)
+  }, [])
+
+  const onShowNetworkFeeInfo = useCallback(() => {
+    setShowNetworkFeeInfoModal(true)
+  }, [])
+
+  const onCloseNetworkFeeInfo = useCallback(() => {
+    setShowNetworkFeeInfoModal(false)
   }, [])
 
   const actionButtonDisabled =
     noValidSwap ||
     blockingWarning ||
     newTradeRequiresAcceptance ||
-    !totalGasFee ||
+    !gasFee.value ||
+    !!gasFee.error ||
     !txRequest ||
     account.type === AccountType.Readonly
 
@@ -184,10 +191,9 @@ export function SwapReview({
       return (
         <TransactionDetails
           chainId={chainId}
-          gasFallbackUsed={gasFallbackUsed}
-          gasFeeUSD={gasFeeUSD}
+          gasFee={gasFee}
           warning={swapWarning}
-          onShowGasWarning={onShowGasWarning}
+          onShowNetworkFeeInfo={onShowNetworkFeeInfo}
           onShowWarning={onShowWarning}
         />
       )
@@ -200,13 +206,13 @@ export function SwapReview({
         acceptedTrade={acceptedTrade}
         autoSlippageTolerance={autoSlippageTolerance}
         customSlippageTolerance={customSlippageTolerance}
-        gasFallbackUsed={gasFallbackUsed}
-        gasFeeUSD={gasFeeUSD}
+        gasFee={gasFee}
         newTradeRequiresAcceptance={newTradeRequiresAcceptance}
         trade={trade}
         warning={swapWarning}
         onAcceptTrade={onAcceptTrade}
-        onShowGasWarning={onShowGasWarning}
+        onShowFOTInfo={onShowFOTInfo}
+        onShowNetworkFeeInfo={onShowNetworkFeeInfo}
         onShowSlippageModal={onShowSlippageModal}
         onShowSwapProtectionModal={onShowSwapProtectionModal}
         onShowWarning={onShowWarning}
@@ -253,27 +259,6 @@ export function SwapReview({
           onConfirm={onConfirmWarning}
         />
       )}
-      {showGasWarningModal && (
-        <WarningModal
-          backgroundIconColor={theme.colors.surface3}
-          caption={t(
-            'This maximum network fee estimate is more conservative than usual—we’re unable to provide a more accurate figure at this time.'
-          )}
-          closeText={t('Dismiss')}
-          icon={
-            <Icons.InfoCircleFilled
-              color={theme.colors.neutral2}
-              size={theme.iconSizes.icon24}
-              // not sure why this one is upside down
-              style={{ transform: [{ rotate: '180deg' }] }}
-            />
-          }
-          modalName={ModalName.GasEstimateWarning}
-          severity={WarningSeverity.Medium}
-          title={t('Conservative network fee estimate')}
-          onClose={onCloseGasWarning}
-        />
-      )}
       {showSlippageModal && acceptedTrade && (
         <SlippageInfoModal
           autoSlippageTolerance={autoSlippageTolerance}
@@ -283,6 +268,8 @@ export function SwapReview({
         />
       )}
       {showSwapProtectionModal && <SwapProtectionInfoModal onClose={onCloseSwapProtectionModal} />}
+      {showFOTInfoModal && <FeeOnTransferInfoModal onClose={onCloseFOTInfo} />}
+      {showNetworkFeeInfoModal && <NetworkFeeInfoModal onClose={onCloseNetworkFeeInfo} />}
       <Trace logImpression section={SectionName.SwapReview}>
         <TransactionReview
           actionButtonProps={actionButtonProps}

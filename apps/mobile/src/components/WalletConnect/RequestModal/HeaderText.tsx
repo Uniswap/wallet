@@ -1,9 +1,9 @@
 import { Currency } from '@uniswap/sdk-core'
 import React from 'react'
 import { Trans, useTranslation } from 'react-i18next'
-import { Text } from 'src/components/Text'
 import { truncateDappName } from 'src/components/WalletConnect/ScanSheet/util'
 import { WalletConnectRequest } from 'src/features/walletConnect/walletConnectSlice'
+import { Text } from 'ui/src'
 import { EthMethod } from 'wallet/src/features/walletConnect/types'
 import { getCurrencyAmount, ValueType } from 'wallet/src/utils/getCurrencyAmount'
 
@@ -28,7 +28,7 @@ export function HeaderText({
 
     return readablePermitAmount ? (
       <Trans t={t}>
-        <Text textAlign="center" variant="headlineSmall">
+        <Text textAlign="center" variant="heading3">
           Allow {dapp.name} to use up to
           <Text fontWeight="bold"> {readablePermitAmount} </Text>
           {permitCurrency?.symbol}?
@@ -36,7 +36,7 @@ export function HeaderText({
       </Trans>
     ) : (
       <Trans t={t}>
-        <Text textAlign="center" variant="headlineSmall">
+        <Text textAlign="center" variant="heading3">
           Allow <Text fontWeight="bold">{dapp.name}</Text> to use your {permitCurrency?.symbol}?
         </Text>
       </Trans>
@@ -57,7 +57,7 @@ export function HeaderText({
   }
 
   return (
-    <Text textAlign="center" variant="headlineSmall">
+    <Text textAlign="center" variant="heading3">
       <Text>{getReadableMethodName(method)}</Text>
       <Text fontWeight="bold"> {truncateDappName(dapp.name || dapp.url)}</Text>
     </Text>

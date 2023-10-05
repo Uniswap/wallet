@@ -3,8 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useAnimatedStyle, withTiming } from 'react-native-reanimated'
 import { useAppDispatch, useAppSelector, useAppTheme } from 'src/app/hooks'
 import { navigate } from 'src/app/navigation/rootNavigation'
-import { Button, ButtonEmphasis } from 'src/components/buttons/Button'
-import { AnimatedBox, Flex } from 'src/components/layout'
+import { AnimatedBox } from 'src/components/layout'
 import { Delay } from 'src/components/layout/Delayed'
 import { SpinningLoader } from 'src/components/loading/SpinningLoader'
 import { BottomSheetModal } from 'src/components/modals/BottomSheetModal'
@@ -12,16 +11,20 @@ import { AssociatedAccountsList } from 'src/components/RemoveWallet/AssociatedAc
 import { RemoveLastMnemonicWalletFooter } from 'src/components/RemoveWallet/RemoveLastMnemonicWalletFooter'
 import { RemoveWalletStep, useModalContent } from 'src/components/RemoveWallet/useModalContent'
 import { navigateToOnboardingImportMethod } from 'src/components/RemoveWallet/utils'
-import { Text } from 'src/components/Text'
 import { useBiometricPrompt } from 'src/features/biometrics/hooks'
 import { closeModal, selectModalState } from 'src/features/modals/modalSlice'
 import { ImportType, OnboardingEntryPoint } from 'src/features/onboarding/utils'
 import { ElementName, ModalName } from 'src/features/telemetry/constants'
 import { OnboardingScreens, Screens } from 'src/screens/Screens'
-import { opacify } from 'ui/src/theme'
+import { Button, Flex, Text } from 'ui/src'
+import { iconSizes, opacify } from 'ui/src/theme'
+import {
+  EditAccountAction,
+  editAccountActions,
+} from 'wallet/src/features/wallet/accounts/editAccountSaga'
 import { useAccounts } from 'wallet/src/features/wallet/hooks'
 import { selectSignerMnemonicAccounts } from 'wallet/src/features/wallet/selectors'
-import { removeAccounts, setFinishedOnboarding } from 'wallet/src/features/wallet/slice'
+import { setFinishedOnboarding } from 'wallet/src/features/wallet/slice'
 
 export interface RemoveWalletModalState {
   address?: Address
@@ -29,6 +32,7 @@ export interface RemoveWalletModalState {
 
 export function RemoveWalletModal(): JSX.Element | null {
   const { t } = useTranslation()
+  // TODO(MOB-1280): refactor to use useSporeColors hook instead
   const theme = useAppTheme()
   const dispatch = useAppDispatch()
 
@@ -74,13 +78,20 @@ export function RemoveWalletModal(): JSX.Element | null {
         },
       })
     }
-    const accountsToRemove = isReplacing
-      ? associatedAccounts.map((acc) => acc.address as string)
-      : [address]
-    dispatch(removeAccounts(accountsToRemove))
+    const accountsToRemove = isReplacing ? associatedAccounts : account ? [account] : []
+    accountsToRemove.forEach(({ address: accAddress, pushNotificationsEnabled }) => {
+      dispatch(
+        editAccountActions.trigger({
+          type: EditAccountAction.Remove,
+          address: accAddress,
+          notificationsEnabled: !!pushNotificationsEnabled,
+        })
+      )
+    })
+
     onClose()
     setInProgress(false)
-  }, [address, associatedAccounts, dispatch, isReplacing, hasAccountsLeft, onClose])
+  }, [account, associatedAccounts, dispatch, isReplacing, hasAccountsLeft, onClose])
 
   const { trigger } = useBiometricPrompt(
     () => {
@@ -121,7 +132,7 @@ export function RemoveWalletModal(): JSX.Element | null {
     return null
   }
 
-  const { title, description, Icon, iconColorLabel, actionButtonEmphasis, actionButtonLabel } =
+  const { title, description, Icon, iconColorLabel, actionButtonTheme, actionButtonLabel } =
     modalContent
 
   return (
@@ -129,24 +140,24 @@ export function RemoveWalletModal(): JSX.Element | null {
       backgroundColor={theme.colors.surface1}
       name={ModalName.RemoveSeedPhraseWarningModal}
       onClose={onClose}>
-      <Flex centered gap="spacing16" height="100%" mb="spacing24" p="spacing24" paddingTop="none">
+      <Flex centered gap="$spacing16" height="100%" mb="$spacing24" p="$spacing24" pt="$none">
         <Flex
           centered
-          borderRadius="rounded12"
-          p="spacing12"
+          borderRadius="$rounded12"
+          p="$spacing12"
           style={{
             backgroundColor: opacify(12, theme.colors[iconColorLabel]),
           }}>
           <Icon
             color={theme.colors[iconColorLabel]}
-            height={theme.iconSizes.icon24}
-            width={theme.iconSizes.icon24}
+            height={iconSizes.icon24}
+            width={iconSizes.icon24}
           />
         </Flex>
-        <Text textAlign="center" variant="bodyLarge">
+        <Text textAlign="center" variant="body1">
           {title}
         </Text>
-        <Text color="neutral2" textAlign="center" variant="bodySmall">
+        <Text color="$neutral2" textAlign="center" variant="body2">
           {description}
         </Text>
         {currentStep === RemoveWalletStep.Final && isRemovingRecoveryPhrase ? (
@@ -155,27 +166,23 @@ export function RemoveWalletModal(): JSX.Element | null {
             <RemoveLastMnemonicWalletFooter inProgress={inProgress} onPress={onPress} />
           </>
         ) : (
-          <Flex centered row gap={inProgress ? 'none' : 'spacing12'} pt="spacing12">
+          <Flex centered row gap={inProgress ? '$none' : '$spacing12'} pt="$spacing12">
             {inProgress ? (
-              <AnimatedBox gap="$none" style={animatedCancelButtonSpanStyles} />
+              <AnimatedBox style={animatedCancelButtonSpanStyles} />
             ) : (
-              <Button
-                fill
-                disabled={inProgress}
-                emphasis={ButtonEmphasis.Tertiary}
-                label={t('Cancel')}
-                onPress={onClose}
-              />
+              <Button fill disabled={inProgress} theme="tertiary" onPress={onClose}>
+                {t('Cancel')}
+              </Button>
             )}
 
             <Button
               fill
-              CustomIcon={inProgress ? <SpinningLoader color={iconColorLabel} /> : undefined}
-              emphasis={actionButtonEmphasis}
-              label={inProgress ? undefined : actionButtonLabel}
+              icon={inProgress ? <SpinningLoader color={iconColorLabel} /> : undefined}
               testID={isRemovingRecoveryPhrase ? ElementName.Continue : ElementName.Remove}
-              onPress={onPress}
-            />
+              theme={actionButtonTheme}
+              onPress={onPress}>
+              {inProgress ? undefined : actionButtonLabel}
+            </Button>
           </Flex>
         )}
       </Flex>

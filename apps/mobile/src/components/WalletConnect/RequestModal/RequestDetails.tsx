@@ -3,10 +3,7 @@ import { Transaction, TransactionDescription } from 'no-yolo-signatures'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ScrollView } from 'react-native-gesture-handler'
-import { useAppTheme } from 'src/app/hooks'
 import { LinkButton } from 'src/components/buttons/LinkButton'
-import { Box, Flex } from 'src/components/layout'
-import { Text } from 'src/components/Text'
 import { SpendingDetails } from 'src/components/WalletConnect/RequestModal/SpendingDetails'
 import {
   isTransactionRequest,
@@ -15,6 +12,8 @@ import {
 } from 'src/features/walletConnect/walletConnectSlice'
 import { ExplorerDataType, getExplorerLink } from 'src/utils/linking'
 import { useNoYoloParser } from 'src/utils/useNoYoloParser'
+import { Flex, Text, useSporeColors } from 'ui/src'
+import { iconSizes } from 'ui/src/theme'
 import { Theme } from 'ui/src/theme/restyle'
 import { logger } from 'utilities/src/logger/logger'
 import { ChainId } from 'wallet/src/constants/chains'
@@ -38,18 +37,18 @@ type AddressButtonProps = {
 
 const AddressButton = ({ address, chainId, ...rest }: AddressButtonProps): JSX.Element => {
   const { name } = useENS(chainId, address, false)
-  const theme = useAppTheme()
+  const colors = useSporeColors()
 
   return (
     <LinkButton
-      backgroundColor="surface3"
-      borderRadius="rounded12"
-      iconColor={theme.colors.neutral1}
+      backgroundColor="$surface3"
+      borderRadius="$rounded12"
+      iconColor={colors.neutral1.val}
       label={name || shortenAddress(address)}
-      px="spacing8"
-      py="spacing4"
-      size={theme.iconSizes.icon16}
-      textVariant="bodySmall"
+      px="$spacing8"
+      py="$spacing4"
+      size={iconSizes.icon16}
+      textVariant="body2"
       url={getExplorerLink(chainId, address, ExplorerDataType.ADDRESS)}
       {...rest}
     />
@@ -66,14 +65,14 @@ const getParsedObjectDisplay = (chainId: number, obj: any, depth = 0): JSX.Eleme
   }
 
   return (
-    <Flex gap="spacing4">
+    <Flex gap="$spacing4">
       {Object.keys(obj).map((objKey) => {
         const childValue = obj[objKey]
 
         if (typeof childValue === 'object') {
           return (
-            <Flex key={objKey} gap="spacing4">
-              <Text color="neutral3" style={{ marginLeft: depth * 10 }} variant="monospace">
+            <Flex key={objKey} gap="$spacing4">
+              <Text color="$neutral2" style={{ marginLeft: depth * 10 }} variant="monospace">
                 {objKey}
               </Text>
               {getParsedObjectDisplay(chainId, childValue, depth + 1)}
@@ -87,16 +86,16 @@ const getParsedObjectDisplay = (chainId: number, obj: any, depth = 0): JSX.Eleme
               key={objKey}
               row
               alignItems="flex-start"
-              gap="spacing8"
+              gap="$spacing8"
               style={{ marginLeft: depth * 10 }}>
-              <Text color="neutral3" py="spacing4" variant="monospace">
+              <Text color="$neutral2" py="$spacing4" variant="monospace">
                 {objKey}
               </Text>
-              <Flex flexShrink={1}>
+              <Flex shrink gap="$spacing16">
                 {getValidAddress(childValue, true) ? (
                   <AddressButton address={childValue} chainId={chainId} textVariant="monospace" />
                 ) : (
-                  <Text py="spacing4" variant="monospace">
+                  <Text py="$spacing4" variant="monospace">
                     {childValue}
                   </Text>
                 )}
@@ -154,31 +153,31 @@ function TransactionDetails({
   }, [data, from, parser, to, transaction, value])
 
   return (
-    <Flex gap="spacing12">
+    <Flex gap="$spacing12">
       {value && !BigNumber.from(value).eq(0) ? (
         <SpendingDetails chainId={chainId} value={value} />
       ) : null}
       {to ? (
-        <Flex row alignItems="center" gap="spacing16">
-          <Text color="neutral2" variant="bodySmall">
+        <Flex row alignItems="center" gap="$spacing16">
+          <Text color="$neutral2" variant="body2">
             {t('To')}:
           </Text>
           <AddressButton address={to} chainId={chainId} />
         </Flex>
       ) : null}
-      <Flex row alignItems="center" gap="spacing16">
-        <Text color="neutral2" variant="bodySmall">
+      <Flex row alignItems="center" gap="$spacing16">
+        <Text color="$neutral2" variant="body2">
           {t('Function')}:
         </Text>
-        <Box
-          backgroundColor={isLoading ? 'none' : 'surface3'}
-          borderRadius="rounded12"
-          px="spacing8"
-          py="spacing4">
-          <Text color="neutral1" loading={isLoading} variant="monospace">
+        <Flex
+          backgroundColor={isLoading ? '$transparent' : '$surface3'}
+          borderRadius="$rounded12"
+          px="$spacing8"
+          py="$spacing4">
+          <Text color="$neutral1" loading={isLoading} variant="monospace">
             {parsedData ? parsedData.name : t('Unknown')}
           </Text>
-        </Box>
+        </Flex>
       </Flex>
     </Flex>
   )
@@ -211,9 +210,9 @@ function RequestDetailsContent({ request }: Props): JSX.Element {
 
   const message = getStrMessage(request)
   return message ? (
-    <Text variant="bodySmall">{message}</Text>
+    <Text variant="body2">{message}</Text>
   ) : (
-    <Text color="neutral2" variant="bodySmall">
+    <Text color="$neutral2" variant="body2">
       {t('No message found.')}
     </Text>
   )

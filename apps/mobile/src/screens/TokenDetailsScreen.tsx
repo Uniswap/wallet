@@ -5,19 +5,16 @@ import { useTranslation } from 'react-i18next'
 import ContextMenu from 'react-native-context-menu-view'
 import { FadeInDown, FadeOutDown } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { useAppDispatch, useAppSelector, useAppTheme } from 'src/app/hooks'
+import { useAppSelector } from 'src/app/hooks'
 import { AppStackScreenProp } from 'src/app/navigation/types'
-import { TouchableArea } from 'src/components/buttons/TouchableArea'
-import { AnimatedBox, AnimatedFlex, Flex } from 'src/components/layout'
+import { AnimatedBox, AnimatedFlex } from 'src/components/layout'
 import { BaseCard } from 'src/components/layout/BaseCard'
 import { HeaderScrollScreen } from 'src/components/layout/screens/HeaderScrollScreen'
-import { Separator } from 'src/components/layout/Separator'
 import { PriceExplorer } from 'src/components/PriceExplorer/PriceExplorer'
 import { useTokenPriceHistory } from 'src/components/PriceExplorer/usePriceHistory'
-import { Text } from 'src/components/Text'
 import { useCrossChainBalances } from 'src/components/TokenDetails/hooks'
 import { TokenBalances } from 'src/components/TokenDetails/TokenBalances'
-import { TokenDetailsActionButtons } from 'src/components/TokenDetails/TokenDetailsActionButton'
+import { TokenDetailsActionButtons } from 'src/components/TokenDetails/TokenDetailsActionButtons'
 import { TokenDetailsFavoriteButton } from 'src/components/TokenDetails/TokenDetailsFavoriteButton'
 import { TokenDetailsHeader } from 'src/components/TokenDetails/TokenDetailsHeader'
 import { TokenDetailsLinks } from 'src/components/TokenDetails/TokenDetailsLinks'
@@ -26,12 +23,15 @@ import TokenWarningModal from 'src/components/tokens/TokenWarningModal'
 import Trace from 'src/components/Trace/Trace'
 import { IS_ANDROID, IS_IOS } from 'src/constants/globals'
 import { useTokenContextMenu } from 'src/features/balances/hooks'
-import { openModal, selectModalState } from 'src/features/modals/modalSlice'
+import { selectModalState } from 'src/features/modals/modalSlice'
+import { useNavigateToSend } from 'src/features/send/hooks'
+import { useNavigateToSwap } from 'src/features/swap/hooks'
 import { ModalName } from 'src/features/telemetry/constants'
 import { useTokenWarningDismissed } from 'src/features/tokens/safetyHooks'
 import { Screens } from 'src/screens/Screens'
+import { Flex, Separator, Text, TouchableArea, useSporeColors } from 'ui/src'
 import EllipsisIcon from 'ui/src/assets/icons/ellipsis.svg'
-import { iconSizes } from 'ui/src/theme'
+import { iconSizes, spacing } from 'ui/src/theme'
 import { formatUSDPrice } from 'utilities/src/format/format'
 import { TokenLogo } from 'wallet/src/components/CurrencyLogo/TokenLogo'
 import { ChainId } from 'wallet/src/constants/chains'
@@ -42,14 +42,10 @@ import {
   TokenDetailsScreenQuery,
   useTokenDetailsScreenQuery,
 } from 'wallet/src/data/__generated__/types-and-hooks'
-import { AssetType } from 'wallet/src/entities/assets'
 import { useIsDarkMode } from 'wallet/src/features/appearance/hooks'
 import { fromGraphQLChain } from 'wallet/src/features/chains/utils'
 import { currencyIdToContractInput } from 'wallet/src/features/dataApi/utils'
-import {
-  CurrencyField,
-  TransactionState,
-} from 'wallet/src/features/transactions/transactionState/types'
+import { CurrencyField } from 'wallet/src/features/transactions/transactionState/types'
 import { useExtractedTokenColor } from 'wallet/src/utils/colors'
 import { currencyIdToAddress, currencyIdToChain } from 'wallet/src/utils/currencyId'
 
@@ -61,7 +57,7 @@ function HeaderPriceLabel({ price }: { price: Price }): JSX.Element {
   const { t } = useTranslation()
 
   return (
-    <Text color="neutral1" variant="bodyLarge">
+    <Text color="$neutral1" variant="body1">
       {formatUSDPrice(price?.value) ?? t('Unknown token')}
     </Text>
   )
@@ -82,29 +78,22 @@ function HeaderTitleElement({
   return (
     <Flex
       alignItems="center"
-      gap="none"
       justifyContent="space-between"
-      ml={ellipsisMenuVisible ? 'spacing32' : 'none'}>
+      ml={ellipsisMenuVisible ? '$spacing32' : '$none'}>
       <HeaderPriceLabel price={tokenProject?.markets?.[0]?.price} />
-      <Flex centered row gap="spacing4">
+      <Flex centered row gap="$spacing4">
         <TokenLogo
           chainId={fromGraphQLChain(token?.chain) ?? undefined}
           size={iconSizes.icon16}
           symbol={token?.symbol ?? undefined}
           url={tokenProject?.logoUrl ?? undefined}
         />
-        <Text color="neutral2" variant="buttonLabelMicro">
+        <Text color="$neutral2" numberOfLines={1} variant="buttonLabel4">
           {token?.symbol ?? t('Unknown token')}
         </Text>
       </Flex>
     </Flex>
   )
-}
-
-enum TransactionType {
-  BUY,
-  SELL,
-  SEND,
 }
 
 export function TokenDetailsScreen({
@@ -170,8 +159,7 @@ function TokenDetails({
   retry: () => void
   loading: boolean
 }): JSX.Element {
-  const dispatch = useAppDispatch()
-  const theme = useAppTheme()
+  const colors = useSporeColors()
   const insets = useSafeAreaInsets()
 
   const currencyChainId = currencyIdToChain(_currencyId) ?? ChainId.Mainnet
@@ -188,8 +176,8 @@ function TokenDetails({
 
   const { tokenColor, tokenColorLoading } = useExtractedTokenColor(
     tokenLogoUrl,
-    /*background=*/ theme.colors.surface1,
-    /*default=*/ theme.colors.neutral3
+    /*background=*/ colors.surface1.val,
+    /*default=*/ colors.neutral3.val
   )
 
   const onPriceChartRetry = useCallback((): void => {
@@ -199,8 +187,11 @@ function TokenDetails({
     retry()
   }, [error, retry])
 
+  const navigateToSwap = useNavigateToSwap()
+  const navigateToSend = useNavigateToSend()
+
   // set if attempting buy or sell, use for warning modal
-  const [activeTransactionType, setActiveTransactionType] = useState<TransactionType | undefined>(
+  const [activeTransactionType, setActiveTransactionType] = useState<CurrencyField | undefined>(
     undefined
   )
 
@@ -209,83 +200,40 @@ function TokenDetails({
 
   const safetyLevel = token?.project?.safetyLevel
 
-  const initialSendState = useMemo((): TransactionState => {
-    return {
-      exactCurrencyField: CurrencyField.INPUT,
-      exactAmountToken: '',
-      [CurrencyField.INPUT]: {
-        address: currencyAddress,
-        chainId: currencyChainId,
-        type: AssetType.Currency,
-      },
-      [CurrencyField.OUTPUT]: null,
-      showRecipientSelector: true,
-    }
-  }, [currencyAddress, currencyChainId])
-
-  const navigateToSwapBuy = useCallback(() => {
-    setActiveTransactionType(undefined)
-    const swapFormState: TransactionState = {
-      exactCurrencyField: CurrencyField.OUTPUT,
-      exactAmountToken: '',
-      [CurrencyField.INPUT]: null,
-      [CurrencyField.OUTPUT]: {
-        address: currencyAddress,
-        chainId: currencyChainId,
-        type: AssetType.Currency,
-      },
-    }
-    dispatch(openModal({ name: ModalName.Swap, initialState: swapFormState }))
-  }, [currencyAddress, currencyChainId, dispatch])
-
-  const navigateToSwapSell = useCallback(() => {
-    setActiveTransactionType(undefined)
-    const swapFormState: TransactionState = {
-      exactCurrencyField: CurrencyField.INPUT,
-      exactAmountToken: '',
-      [CurrencyField.INPUT]: {
-        address: currencyAddress,
-        chainId: currencyChainId,
-        type: AssetType.Currency,
-      },
-      [CurrencyField.OUTPUT]: null,
-    }
-    dispatch(openModal({ name: ModalName.Swap, initialState: swapFormState }))
-  }, [currencyAddress, currencyChainId, dispatch])
-
   const onPressSwap = useCallback(
-    (swapType: TransactionType.BUY | TransactionType.SELL) => {
+    (currencyField: CurrencyField) => {
       if (safetyLevel === SafetyLevel.Blocked) {
         setShowWarningModal(true)
         // show warning modal speed bump if token has a warning level and user has not dismissed
       } else if (safetyLevel !== SafetyLevel.Verified && !tokenWarningDismissed) {
-        setActiveTransactionType(swapType)
+        setActiveTransactionType(currencyField)
         setShowWarningModal(true)
       } else {
-        if (swapType === TransactionType.BUY) {
-          navigateToSwapBuy()
-        } else if (swapType === TransactionType.SELL) {
-          navigateToSwapSell()
-        }
+        setActiveTransactionType(undefined)
+        navigateToSwap(currencyField, currencyAddress, currencyChainId)
       }
     },
-    [navigateToSwapBuy, navigateToSwapSell, safetyLevel, tokenWarningDismissed]
+    [currencyAddress, currencyChainId, navigateToSwap, safetyLevel, tokenWarningDismissed]
   )
 
   const onPressSend = useCallback(() => {
     // Do not show warning modal speedbump if user is trying to send tokens they own
-    dispatch(openModal({ name: ModalName.Send, ...{ initialState: initialSendState } }))
-  }, [dispatch, initialSendState])
+    navigateToSend(currencyAddress, currencyChainId)
+  }, [currencyAddress, currencyChainId, navigateToSend])
 
   const onAcceptWarning = useCallback(() => {
     dismissWarningCallback()
     setShowWarningModal(false)
-    if (activeTransactionType === TransactionType.BUY) {
-      navigateToSwapBuy()
-    } else if (activeTransactionType === TransactionType.SELL) {
-      navigateToSwapSell()
+    if (activeTransactionType !== undefined) {
+      navigateToSwap(activeTransactionType, currencyAddress, currencyChainId)
     }
-  }, [activeTransactionType, dismissWarningCallback, navigateToSwapBuy, navigateToSwapSell])
+  }, [
+    activeTransactionType,
+    currencyAddress,
+    currencyChainId,
+    dismissWarningCallback,
+    navigateToSwap,
+  ])
 
   const pb = useResponsiveProp(IS_IOS ? { xs: 'none', sm: 'spacing16' } : 'none')
 
@@ -301,8 +249,8 @@ function TokenDetails({
 
   const isDarkMode = useIsDarkMode()
   // shall be the same color as heart icon in not favorited state next to it
-  const ellipsisColor = isDarkMode ? theme.colors.neutral2 : theme.colors.neutral2
-  const loadingColor = isDarkMode ? theme.colors.neutral3 : theme.colors.surface3
+  const ellipsisColor = isDarkMode ? colors.neutral2.val : colors.neutral2.val
+  const loadingColor = isDarkMode ? colors.neutral3.val : colors.surface3.val
 
   const ellipsisMenuVisible = menuActions.length > 0
 
@@ -312,12 +260,12 @@ function TokenDetails({
         centerElement={<HeaderTitleElement data={data} ellipsisMenuVisible={ellipsisMenuVisible} />}
         renderedInModal={inModal}
         rightElement={
-          <Flex row alignItems="center">
+          <Flex row alignItems="center" gap="$spacing16">
             {ellipsisMenuVisible && (
               <ContextMenu dropdownMenuMode actions={menuActions} onPress={onContextMenuPress}>
                 <TouchableArea
                   hapticFeedback
-                  style={{ padding: theme.spacing.spacing8, marginRight: -theme.spacing.spacing8 }}>
+                  style={{ padding: spacing.spacing8, marginRight: -spacing.spacing8 }}>
                   <EllipsisIcon
                     color={ellipsisColor}
                     height={iconSizes.icon16}
@@ -330,8 +278,8 @@ function TokenDetails({
           </Flex>
         }
         showHandleBar={inModal}>
-        <Flex gap="spacing36" my="spacing8" pb="spacing16">
-          <Flex gap="spacing4">
+        <Flex gap="$spacing36" my="$spacing8" pb="$spacing16">
+          <Flex gap="$spacing4">
             <TokenDetailsHeader
               data={data}
               loading={loading}
@@ -339,16 +287,16 @@ function TokenDetails({
             />
             <PriceExplorer
               currencyId={_currencyId}
-              tokenColor={tokenColorLoading ? loadingColor : tokenColor ?? theme.colors.accent1}
+              tokenColor={tokenColorLoading ? loadingColor : tokenColor ?? colors.accent1.val}
               onRetry={onPriceChartRetry}
             />
           </Flex>
           {error ? (
-            <AnimatedBox entering={FadeInDown} exiting={FadeOutDown} gap="$none" px="$spacing24">
+            <AnimatedBox entering={FadeInDown} exiting={FadeOutDown} px="$spacing24">
               <BaseCard.InlineErrorState onRetry={retry} />
             </AnimatedBox>
           ) : null}
-          <Flex gap="spacing24" mb="spacing8" px="spacing16">
+          <Flex gap="$spacing24" mb="$spacing8" px="$spacing16">
             <TokenBalances
               currentChainBalance={currentChainBalance}
               otherChainBalances={otherChainBalances}
@@ -369,9 +317,8 @@ function TokenDetails({
           style={{ marginBottom: IS_ANDROID ? insets.bottom : undefined }}>
           <TokenDetailsActionButtons
             tokenColor={tokenColor}
-            onPressSwap={(): void =>
-              onPressSwap(currentChainBalance ? TransactionType.SELL : TransactionType.BUY)
-            }
+            onPressBuy={(): void => onPressSwap(CurrencyField.OUTPUT)}
+            onPressSell={(): void => onPressSwap(CurrencyField.INPUT)}
           />
         </AnimatedFlex>
       ) : null}

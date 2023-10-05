@@ -2,22 +2,21 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Alert } from 'react-native'
-import { useAppDispatch, useAppTheme } from 'src/app/hooks'
+import { useAppDispatch } from 'src/app/hooks'
 import { SettingsStackParamList } from 'src/app/navigation/types'
 import { AddressDisplay } from 'src/components/AddressDisplay'
-import { Button, ButtonEmphasis } from 'src/components/buttons/Button'
-import { Flex } from 'src/components/layout'
 import { BackHeader } from 'src/components/layout/BackHeader'
 import { Screen } from 'src/components/layout/Screen'
 import WarningModal from 'src/components/modals/WarningModal/WarningModal'
-import { Text } from 'src/components/Text'
 import { IS_ANDROID } from 'src/constants/globals'
 import { useBiometricAppSettings, useBiometricPrompt } from 'src/features/biometrics/hooks'
 import { useCloudBackups } from 'src/features/CloudBackup/hooks'
 import { deleteCloudStorageMnemonicBackup } from 'src/features/CloudBackup/RNCloudStorageBackupsManager'
 import { ElementName, ModalName } from 'src/features/telemetry/constants'
 import { Screens } from 'src/screens/Screens'
+import { Button, Flex, Text, useSporeColors } from 'ui/src'
 import Checkmark from 'ui/src/assets/icons/check.svg'
+import { iconSizes } from 'ui/src/theme'
 import { logger } from 'utilities/src/logger/logger'
 import {
   EditAccountAction,
@@ -39,7 +38,7 @@ export function SettingsCloudBackupStatus({
   },
 }: Props): JSX.Element {
   const { t } = useTranslation()
-  const theme = useAppTheme()
+  const colors = useSporeColors()
   const dispatch = useAppDispatch()
   const accounts = useAccounts()
   const mnemonicId = (accounts[address] as SignerMnemonicAccount)?.mnemonicId
@@ -92,15 +91,13 @@ export function SettingsCloudBackupStatus({
 
   return (
     <Screen mx="$spacing16" my="$spacing16">
-      <BackHeader alignment="center" mb="spacing16" onPressBack={onPressBack}>
-        <Text variant="bodyLarge">
-          {IS_ANDROID ? t('Google Drive backup') : t('iCloud backup')}
-        </Text>
+      <BackHeader alignment="center" mb="$spacing16" onPressBack={onPressBack}>
+        <Text variant="body1">{IS_ANDROID ? t('Google Drive backup') : t('iCloud backup')}</Text>
       </BackHeader>
 
-      <Flex grow alignItems="stretch" justifyContent="space-evenly" mt="spacing16" mx="spacing8">
-        <Flex grow gap="spacing24" justifyContent="flex-start">
-          <Text color="neutral2" variant="bodySmall">
+      <Flex grow alignItems="stretch" justifyContent="space-evenly" mt="$spacing16" mx="$spacing8">
+        <Flex grow gap="$spacing24" justifyContent="flex-start">
+          <Text color="$neutral2" variant="body2">
             {IS_ANDROID
               ? t(
                   'By having your recovery phrase backed up to Google Drive, you can recover your wallet just by being logged into your Google account on any device.'
@@ -110,18 +107,22 @@ export function SettingsCloudBackupStatus({
                 )}
           </Text>
           <Flex row justifyContent="space-between">
-            <Text variant="bodyLarge">{t('Recovery phrase')}</Text>
-            <Flex alignItems="flex-end" gap="spacing4">
-              <Flex row alignItems="center" gap="spacing12" justifyContent="space-around">
-                <Text color="neutral2" variant="buttonLabelMicro">
+            <Text variant="body1">{t('Recovery phrase')}</Text>
+            <Flex alignItems="flex-end" gap="$spacing4">
+              <Flex row alignItems="center" gap="$spacing12" justifyContent="space-around">
+                <Text color="$neutral2" variant="buttonLabel4">
                   {t('Backed up')}
                 </Text>
 
                 {/* @TODO: [MOB-249] Add non-backed up state once we have more options on this page  */}
-                <Checkmark color={theme.colors.statusSuccess} height={24} width={24} />
+                <Checkmark
+                  color={colors.statusSuccess.val}
+                  height={iconSizes.icon24}
+                  width={iconSizes.icon24}
+                />
               </Flex>
               {googleDriveEmail && (
-                <Text color="neutral3" variant="buttonLabelMicro">
+                <Text color="$neutral3" variant="buttonLabel4">
                   {googleDriveEmail}
                 </Text>
               )}
@@ -129,13 +130,13 @@ export function SettingsCloudBackupStatus({
           </Flex>
         </Flex>
         <Button
-          emphasis={ButtonEmphasis.Detrimental}
-          label={IS_ANDROID ? t('Delete Google Drive backup') : t('Delete iCloud backup')}
           testID={ElementName.Remove}
+          theme="detrimental"
           onPress={(): void => {
             setShowBackupDeleteWarning(true)
-          }}
-        />
+          }}>
+          {IS_ANDROID ? t('Delete Google Drive backup') : t('Delete iCloud backup')}
+        </Button>
       </Flex>
 
       {showBackupDeleteWarning && (
@@ -153,14 +154,14 @@ export function SettingsCloudBackupStatus({
           onConfirm={onConfirmDeleteBackup}>
           {associatedAccounts.length > 1 && (
             <Flex>
-              <Text textAlign="left" variant="subheadSmall">
+              <Text textAlign="left" variant="subheading2">
                 {t(
                   'Because these wallets share a recovery phrase, it will also delete the backups for:'
                 )}
               </Text>
               <Flex>
                 {associatedAccounts.map((account) => (
-                  <AddressDisplay address={account.address} size={36} variant="subheadLarge" />
+                  <AddressDisplay address={account.address} size={36} variant="subheading1" />
                 ))}
               </Flex>
             </Flex>

@@ -1,4 +1,4 @@
-import { QueryHookOptions } from '@apollo/client'
+import { ApolloError, QueryHookOptions } from '@apollo/client'
 import { TradeType } from '@uniswap/sdk-core'
 import { BigNumber } from 'ethers'
 import { useMemo } from 'react'
@@ -16,11 +16,16 @@ const DEFAULT_DEADLINE_S = 60 * 30 // 30 minutes in seconds
 
 const protocols: string[] = ['v2', 'v3', 'mixed']
 
-// error string hardcoded in @uniswap/routing-api
-export const SWAP_NO_ROUTE_ERROR = 'NO_ROUTE'
-// error string hardcoded in @uniswap/api
-// https://github.com/Uniswap/api/blob/main/bin/stacks/api-v1.ts#L234
+// error strings hardcoded in @uniswap/unified-routing-api
+// https://github.com/Uniswap/unified-routing-api/blob/020ea371a00d4cc25ce9f9906479b00a43c65f2c/lib/util/errors.ts#L4
+export const SWAP_QUOTE_ERROR = 'QUOTE_ERROR'
+
+// client side error code for when the api returns an empty response
+export const NO_QUOTE_DATA = 'NO_QUOTE_DATA'
+
 export const API_RATE_LIMIT_ERROR = 'TOO_MANY_REQUESTS'
+
+export const ROUTING_API_PATH = '/v2/quote'
 
 export interface TradeQuoteRequest {
   amount: string
@@ -95,10 +100,12 @@ export function useQuoteQuery(
       tokenOut: tokenOutAddress,
       amount,
       type: type === 'exactIn' ? 'EXACT_INPUT' : 'EXACT_OUTPUT',
+      slippageTolerance,
       configs: [
         {
           protocols,
           routingType: 'CLASSIC',
+          enableFeeOnTransferFeeFetching: true,
           // Quotes sometimes fail in the api when universal router is enabled, disable for USD quotes
           // https://linear.app/uniswap/issue/MOB-1068/update-pricing-request-for-usd-quotes
           enableUniversalRouter: request.loggingProperties.isUSDQuote
@@ -113,7 +120,7 @@ export function useQuoteQuery(
   }, [request])
 
   const result = useRestQuery<QuoteResponse, QuoteRequest | Record<string, never>>(
-    '/v2/quote',
+    ROUTING_API_PATH,
     params ?? {},
     ['quote', 'routing'],
     {
@@ -155,6 +162,18 @@ export function useQuoteQuery(
         result.data.quote
       )
 
+      // If `transformQuoteToTrade` returns a `null` trade, it means we have a non-null quote, but no routes.
+      // Manually match the api quote error.
+      if (!trade) {
+        return {
+          ...result,
+          data: undefined,
+          error: new ApolloError({
+            errorMessage: SWAP_QUOTE_ERROR,
+          }),
+        }
+      }
+
       return {
         ...result,
         data: {
@@ -163,6 +182,20 @@ export function useQuoteQuery(
           gasUseEstimate: result.data.quote.gasUseEstimate,
           timestamp: Date.now(),
         },
+      }
+    }
+
+    // MOB(1193): Better handle Apollo 404s
+    // https://github.com/apollographql/apollo-link-rest/pull/142/files#diff-018e2012bf1dae58fa1e87509b038abf51ace54994e63239343d717fb9a2d037R995
+    // apollo-link-rest swallows 404 response errors, and instead just returns null data
+    // Until we can parse response errors correctly, just manually create error.
+    if (result.data === null && !result.error) {
+      return {
+        ...result,
+        data: undefined,
+        error: new ApolloError({
+          errorMessage: NO_QUOTE_DATA,
+        }),
       }
     }
 

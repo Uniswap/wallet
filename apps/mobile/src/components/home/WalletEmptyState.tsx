@@ -1,20 +1,18 @@
 import React, { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useAppDispatch, useAppTheme } from 'src/app/hooks'
-import { TouchableArea } from 'src/components/buttons/TouchableArea'
-import { Flex } from 'src/components/layout'
+import { useAppDispatch } from 'src/app/hooks'
 import { ScannerModalState } from 'src/components/QRCodeScanner/constants'
-import { Text } from 'src/components/Text'
 import Trace from 'src/components/Trace/Trace'
-import { UNISWAP_HELP_CENTER_WALLET_URL } from 'src/constants/urls'
 import { openModal } from 'src/features/modals/modalSlice'
 import { ElementName, ModalName } from 'src/features/telemetry/constants'
 import { openUri } from 'src/utils/linking'
+import { Flex, Text, TouchableArea, useSporeColors } from 'ui/src'
 import BookIcon from 'ui/src/assets/icons/book.svg'
 import DollarSign from 'ui/src/assets/icons/dollar.svg'
 import PaperStackIcon from 'ui/src/assets/icons/paper-stack.svg'
 import ScanIcon from 'ui/src/assets/icons/scan-receive.svg'
-import { colors, iconSizes } from 'ui/src/theme'
+import { colors as rawColors, iconSizes } from 'ui/src/theme'
+import { uniswapUrls } from 'wallet/src/constants/urls'
 import { AccountType } from 'wallet/src/features/wallet/accounts/types'
 import { useActiveAccount } from 'wallet/src/features/wallet/hooks'
 import { opacify } from 'wallet/src/utils/colors'
@@ -37,7 +35,7 @@ enum ActionOption {
 
 export function WalletEmptyState(): JSX.Element {
   const { t } = useTranslation()
-  const theme = useAppTheme()
+  const colors = useSporeColors()
   const dispatch = useAppDispatch()
 
   const activeAccount = useActiveAccount()
@@ -52,13 +50,13 @@ export function WalletEmptyState(): JSX.Element {
         elementName: ElementName.EmptyStateBuy,
         icon: (
           <IconContainer
-            backgroundColor={colors.green200}
+            backgroundColor={rawColors.green200}
             icon={
               <IconContainer
-                backgroundColor={colors.green200}
+                backgroundColor={rawColors.green200}
                 icon={
                   <DollarSign
-                    color={colors.green200}
+                    color={rawColors.green200}
                     height={iconSizes.icon20}
                     width={iconSizes.icon20}
                   />
@@ -75,13 +73,13 @@ export function WalletEmptyState(): JSX.Element {
         elementName: ElementName.EmptyStateReceive,
         icon: (
           <IconContainer
-            backgroundColor={colors.gold300}
+            backgroundColor={rawColors.gold300}
             icon={
               <IconContainer
-                backgroundColor={colors.gold300}
+                backgroundColor={rawColors.gold300}
                 icon={
                   <ScanIcon
-                    color={colors.gold300}
+                    color={rawColors.gold300}
                     height={iconSizes.icon16}
                     width={iconSizes.icon16}
                   />
@@ -106,17 +104,17 @@ export function WalletEmptyState(): JSX.Element {
         elementName: ElementName.EmptyStateGetStarted,
         icon: (
           <IconContainer
-            backgroundColor={colors.blue300}
+            backgroundColor={rawColors.blue300}
             icon={
               <BookIcon
-                color={theme.colors.DEP_blue300}
+                color={colors.DEP_blue300.val}
                 height={iconSizes.icon16}
                 width={iconSizes.icon16}
               />
             }
           />
         ),
-        onPress: () => openUri(UNISWAP_HELP_CENTER_WALLET_URL),
+        onPress: () => openUri(uniswapUrls.helpArticleUrls.walletHelp),
       },
       [ActionOption.Import]: {
         title: t('Import wallet'),
@@ -124,10 +122,10 @@ export function WalletEmptyState(): JSX.Element {
         elementName: ElementName.EmptyStateImport,
         icon: (
           <IconContainer
-            backgroundColor={colors.violet400}
+            backgroundColor={rawColors.violet400}
             icon={
               <PaperStackIcon
-                color={colors.violet400}
+                color={rawColors.violet400}
                 height={iconSizes.icon20}
                 width={iconSizes.icon20}
               />
@@ -137,7 +135,7 @@ export function WalletEmptyState(): JSX.Element {
         onPress: () => dispatch(dispatch(openModal({ name: ModalName.AccountSwitcher }))),
       },
     }),
-    [dispatch, isViewOnly, t, theme.colors]
+    [dispatch, isViewOnly, t, colors]
   )
 
   // Order options based on view only status
@@ -146,7 +144,7 @@ export function WalletEmptyState(): JSX.Element {
     : [...(!isViewOnly ? [options.Buy] : []), options.Scan, options.Learn]
 
   return (
-    <Flex gap="spacing8">
+    <Flex gap="$spacing8">
       {sortedOptions.map((option) => (
         <ActionCard key={option.title} {...option} />
       ))}
@@ -163,26 +161,26 @@ const ActionCard = ({
   elementName,
 }: ActionCardItem): JSX.Element => (
   <Trace logPress element={elementName}>
-    <TouchableArea backgroundColor="surface2" borderRadius="rounded20" onPress={onPress}>
-      <Flex centered row p="spacing16">
+    <TouchableArea backgroundColor="$surface2" borderRadius="$rounded20" onPress={onPress}>
+      <Flex centered row gap="$spacing16" p="$spacing16">
         {icon}
-        <Flex flexShrink={1} gap="spacing4">
-          <Flex row alignItems="center" gap="spacing8">
-            <Text variant="subheadSmall">{title}</Text>
+        <Flex shrink gap="$spacing4">
+          <Flex row alignItems="center" gap="$spacing8">
+            <Text variant="subheading2">{title}</Text>
             {badgeText && (
               <Flex
                 centered
-                backgroundColor="DEP_magentaDark"
-                borderRadius="rounded8"
-                px="spacing8"
-                py="spacing4">
-                <Text color="accent1" variant="buttonLabelMicro">
+                backgroundColor="$DEP_magentaDark"
+                borderRadius="$rounded8"
+                px="$spacing8"
+                py="$spacing4">
+                <Text color="$accent1" variant="buttonLabel4">
                   {badgeText}
                 </Text>
               </Flex>
             )}
           </Flex>
-          <Text color="neutral2" variant="bodySmall">
+          <Text color="$neutral2" variant="body2">
             {blurb}
           </Text>
         </Flex>
@@ -200,7 +198,7 @@ const IconContainer = ({
 }): JSX.Element => (
   <Flex
     centered
-    borderRadius="roundedFull"
+    borderRadius="$roundedFull"
     height={iconSizes.icon36}
     style={{ backgroundColor: opacify(10, backgroundColor) }}
     width={iconSizes.icon36}>

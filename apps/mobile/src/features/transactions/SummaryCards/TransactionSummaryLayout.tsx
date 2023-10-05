@@ -2,17 +2,15 @@
 import { providers } from 'ethers'
 import { default as React, memo, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useAppDispatch, useAppTheme } from 'src/app/hooks'
-import { TouchableArea } from 'src/components/buttons/TouchableArea'
-import { Box, Flex } from 'src/components/layout'
+import { useAppDispatch } from 'src/app/hooks'
 import { SpinningLoader } from 'src/components/loading/SpinningLoader'
 import { BottomSheetModal } from 'src/components/modals/BottomSheetModal'
-import { Text } from 'src/components/Text'
 import { ModalName } from 'src/features/telemetry/constants'
 import { useLowestPendingNonce } from 'src/features/transactions/hooks'
 import { CancelConfirmationView } from 'src/features/transactions/SummaryCards/CancelConfirmationView'
 import TransactionActionsModal from 'src/features/transactions/SummaryCards/TransactionActionsModal'
 import { openMoonpayTransactionLink, openTransactionLink } from 'src/utils/linking'
+import { Flex, Text, TouchableArea, useSporeColors } from 'ui/src'
 import AlertTriangle from 'ui/src/assets/icons/alert-triangle.svg'
 import SlashCircleIcon from 'ui/src/assets/icons/slash-circle.svg'
 import { cancelTransaction } from 'wallet/src/features/transactions/slice'
@@ -37,7 +35,7 @@ function TransactionSummaryLayout({
   onRetry,
 }: TransactionSummaryLayoutProps): JSX.Element {
   const { t } = useTranslation()
-  const theme = useAppTheme()
+  const colors = useSporeColors()
 
   const { type } = useActiveAccountWithThrow()
   const readonly = type === AccountType.Readonly
@@ -94,60 +92,60 @@ function TransactionSummaryLayout({
 
   const formattedAddedTime = useFormattedTime(transaction.addedTime)
 
-  const statusIconFill = theme.colors.surface1
+  const statusIconFill = colors.surface1.val
 
   const rightBlock = inCancelling ? (
     <SlashCircleIcon
-      color={theme.colors.statusCritical}
+      color={colors.statusCritical.val}
       fill={statusIconFill}
       fillOpacity={1}
       height={TXN_STATUS_ICON_SIZE}
       width={TXN_STATUS_ICON_SIZE}
     />
   ) : status === TransactionStatus.Failed ? (
-    <Box alignItems="flex-end" flexGrow={1} justifyContent="space-between">
+    <Flex grow alignItems="flex-end" justifyContent="space-between">
       <AlertTriangle
-        color={theme.colors.DEP_accentWarning}
+        color={colors.DEP_accentWarning.val}
         fill={statusIconFill}
         height={TXN_STATUS_ICON_SIZE}
         width={TXN_STATUS_ICON_SIZE}
       />
-    </Box>
+    </Flex>
   ) : (
-    <Text color="neutral3" variant="bodyMicro">
+    <Text color="$neutral3" variant="body3">
       {formattedAddedTime}
     </Text>
   )
 
   return (
     <>
-      <TouchableArea mb="spacing24" overflow="hidden" onPress={onPress}>
-        <Flex grow row bg="surface1" gap="spacing12">
+      <TouchableArea mb="$spacing24" overflow="hidden" onPress={onPress}>
+        <Flex grow row bg="$surface1" gap="$spacing12">
           {icon && (
             <Flex centered width={TXN_HISTORY_ICON_SIZE}>
               {icon}
             </Flex>
           )}
-          <Flex grow shrink gap="none">
-            <Flex grow gap="none">
-              <Flex grow row alignItems="center" gap="spacing4" justifyContent="space-between">
-                <Text color="neutral2" numberOfLines={1} variant="bodyLarge">
+          <Flex grow shrink>
+            <Flex grow>
+              <Flex grow row alignItems="center" gap="$spacing4" justifyContent="space-between">
+                <Text color="$neutral2" numberOfLines={1} variant="body1">
                   {title}
                 </Text>
                 {!inProgress && rightBlock}
               </Flex>
-              <Flex grow row>
-                <Box flexGrow={1} flexShrink={1}>
-                  <Text color="neutral1" variant="subheadSmall">
+              <Flex grow row gap="$spacing16">
+                <Flex grow shrink>
+                  <Text color="$neutral1" variant="subheading2">
                     {caption}
                   </Text>
-                </Box>
+                </Flex>
                 {status === TransactionStatus.Failed && onRetry && (
-                  <Box flexShrink={0}>
-                    <Text color="accent1" variant="buttonLabelSmall" onPress={onRetry}>
+                  <Flex flexShrink={0}>
+                    <Text color="$accent1" variant="buttonLabel3" onPress={onRetry}>
                       {t('Retry')}
                     </Text>
-                  </Box>
+                  </Flex>
                 )}
               </Flex>
             </Flex>

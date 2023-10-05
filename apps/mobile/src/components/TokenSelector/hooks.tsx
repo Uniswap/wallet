@@ -1,4 +1,3 @@
-import { Token } from '@uniswap/sdk-core'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useAppSelector } from 'src/app/hooks'
 import { filter } from 'src/components/TokenSelector/filter'
@@ -11,17 +10,12 @@ import { usePopularTokens } from 'src/features/dataApi/topTokens'
 import { selectFavoriteTokens } from 'src/features/favorites/selectors'
 import { sendMobileAnalyticsEvent } from 'src/features/telemetry'
 import { MobileEventName } from 'src/features/telemetry/constants'
-import {
-  BNB_MAINNET_ADDRESS,
-  MATIC_BNB_ADDRESS,
-  MATIC_MAINNET_ADDRESS,
-} from 'wallet/src/constants/addresses'
+import { BRIDGED_BASE_ADDRESSES } from 'wallet/src/constants/addresses'
 import { ChainId } from 'wallet/src/constants/chains'
 import { DAI, USDC, USDT, WBTC } from 'wallet/src/constants/tokens'
 import { sortPortfolioBalances, usePortfolioBalances } from 'wallet/src/features/dataApi/balances'
 import { CurrencyInfo, GqlResult, PortfolioBalance } from 'wallet/src/features/dataApi/types'
 import { usePersistedError } from 'wallet/src/features/dataApi/utils'
-import { useSelectAccountHideSpamTokens } from 'wallet/src/features/wallet/hooks'
 import { areAddressesEqual } from 'wallet/src/utils/addresses'
 import {
   buildNativeCurrencyId,
@@ -49,12 +43,18 @@ export function useAllCommonBaseCurrencies(): GqlResult<CurrencyInfo[]> {
   // TokenProjects returns tokens on every network, so filter out native assets that have a
   // bridged version on other networks
   const filteredBaseCurrencyInfos = useMemo(() => {
-    return baseCurrencyInfos?.filter(
-      (currencyInfo) =>
-        !areAddressesEqual((currencyInfo.currency as Token).address, MATIC_MAINNET_ADDRESS) &&
-        !areAddressesEqual((currencyInfo.currency as Token).address, MATIC_BNB_ADDRESS) &&
-        !areAddressesEqual((currencyInfo.currency as Token).address, BNB_MAINNET_ADDRESS)
-    )
+    return baseCurrencyInfos?.filter((currencyInfo) => {
+      if (currencyInfo.currency.isNative) return true
+
+      const { address } = currencyInfo.currency
+      const bridgedAsset = BRIDGED_BASE_ADDRESSES.find((bridgedAddress) =>
+        areAddressesEqual(bridgedAddress, address)
+      )
+
+      if (!bridgedAsset) return true
+
+      return false
+    })
   }, [baseCurrencyInfos])
 
   return { data: filteredBaseCurrencyInfos, loading, error: persistedError, refetch }
@@ -166,8 +166,6 @@ export function useCurrencyInfosToTokenOptions({
 export function usePortfolioBalancesForAddressById(
   address: Address
 ): GqlResult<Record<Address, PortfolioBalance> | undefined> {
-  const hideSpamTokens = useSelectAccountHideSpamTokens(address)
-
   const {
     data: portfolioBalancesById,
     error,
@@ -176,8 +174,6 @@ export function usePortfolioBalancesForAddressById(
   } = usePortfolioBalances({
     address,
     shouldPoll: false, // Home tab's TokenBalanceList will poll portfolio balances for activeAccount
-    hideSmallBalances: false, // always show small balances in token selector
-    hideSpamTokens,
     fetchPolicy: 'cache-first', // we want to avoid re-renders when token selector is opening
   })
 

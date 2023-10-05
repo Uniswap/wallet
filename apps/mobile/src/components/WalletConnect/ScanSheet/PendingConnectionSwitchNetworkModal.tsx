@@ -1,11 +1,8 @@
 import React, { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useAppTheme } from 'src/app/hooks'
-import { Box, Flex } from 'src/components/layout'
-import { Separator } from 'src/components/layout/Separator'
 import { ActionSheetModal } from 'src/components/modals/ActionSheetModal'
-import { Text } from 'src/components/Text'
 import { ElementName, ModalName } from 'src/features/telemetry/constants'
+import { Flex, Separator, Text, useSporeColors } from 'ui/src'
 import Check from 'ui/src/assets/icons/check.svg'
 import { iconSizes } from 'ui/src/theme'
 import { NetworkLogo } from 'wallet/src/components/CurrencyLogo/NetworkLogo'
@@ -22,7 +19,7 @@ export const PendingConnectionSwitchNetworkModal = ({
   onPressChain,
   onClose,
 }: Props): JSX.Element => {
-  const theme = useAppTheme()
+  const colors = useSporeColors()
   const { t } = useTranslation()
 
   const options = useMemo(
@@ -39,30 +36,34 @@ export const PendingConnectionSwitchNetworkModal = ({
                 row
                 alignItems="center"
                 justifyContent="space-between"
-                px="spacing24"
-                py="spacing16">
+                px="$spacing24"
+                py="$spacing16">
                 <NetworkLogo chainId={chainId} size={iconSizes.icon24} />
-                <Text color="neutral1" variant="bodyLarge">
+                <Text color="$neutral1" variant="body1">
                   {info.label}
                 </Text>
-                <Box height={24} width={24}>
+                <Flex height={iconSizes.icon24} width={iconSizes.icon24}>
                   {chainId === selectedChainId && (
-                    <Check color={theme.colors.accent1} height={24} width={24} />
+                    <Check
+                      color={colors.accent1.val}
+                      height={iconSizes.icon24}
+                      width={iconSizes.icon24}
+                    />
                   )}
-                </Box>
+                </Flex>
               </Flex>
             </>
           ),
         }
       }),
-    [selectedChainId, onPressChain, theme.colors.accent1]
+    [selectedChainId, onPressChain, colors.accent1.val]
   )
 
   return (
     <ActionSheetModal
       header={
-        <Flex centered gap="spacing4" py="spacing16">
-          <Text variant="buttonLabelMedium">{t('Switch Network')}</Text>
+        <Flex centered gap="$spacing4" py="$spacing16">
+          <Text variant="buttonLabel2">{t('Switch Network')}</Text>
         </Flex>
       }
       isVisible={true}

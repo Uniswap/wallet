@@ -3,7 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { createStackNavigator, TransitionPresets } from '@react-navigation/stack'
 import React from 'react'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { useAppSelector, useAppTheme } from 'src/app/hooks'
+import { useAppSelector } from 'src/app/hooks'
 import {
   AppStackParamList,
   AppStackScreenProp,
@@ -41,7 +41,6 @@ import { SecuritySetupScreen } from 'src/screens/Onboarding/SecuritySetupScreen'
 import { OnboardingScreens, Screens } from 'src/screens/Screens'
 import { SettingsAppearanceScreen } from 'src/screens/SettingsAppearanceScreen'
 import { SettingsBiometricAuthScreen } from 'src/screens/SettingsBiometricAuthScreen'
-import { SettingsChainsScreen } from 'src/screens/SettingsChainsScreen'
 import { SettingsCloudBackupPasswordConfirmScreen } from 'src/screens/SettingsCloudBackupPasswordConfirmScreen'
 import { SettingsCloudBackupPasswordCreateScreen } from 'src/screens/SettingsCloudBackupPasswordCreateScreen'
 import { SettingsCloudBackupProcessingScreen } from 'src/screens/SettingsCloudBackupProcessingScreen'
@@ -53,7 +52,8 @@ import { SettingsWalletEdit } from 'src/screens/SettingsWalletEdit'
 import { SettingsWalletManageConnection } from 'src/screens/SettingsWalletManageConnection'
 import { TokenDetailsScreen } from 'src/screens/TokenDetailsScreen'
 import { WebViewScreen } from 'src/screens/WebViewScreen'
-import { Icons } from 'ui/src'
+import { Icons, useSporeColors } from 'ui/src'
+import { spacing } from 'ui/src/theme'
 import { selectFinishedOnboarding } from 'wallet/src/features/wallet/selectors'
 
 const OnboardingStack = createStackNavigator<OnboardingStackParamList>()
@@ -77,7 +77,6 @@ function SettingsStackGroup(): JSX.Element {
         name={Screens.SettingsWalletManageConnection}
       />
       <SettingsStack.Screen component={WebViewScreen} name={Screens.WebView} />
-      <SettingsStack.Screen component={SettingsChainsScreen} name={Screens.SettingsChains} />
       <SettingsStack.Screen component={DevScreen} name={Screens.Dev} />
       <SettingsStack.Screen
         component={SettingsBiometricAuthScreen}
@@ -117,7 +116,7 @@ export function WrappedHomeScreen(props: AppStackScreenProp<Screens.Home>): JSX.
 }
 
 export function ExploreStackNavigator(): JSX.Element {
-  const theme = useAppTheme()
+  const colors = useSporeColors()
 
   return (
     <NavigationContainer
@@ -144,7 +143,7 @@ export function ExploreStackNavigator(): JSX.Element {
         }}>
         <ExploreStack.Screen component={ExploreScreen} name={Screens.Explore} />
         <ExploreStack.Group
-          screenOptions={{ contentStyle: { backgroundColor: theme.colors.surface1 } }}>
+          screenOptions={{ contentStyle: { backgroundColor: colors.surface1.val } }}>
           <ExploreStack.Screen component={ExternalProfileScreen} name={Screens.ExternalProfile} />
           <ExploreStack.Screen component={NFTCollectionScreen} name={Screens.NFTCollection} />
           <ExploreStack.Screen component={NFTItemScreen} name={Screens.NFTItem} />
@@ -158,8 +157,7 @@ export function ExploreStackNavigator(): JSX.Element {
 const renderEmptyBackImage = (): JSX.Element => <></>
 
 export function OnboardingStackNavigator(): JSX.Element {
-  // TODO (MOB-1211): import these values from Tamagui
-  const theme = useAppTheme()
+  const colors = useSporeColors()
   const insets = useSafeAreaInsets()
 
   const renderHeaderBackImage = (): JSX.Element => (
@@ -174,11 +172,11 @@ export function OnboardingStackNavigator(): JSX.Element {
           headerTitle: '',
           headerBackTitleVisible: false,
           headerBackImage: renderHeaderBackImage,
-          headerStatusBarHeight: insets.top + theme.spacing.spacing8,
+          headerStatusBarHeight: insets.top + spacing.spacing8,
           headerTransparent: true,
-          headerTintColor: theme.colors.neutral2,
-          headerLeftContainerStyle: { paddingLeft: theme.spacing.spacing16 },
-          headerRightContainerStyle: { paddingRight: theme.spacing.spacing16 },
+          headerTintColor: colors.neutral2.val,
+          headerLeftContainerStyle: { paddingLeft: spacing.spacing16 },
+          headerRightContainerStyle: { paddingRight: spacing.spacing16 },
           ...TransitionPresets.SlideFromRightIOS,
         }}>
         <OnboardingStack.Screen

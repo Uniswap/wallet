@@ -1,8 +1,6 @@
 import React from 'react'
 import { AddressDisplay } from 'src/components/AddressDisplay'
-import { Flex } from 'src/components/layout'
-import { Text } from 'src/components/Text'
-import { Icons } from 'ui/src'
+import { Flex, Icons, Text } from 'ui/src'
 import { shortenAddress } from 'wallet/src/utils/addresses'
 
 export function AccountDetails({
@@ -15,18 +13,18 @@ export function AccountDetails({
   chevron?: boolean
 }): JSX.Element {
   return (
-    <Flex row shrink alignItems="center" justifyContent="space-between">
-      <Flex row shrink flex={1}>
+    <Flex row shrink alignItems="center" gap="$spacing16" justifyContent="space-between">
+      <Flex fill row shrink>
         <AddressDisplay
           hideAddressInSubtitle
           address={address}
           horizontalGap="$spacing8"
           size={iconSize}
-          variant="subheadSmall"
+          variant="body3"
         />
       </Flex>
-      <Flex row shrink flex={1} gap="spacing4" justifyContent="flex-end">
-        <Text color="neutral2" variant="subheadSmall">
+      <Flex fill row shrink gap="$spacing4" justifyContent="flex-end">
+        <Text color="$neutral2" variant="body3">
           {shortenAddress(address)}
         </Text>
         {chevron && (

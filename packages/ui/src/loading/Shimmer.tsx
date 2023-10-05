@@ -1,6 +1,6 @@
 import MaskedView from '@react-native-masked-view/masked-view'
-import { useEffect, useState } from 'react'
-import { LayoutRectangle, StyleSheet, View } from 'react-native'
+import { useLayoutEffect, useState } from 'react'
+import { LayoutRectangle, StyleSheet } from 'react-native'
 import Reanimated, {
   interpolate,
   useAnimatedStyle,
@@ -10,6 +10,7 @@ import Reanimated, {
 } from 'react-native-reanimated'
 import { LinearGradient } from 'tamagui/linear-gradient'
 import { Box } from 'ui/src/components/layout/Box'
+import { Flex } from 'ui/src/components/layout/Flex'
 
 const SHIMMER_DURATION = 2000 // 2 seconds
 
@@ -23,7 +24,7 @@ export function Shimmer({ children, contrast }: Props): JSX.Element {
   const [layout, setLayout] = useState<LayoutRectangle | null>()
   const xPosition = useSharedValue(0)
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     // TODO: [MOB-210] tweak animation to be smoother, right now sometimes looks kind of stuttery
     xPosition.value = withRepeat(withTiming(1, { duration: SHIMMER_DURATION }), Infinity, true)
 
@@ -44,7 +45,11 @@ export function Shimmer({ children, contrast }: Props): JSX.Element {
   }))
 
   if (!layout) {
-    return <View onLayout={(event): void => setLayout(event.nativeEvent.layout)}>{children}</View>
+    return (
+      <Flex opacity={0} onLayout={(event): void => setLayout(event.nativeEvent.layout)}>
+        {children}
+      </Flex>
+    )
   }
 
   return (
@@ -55,7 +60,7 @@ export function Shimmer({ children, contrast }: Props): JSX.Element {
         width: layout.width,
         height: layout.height,
       }}>
-      <Box backgroundColor={contrast ? '$neutral2' : '$surface3'} flexGrow={1} overflow="hidden" />
+      <Flex grow backgroundColor={contrast ? '$neutral2' : '$surface3'} overflow="hidden" />
       <Reanimated.View style={[StyleSheet.absoluteFill, animatedStyle]}>
         <MaskedView
           maskElement={

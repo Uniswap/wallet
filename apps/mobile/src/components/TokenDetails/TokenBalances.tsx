@@ -1,14 +1,10 @@
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useAppTheme } from 'src/app/hooks'
-import { TouchableArea } from 'src/components/buttons/TouchableArea'
-import { Box, Flex } from 'src/components/layout'
-import { Separator } from 'src/components/layout/Separator'
 import { InlineNetworkPill } from 'src/components/Network/NetworkPill'
-import { Text } from 'src/components/Text'
 import { useTokenDetailsNavigation } from 'src/components/TokenDetails/hooks'
 import Trace from 'src/components/Trace/Trace'
 import { MobileEventName } from 'src/features/telemetry/constants'
+import { Flex, Separator, Text, TouchableArea, useSporeColors } from 'ui/src'
 import { iconSizes } from 'ui/src/theme'
 import { formatNumber, NumberType } from 'utilities/src/format/format'
 import { TokenLogo } from 'wallet/src/components/CurrencyLogo/TokenLogo'
@@ -54,9 +50,9 @@ export function TokenBalances({
   if (!hasCurrentChainBalances && !hasOtherChainBalances) return null
 
   return (
-    <Flex borderRadius="rounded8" gap="spacing24">
+    <Flex borderRadius="$rounded8" gap="$spacing24">
       {currentChainBalance && (
-        <Flex gap="spacing24">
+        <Flex gap="$spacing24">
           <Separator />
           <CurrentChainBalance
             balance={currentChainBalance}
@@ -68,10 +64,10 @@ export function TokenBalances({
       )}
       {hasOtherChainBalances && otherChainBalances ? (
         <Flex>
-          <Text color="neutral2" variant="subheadSmall">
+          <Text color="$neutral2" variant="subheading2">
             {t('Balances on other networks')}
           </Text>
-          <Flex gap="spacing12">
+          <Flex gap="$spacing12">
             {otherChainBalances.map((balance) => {
               return (
                 <OtherChainBalance
@@ -100,24 +96,24 @@ export function CurrentChainBalance({
   onPressSend: () => void
 }): JSX.Element {
   const { t } = useTranslation()
-  const theme = useAppTheme()
+  const colors = useSporeColors()
 
   return (
     <Flex row>
-      <Flex fill gap="spacing4">
-        <Text color="neutral2" variant="subheadSmall">
+      <Flex fill gap="$spacing4">
+        <Text color="$neutral2" variant="subheading2">
           {isReadonly ? t('{{owner}}’s balance', { owner: displayName }) : t('Your balance')}
         </Text>
-        <Text variant="subheadLarge">
+        <Text variant="subheading1">
           {formatNumber(balance.balanceUSD, NumberType.FiatTokenDetails)}
         </Text>
-        <Text color="neutral2" variant="bodySmall">
+        <Text color="$neutral2" variant="body2">
           {formatNumber(balance.quantity, NumberType.TokenNonTx)}{' '}
           {getSymbolDisplayText(balance.currencyInfo.currency.symbol)}
         </Text>
       </Flex>
       <Flex alignItems="flex-end" justifyContent="center">
-        <SendButton color={theme.colors.neutral1} size={28} onPress={onPressSend} />
+        <SendButton color={colors.neutral1.val} size={iconSizes.icon28} onPress={onPressSend} />
       </Flex>
     </Flex>
   )
@@ -134,25 +130,25 @@ function OtherChainBalance({
     <Trace logPress pressEvent={MobileEventName.TokenDetailsOtherChainButtonPressed}>
       <TouchableArea hapticFeedback onPress={(): void => navigate(balance.currencyInfo.currencyId)}>
         <Flex row alignItems="center" justifyContent="space-between">
-          <Flex row alignItems="center" gap="spacing4">
+          <Flex row alignItems="center" gap="$spacing4">
             <TokenLogo
               chainId={balance.currencyInfo.currency.chainId}
               size={iconSizes.icon36}
               symbol={balance.currencyInfo.currency.symbol}
               url={balance.currencyInfo.logoUrl ?? undefined}
             />
-            <Box alignItems="flex-start">
-              <Text px="spacing4" variant="bodyLarge">
+            <Flex alignItems="flex-start">
+              <Text px="$spacing4" variant="body1">
                 {formatNumber(balance.balanceUSD, NumberType.FiatTokenDetails)}
               </Text>
               <InlineNetworkPill
                 chainId={balance.currencyInfo.currency.chainId}
                 showBackgroundColor={false}
-                textVariant="buttonLabelMicro"
+                textVariant="buttonLabel4"
               />
-            </Box>
+            </Flex>
           </Flex>
-          <Text color="neutral2" variant="bodyLarge">
+          <Text color="$neutral2" variant="body1">
             {formatNumber(balance.quantity, NumberType.TokenNonTx)}{' '}
             {getSymbolDisplayText(balance.currencyInfo.currency.symbol)}
           </Text>

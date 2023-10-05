@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import { Action } from 'redux'
 import { useAppDispatch, useAppSelector } from 'src/app/hooks'
-import { Button, ButtonSize } from 'src/components/buttons/Button'
 import { Switch } from 'src/components/buttons/Switch'
 import { TextInput } from 'src/components/input/TextInput'
 import { BottomSheetModal } from 'src/components/modals/BottomSheetModal'
@@ -10,7 +9,7 @@ import { ModalName } from 'src/features/telemetry/constants'
 import { selectCustomEndpoint } from 'src/features/tweaks/selectors'
 import { setCustomEndpoint } from 'src/features/tweaks/slice'
 import { Statsig } from 'statsig-react'
-import { Flex, Text } from 'ui/src'
+import { Button, Flex, Text } from 'ui/src'
 import { FEATURE_FLAGS } from 'wallet/src/features/experiments/constants'
 import { useFeatureFlag } from 'wallet/src/features/experiments/hooks'
 
@@ -50,28 +49,29 @@ export function ExperimentsModal(): JSX.Element {
         pt="$spacing12"
         px="$spacing24">
         <Flex gap="$spacing8">
-          <Flex my="$spacing16">
-            <Text variant="subheadLarge">⚙️ Custom GraphQL Endpoint</Text>
-            <Text variant="bodySmall">
+          <Flex gap="$spacing16" my="$spacing16">
+            <Text variant="subheading1">⚙️ Custom GraphQL Endpoint</Text>
+            <Text variant="body2">
               You will need to restart the application to pick up any changes in this section.
               Beware of client side caching!
             </Text>
-            <Flex row alignItems="center">
-              <Text variant="bodySmall">URL</Text>
+            <Flex row alignItems="center" gap="$spacing16">
+              <Text variant="body2">URL</Text>
               <TextInput flex={1} value={url} onChangeText={setUrl} />
             </Flex>
-            <Flex row alignItems="center">
-              <Text variant="bodySmall">Key</Text>
+            <Flex row alignItems="center" gap="$spacing16">
+              <Text variant="body2">Key</Text>
               <TextInput flex={1} value={key} onChangeText={setKey} />
             </Flex>
-            <Button label="Set" size={ButtonSize.Small} onPress={setEndpoint} />
-            <Button label="Clear" size={ButtonSize.Small} onPress={clearEndpoint} />
+            <Button size="small" onPress={setEndpoint}>
+              Set
+            </Button>
+            <Button size="small" onPress={clearEndpoint}>
+              Clear
+            </Button>
           </Flex>
-
-          <Text variant="subheadLarge">⛳️ Feature Flags</Text>
-          <Text variant="bodySmall">
-            Overridden feature flags are reset when the app is restarted
-          </Text>
+          <Text variant="subheading1">⛳️ Feature Flags</Text>
+          <Text variant="body2">Overridden feature flags are reset when the app is restarted</Text>
         </Flex>
         {Object.values(FEATURE_FLAGS).map((featureFlag) => {
           return <FeatureFlagRow key={featureFlag} featureFlag={featureFlag} />
@@ -85,8 +85,8 @@ function FeatureFlagRow({ featureFlag }: { featureFlag: FEATURE_FLAGS }): JSX.El
   const status = useFeatureFlag(featureFlag)
 
   return (
-    <Flex row alignItems="center" justifyContent="space-between">
-      <Text variant="bodyLarge">{featureFlag}</Text>
+    <Flex row alignItems="center" gap="$spacing16" justifyContent="space-between">
+      <Text variant="body1">{featureFlag}</Text>
       <Switch
         value={status}
         onValueChange={(newValue: boolean): void => {

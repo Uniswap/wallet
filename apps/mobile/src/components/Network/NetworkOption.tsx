@@ -1,9 +1,6 @@
 import { default as React } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useAppTheme } from 'src/app/hooks'
-import { Box, Flex } from 'src/components/layout'
-import { Separator } from 'src/components/layout/Separator'
-import { Text } from 'src/components/Text'
+import { Flex, Separator, Text, useSporeColors } from 'ui/src'
 import Check from 'ui/src/assets/icons/check.svg'
 import { iconSizes } from 'ui/src/theme'
 import { NetworkLogo } from 'wallet/src/components/CurrencyLogo/NetworkLogo'
@@ -19,25 +16,21 @@ export function NetworkOption({
   currentlySelected?: boolean
 }): JSX.Element {
   const { t } = useTranslation()
-  const theme = useAppTheme()
+  const colors = useSporeColors()
   const info = chainId && CHAIN_INFO[chainId]
   return (
     <>
       <Separator />
-      <Flex row alignItems="center" justifyContent="space-between" px="spacing24" py="spacing16">
+      <Flex row alignItems="center" justifyContent="space-between" px="$spacing24" py="$spacing16">
         {(chainId && <NetworkLogo chainId={chainId} size={NETWORK_OPTION_ICON_SIZE} />) || (
-          <Box width={NETWORK_OPTION_ICON_SIZE} />
+          <Flex width={NETWORK_OPTION_ICON_SIZE} />
         )}
-        <Text color="neutral1" variant="bodyLarge">
+        <Text color="$neutral1" variant="body1">
           {info?.label ?? t('All networks')}
         </Text>
         <Flex centered height={NETWORK_OPTION_ICON_SIZE} width={NETWORK_OPTION_ICON_SIZE}>
           {currentlySelected && (
-            <Check
-              color={theme.colors.neutral1}
-              height={iconSizes.icon20}
-              width={iconSizes.icon20}
-            />
+            <Check color={colors.neutral1.val} height={iconSizes.icon20} width={iconSizes.icon20} />
           )}
         </Flex>
       </Flex>

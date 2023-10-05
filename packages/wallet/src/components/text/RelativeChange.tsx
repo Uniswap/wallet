@@ -1,7 +1,6 @@
-import { ColorTokens, Flex, Text, XStack } from 'ui/src'
+import { ColorTokens, Flex, Icons, Text } from 'ui/src'
 import { fonts, iconSizes } from 'ui/src/theme'
-import { formatNumber, NumberType } from 'utilities/src/format/format'
-import { Caret } from 'wallet/src/components/icons/Caret'
+import { formatNumber, formatPercent, NumberType } from 'utilities/src/format/format'
 
 interface RelativeChangeProps {
   change?: number
@@ -19,7 +18,7 @@ export function RelativeChange(props: RelativeChangeProps): JSX.Element {
   const {
     absoluteChange,
     change,
-    variant = 'subheadSmall',
+    variant = 'subheading2',
     semanticColor,
     positiveChangeColor = '$statusSuccess',
     negativeChangeColor = '$statusCritical',
@@ -31,18 +30,19 @@ export function RelativeChange(props: RelativeChangeProps): JSX.Element {
   const isPositiveChange = change !== undefined ? change >= 0 : undefined
   const arrowColor = isPositiveChange ? positiveChangeColor : negativeChangeColor
 
-  const formattedChange = change !== undefined ? `${Math.abs(change).toFixed(2)}%` : '-'
+  const formattedChange = formatPercent(change !== undefined ? Math.abs(change) : change)
   const formattedAbsChange = absoluteChange
     ? `${formatNumber(Math.abs(absoluteChange), NumberType.PortfolioBalance)}`
     : ''
 
   return (
-    <XStack
+    <Flex
+      row
       alignItems="center"
       gap="$spacing2"
       justifyContent={alignRight ? 'flex-end' : 'flex-start'}>
       {change !== undefined && (
-        <Caret color={arrowColor} direction={isPositiveChange ? 'n' : 's'} size={arrowSize} />
+        <Icons.Caret color={arrowColor} direction={isPositiveChange ? 'n' : 's'} size={arrowSize} />
       )}
       <Flex>
         <Text
@@ -50,11 +50,11 @@ export function RelativeChange(props: RelativeChangeProps): JSX.Element {
             semanticColor ? (isPositiveChange ? '$statusSuccess' : '$statusCritical') : '$neutral2'
           }
           loading={loading}
-          loadingPlaceholderText="$0.00 (0.00)%"
+          loadingPlaceholderText="▲ $0.00 (0.00)%"
           variant={variant}>
           {absoluteChange ? `${formattedAbsChange} (${formattedChange})` : formattedChange}
         </Text>
       </Flex>
-    </XStack>
+    </Flex>
   )
 }

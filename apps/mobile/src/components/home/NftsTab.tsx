@@ -6,14 +6,11 @@ import { useTranslation } from 'react-i18next'
 import { ListRenderItemInfo, RefreshControl, View } from 'react-native'
 import ContextMenu from 'react-native-context-menu-view'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { useAppDispatch, useAppTheme } from 'src/app/hooks'
+import { useAppDispatch } from 'src/app/hooks'
 import { useAppStackNavigation } from 'src/app/navigation/types'
-import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { useAdaptiveFooter } from 'src/components/home/hooks'
 import { AnimatedFlashList } from 'src/components/layout/AnimatedFlashList'
 import { BaseCard } from 'src/components/layout/BaseCard'
-import { Box } from 'src/components/layout/Box'
-import { Flex } from 'src/components/layout/Flex'
 import { TabProps, TAB_BAR_HEIGHT } from 'src/components/layout/TabHelpers'
 import { Loader } from 'src/components/loading'
 import { HiddenNftsRowLeft, HiddenNftsRowRight } from 'src/components/NFT/NFTHiddenRow'
@@ -32,8 +29,9 @@ import { getNFTAssetKey } from 'src/features/nfts/utils'
 import { ModalName } from 'src/features/telemetry/constants'
 import { removePendingSession } from 'src/features/walletConnect/walletConnectSlice'
 import { Screens } from 'src/screens/Screens'
+import { Flex, TouchableArea, useSporeColors } from 'ui/src'
 import NoNFTsIcon from 'ui/src/assets/icons/empty-state-picture.svg'
-import { dimensions } from 'ui/src/theme'
+import { borderRadii, dimensions, spacing } from 'ui/src/theme'
 import { GQLQueries } from 'wallet/src/data/queries'
 import { isError, isNonPollingRequestInFlight } from 'wallet/src/data/utils'
 import { NftsTabQuery, useNftsTabQuery } from 'wallet/src/data/__generated__/types-and-hooks'
@@ -80,7 +78,6 @@ const keyExtractor = (item: NFTItem | string): string =>
 
 function NftView({ owner, item }: { owner: Address; item: NFTItem }): JSX.Element {
   const navigation = useAppStackNavigation()
-  const theme = useAppTheme()
   const onPressItem = useCallback(() => {
     navigation.navigate(Screens.NFTItem, {
       owner,
@@ -99,22 +96,22 @@ function NftView({ owner, item }: { owner: Address; item: NFTItem }): JSX.Elemen
   })
 
   return (
-    <Box flex={1} justifyContent="flex-start" m="spacing4">
+    <Flex fill justifyContent="flex-start" m="$spacing4">
       <ContextMenu
         actions={menuActions}
         disabled={menuActions.length === 0}
-        style={{ borderRadius: theme.borderRadii.rounded16 }}
+        style={{ borderRadius: borderRadii.rounded16 }}
         onPress={onContextMenuPress}>
         <TouchableArea
           hapticFeedback
           activeOpacity={1}
           hapticStyle={ImpactFeedbackStyle.Light}
           onPress={onPressItem}>
-          <Box
+          <Flex
             alignItems="center"
             aspectRatio={1}
-            backgroundColor="surface3"
-            borderRadius="rounded12"
+            backgroundColor="$surface3"
+            borderRadius="$rounded12"
             overflow="hidden"
             width="100%">
             <NFTViewer
@@ -125,10 +122,10 @@ function NftView({ owner, item }: { owner: Address; item: NFTItem }): JSX.Elemen
               squareGridView={true}
               uri={item.imageUrl ?? ''}
             />
-          </Box>
+          </Flex>
         </TouchableArea>
       </ContextMenu>
-    </Box>
+    </Flex>
   )
 }
 
@@ -145,7 +142,7 @@ export const NftsTab = forwardRef<FlashList<unknown>, TabProps>(function _NftsTa
   ref
 ) {
   const { t } = useTranslation()
-  const theme = useAppTheme()
+  const colors = useSporeColors()
   const dispatch = useAppDispatch()
   const insets = useSafeAreaInsets()
 
@@ -227,22 +224,22 @@ export const NftsTab = forwardRef<FlashList<unknown>, TabProps>(function _NftsTa
           insets.top + (IS_ANDROID && headerHeight ? headerHeight + TAB_BAR_HEIGHT : 0)
         }
         refreshing={refreshing ?? false}
-        tintColor={theme.colors.neutral3}
+        tintColor={colors.neutral3.val}
         onRefresh={onRefresh}
       />
     )
-  }, [refreshing, headerHeight, onRefresh, theme.colors.neutral3, insets.top])
+  }, [refreshing, headerHeight, onRefresh, colors.neutral3.val, insets.top])
 
   const onRetry = useCallback(() => refetch(), [refetch])
 
   return (
-    <Flex grow px="spacing12">
+    <Flex grow px="$spacing12">
       <AnimatedFlashList
         ref={ref}
         ListEmptyComponent={
           // initial loading
           isNonPollingRequestInFlight(networkStatus) ? (
-            <View style={{ paddingHorizontal: theme.spacing.spacing12 }}>
+            <View style={{ paddingHorizontal: spacing.spacing12 }}>
               <Loader.NFT repeat={6} />
             </View>
           ) : // no response and we're not loading already
@@ -257,7 +254,7 @@ export const NftsTab = forwardRef<FlashList<unknown>, TabProps>(function _NftsTa
             </Flex>
           ) : (
             // empty view
-            <Box flexGrow={1} style={containerProps?.emptyContainerStyle}>
+            <Flex grow style={containerProps?.emptyContainerStyle}>
               <BaseCard.EmptyState
                 buttonLabel={isExternalProfile ? undefined : t('Receive NFTs')}
                 description={
@@ -265,11 +262,11 @@ export const NftsTab = forwardRef<FlashList<unknown>, TabProps>(function _NftsTa
                     ? t('When this wallet buys or receives NFTs, they’ll appear here.')
                     : t('Transfer NFTs from another wallet to get started.')
                 }
-                icon={<NoNFTsIcon color={theme.colors.neutral3} />}
+                icon={<NoNFTsIcon color={colors.neutral3.val} />}
                 title={t('No NFTs yet')}
                 onPress={onPressScan}
               />
-            </Box>
+            </Flex>
           )
         }
         // we add a footer to cover any possible space, so user can scroll the top menu all the way to the top

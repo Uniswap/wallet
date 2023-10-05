@@ -3,15 +3,19 @@ import { BlurView } from 'expo-blur'
 import React, { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Alert, Image, Platform, StyleSheet } from 'react-native'
-import { useAppDispatch, useAppTheme } from 'src/app/hooks'
+import { useAppDispatch } from 'src/app/hooks'
 import { OnboardingStackParamList } from 'src/app/navigation/types'
-import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { BiometricAuthWarningModal } from 'src/components/Settings/BiometricAuthWarningModal'
 import Trace from 'src/components/Trace/Trace'
 import { IS_IOS } from 'src/constants/globals'
-import { BiometricAuthenticationStatus, tryLocalAuthenticate } from 'src/features/biometrics'
+import {
+  BiometricAuthenticationStatus,
+  enroll,
+  tryLocalAuthenticate,
+} from 'src/features/biometrics'
 import {
   biometricAuthenticationSuccessful,
+  useBiometricName,
   useDeviceSupportsBiometricAuth,
 } from 'src/features/biometrics/hooks'
 import { setRequiredForTransactions } from 'src/features/biometrics/slice'
@@ -21,10 +25,11 @@ import { ImportType } from 'src/features/onboarding/utils'
 import { ElementName } from 'src/features/telemetry/constants'
 import { OnboardingScreens } from 'src/screens/Screens'
 import { openSettings } from 'src/utils/linking'
-import { Box, Button, Flex, Text } from 'ui/src'
+import { Button, Flex, Text, TouchableArea, useSporeColors } from 'ui/src'
 import { SECURITY_SCREEN_BACKGROUND_DARK, SECURITY_SCREEN_BACKGROUND_LIGHT } from 'ui/src/assets'
 import FaceIcon from 'ui/src/assets/icons/faceid-thin.svg'
 import FingerprintIcon from 'ui/src/assets/icons/fingerprint.svg'
+import { imageSizes } from 'ui/src/theme'
 import { theme as FixedTheme } from 'ui/src/theme/restyle'
 import { useIsDarkMode } from 'wallet/src/features/appearance/hooks'
 import { opacify } from 'wallet/src/utils/colors'
@@ -33,13 +38,13 @@ type Props = NativeStackScreenProps<OnboardingStackParamList, OnboardingScreens.
 
 export function SecuritySetupScreen({ route: { params } }: Props): JSX.Element {
   const { t } = useTranslation()
-  const theme = useAppTheme()
+  const colors = useSporeColors()
   const dispatch = useAppDispatch()
   const isDarkMode = useIsDarkMode()
 
   const [showWarningModal, setShowWarningModal] = useState(false)
   const { touchId: isTouchIdDevice } = useDeviceSupportsBiometricAuth()
-  const authenticationTypeName = isTouchIdDevice ? 'Touch' : 'Face'
+  const authenticationTypeName = useBiometricName(isTouchIdDevice)
 
   const onCompleteOnboarding = useCompleteOnboardingCallback(params.entryPoint, params.importType)
 
@@ -62,17 +67,31 @@ export function SecuritySetupScreen({ route: { params } }: Props): JSX.Element {
       cancelLabel: 'Cancel',
     })
 
+    const authTypeCapitalized =
+      authenticationTypeName.charAt(0).toUpperCase() + authenticationTypeName.slice(1)
+
+    // TODO - change the way we handle the Unsupported case (there is no point in redirecting
+    // to settings if the device does not support biometrics - maybe use some fallback method
+    // like PIN or password and display different screen than this in the app)
     if (
       authStatus === BiometricAuthenticationStatus.Unsupported ||
       authStatus === BiometricAuthenticationStatus.MissingEnrollment
     ) {
-      Alert.alert(
-        t('{{authenticationTypeName}} ID is disabled', { authenticationTypeName }),
-        t('To use {{authenticationTypeName}} ID, allow access in system settings', {
-          authenticationTypeName,
-        }),
-        [{ text: t('Go to settings'), onPress: openSettings }, { text: t('Not now') }]
-      )
+      IS_IOS
+        ? Alert.alert(
+            t('{{authTypeCapitalized}} is disabled', { authTypeCapitalized }),
+            t('To use {{authenticationTypeName}}, allow access in system settings', {
+              authenticationTypeName,
+            }),
+            [{ text: t('Go to settings'), onPress: openSettings }, { text: t('Not now') }]
+          )
+        : Alert.alert(
+            t('{{authTypeCapitalized}} is disabled', { authTypeCapitalized }),
+            t('To use {{authenticationTypeName}}, set up it first in settings', {
+              authenticationTypeName,
+            }),
+            [{ text: t('Set up'), onPress: enroll }, { text: t('Not now') }]
+          )
     }
 
     if (biometricAuthenticationSuccessful(authStatus)) {
@@ -93,27 +112,27 @@ export function SecuritySetupScreen({ route: { params } }: Props): JSX.Element {
         />
       )}
       <OnboardingScreen
-        childrenGap="none"
+        childrenGap="$none"
         subtitle={t(
-          'Add an extra layer of security by requiring {{ authenticationTypeName }} ID to send transactions.',
+          'Add an extra layer of security by requiring {{ authenticationTypeName }} to send transactions.',
           {
             authenticationTypeName,
           }
         )}
         title={t('Protect your wallet')}>
-        <Flex centered shrink my="$spacing12" position="relative" py="$spacing24">
-          <Box paddingTop="$spacing24">
+        <Flex centered shrink gap="$spacing16" my="$spacing12" position="relative" py="$spacing24">
+          <Flex pt="$spacing24">
             <SecurityBackgroundImage />
-          </Box>
-          <Box
+          </Flex>
+          <Flex
             borderRadius="$rounded16"
             borderWidth={1}
             overflow="hidden"
-            padding="$spacing36"
+            p="$spacing36"
             position="absolute"
             style={{
-              borderColor: opacify(15, theme.colors.sporeWhite),
-              backgroundColor: opacify(35, theme.colors.surface1),
+              borderColor: opacify(15, colors.sporeWhite.val),
+              backgroundColor: opacify(35, colors.surface1.val),
             }}
             top={0}>
             <BlurView
@@ -123,30 +142,30 @@ export function SecuritySetupScreen({ route: { params } }: Props): JSX.Element {
             />
             {isTouchIdDevice ? (
               <FingerprintIcon
-                color={theme.colors.sporeWhite}
-                height={theme.imageSizes.image48}
-                width={theme.imageSizes.image48}
+                color={colors.sporeWhite.val}
+                height={imageSizes.image48}
+                width={imageSizes.image48}
               />
             ) : (
               <FaceIcon
-                color={theme.colors.sporeWhite}
-                height={theme.imageSizes.image48}
-                width={theme.imageSizes.image48}
+                color={colors.sporeWhite.val}
+                height={imageSizes.image48}
+                width={imageSizes.image48}
               />
             )}
-          </Box>
+          </Flex>
         </Flex>
         <Flex gap="$spacing24">
           <Trace logPress element={ElementName.Skip}>
             <TouchableArea onPress={onMaybeLaterPressed}>
-              <Text color="$accent1" textAlign="center" variant="buttonLabelMedium">
+              <Text color="$accent1" textAlign="center" variant="buttonLabel2">
                 {t('Maybe later')}
               </Text>
             </TouchableArea>
           </Trace>
           <Trace logPress element={ElementName.Enable}>
             <Button theme="primary" onPress={onPressEnableSecurity}>
-              {t('Turn on {{authenticationTypeName}} ID', {
+              {t('Turn on {{authenticationTypeName}}', {
                 authenticationTypeName,
               })}
             </Button>

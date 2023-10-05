@@ -1,15 +1,14 @@
 import { useResponsiveProp } from '@shopify/restyle'
 import React from 'react'
 import { SvgProps } from 'react-native-svg'
-import { useAppDispatch, useAppTheme } from 'src/app/hooks'
-import { TouchableArea } from 'src/components/buttons/TouchableArea'
-import { Flex } from 'src/components/layout'
-import { Text } from 'src/components/Text'
+import { useAppDispatch } from 'src/app/hooks'
 import Trace from 'src/components/Trace/Trace'
 import { ElementName } from 'src/features/telemetry/constants'
 import { setClipboard } from 'src/utils/clipboard'
 import { openUri } from 'src/utils/linking'
+import { Flex, Text, TouchableArea, useSporeColors } from 'ui/src'
 import CopyIcon from 'ui/src/assets/icons/copy-sheets.svg'
+import { iconSizes } from 'ui/src/theme'
 import { pushNotification } from 'wallet/src/features/notifications/slice'
 import { AppNotificationType, CopyNotificationType } from 'wallet/src/features/notifications/types'
 
@@ -36,11 +35,11 @@ export function LinkButton({
   value: string
 }): JSX.Element {
   const dispatch = useAppDispatch()
-  const theme = useAppTheme()
+  const colors = useSporeColors()
 
   const fontSize = useResponsiveProp({
-    xs: 'buttonLabelMicro',
-    sm: 'buttonLabelSmall',
+    xs: 'buttonLabel4',
+    sm: 'buttonLabel3',
   })
 
   const copyValue = async (): Promise<void> => {
@@ -65,28 +64,24 @@ export function LinkButton({
     <Trace logPress element={element}>
       <TouchableArea
         hapticFeedback
-        backgroundColor="surface2"
-        borderRadius="rounded20"
-        paddingHorizontal="spacing12"
-        paddingVertical="spacing8"
+        backgroundColor="$surface2"
+        borderRadius="$rounded20"
+        px="$spacing12"
+        py="$spacing8"
         testID={element}
         onPress={onPress}>
-        <Flex centered row gap="spacing8">
+        <Flex centered row gap="$spacing8">
           {Icon && (
-            <Icon
-              color={theme.colors.neutral1}
-              height={theme.iconSizes.icon16}
-              width={theme.iconSizes.icon16}
-            />
+            <Icon color={colors.neutral1.val} height={iconSizes.icon16} width={iconSizes.icon16} />
           )}
-          <Text color="neutral1" variant={fontSize}>
+          <Text color="$neutral1" variant={fontSize}>
             {label}
           </Text>
           {buttonType === LinkButtonType.Copy && (
             <CopyIcon
-              color={theme.colors.neutral2}
-              height={theme.iconSizes.icon16}
-              width={theme.iconSizes.icon16}
+              color={colors.neutral2.val}
+              height={iconSizes.icon16}
+              width={iconSizes.icon16}
             />
           )}
         </Flex>

@@ -1,10 +1,10 @@
 import React from 'react'
-import { Box, BoxProps } from 'src/components/layout'
+import { Flex, FlexProps } from 'ui/src'
 
-export function NftCardLoader({ ...props }: BoxProps): JSX.Element {
+export function NftCardLoader({ ...props }: FlexProps): JSX.Element {
   return (
-    <Box flex={1} justifyContent="flex-start" m="spacing4" {...props}>
-      <Box aspectRatio={1} backgroundColor="surface3" borderRadius="rounded12" width="100%" />
-    </Box>
+    <Flex fill justifyContent="flex-start" m="$spacing4" {...props}>
+      <Flex aspectRatio={1} backgroundColor="$surface3" borderRadius="$rounded12" width="100%" />
+    </Flex>
   )
 }

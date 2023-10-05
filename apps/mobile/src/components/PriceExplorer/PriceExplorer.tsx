@@ -1,10 +1,7 @@
-import { SCREEN_WIDTH } from '@gorhom/bottom-sheet'
 import { ImpactFeedbackStyle } from 'expo-haptics'
 import React from 'react'
 import { SharedValue } from 'react-native-reanimated'
 import { LineChart, LineChartProvider } from 'react-native-wagmi-charts'
-import { Flex } from 'src/components/layout'
-import { Box } from 'src/components/layout/Box'
 import { Loader } from 'src/components/loading'
 import {
   CHART_HEIGHT,
@@ -15,6 +12,7 @@ import { PriceExplorerError } from 'src/components/PriceExplorer/PriceExplorerEr
 import { DatetimeText, PriceText, RelativeChangeText } from 'src/components/PriceExplorer/Text'
 import { TimeRangeGroup } from 'src/components/PriceExplorer/TimeRangeGroup'
 import { invokeImpact } from 'src/utils/haptic'
+import { Flex } from 'ui/src'
 import { HistoryDuration } from 'wallet/src/data/__generated__/types-and-hooks'
 import { CurrencyId } from 'wallet/src/utils/currencyId'
 import { useTokenPriceHistory } from './usePriceHistory'
@@ -26,13 +24,13 @@ type PriceTextProps = {
 
 function PriceTextSection({ loading, relativeChange }: PriceTextProps): JSX.Element {
   return (
-    <Box mx="spacing12">
+    <Flex mx="$spacing12">
       <PriceText loading={loading} />
-      <Flex row gap="spacing4">
+      <Flex row gap="$spacing4">
         <RelativeChangeText loading={loading} spotRelativeChange={relativeChange} />
         <DatetimeText loading={loading} />
       </Flex>
-    </Box>
+    </Flex>
   )
 }
 
@@ -63,37 +61,18 @@ export function PriceExplorer({
     }
     return <PriceExplorerError showRetry={error !== undefined} onRetry={refetchAndRetry} />
   }
-  const shouldShowAnimatedDot =
-    selectedDuration === HistoryDuration.Day || selectedDuration === HistoryDuration.Hour
-  const additionalPadding = shouldShowAnimatedDot ? 40 : 0
-  const lastPricePoint = data?.priceHistory ? data.priceHistory.length - 1 : 0
 
   return (
-    <Box overflow="hidden">
+    <Flex overflow="hidden">
       {data?.priceHistory ? (
         <LineChartProvider
           data={data.priceHistory}
           onCurrentIndexChange={invokeImpact[ImpactFeedbackStyle.Light]}>
-          <Flex gap="spacing8">
+          <Flex gap="$spacing8">
             <PriceTextSection loading={loading} relativeChange={data.spot?.relativeChange} />
-            <Box my="spacing24">
-              <LineChart
-                height={CHART_HEIGHT}
-                width={SCREEN_WIDTH - additionalPadding}
-                yGutter={20}>
-                <LineChart.Path color={tokenColor} pathProps={{ isTransitionEnabled: false }}>
-                  {shouldShowAnimatedDot && (
-                    <LineChart.Dot
-                      key={data.priceHistory[lastPricePoint]?.timestamp}
-                      at={lastPricePoint}
-                      color={tokenColor}
-                      hasPulse={true}
-                      inactiveColor="transparent"
-                      pulseDurationMs={2000}
-                      size={5}
-                    />
-                  )}
-                </LineChart.Path>
+            <Flex my="$spacing24">
+              <LineChart height={CHART_HEIGHT}>
+                <LineChart.Path color={tokenColor} pathProps={{ isTransitionEnabled: false }} />
                 <LineChart.CursorLine color={tokenColor} />
                 <LineChart.CursorCrosshair
                   color={tokenColor}
@@ -103,19 +82,19 @@ export function PriceExplorer({
                   onEnded={invokeImpact[ImpactFeedbackStyle.Light]}
                 />
               </LineChart>
-            </Box>
+            </Flex>
           </Flex>
         </LineChartProvider>
       ) : (
-        <Flex gap="spacing8">
+        <Flex gap="$spacing8">
           <PriceTextSection loading={loading} />
-          <Box my="spacing24">
+          <Flex my="$spacing24">
             <Loader.Graph />
-          </Box>
+          </Flex>
         </Flex>
       )}
 
       <TimeRangeGroup setDuration={setDuration} />
-    </Box>
+    </Flex>
   )
 }

@@ -10,14 +10,17 @@ import { ExploreSections } from 'src/components/explore/ExploreSections'
 import { SearchEmptySection } from 'src/components/explore/search/SearchEmptySection'
 import { SearchResultsSection } from 'src/components/explore/search/SearchResultsSection'
 import { SearchTextInput } from 'src/components/input/SearchTextInput'
-import { AnimatedFlex, Box, Flex } from 'src/components/layout'
+import { AnimatedFlex } from 'src/components/layout'
 import { Screen } from 'src/components/layout/Screen'
 import { VirtualizedList } from 'src/components/layout/VirtualizedList'
+import { useBottomSheetContext } from 'src/components/modals/BottomSheetContext'
 import { HandleBar } from 'src/components/modals/HandleBar'
+import { useReduxModalBackHandler } from 'src/features/modals/hooks'
 import { selectModalState } from 'src/features/modals/modalSlice'
 import { sendMobileAnalyticsEvent } from 'src/features/telemetry'
 import { ModalName, SectionName } from 'src/features/telemetry/constants'
 import { Screens } from 'src/screens/Screens'
+import { Flex } from 'ui/src'
 import { flex, Theme } from 'ui/src/theme/restyle'
 import { useDebounce } from 'utilities/src/time/timing'
 import { useIsDarkMode } from 'wallet/src/features/appearance/hooks'
@@ -25,6 +28,10 @@ import { useIsDarkMode } from 'wallet/src/features/appearance/hooks'
 export function ExploreScreen(): JSX.Element {
   const modalInitialState = useAppSelector(selectModalState(ModalName.Explore)).initialState
   const navigation = useExploreStackNavigation()
+
+  const { isSheetReady } = useBottomSheetContext()
+
+  useReduxModalBackHandler(ModalName.Explore)
 
   // The ExploreStack is not directly accessible from outside
   // (e.g., navigating from Home to NFTItem within ExploreStack), due to its mount within BottomSheetModal.
@@ -77,7 +84,7 @@ export function ExploreScreen(): JSX.Element {
   return (
     <Screen bg="$transparent" edges={['top']}>
       <HandleBar backgroundColor="none" />
-      <Box backgroundColor="none" p="spacing16">
+      <Flex backgroundColor="$transparent" p="$spacing16">
         <SearchTextInput
           ref={textInputRef}
           showCancelButton
@@ -89,12 +96,12 @@ export function ExploreScreen(): JSX.Element {
           onChangeText={onChangeSearchFilter}
           onFocus={onSearchFocus}
         />
-      </Box>
+      </Flex>
       {isSearchMode ? (
         <KeyboardAvoidingView behavior="height" style={flex.fill}>
-          <Flex grow mx="spacing16">
+          <Flex grow mx="$spacing16">
             <VirtualizedList onScroll={onScroll}>
-              <Box p="spacing4" />
+              <Flex p="$spacing4" />
               {debouncedSearchQuery.length === 0 ? (
                 <SearchEmptySection />
               ) : (
@@ -106,7 +113,7 @@ export function ExploreScreen(): JSX.Element {
           </Flex>
         </KeyboardAvoidingView>
       ) : (
-        <ExploreSections listRef={listRef} />
+        isSheetReady && <ExploreSections listRef={listRef} />
       )}
     </Screen>
   )

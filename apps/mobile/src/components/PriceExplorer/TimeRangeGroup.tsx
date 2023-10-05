@@ -6,9 +6,7 @@ import {
   useAnimatedStyle,
   useSharedValue,
 } from 'react-native-reanimated'
-import { useAppTheme } from 'src/app/hooks'
-import { TouchableArea } from 'src/components/buttons/TouchableArea'
-import { AnimatedBox, Box } from 'src/components/layout/Box'
+import { AnimatedBox } from 'src/components/layout/Box'
 import {
   BUTTON_PADDING,
   BUTTON_WIDTH,
@@ -18,6 +16,7 @@ import {
 } from 'src/components/PriceExplorer/constants'
 import { Text } from 'src/components/Text'
 import Trace from 'src/components/Trace/Trace'
+import { Flex, TouchableArea, useSporeColors } from 'ui/src'
 import { HistoryDuration } from 'wallet/src/data/__generated__/types-and-hooks'
 
 interface Props {
@@ -28,29 +27,24 @@ interface Props {
 }
 
 export function TimeRangeLabel({ index, label, selectedIndex, transition }: Props): JSX.Element {
-  const theme = useAppTheme()
+  const colors = useSporeColors()
 
   const style = useAnimatedStyle(() => {
     const selected = index === selectedIndex.value
 
-    if (!selected) return { color: theme.colors.neutral2 }
+    if (!selected) return { color: colors.neutral2.val }
 
     const color = interpolateColor(
       transition.value,
       [0, 1],
-      [theme.colors.neutral2, theme.colors.neutral1]
+      [colors.neutral2.val, colors.neutral1.val]
     )
 
     return { color }
   })
 
   return (
-    <Text
-      animated
-      allowFontScaling={false}
-      style={style}
-      textAlign="center"
-      variant="buttonLabelSmall">
+    <Text animated allowFontScaling={false} style={style} textAlign="center" variant="buttonLabel3">
       {label}
     </Text>
   )
@@ -71,12 +65,11 @@ export function TimeRangeGroup({
   }))
 
   return (
-    <Box alignSelf="center" flexDirection="row" width={CHART_WIDTH}>
+    <Flex row alignSelf="center" width={CHART_WIDTH}>
       <View style={StyleSheet.absoluteFill}>
         <AnimatedBox
           bg="$surface3"
           borderRadius="$rounded20"
-          gap="$none"
           style={[StyleSheet.absoluteFillObject, sliderStyle]}
           width={LABEL_WIDTH}
         />
@@ -85,7 +78,7 @@ export function TimeRangeGroup({
         return (
           <Trace key={label} logPress element={element}>
             <TouchableArea
-              p="spacing4"
+              p="$spacing4"
               width={BUTTON_WIDTH}
               onPress={(): void => {
                 setDuration(duration)
@@ -105,6 +98,6 @@ export function TimeRangeGroup({
           </Trace>
         )
       })}
-    </Box>
+    </Flex>
   )
 }

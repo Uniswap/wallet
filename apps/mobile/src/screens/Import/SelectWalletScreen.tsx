@@ -4,8 +4,6 @@ import { useTranslation } from 'react-i18next'
 import { ScrollView } from 'react-native-gesture-handler'
 import { useAppDispatch } from 'src/app/hooks'
 import { OnboardingStackParamList } from 'src/app/navigation/types'
-import { Button } from 'src/components/buttons/Button'
-import { Box, Flex } from 'src/components/layout'
 import { BaseCard } from 'src/components/layout/BaseCard'
 import { Loader } from 'src/components/loading'
 import WalletPreviewCard from 'src/features/import/WalletPreviewCard'
@@ -13,6 +11,7 @@ import { OnboardingScreen } from 'src/features/onboarding/OnboardingScreen'
 import { ImportType } from 'src/features/onboarding/utils'
 import { ElementName } from 'src/features/telemetry/constants'
 import { OnboardingScreens } from 'src/screens/Screens'
+import { Button, Flex } from 'ui/src'
 import { ONE_SECOND_MS } from 'utilities/src/time/time'
 import { useTimeout } from 'utilities/src/time/timing'
 import { useSelectWalletScreenQuery } from 'wallet/src/data/__generated__/types-and-hooks'
@@ -243,7 +242,7 @@ export function SelectWalletScreen({ navigation, route: { params } }: Props): JS
           </Flex>
         ) : (
           <ScrollView>
-            <Flex gap="spacing12">
+            <Flex gap="$spacing12">
               {initialShownAccounts?.map((account, i) => {
                 const { ownerAddress, balance } = account
                 return (
@@ -262,16 +261,16 @@ export function SelectWalletScreen({ navigation, route: { params } }: Props): JS
             </Flex>
           </ScrollView>
         )}
-        <Box opacity={showError ? 0 : 1}>
+        <Flex opacity={showError ? 0 : 1}>
           <Button
             disabled={
               isImportingAccounts || isLoading || !!showError || selectedAddresses.length === 0
             }
-            label={t('Continue')}
             testID={ElementName.Next}
-            onPress={onSubmit}
-          />
-        </Box>
+            onPress={onSubmit}>
+            {t('Continue')}
+          </Button>
+        </Flex>
       </OnboardingScreen>
     </>
   )

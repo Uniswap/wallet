@@ -3,9 +3,8 @@ import { ComponentProps, default as React, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { StyleSheet } from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler'
-import { useAppTheme } from 'src/app/hooks'
 import { AccountCardItem } from 'src/components/accounts/AccountCardItem'
-import { Flex, Text } from 'ui/src'
+import { Flex, Text, useSporeColors } from 'ui/src'
 import { opacify, spacing } from 'ui/src/theme'
 import { useAsyncData } from 'utilities/src/react/hooks'
 import { PollingInterval } from 'wallet/src/constants/misc'
@@ -30,8 +29,8 @@ type AccountWithPortfolioValue = {
 const ViewOnlyHeader = (): JSX.Element => {
   const { t } = useTranslation()
   return (
-    <Flex fill gap="$none" px="$spacing24" py="$spacing8">
-      <Text color="$neutral2" variant="subheadSmall">
+    <Flex fill px="$spacing24" py="$spacing8">
+      <Text color="$neutral2" variant="subheading2">
         {t('View only wallets')}
       </Text>
     </Flex>
@@ -42,7 +41,7 @@ const SignerHeader = (): JSX.Element => {
   const { t } = useTranslation()
   return (
     <Flex fill px="$spacing24" py="$spacing8">
-      <Text color="$neutral2" variant="subheadSmall">
+      <Text color="$neutral2" variant="subheading2">
         {t('Your other wallets')}
       </Text>
     </Flex>
@@ -50,7 +49,7 @@ const SignerHeader = (): JSX.Element => {
 }
 
 export function AccountList({ accounts, onPress, isVisible }: AccountListProps): JSX.Element {
-  const theme = useAppTheme()
+  const colors = useSporeColors()
   const addresses = accounts.map((a) => a.address)
 
   const { data, networkStatus, refetch, startPolling, stopPolling } = useAccountListQuery({
@@ -110,10 +109,10 @@ export function AccountList({ accounts, onPress, isVisible }: AccountListProps):
   )
 
   return (
-    <Flex shrink gap="$none" position="relative">
+    <Flex shrink position="relative">
       {/* TODO(MOB-646): attempt to switch gradients to react-native-svg#LinearGradient and avoid new clear color */}
       <LinearGradient
-        colors={[opacify(0, theme.colors.surface1), theme.colors.surface1]}
+        colors={[opacify(0, colors.surface1.val), colors.surface1.val]}
         end={{ x: 0, y: 0 }}
         start={{ x: 0, y: 1 }}
         style={ListSheet.topGradient}
@@ -136,7 +135,7 @@ export function AccountList({ accounts, onPress, isVisible }: AccountListProps):
         )}
       </ScrollView>
       <LinearGradient
-        colors={[opacify(0, theme.colors.surface1), theme.colors.surface1]}
+        colors={[opacify(0, colors.surface1.val), colors.surface1.val]}
         end={{ x: 0, y: 1 }}
         start={{ x: 0, y: 0 }}
         style={ListSheet.bottomGradient}

@@ -3,9 +3,8 @@ import WebView from 'react-native-webview'
 import { AppStackScreenProp, SettingsStackScreenProp } from 'src/app/navigation/types'
 import { BackHeader } from 'src/components/layout/BackHeader'
 import { Screen } from 'src/components/layout/Screen'
-import { Separator } from 'src/components/layout/Separator'
-import { Text } from 'src/components/Text'
 import { Screens } from 'src/screens/Screens'
+import { Separator, Text } from 'ui/src'
 
 export function WebViewScreen({
   route,
@@ -13,8 +12,8 @@ export function WebViewScreen({
   const { headerTitle, uriLink } = route.params
   return (
     <Screen edges={['top', 'left', 'right']}>
-      <BackHeader alignment="center" mb="spacing16" pt="spacing4" px="spacing12">
-        <Text variant="bodyLarge">{headerTitle}</Text>
+      <BackHeader alignment="center" mb="$spacing16" pt="$spacing4" px="$spacing12">
+        <Text variant="body1">{headerTitle}</Text>
       </BackHeader>
       <Separator />
       <WebView

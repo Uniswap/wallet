@@ -1,24 +1,16 @@
-import React, { ComponentProps, useMemo } from 'react'
-import { useAppTheme } from 'src/app/hooks'
-import { TouchableArea } from 'src/components/buttons/TouchableArea'
+import React, { useMemo } from 'react'
 import { Arrow } from 'src/components/icons/Arrow'
-import { Box } from 'src/components/layout'
+import { Flex, TouchableArea, TouchableAreaProps, useSporeColors } from 'ui/src'
+import { iconSizes } from 'ui/src/theme'
 
 type SwapArrowButtonProps = Pick<
-  ComponentProps<typeof TouchableArea>,
+  TouchableAreaProps,
   'disabled' | 'testID' | 'onPress' | 'borderColor' | 'bg'
 > & { size?: number }
 
 export function SwapArrowButton(props: SwapArrowButtonProps): JSX.Element {
-  const theme = useAppTheme()
-  const {
-    testID,
-    onPress,
-    disabled,
-    bg = 'surface2',
-    size = theme.iconSizes.icon20,
-    ...rest
-  } = props
+  const colors = useSporeColors()
+  const { testID, onPress, disabled, bg = '$surface2', size = iconSizes.icon20, ...rest } = props
   return useMemo(
     () => (
       <TouchableArea
@@ -26,21 +18,21 @@ export function SwapArrowButton(props: SwapArrowButtonProps): JSX.Element {
         alignItems="center"
         alignSelf="center"
         bg={bg}
-        borderColor="surface1"
-        borderRadius="rounded16"
+        borderColor="$surface1"
+        borderRadius="$rounded16"
         borderWidth={4}
         disabled={disabled}
         justifyContent="center"
-        p="spacing8"
+        p="$spacing8"
         testID={testID}
         onPress={onPress}
         {...rest}>
         {/* hack to add 2px more padding without adjusting design system values */}
-        <Box alignItems="center" justifyContent="center" p="spacing2">
-          <Arrow color={theme.colors.neutral2} direction="s" size={size} />
-        </Box>
+        <Flex centered p="$spacing2">
+          <Arrow color={colors.neutral2.val} direction="s" size={size} />
+        </Flex>
       </TouchableArea>
     ),
-    [bg, disabled, onPress, testID, rest, theme.colors.neutral2, size]
+    [bg, disabled, onPress, testID, rest, colors.neutral2.val, size]
   )
 }

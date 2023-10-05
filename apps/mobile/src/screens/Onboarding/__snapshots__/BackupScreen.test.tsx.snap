@@ -9,7 +9,6 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
       "backgroundColor": "#FFFFFF",
       "flex": 1,
       "flexDirection": "column",
-      "gap": 0,
       "paddingTop": 200,
     }
   }
@@ -67,21 +66,18 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
       >
         <Text
           allowFontScaling={false}
-          maxFontSizeMultiplier={1.2}
           style={
-            [
-              {
-                "color": "#222222",
-                "display": "flex",
-                "fontFamily": "Basel-Book",
-                "fontSize": 25,
-                "fontWeight": "400",
-                "lineHeight": 32,
-                "paddingTop": 0,
-                "textAlign": "center",
-              },
-            ]
+            {
+              "color": "#222222",
+              "display": "flex",
+              "fontFamily": "Basel-Medium",
+              "fontSize": 25,
+              "lineHeight": 32,
+              "paddingTop": 0,
+              "textAlign": "center",
+            }
           }
+          suppressHighlighting={true}
         >
           Choose a backup for your wallet
         </Text>
@@ -89,17 +85,16 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
           allowFontScaling={true}
           maxFontSizeMultiplier={1.4}
           style={
-            [
-              {
-                "color": "#7D7D7D",
-                "display": "flex",
-                "fontFamily": "Basel-Book",
-                "fontSize": 17,
-                "lineHeight": 24,
-                "textAlign": "center",
-              },
-            ]
+            {
+              "color": "#7D7D7D",
+              "display": "flex",
+              "fontFamily": "Basel-Book",
+              "fontSize": 17,
+              "lineHeight": 24,
+              "textAlign": "center",
+            }
           }
+          suppressHighlighting={true}
         >
           Remember, backups are your lifeline. They’re your ticket back in if something goes wrong.
         </Text>
@@ -123,7 +118,6 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
             "flex": 1,
             "flexDirection": "column",
             "flexGrow": 1,
-            "gap": 16,
             "justifyContent": "space-between",
           }
         }
@@ -134,7 +128,6 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
               "alignItems": "stretch",
               "flexDirection": "column",
               "flexGrow": 1,
-              "gap": 16,
               "justifyContent": "space-between",
             }
           }
@@ -190,7 +183,7 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
                   "borderColor": "#2222220D",
                   "borderRadius": 20,
                   "borderWidth": 1,
-                  "display": "flex",
+                  "disabled": undefined,
                   "opacity": 1,
                   "padding": 16,
                 }
@@ -198,33 +191,33 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
               testID="add-cloud-backup"
             >
               <View
-                sentry-label="Flex"
                 style={
-                  [
-                    {
-                      "alignContent": "center",
-                      "alignItems": "center",
-                      "display": "flex",
-                      "flexDirection": "row",
-                      "justifyContent": "flex-start",
-                    },
-                  ]
+                  {
+                    "alignContent": "center",
+                    "alignItems": "center",
+                    "flexDirection": "row",
+                    "gap": 16,
+                  }
                 }
               >
                 <View
                   style={
-                    [
-                      {
-                        "alignItems": "center",
-                        "backgroundColor": "#FC72FF1f",
-                        "borderRadius": 999999,
-                        "display": "flex",
-                        "height": 36,
-                        "justifyContent": "center",
-                        "padding": 16,
-                        "width": 36,
-                      },
-                    ]
+                    {
+                      "alignItems": "center",
+                      "backgroundColor": "#FC72FF1f",
+                      "borderBottomLeftRadius": 999999,
+                      "borderBottomRightRadius": 999999,
+                      "borderTopLeftRadius": 999999,
+                      "borderTopRightRadius": 999999,
+                      "flexDirection": "column",
+                      "height": 36,
+                      "justifyContent": "center",
+                      "paddingBottom": 16,
+                      "paddingLeft": 16,
+                      "paddingRight": 16,
+                      "paddingTop": 16,
+                      "width": 36,
+                    }
                   }
                 >
                   <RNSVGSvgView
@@ -287,103 +280,62 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
                 </View>
                 <View
                   style={
-                    [
-                      {
-                        "display": "flex",
-                        "flexGrow": 0,
-                        "flexShrink": 0,
-                        "height": 16,
-                        "width": 16,
-                      },
-                    ]
-                  }
-                />
-                <View
-                  sentry-label="Flex"
-                  style={
-                    [
-                      {
-                        "alignItems": "center",
-                        "display": "flex",
-                        "flexDirection": "row",
-                        "justifyContent": "flex-start",
-                        "paddingRight": 60,
-                      },
-                    ]
+                    {
+                      "alignItems": "center",
+                      "flexDirection": "row",
+                      "gap": 4,
+                      "paddingRight": 60,
+                    }
                   }
                 >
                   <View
-                    sentry-label="Flex"
                     style={
-                      [
-                        {
-                          "alignItems": "flex-start",
-                          "display": "flex",
-                          "flex": 1,
-                          "flexDirection": "column",
-                          "justifyContent": "space-around",
-                        },
-                      ]
+                      {
+                        "alignItems": "flex-start",
+                        "flex": 1,
+                        "flexDirection": "column",
+                        "gap": 4,
+                        "justifyContent": "space-around",
+                      }
                     }
                   >
                     <View
-                      sentry-label="Flex"
                       style={
-                        [
-                          {
-                            "alignItems": "stretch",
-                            "display": "flex",
-                            "flexDirection": "row",
-                            "justifyContent": "flex-start",
-                          },
-                        ]
+                        {
+                          "alignItems": "stretch",
+                          "flexDirection": "row",
+                          "gap": 8,
+                        }
                       }
                     >
                       <Text
                         allowFontScaling={false}
-                        maxFontSizeMultiplier={1.4}
                         style={
-                          [
-                            {
-                              "color": "#222222",
-                              "display": "flex",
-                              "fontFamily": "Basel-Book",
-                              "fontSize": 19,
-                              "fontWeight": "400",
-                              "lineHeight": 24,
-                            },
-                          ]
+                          {
+                            "color": "#222222",
+                            "display": "flex",
+                            "fontFamily": "Basel-Book",
+                            "fontSize": 19,
+                            "lineHeight": 24,
+                          }
                         }
+                        suppressHighlighting={true}
                       >
                         Backup with iCloud
                       </Text>
                     </View>
-                    <View
-                      style={
-                        [
-                          {
-                            "display": "flex",
-                            "flexGrow": 0,
-                            "flexShrink": 0,
-                            "height": 4,
-                          },
-                        ]
-                      }
-                    />
                     <Text
                       allowFontScaling={false}
-                      maxFontSizeMultiplier={1.4}
                       style={
-                        [
-                          {
-                            "color": "#7D7D7D",
-                            "display": "flex",
-                            "fontFamily": "Basel-Book",
-                            "fontSize": 17,
-                            "lineHeight": 24,
-                          },
-                        ]
+                        {
+                          "color": "#7D7D7D",
+                          "display": "flex",
+                          "fontFamily": "Basel-Book",
+                          "fontSize": 17,
+                          "lineHeight": 24,
+                        }
                       }
+                      suppressHighlighting={true}
                     >
                       Safe, simple, and all you need to save is your password.
                     </Text>
@@ -433,7 +385,7 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
                   "borderColor": "#2222220D",
                   "borderRadius": 20,
                   "borderWidth": 1,
-                  "display": "flex",
+                  "disabled": undefined,
                   "opacity": 1,
                   "padding": 16,
                 }
@@ -441,33 +393,33 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
               testID="add-manual-backup"
             >
               <View
-                sentry-label="Flex"
                 style={
-                  [
-                    {
-                      "alignContent": "center",
-                      "alignItems": "center",
-                      "display": "flex",
-                      "flexDirection": "row",
-                      "justifyContent": "flex-start",
-                    },
-                  ]
+                  {
+                    "alignContent": "center",
+                    "alignItems": "center",
+                    "flexDirection": "row",
+                    "gap": 16,
+                  }
                 }
               >
                 <View
                   style={
-                    [
-                      {
-                        "alignItems": "center",
-                        "backgroundColor": "#FC72FF1f",
-                        "borderRadius": 999999,
-                        "display": "flex",
-                        "height": 36,
-                        "justifyContent": "center",
-                        "padding": 16,
-                        "width": 36,
-                      },
-                    ]
+                    {
+                      "alignItems": "center",
+                      "backgroundColor": "#FC72FF1f",
+                      "borderBottomLeftRadius": 999999,
+                      "borderBottomRightRadius": 999999,
+                      "borderTopLeftRadius": 999999,
+                      "borderTopRightRadius": 999999,
+                      "flexDirection": "column",
+                      "height": 36,
+                      "justifyContent": "center",
+                      "paddingBottom": 16,
+                      "paddingLeft": 16,
+                      "paddingRight": 16,
+                      "paddingTop": 16,
+                      "width": 36,
+                    }
                   }
                 >
                   <svg
@@ -478,103 +430,62 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
                 </View>
                 <View
                   style={
-                    [
-                      {
-                        "display": "flex",
-                        "flexGrow": 0,
-                        "flexShrink": 0,
-                        "height": 16,
-                        "width": 16,
-                      },
-                    ]
-                  }
-                />
-                <View
-                  sentry-label="Flex"
-                  style={
-                    [
-                      {
-                        "alignItems": "center",
-                        "display": "flex",
-                        "flexDirection": "row",
-                        "justifyContent": "flex-start",
-                        "paddingRight": 60,
-                      },
-                    ]
+                    {
+                      "alignItems": "center",
+                      "flexDirection": "row",
+                      "gap": 4,
+                      "paddingRight": 60,
+                    }
                   }
                 >
                   <View
-                    sentry-label="Flex"
                     style={
-                      [
-                        {
-                          "alignItems": "flex-start",
-                          "display": "flex",
-                          "flex": 1,
-                          "flexDirection": "column",
-                          "justifyContent": "space-around",
-                        },
-                      ]
+                      {
+                        "alignItems": "flex-start",
+                        "flex": 1,
+                        "flexDirection": "column",
+                        "gap": 4,
+                        "justifyContent": "space-around",
+                      }
                     }
                   >
                     <View
-                      sentry-label="Flex"
                       style={
-                        [
-                          {
-                            "alignItems": "stretch",
-                            "display": "flex",
-                            "flexDirection": "row",
-                            "justifyContent": "flex-start",
-                          },
-                        ]
+                        {
+                          "alignItems": "stretch",
+                          "flexDirection": "row",
+                          "gap": 8,
+                        }
                       }
                     >
                       <Text
                         allowFontScaling={false}
-                        maxFontSizeMultiplier={1.4}
                         style={
-                          [
-                            {
-                              "color": "#222222",
-                              "display": "flex",
-                              "fontFamily": "Basel-Book",
-                              "fontSize": 19,
-                              "fontWeight": "400",
-                              "lineHeight": 24,
-                            },
-                          ]
+                          {
+                            "color": "#222222",
+                            "display": "flex",
+                            "fontFamily": "Basel-Book",
+                            "fontSize": 19,
+                            "lineHeight": 24,
+                          }
                         }
+                        suppressHighlighting={true}
                       >
                         Backup with recovery phrase
                       </Text>
                     </View>
-                    <View
-                      style={
-                        [
-                          {
-                            "display": "flex",
-                            "flexGrow": 0,
-                            "flexShrink": 0,
-                            "height": 4,
-                          },
-                        ]
-                      }
-                    />
                     <Text
                       allowFontScaling={false}
-                      maxFontSizeMultiplier={1.4}
                       style={
-                        [
-                          {
-                            "color": "#7D7D7D",
-                            "display": "flex",
-                            "fontFamily": "Basel-Book",
-                            "fontSize": 17,
-                            "lineHeight": 24,
-                          },
-                        ]
+                        {
+                          "color": "#7D7D7D",
+                          "display": "flex",
+                          "fontFamily": "Basel-Book",
+                          "fontSize": 17,
+                          "lineHeight": 24,
+                        }
                       }
+                      suppressHighlighting={true}
                     >
                       Top-notch security with no third parties. You’re in control.
                     </Text>
@@ -632,7 +543,6 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
               style={
                 {
                   "alignSelf": "center",
-                  "display": "flex",
                   "opacity": 1,
                   "paddingVertical": 0,
                 }
@@ -709,7 +619,7 @@ exports[`BackupScreen renders backup options when none are completed 1`] = `
                 maxFontSizeMultiplier={1.2}
                 style={
                   {
-                    "color": "#CECECE",
+                    "color": "#FFFFFF",
                     "display": "flex",
                     "fontFamily": "Basel-Medium",
                     "fontSize": 19,
@@ -738,7 +648,6 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
       "backgroundColor": "#FFFFFF",
       "flex": 1,
       "flexDirection": "column",
-      "gap": 0,
       "paddingTop": 200,
     }
   }
@@ -796,21 +705,18 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
       >
         <Text
           allowFontScaling={false}
-          maxFontSizeMultiplier={1.2}
           style={
-            [
-              {
-                "color": "#222222",
-                "display": "flex",
-                "fontFamily": "Basel-Book",
-                "fontSize": 25,
-                "fontWeight": "400",
-                "lineHeight": 32,
-                "paddingTop": 0,
-                "textAlign": "center",
-              },
-            ]
+            {
+              "color": "#222222",
+              "display": "flex",
+              "fontFamily": "Basel-Medium",
+              "fontSize": 25,
+              "lineHeight": 32,
+              "paddingTop": 0,
+              "textAlign": "center",
+            }
           }
+          suppressHighlighting={true}
         >
           Choose a backup for your wallet
         </Text>
@@ -818,17 +724,16 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
           allowFontScaling={true}
           maxFontSizeMultiplier={1.4}
           style={
-            [
-              {
-                "color": "#7D7D7D",
-                "display": "flex",
-                "fontFamily": "Basel-Book",
-                "fontSize": 17,
-                "lineHeight": 24,
-                "textAlign": "center",
-              },
-            ]
+            {
+              "color": "#7D7D7D",
+              "display": "flex",
+              "fontFamily": "Basel-Book",
+              "fontSize": 17,
+              "lineHeight": 24,
+              "textAlign": "center",
+            }
           }
+          suppressHighlighting={true}
         >
           Remember, backups are your lifeline. They’re your ticket back in if something goes wrong.
         </Text>
@@ -852,7 +757,6 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
             "flex": 1,
             "flexDirection": "column",
             "flexGrow": 1,
-            "gap": 16,
             "justifyContent": "space-between",
           }
         }
@@ -863,7 +767,6 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
               "alignItems": "stretch",
               "flexDirection": "column",
               "flexGrow": 1,
-              "gap": 16,
               "justifyContent": "space-between",
             }
           }
@@ -882,7 +785,7 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
                 {
                   "busy": undefined,
                   "checked": undefined,
-                  "disabled": true,
+                  "disabled": undefined,
                   "expanded": undefined,
                   "selected": undefined,
                 }
@@ -919,7 +822,7 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
                   "borderColor": "#2222220D",
                   "borderRadius": 20,
                   "borderWidth": 1,
-                  "display": "flex",
+                  "disabled": true,
                   "opacity": 0.5,
                   "padding": 16,
                 }
@@ -927,33 +830,33 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
               testID="add-cloud-backup"
             >
               <View
-                sentry-label="Flex"
                 style={
-                  [
-                    {
-                      "alignContent": "center",
-                      "alignItems": "center",
-                      "display": "flex",
-                      "flexDirection": "row",
-                      "justifyContent": "flex-start",
-                    },
-                  ]
+                  {
+                    "alignContent": "center",
+                    "alignItems": "center",
+                    "flexDirection": "row",
+                    "gap": 16,
+                  }
                 }
               >
                 <View
                   style={
-                    [
-                      {
-                        "alignItems": "center",
-                        "backgroundColor": "#FC72FF1f",
-                        "borderRadius": 999999,
-                        "display": "flex",
-                        "height": 36,
-                        "justifyContent": "center",
-                        "padding": 16,
-                        "width": 36,
-                      },
-                    ]
+                    {
+                      "alignItems": "center",
+                      "backgroundColor": "#FC72FF1f",
+                      "borderBottomLeftRadius": 999999,
+                      "borderBottomRightRadius": 999999,
+                      "borderTopLeftRadius": 999999,
+                      "borderTopRightRadius": 999999,
+                      "flexDirection": "column",
+                      "height": 36,
+                      "justifyContent": "center",
+                      "paddingBottom": 16,
+                      "paddingLeft": 16,
+                      "paddingRight": 16,
+                      "paddingTop": 16,
+                      "width": 36,
+                    }
                   }
                 >
                   <RNSVGSvgView
@@ -1016,103 +919,62 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
                 </View>
                 <View
                   style={
-                    [
-                      {
-                        "display": "flex",
-                        "flexGrow": 0,
-                        "flexShrink": 0,
-                        "height": 16,
-                        "width": 16,
-                      },
-                    ]
-                  }
-                />
-                <View
-                  sentry-label="Flex"
-                  style={
-                    [
-                      {
-                        "alignItems": "center",
-                        "display": "flex",
-                        "flexDirection": "row",
-                        "justifyContent": "flex-start",
-                        "paddingRight": 60,
-                      },
-                    ]
+                    {
+                      "alignItems": "center",
+                      "flexDirection": "row",
+                      "gap": 4,
+                      "paddingRight": 60,
+                    }
                   }
                 >
                   <View
-                    sentry-label="Flex"
                     style={
-                      [
-                        {
-                          "alignItems": "flex-start",
-                          "display": "flex",
-                          "flex": 1,
-                          "flexDirection": "column",
-                          "justifyContent": "space-around",
-                        },
-                      ]
+                      {
+                        "alignItems": "flex-start",
+                        "flex": 1,
+                        "flexDirection": "column",
+                        "gap": 4,
+                        "justifyContent": "space-around",
+                      }
                     }
                   >
                     <View
-                      sentry-label="Flex"
                       style={
-                        [
-                          {
-                            "alignItems": "stretch",
-                            "display": "flex",
-                            "flexDirection": "row",
-                            "justifyContent": "flex-start",
-                          },
-                        ]
+                        {
+                          "alignItems": "stretch",
+                          "flexDirection": "row",
+                          "gap": 8,
+                        }
                       }
                     >
                       <Text
                         allowFontScaling={false}
-                        maxFontSizeMultiplier={1.4}
                         style={
-                          [
-                            {
-                              "color": "#222222",
-                              "display": "flex",
-                              "fontFamily": "Basel-Book",
-                              "fontSize": 19,
-                              "fontWeight": "400",
-                              "lineHeight": 24,
-                            },
-                          ]
+                          {
+                            "color": "#222222",
+                            "display": "flex",
+                            "fontFamily": "Basel-Book",
+                            "fontSize": 19,
+                            "lineHeight": 24,
+                          }
                         }
+                        suppressHighlighting={true}
                       >
                         Backup with iCloud
                       </Text>
                     </View>
-                    <View
-                      style={
-                        [
-                          {
-                            "display": "flex",
-                            "flexGrow": 0,
-                            "flexShrink": 0,
-                            "height": 4,
-                          },
-                        ]
-                      }
-                    />
                     <Text
                       allowFontScaling={false}
-                      maxFontSizeMultiplier={1.4}
                       style={
-                        [
-                          {
-                            "color": "#7D7D7D",
-                            "display": "flex",
-                            "fontFamily": "Basel-Book",
-                            "fontSize": 17,
-                            "lineHeight": 24,
-                          },
-                        ]
+                        {
+                          "color": "#7D7D7D",
+                          "display": "flex",
+                          "fontFamily": "Basel-Book",
+                          "fontSize": 17,
+                          "lineHeight": 24,
+                        }
                       }
+                      suppressHighlighting={true}
                     >
                       Safe, simple, and all you need to save is your password.
                     </Text>
@@ -1125,7 +987,7 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
                 {
                   "busy": undefined,
                   "checked": undefined,
-                  "disabled": false,
+                  "disabled": undefined,
                   "expanded": undefined,
                   "selected": undefined,
                 }
@@ -1162,7 +1024,7 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
                   "borderColor": "#2222220D",
                   "borderRadius": 20,
                   "borderWidth": 1,
-                  "display": "flex",
+                  "disabled": false,
                   "opacity": 1,
                   "padding": 16,
                 }
@@ -1170,33 +1032,33 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
               testID="add-manual-backup"
             >
               <View
-                sentry-label="Flex"
                 style={
-                  [
-                    {
-                      "alignContent": "center",
-                      "alignItems": "center",
-                      "display": "flex",
-                      "flexDirection": "row",
-                      "justifyContent": "flex-start",
-                    },
-                  ]
+                  {
+                    "alignContent": "center",
+                    "alignItems": "center",
+                    "flexDirection": "row",
+                    "gap": 16,
+                  }
                 }
               >
                 <View
                   style={
-                    [
-                      {
-                        "alignItems": "center",
-                        "backgroundColor": "#FC72FF1f",
-                        "borderRadius": 999999,
-                        "display": "flex",
-                        "height": 36,
-                        "justifyContent": "center",
-                        "padding": 16,
-                        "width": 36,
-                      },
-                    ]
+                    {
+                      "alignItems": "center",
+                      "backgroundColor": "#FC72FF1f",
+                      "borderBottomLeftRadius": 999999,
+                      "borderBottomRightRadius": 999999,
+                      "borderTopLeftRadius": 999999,
+                      "borderTopRightRadius": 999999,
+                      "flexDirection": "column",
+                      "height": 36,
+                      "justifyContent": "center",
+                      "paddingBottom": 16,
+                      "paddingLeft": 16,
+                      "paddingRight": 16,
+                      "paddingTop": 16,
+                      "width": 36,
+                    }
                   }
                 >
                   <svg
@@ -1207,103 +1069,62 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
                 </View>
                 <View
                   style={
-                    [
-                      {
-                        "display": "flex",
-                        "flexGrow": 0,
-                        "flexShrink": 0,
-                        "height": 16,
-                        "width": 16,
-                      },
-                    ]
-                  }
-                />
-                <View
-                  sentry-label="Flex"
-                  style={
-                    [
-                      {
-                        "alignItems": "center",
-                        "display": "flex",
-                        "flexDirection": "row",
-                        "justifyContent": "flex-start",
-                        "paddingRight": 60,
-                      },
-                    ]
+                    {
+                      "alignItems": "center",
+                      "flexDirection": "row",
+                      "gap": 4,
+                      "paddingRight": 60,
+                    }
                   }
                 >
                   <View
-                    sentry-label="Flex"
                     style={
-                      [
-                        {
-                          "alignItems": "flex-start",
-                          "display": "flex",
-                          "flex": 1,
-                          "flexDirection": "column",
-                          "justifyContent": "space-around",
-                        },
-                      ]
+                      {
+                        "alignItems": "flex-start",
+                        "flex": 1,
+                        "flexDirection": "column",
+                        "gap": 4,
+                        "justifyContent": "space-around",
+                      }
                     }
                   >
                     <View
-                      sentry-label="Flex"
                       style={
-                        [
-                          {
-                            "alignItems": "stretch",
-                            "display": "flex",
-                            "flexDirection": "row",
-                            "justifyContent": "flex-start",
-                          },
-                        ]
+                        {
+                          "alignItems": "stretch",
+                          "flexDirection": "row",
+                          "gap": 8,
+                        }
                       }
                     >
                       <Text
                         allowFontScaling={false}
-                        maxFontSizeMultiplier={1.4}
                         style={
-                          [
-                            {
-                              "color": "#222222",
-                              "display": "flex",
-                              "fontFamily": "Basel-Book",
-                              "fontSize": 19,
-                              "fontWeight": "400",
-                              "lineHeight": 24,
-                            },
-                          ]
+                          {
+                            "color": "#222222",
+                            "display": "flex",
+                            "fontFamily": "Basel-Book",
+                            "fontSize": 19,
+                            "lineHeight": 24,
+                          }
                         }
+                        suppressHighlighting={true}
                       >
                         Backup with recovery phrase
                       </Text>
                     </View>
-                    <View
-                      style={
-                        [
-                          {
-                            "display": "flex",
-                            "flexGrow": 0,
-                            "flexShrink": 0,
-                            "height": 4,
-                          },
-                        ]
-                      }
-                    />
                     <Text
                       allowFontScaling={false}
-                      maxFontSizeMultiplier={1.4}
                       style={
-                        [
-                          {
-                            "color": "#7D7D7D",
-                            "display": "flex",
-                            "fontFamily": "Basel-Book",
-                            "fontSize": 17,
-                            "lineHeight": 24,
-                          },
-                        ]
+                        {
+                          "color": "#7D7D7D",
+                          "display": "flex",
+                          "fontFamily": "Basel-Book",
+                          "fontSize": 17,
+                          "lineHeight": 24,
+                        }
                       }
+                      suppressHighlighting={true}
                     >
                       Top-notch security with no third parties. You’re in control.
                     </Text>
@@ -1361,7 +1182,6 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
               style={
                 {
                   "alignSelf": "center",
-                  "display": "flex",
                   "opacity": 1,
                   "paddingVertical": 0,
                 }
@@ -1431,6 +1251,7 @@ exports[`BackupScreen renders backup options when some are completed 1`] = `
                   "gap": 8,
                   "height": "auto",
                   "justifyContent": "center",
+                  "opacity": 1,
                   "paddingBottom": 12,
                   "paddingLeft": 12,
                   "paddingRight": 12,

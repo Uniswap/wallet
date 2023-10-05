@@ -1,13 +1,12 @@
 import { impactAsync } from 'expo-haptics'
 import { default as React, PropsWithChildren, useMemo } from 'react'
 import { FlexAlignType } from 'react-native'
-import { useAppDispatch, useAppTheme } from 'src/app/hooks'
+import { useAppDispatch } from 'src/app/hooks'
 import { AccountIcon } from 'src/components/AccountIcon'
-import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { NotificationBadge } from 'src/components/notifications/Badge'
 import { ElementName } from 'src/features/telemetry/constants'
 import { setClipboard } from 'src/utils/clipboard'
-import { ColorTokens, Flex, Icons, SpaceTokens, Text } from 'ui/src'
+import { ColorTokens, Flex, Icons, SpaceTokens, Text, TouchableArea } from 'ui/src'
 import { fonts } from 'ui/src/theme'
 import { useENSAvatar } from 'wallet/src/features/ens/api'
 import { pushNotification } from 'wallet/src/features/notifications/slice'
@@ -59,10 +58,10 @@ function CopyButtonWrapper({
 export function AddressDisplay({
   address,
   size = 24,
-  variant = 'bodyLarge',
+  variant = 'body1',
   textColor = '$neutral1',
   captionTextColor = '$neutral2',
-  captionVariant = 'subheadSmall',
+  captionVariant = 'subheading2',
   hideAddressInSubtitle,
   direction = 'row',
   showCopy = false,
@@ -76,7 +75,6 @@ export function AddressDisplay({
   gapBetweenLines = '$none',
 }: AddressDisplayProps): JSX.Element {
   const dispatch = useAppDispatch()
-  const theme = useAppTheme()
   const displayName = useDisplayName(address)
   const { data: avatar } = useENSAvatar(address)
 
@@ -95,8 +93,8 @@ export function AddressDisplay({
   }
 
   // Extract sizes so copy icon can match font variants
-  const mainSize = theme.textVariants[variant].fontSize
-  const captionSize = theme.textVariants[captionVariant].fontSize
+  const mainSize = fonts[variant].fontSize
+  const captionSize = fonts[captionVariant].fontSize
   const itemAlignment =
     textAlign || (!showAccountIcon || direction === 'column' ? 'center' : 'flex-start')
 
@@ -115,7 +113,7 @@ export function AddressDisplay({
   return (
     <Flex alignItems={contentAlign} flexDirection={direction} gap={horizontalGap}>
       {showAccountIcon && <NotificationBadge address={address}>{icon}</NotificationBadge>}
-      <Flex alignItems={itemAlignment} flexShrink={1} gap={gapBetweenLines}>
+      <Flex shrink alignItems={itemAlignment} gap={gapBetweenLines}>
         <CopyButtonWrapper
           onPress={showCopy && !showAddressAsSubtitle ? onPressCopyAddress : undefined}>
           <Flex centered row gap="$spacing12">
@@ -140,7 +138,7 @@ export function AddressDisplay({
               backgroundColor={showCopyWrapperButton ? '$DEP_backgroundOverlay' : '$transparent'}
               borderRadius="$roundedFull"
               gap="$spacing4"
-              marginTop={showCopyWrapperButton ? '$spacing8' : '$none'}
+              mt={showCopyWrapperButton ? '$spacing8' : '$none'}
               px={showCopyWrapperButton ? '$spacing8' : '$none'}
               py={showCopyWrapperButton ? '$spacing4' : '$none'}>
               <Text color={captionTextColor} variant={captionVariant}>

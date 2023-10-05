@@ -1,7 +1,7 @@
 import MaskedView from '@react-native-masked-view/masked-view'
 import { LinearGradient } from 'expo-linear-gradient'
 import React, { useEffect, useState } from 'react'
-import { LayoutRectangle, StyleSheet, View } from 'react-native'
+import { LayoutRectangle, StyleSheet } from 'react-native'
 import Reanimated, {
   interpolate,
   useAnimatedStyle,
@@ -9,8 +9,7 @@ import Reanimated, {
   withRepeat,
   withTiming,
 } from 'react-native-reanimated'
-import { useAppTheme } from 'src/app/hooks'
-import { Box } from 'src/components/layout'
+import { Flex, useSporeColors } from 'ui/src'
 import { opacify } from 'ui/src/theme'
 const SHIMMER_DURATION = 2000 // 2 seconds
 
@@ -23,7 +22,7 @@ export function WarmLoadingShimmer({
   children,
   isWarmLoading = true,
 }: WarmLoadingShimmerProps): JSX.Element {
-  const theme = useAppTheme()
+  const colors = useSporeColors()
 
   const [layout, setLayout] = useState<LayoutRectangle | null>()
   const xPosition = useSharedValue(0)
@@ -48,19 +47,23 @@ export function WarmLoadingShimmer({
   }))
 
   if (!layout) {
-    return <View onLayout={(event): void => setLayout(event.nativeEvent.layout)}>{children}</View>
+    return (
+      <Flex opacity={0} onLayout={(event): void => setLayout(event.nativeEvent.layout)}>
+        {children}
+      </Flex>
+    )
   }
 
   if (isWarmLoading) {
     return (
       <MaskedView maskElement={children} style={{ width: layout.width, height: layout.height }}>
-        <Box backgroundColor="neutral2" flexGrow={1} height="100%" overflow="hidden" />
+        <Flex grow backgroundColor="$neutral2" height="100%" overflow="hidden" />
         <Reanimated.View style={[StyleSheet.absoluteFill, animatedStyle]}>
           <LinearGradient
             colors={[
-              opacify(0, theme.colors.neutral2.slice(0, 7)),
-              opacify(44, theme.colors.surface2.slice(0, 7)),
-              opacify(0, theme.colors.neutral2.slice(0, 7)),
+              opacify(0, colors.neutral2.val.slice(0, 7)),
+              opacify(44, colors.surface2.val.slice(0, 7)),
+              opacify(0, colors.neutral2.val.slice(0, 7)),
             ]}
             end={{ x: 1, y: 0 }}
             start={{ x: 0, y: 0 }}

@@ -2,9 +2,7 @@ import { ResponsiveValue } from '@shopify/restyle'
 import React from 'react'
 import { Modal as BaseModal, ModalProps, StyleSheet, View } from 'react-native'
 import { CloseButton } from 'src/components/buttons/CloseButton'
-import { TouchableArea } from 'src/components/buttons/TouchableArea'
-import { Box } from 'src/components/layout/Box'
-import { Text } from 'src/components/Text'
+import { Flex, Text, TouchableArea } from 'ui/src'
 import { Theme } from 'ui/src/theme/restyle'
 
 interface Props extends ModalProps {
@@ -51,12 +49,12 @@ Props): JSX.Element {
         justifyContent={justifyContent}
         style={dimBackground && style.bgDimmed}
         onPress={dismissable ? hide : undefined}>
-        <Box
-          backgroundColor="surface1"
+        <Flex
+          backgroundColor="$surface1"
           style={width === '100%' ? style.modalBoxFullWidth : style.modalBox}
           width={width}>
           {title && (
-            <Text mb="spacing12" px="spacing16" variant="headlineSmall">
+            <Text mb="$spacing12" px="$spacing16" variant="heading3">
               {title}
             </Text>
           )}
@@ -66,7 +64,7 @@ Props): JSX.Element {
             </View>
           )}
           {children}
-        </Box>
+        </Flex>
       </TouchableArea>
     </BaseModal>
   )

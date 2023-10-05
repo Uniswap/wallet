@@ -4,9 +4,6 @@ import { useTranslation } from 'react-i18next'
 import { Alert } from 'react-native'
 import { useAppDispatch, useAppTheme } from 'src/app/hooks'
 import { OnboardingStackParamList } from 'src/app/navigation/types'
-import { TouchableArea } from 'src/components/buttons/TouchableArea'
-import { Flex } from 'src/components/layout'
-import { Text } from 'src/components/Text'
 import Trace from 'src/components/Trace/Trace'
 import { IS_ANDROID } from 'src/constants/globals'
 import { isCloudStorageAvailable } from 'src/features/CloudBackup/RNCloudStorageBackupsManager'
@@ -17,7 +14,7 @@ import { ElementName } from 'src/features/telemetry/constants'
 import { OnboardingScreens } from 'src/screens/Screens'
 import { openSettings } from 'src/utils/linking'
 import { useAddBackButton } from 'src/utils/useAddBackButton'
-import { Icons } from 'ui/src'
+import { Flex, Icons, Text, TouchableArea, useSporeColors } from 'ui/src'
 import EyeIcon from 'ui/src/assets/icons/eye.svg'
 import ImportIcon from 'ui/src/assets/icons/paper-stack.svg'
 import { AppTFunction } from 'ui/src/i18n/types'
@@ -71,7 +68,9 @@ type Props = NativeStackScreenProps<OnboardingStackParamList, OnboardingScreens.
 
 export function ImportMethodScreen({ navigation, route: { params } }: Props): JSX.Element {
   const { t } = useTranslation()
+  // TODO(MOB-1286): update this useTheme to useSporeColors. needs a small refactor because `icon(theme)` is used below
   const theme = useAppTheme()
+  const colors = useSporeColors()
   const dispatch = useAppDispatch()
   const entryPoint = params?.entryPoint
 
@@ -128,7 +127,7 @@ export function ImportMethodScreen({ navigation, route: { params } }: Props): JS
 
   return (
     <OnboardingScreen title={t('How do you want to add your wallet?')}>
-      <Flex grow gap="spacing12" marginTop="spacing4">
+      <Flex grow gap="$spacing12" mt="$spacing4">
         {importOptions.map(({ title, blurb, icon, nav, importType, name }) => (
           <OptionCard
             key={'connection-option-' + title}
@@ -142,17 +141,17 @@ export function ImportMethodScreen({ navigation, route: { params } }: Props): JS
         ))}
       </Flex>
       <Trace logPress element={ElementName.OnboardingImportBackup}>
-        <TouchableArea alignItems="center" mb="spacing12">
-          <Flex row alignItems="center" gap="spacing4">
+        <TouchableArea alignItems="center" mb="$spacing12">
+          <Flex row alignItems="center" gap="$spacing4">
             <EyeIcon
-              color={theme.colors.accent1}
+              color={colors.accent1.val}
               height={iconSizes.icon20}
               strokeWidth="1.5"
               width={iconSizes.icon20}
             />
             <Text
-              color="accent1"
-              variant="buttonLabelMedium"
+              color="$accent1"
+              variant="buttonLabel2"
               onPress={(): Promise<void> =>
                 handleOnPress(OnboardingScreens.WatchWallet, ImportType.Watch)
               }>

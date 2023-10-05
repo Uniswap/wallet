@@ -2,24 +2,29 @@ import { ImpactFeedbackStyle, selectionAsync } from 'expo-haptics'
 import React, { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Keyboard, LayoutAnimation, StyleSheet, VirtualizedList } from 'react-native'
-import { TouchableArea } from 'src/components/buttons/TouchableArea'
-import { Box, Flex } from 'src/components/layout'
 import { ActionSheetModal } from 'src/components/modals/ActionSheetModal'
 import { useNetworkOptions } from 'src/components/Network/hooks'
-import { Text } from 'src/components/Text'
 import { ModalName } from 'src/features/telemetry/constants'
-import { Icons } from 'ui/src'
+import { Flex, Icons, Text, TouchableArea } from 'ui/src'
 import EllipsisIcon from 'ui/src/assets/icons/ellipsis.svg'
 import { colors, iconSizes } from 'ui/src/theme'
 import {
   NetworkLogo,
   SQUARE_BORDER_RADIUS as NETWORK_LOGO_SQUARE_BORDER_RADIUS,
 } from 'wallet/src/components/CurrencyLogo/NetworkLogo'
-import { ALL_SUPPORTED_CHAIN_IDS, ChainId } from 'wallet/src/constants/chains'
+import { ChainId } from 'wallet/src/constants/chains'
 
 const ELLIPSIS = 'ellipsis'
 const NETWORK_ICON_SIZE = iconSizes.icon20
 const NETWORK_ICON_SHIFT = 10
+// Array of logos to show when "all networks" are visible. Don't want to show all
+// logos because there are too many
+const NETWORK_LOGOS_TO_SHOW = [
+  ChainId.Mainnet,
+  ChainId.Polygon,
+  ChainId.ArbitrumOne,
+  ChainId.Optimism,
+]
 
 interface NetworkFilterProps {
   selectedChain: ChainId | null
@@ -34,11 +39,11 @@ type ListItem = 'ellipsis' | number
 
 function renderItem({ item: chainId }: { item: ListItem }): JSX.Element {
   return (
-    <Box key={chainId} borderColor="surface2" style={styles.networksInSeriesIcon}>
+    <Flex key={chainId} borderColor="$surface2" style={styles.networksInSeriesIcon}>
       {chainId === ELLIPSIS ? (
         <Flex
           centered
-          backgroundColor="neutral3"
+          backgroundColor="$neutral3"
           height={NETWORK_ICON_SIZE}
           style={styles.ellipsisIcon}
           width={NETWORK_ICON_SIZE}>
@@ -47,7 +52,7 @@ function renderItem({ item: chainId }: { item: ListItem }): JSX.Element {
       ) : (
         <NetworkLogo chainId={chainId} shape="square" size={NETWORK_ICON_SIZE} />
       )}
-    </Box>
+    </Flex>
   )
 }
 function keyExtractor(item: ListItem): string {
@@ -77,7 +82,7 @@ function NetworksInSeries({
   }
 
   return (
-    <Box>
+    <Flex>
       <VirtualizedList<ListItem>
         contentContainerStyle={styles.networkListContainer}
         getItem={getItem}
@@ -85,7 +90,7 @@ function NetworksInSeries({
         keyExtractor={keyExtractor}
         renderItem={renderItem}
       />
-    </Box>
+    </Flex>
   )
 }
 
@@ -114,29 +119,23 @@ export function NetworkFilter({
     [showEllipsisIcon, selectedChain, onPressChain]
   )
 
-  // design wants to limit amount of networks shown in the network filter,
-  // when all networks is selected and for now we show all, but Arbitrum
-  const activeChainsWithoutArbitrum = ALL_SUPPORTED_CHAIN_IDS.filter(
-    (chainId) => chainId !== ChainId.ArbitrumOne
-  )
-
   const networkOptions = useNetworkOptions({ selectedChain, onPress, includeAllNetworks })
 
   const networks = useMemo(() => {
-    return selectedChain ? [selectedChain] : activeChainsWithoutArbitrum
-  }, [activeChainsWithoutArbitrum, selectedChain])
+    return selectedChain ? [selectedChain] : NETWORK_LOGOS_TO_SHOW
+  }, [selectedChain])
 
   return (
     <>
       <TouchableArea
         hapticFeedback
         hapticStyle={ImpactFeedbackStyle.Light}
-        py="spacing8"
+        py="$spacing8"
         onPress={(): void => {
           Keyboard.dismiss()
           setShowModal(true)
         }}>
-        <Flex centered row gap="spacing4" py="spacing8">
+        <Flex centered row gap="$spacing4" py="$spacing8">
           <NetworksInSeries
             // show ellipsis as the last item when all networks is selected
             ellipsisPosition={!selectedChain ? 'end' : undefined}
@@ -154,8 +153,8 @@ export function NetworkFilter({
 
       <ActionSheetModal
         header={
-          <Flex centered gap="spacing4" py="spacing16">
-            <Text variant="buttonLabelMedium">{t('Switch Network')}</Text>
+          <Flex centered gap="$spacing4" py="$spacing16">
+            <Text variant="buttonLabel2">{t('Switch Network')}</Text>
           </Flex>
         }
         isVisible={showModal}

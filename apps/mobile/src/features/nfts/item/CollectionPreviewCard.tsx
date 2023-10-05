@@ -1,15 +1,11 @@
 import { default as React } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useAppTheme } from 'src/app/hooks'
-import { TouchableArea } from 'src/components/buttons/TouchableArea'
-import { Box, Flex } from 'src/components/layout'
 import { Loader } from 'src/components/loading'
-import { Text } from 'src/components/Text'
 import { PriceAmount } from 'src/features/nfts/collection/ListPriceCard'
 import { NFTItem } from 'src/features/nfts/types'
-import { Icons } from 'ui/src'
+import { Flex, Icons, Text, TouchableArea, useSporeColors } from 'ui/src'
 import VerifiedIcon from 'ui/src/assets/icons/verified.svg'
-import { iconSizes, imageSizes } from 'ui/src/theme'
+import { iconSizes, imageSizes, spacing } from 'ui/src/theme'
 import { Currency, NftItemScreenQuery } from 'wallet/src/data/__generated__/types-and-hooks'
 import { NFTViewer } from 'wallet/src/features/images/NFTViewer'
 
@@ -29,11 +25,11 @@ export function CollectionPreviewCard({
   onPress,
   loading,
 }: CollectionPreviewCardProps): JSX.Element {
-  const theme = useAppTheme()
+  const colors = useSporeColors()
   const { t } = useTranslation()
 
   if (loading || (!collection && !fallbackData?.name)) {
-    return <Loader.Box borderRadius="$rounded16" height={theme.spacing.spacing60} />
+    return <Loader.Box borderRadius="$rounded16" height={spacing.spacing60} />
   }
 
   const isViewableCollection = Boolean(collection || fallbackData?.contractAddress)
@@ -43,57 +39,53 @@ export function CollectionPreviewCard({
       <Flex
         row
         alignItems="center"
-        backgroundColor="surface3"
-        borderRadius="rounded16"
-        gap="spacing8"
+        backgroundColor="$surface3"
+        borderRadius="$rounded16"
+        gap="$spacing8"
         justifyContent="space-between"
-        px="spacing12"
-        py="spacing12">
-        <Flex row shrink alignItems="center" gap="spacing12" overflow="hidden">
+        px="$spacing12"
+        py="$spacing12">
+        <Flex row shrink alignItems="center" gap="$spacing12" overflow="hidden">
           {collection?.image?.url ? (
-            <Box
-              borderRadius="roundedFull"
+            <Flex
+              borderRadius="$roundedFull"
               height={imageSizes.image40}
               overflow="hidden"
               width={imageSizes.image40}>
-              <NFTViewer
-                squareGridView
-                maxHeight={theme.spacing.spacing60}
-                uri={collection.image.url}
-              />
-            </Box>
+              <NFTViewer squareGridView maxHeight={spacing.spacing60} uri={collection.image.url} />
+            </Flex>
           ) : null}
-          <Flex shrink gap="none">
-            <Flex grow row alignItems="center" gap="spacing8">
+          <Flex shrink>
+            <Flex grow row alignItems="center" gap="$spacing8">
               {/* Width chosen to ensure truncation of collection name on both small
                 and large screens with sufficient padding */}
-              <Box flexShrink={1}>
-                <Text color="neutral1" numberOfLines={1} variant="bodyLarge">
+              <Flex shrink>
+                <Text color="$neutral1" numberOfLines={1} variant="body1">
                   {collection?.name || fallbackData?.name || '-'}
                 </Text>
-              </Box>
+              </Flex>
               {collection?.isVerified && (
                 <VerifiedIcon
-                  color={theme.colors.accent1}
+                  color={colors.accent1.val}
                   height={iconSizes.icon16}
                   width={iconSizes.icon16}
                 />
               )}
             </Flex>
-            {collection?.markets?.[0]?.floorPrice?.value && (
-              <Flex row gap="spacing4">
-                <Text color="neutral2" numberOfLines={1} variant="subheadSmall">
+            {collection?.markets?.[0]?.floorPrice && (
+              <Flex row gap="$spacing4">
+                <Text color="$neutral2" numberOfLines={1} variant="subheading2">
                   {t('Floor')}:
                 </Text>
                 <PriceAmount
-                  iconColor="neutral2"
+                  iconColor="$neutral2"
                   price={{
                     id: collection?.markets?.[0].floorPrice.id,
                     value: collection.markets[0].floorPrice.value,
                     currency: Currency.Eth,
                   }}
-                  textColor="neutral2"
-                  textVariant="subheadSmall"
+                  textColor="$neutral2"
+                  textVariant="subheading2"
                 />
               </Flex>
             )}

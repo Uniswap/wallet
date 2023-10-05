@@ -1,14 +1,10 @@
 import React, { useMemo } from 'react'
-import { useAppTheme } from 'src/app/hooks'
-import { BaseButtonProps, TouchableArea } from 'src/components/buttons/TouchableArea'
-import { Flex } from 'src/components/layout'
-import { Text } from 'src/components/Text'
 import { openUri } from 'src/utils/linking'
+import { Flex, FlexProps, Text, TouchableArea, TouchableAreaProps, useSporeColors } from 'ui/src'
 import ExternalLinkIcon from 'ui/src/assets/icons/external-link.svg'
-import { iconSizes } from 'ui/src/theme'
-import { Theme } from 'ui/src/theme/restyle'
+import { iconSizes, TextVariantTokens } from 'ui/src/theme'
 
-interface LinkButtonProps extends Omit<BaseButtonProps, 'onPress'> {
+interface LinkButtonProps extends Omit<TouchableAreaProps, 'onPress'> {
   label: string
   url: string
   openExternalBrowser?: boolean
@@ -16,7 +12,7 @@ interface LinkButtonProps extends Omit<BaseButtonProps, 'onPress'> {
   color?: string
   iconColor?: string
   size?: number
-  textVariant?: keyof Theme['textVariants']
+  textVariant?: TextVariantTokens
 }
 
 export function LinkButton({
@@ -30,12 +26,12 @@ export function LinkButton({
   size = iconSizes.icon20,
   justifyContent = 'center',
   ...rest
-}: LinkButtonProps): JSX.Element {
-  const theme = useAppTheme()
+}: LinkButtonProps & Pick<FlexProps, 'justifyContent'>): JSX.Element {
+  const colors = useSporeColors()
   const colorStyles = useMemo(() => {
     return color
       ? { style: { color } }
-      : // if a hex color is not defined, don't give the Text component a style prop, because that will override its default behavior of using textPrimary when no color prop is defined
+      : // if a hex color is not defined, don't give the Text component a style prop, because that will override its default behavior of using neutral1 when no color prop is defined
         {}
   }, [color])
 
@@ -43,12 +39,12 @@ export function LinkButton({
     <TouchableArea
       onPress={(): Promise<void> => openUri(url, openExternalBrowser, isSafeUri)}
       {...rest}>
-      <Flex row alignItems="center" gap="spacing4" justifyContent={justifyContent}>
+      <Flex row alignItems="center" gap="$spacing4" justifyContent={justifyContent}>
         <Text {...colorStyles} variant={textVariant}>
           {label}
         </Text>
         <ExternalLinkIcon
-          color={iconColor ?? color ?? theme.colors.accent1}
+          color={iconColor ?? color ?? colors.accent1.val}
           height={size}
           strokeWidth={1.5}
           width={size}

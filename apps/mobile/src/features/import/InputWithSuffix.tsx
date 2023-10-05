@@ -1,4 +1,3 @@
-import { ResponsiveValue } from '@shopify/restyle'
 import { useCallback, useState } from 'react'
 import {
   LayoutRectangle,
@@ -7,15 +6,14 @@ import {
   TextInputContentSizeChangeEventData,
 } from 'react-native'
 import { TextInput } from 'src/components/input/TextInput'
-import { Box } from 'src/components/layout'
 import { IS_ANDROID } from 'src/constants/globals'
-import { Theme } from 'ui/src/theme/restyle'
+import { Flex, useSporeColors } from 'ui/src'
+import { spacing } from 'ui/src/theme'
 
 interface Props {
   autoCorrect: boolean
   blurOnSubmit: boolean
-  theme: Theme
-  inputAlignment: ResponsiveValue<'center' | 'flex-start', Theme>
+  inputAlignment: 'center' | 'flex-start'
   value?: string
   inputFontSize: number
   inputMaxFontSizeMultiplier: number
@@ -31,10 +29,10 @@ interface Props {
 
 export default function InputWithSuffix(props: Props): JSX.Element {
   return IS_ANDROID && props.inputSuffix ? (
-    <Box width="100%">
+    <Flex width="100%">
       <Inputs {...props} layerType="foreground" />
       <Inputs {...props} layerType="background" />
-    </Box>
+    </Flex>
   ) : (
     <Inputs {...props} />
   )
@@ -43,7 +41,6 @@ export default function InputWithSuffix(props: Props): JSX.Element {
 function Inputs({
   value,
   layout,
-  theme,
   inputSuffix,
   inputAlignment,
   inputFontSize,
@@ -53,6 +50,7 @@ function Inputs({
   layerType,
   ...inputProps
 }: Props & { layerType?: 'foreground' | 'background' }): JSX.Element {
+  const colors = useSporeColors()
   const [isMultiline, setIsMultiline] = useState(false)
 
   const handleContentSizeChange = useCallback(
@@ -64,8 +62,17 @@ function Inputs({
     [textInputRef, inputFontSize]
   )
 
+  const isInputEmpty = !value?.length
+
+  const foregroundFallbackTextAlignment =
+    isMultiline || inputAlignment === 'flex-start' ? 'left' : 'center'
+  const foregroundTextAlignment = textAlign ?? foregroundFallbackTextAlignment
+
+  const fallbackBackgroundTextAlignment = inputAlignment === 'flex-start' ? 'left' : 'center'
+  const backgroundTextAlignment = textAlign ?? fallbackBackgroundTextAlignment
+
   return (
-    <Box
+    <Flex
       alignItems="flex-end"
       flexDirection="row"
       justifyContent={inputAlignment}
@@ -85,9 +92,7 @@ function Inputs({
           px="none"
           py="none"
           scrollEnabled={false}
-          textAlign={
-            textAlign ?? (isMultiline || inputAlignment === 'flex-start' ? 'left' : 'center')
-          }
+          textAlign={isInputEmpty ? 'left' : foregroundTextAlignment}
           textAlignVertical="bottom"
           value={value}
           width="100%"
@@ -109,13 +114,13 @@ function Inputs({
           py="none"
           returnKeyType="done"
           scrollEnabled={false}
-          selectionColor={theme.colors.neutral1}
+          selectionColor={colors.neutral1.val}
           spellCheck={false}
           testID="import_account_form/input"
-          textAlign={textAlign ?? (inputAlignment === 'center' || !value ? 'left' : 'center')}
+          textAlign={backgroundTextAlignment}
           textAlignVertical="bottom"
           value={value}
-          width={value ? 'auto' : (layout?.width || 0) + theme.spacing.spacing8}
+          width={value ? 'auto' : (layout?.width || 0) + spacing.spacing8}
           {...(layerType === 'background'
             ? { opacity: 0, editable: false }
             : { ...inputProps, ref: textInputRef })}
@@ -139,6 +144,6 @@ function Inputs({
           {...(layerType === 'foreground' ? { opacity: 0 } : {})}
         />
       ) : null}
-    </Box>
+    </Flex>
   )
 }

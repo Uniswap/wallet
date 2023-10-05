@@ -4,7 +4,7 @@ import { BlurView } from 'expo-blur'
 import { impactAsync } from 'expo-haptics'
 import React, { memo, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Dimensions, StyleSheet } from 'react-native'
+import { StyleSheet } from 'react-native'
 import { TapGestureHandler, TapGestureHandlerGestureEvent } from 'react-native-gesture-handler'
 import {
   cancelAnimation,
@@ -14,11 +14,8 @@ import {
   useSharedValue,
 } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg'
-import { useAppDispatch, useAppTheme } from 'src/app/hooks'
-import { TouchableArea } from 'src/components/buttons/TouchableArea'
+import { useAppDispatch } from 'src/app/hooks'
 import { pulseAnimation } from 'src/components/buttons/utils'
-import { GradientBackground } from 'src/components/gradients/GradientBackground'
 import { AnimatedBox, AnimatedFlex } from 'src/components/layout'
 import { IS_ANDROID, IS_IOS } from 'src/constants/globals'
 import { openModal } from 'src/features/modals/modalSlice'
@@ -26,12 +23,13 @@ import { sendMobileAnalyticsEvent } from 'src/features/telemetry'
 import { ElementName, ModalName } from 'src/features/telemetry/constants'
 import { prepareSwapFormState } from 'src/features/transactions/swap/utils'
 import { Screens } from 'src/screens/Screens'
-import { Flex, Icons, StackProps, Text } from 'ui/src'
-import { borderRadii, iconSizes } from 'ui/src/theme'
+import { Flex, FlexProps, Icons, LinearGradient, Text, TouchableArea, useSporeColors } from 'ui/src'
+import { borderRadii, iconSizes, spacing } from 'ui/src/theme'
 import { Theme } from 'ui/src/theme/restyle'
 import { useIsDarkMode } from 'wallet/src/features/appearance/hooks'
 import { useHighestBalanceNativeCurrencyId } from 'wallet/src/features/dataApi/balances'
 import { useActiveAccountAddressWithThrow } from 'wallet/src/features/wallet/hooks'
+import { opacify } from 'wallet/src/utils/colors'
 
 export const NAV_BAR_HEIGHT_XS = 52
 export const NAV_BAR_HEIGHT_SM = 72
@@ -48,33 +46,31 @@ function sendSwapPressAnalyticsEvent(): void {
 
 export function NavBar(): JSX.Element {
   const insets = useSafeAreaInsets()
-  const theme = useAppTheme()
+  const colors = useSporeColors()
   const isDarkMode = useIsDarkMode()
-  const screenHeight = Dimensions.get('screen').height
 
   const BUTTONS_OFFSET =
-    useResponsiveProp({ xs: theme.spacing.spacing24, sm: theme.spacing.none }) ?? theme.spacing.none
+    useResponsiveProp({ xs: spacing.spacing24, sm: spacing.none }) ?? spacing.none
 
   return (
     <>
-      <Flex gap="$none" pointerEvents="none" style={StyleSheet.absoluteFill}>
-        <GradientBackground overflow="hidden">
-          <Svg height={screenHeight} opacity={isDarkMode ? '1' : '0.3'} width="100%">
-            <Defs>
-              <LinearGradient id="background" x1="0%" x2="0%" y1="85%" y2="100%">
-                <Stop offset="0" stopColor={theme.colors.sporeBlack} stopOpacity="0" />
-                <Stop offset="1" stopColor={theme.colors.sporeBlack} stopOpacity="0.5" />
-              </LinearGradient>
-            </Defs>
-            <Rect fill="url(#background)" height="100%" opacity={1} width="100%" x="0" y="0" />
-          </Svg>
-        </GradientBackground>
+      <Flex
+        opacity={isDarkMode ? 1 : 0.3}
+        overflow="hidden"
+        pointerEvents="none"
+        style={StyleSheet.absoluteFill}>
+        <LinearGradient
+          colors={[opacify(50, colors.sporeBlack.val), opacify(0, colors.sporeBlack.val)]}
+          end={[0, 0.8]}
+          height="100%"
+          start={[0, 1]}
+          width="100%"
+        />
       </Flex>
       <Flex
         row
         alignItems="center"
         bottom={0}
-        gap="$none"
         justifyContent="flex-end"
         left={0}
         pointerEvents="box-none"
@@ -82,9 +78,9 @@ export function NavBar(): JSX.Element {
         right={0}
         style={{ paddingBottom: insets.bottom + BUTTONS_OFFSET }}>
         <Flex
+          fill
           row
           alignItems="center"
-          flex={1}
           gap="$spacing12"
           justifyContent="space-between"
           mb={IS_ANDROID ? '$spacing8' : '$none'}
@@ -110,7 +106,6 @@ const SwapFAB = memo(function _SwapFAB({ activeScale = 0.96 }: SwapTabBarButtonP
   const { t } = useTranslation()
   const dispatch = useAppDispatch()
 
-  const theme = useAppTheme()
   const isDarkMode = useIsDarkMode()
 
   const activeAccountAddress = useActiveAccountAddressWithThrow()
@@ -141,16 +136,10 @@ const SwapFAB = memo(function _SwapFAB({ activeScale = 0.96 }: SwapTabBarButtonP
   })
 
   return (
-    <Flex
-      alignItems="center"
-      bg="$transparent"
-      gap="$none"
-      pointerEvents="box-none"
-      position="relative">
+    <Flex alignItems="center" bg="$transparent" pointerEvents="box-none" position="relative">
       <TapGestureHandler onGestureEvent={onGestureEvent}>
         <AnimatedBox
           centered
-          gap="$none"
           height={SWAP_BUTTON_HEIGHT}
           pointerEvents="auto"
           px="$spacing24"
@@ -158,29 +147,26 @@ const SwapFAB = memo(function _SwapFAB({ activeScale = 0.96 }: SwapTabBarButtonP
           shadowColor="$DEP_shadowBranded"
           shadowOffset={SWAP_BUTTON_SHADOW_OFFSET}
           shadowOpacity={isDarkMode ? 0.6 : 0.4}
-          shadowRadius={theme.borderRadii.rounded20}
+          shadowRadius={borderRadii.rounded20}
           style={[animatedStyle]}>
           <Flex
             borderRadius="$rounded32"
             bottom={0}
-            gap="$none"
             left={0}
             overflow="hidden"
             pointerEvents="auto"
             position="absolute"
             right={0}
             top={0}>
-            <Svg height="100%" width="100%">
-              <Defs>
-                <LinearGradient id="background" x1="0%" x2="0%" y1="0%" y2="100%">
-                  <Stop offset="0" stopColor="#F160F9" stopOpacity="1" />
-                  <Stop offset="1" stopColor="#e14ee9" stopOpacity="1" />
-                </LinearGradient>
-              </Defs>
-              <Rect fill="url(#background)" height="100%" opacity={1} width="100%" x="0" y="0" />
-            </Svg>
+            <LinearGradient
+              colors={['#F160F9', '#E14EE9']}
+              end={[0, 1]}
+              height="100%"
+              start={[0, 0]}
+              width="100%"
+            />
           </Flex>
-          <Text color="$sporeWhite" variant="buttonLabelMedium">
+          <Text color="$sporeWhite" variant="buttonLabel2">
             {t('Swap')}
           </Text>
         </AnimatedBox>
@@ -199,8 +185,8 @@ type ExploreTabBarButtonProps = {
 
 function ExploreTabBarButton({ activeScale = 0.98 }: ExploreTabBarButtonProps): JSX.Element {
   const dispatch = useAppDispatch()
-  const theme = useAppTheme()
   const isDarkMode = useIsDarkMode()
+  const colors = useSporeColors()
   const { t } = useTranslation()
 
   const onPress = (): void => {
@@ -219,33 +205,35 @@ function ExploreTabBarButton({ activeScale = 0.98 }: ExploreTabBarButtonProps): 
     },
   })
 
-  const contentProps: StackProps = IS_IOS
+  const contentProps: FlexProps = IS_IOS
     ? {
         bg: '$surface2',
         opacity: isDarkMode ? 0.6 : 0.8,
       }
     : {
         bg: '$surface1',
-        borderWidth: 1,
-        borderColor: '$surface3',
+        style: {
+          borderColor: colors.surface3.val,
+          borderWidth: 1,
+        },
       }
 
   return (
     <TouchableArea
       hapticFeedback
       activeOpacity={1}
-      style={[styles.searchBar, { borderRadius: theme.borderRadii.roundedFull }]}
+      style={[styles.searchBar, { borderRadius: borderRadii.roundedFull }]}
       onPress={onPress}>
       <TapGestureHandler onGestureEvent={onGestureEvent}>
         <AnimatedFlex borderRadius="roundedFull" overflow="hidden" style={animatedStyle}>
           <BlurView intensity={IS_IOS ? 100 : 0}>
             <Flex
               {...contentProps}
+              fill
               grow
               row
               alignItems="center"
               borderRadius="$roundedFull"
-              flex={1}
               gap="$spacing8"
               justifyContent="flex-start"
               p="$spacing16"
@@ -255,7 +243,7 @@ function ExploreTabBarButton({ activeScale = 0.98 }: ExploreTabBarButtonProps): 
               shadowOpacity={isDarkMode ? 0.6 : 0.4}
               shadowRadius={borderRadii.rounded20}>
               <Icons.Search color="$neutral2" size={iconSizes.icon24} />
-              <Text color="$neutral1" variant="bodyLarge">
+              <Text color="$neutral1" variant="body1">
                 {t('Search web3')}
               </Text>
             </Flex>

@@ -1,7 +1,7 @@
 import React from 'react'
-import { Box, Flex } from 'src/components/layout'
-import { Text } from 'src/components/Text'
 import { GQLNftAsset } from 'src/features/nfts/hooks'
+import { Flex, Text } from 'ui/src'
+import { iconSizes } from 'ui/src/theme'
 import { NFTViewer } from 'wallet/src/features/images/NFTViewer'
 
 export function NFTTransfer({
@@ -12,15 +12,19 @@ export function NFTTransfer({
   nftSize?: number
 }): JSX.Element {
   return (
-    <Flex centered>
-      <Box borderRadius="rounded16" height={nftSize} overflow="hidden" width={nftSize}>
+    <Flex centered gap="$spacing16">
+      <Flex borderRadius="$rounded16" height={nftSize} overflow="hidden" width={nftSize}>
         <NFTViewer squareGridView maxHeight={nftSize} uri={asset?.image?.url} />
-      </Box>
-      <Flex centered row gap="spacing8">
-        <Box borderRadius="roundedFull" height={28} overflow="hidden" width={28}>
+      </Flex>
+      <Flex centered row gap="$spacing8">
+        <Flex
+          borderRadius="$roundedFull"
+          height={iconSizes.icon28}
+          overflow="hidden"
+          width={iconSizes.icon28}>
           <NFTViewer uri={asset?.collection?.image?.url} />
-        </Box>
-        <Text variant="buttonLabelLarge">{asset?.name}</Text>
+        </Flex>
+        <Text variant="buttonLabel1">{asset?.name}</Text>
       </Flex>
     </Flex>
   )

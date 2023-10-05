@@ -4,12 +4,10 @@ import { useTranslation } from 'react-i18next'
 import { StyleProp, StyleSheet, ViewStyle } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { SceneRendererProps, TabBar } from 'react-native-tab-view'
-import { useAppTheme } from 'src/app/hooks'
 import { AppStackParamList } from 'src/app/navigation/types'
 import { ActivityTab } from 'src/components/home/ActivityTab'
 import { NftsTab } from 'src/components/home/NftsTab'
 import { TokensTab } from 'src/components/home/TokensTab'
-import { Box, Flex } from 'src/components/layout'
 import { Screen } from 'src/components/layout/Screen'
 import { renderTabLabel, TabContentProps, TAB_STYLES } from 'src/components/layout/TabHelpers'
 import Trace from 'src/components/Trace/Trace'
@@ -18,6 +16,8 @@ import ProfileHeader from 'src/features/externalProfile/ProfileHeader'
 import { SectionName } from 'src/features/telemetry/constants'
 import { ExploreModalAwareView } from 'src/screens/ModalAwareView'
 import { Screens } from 'src/screens/Screens'
+import { Flex, useSporeColors } from 'ui/src'
+import { spacing } from 'ui/src/theme'
 import { useDisplayName } from 'wallet/src/features/wallet/hooks'
 
 type Props = NativeStackScreenProps<AppStackParamList, Screens.ExternalProfile>
@@ -28,7 +28,7 @@ export function ExternalProfileScreen({
   },
 }: Props): JSX.Element {
   const { t } = useTranslation()
-  const theme = useAppTheme()
+  const colors = useSporeColors()
   const [tabIndex, setIndex] = useState(0)
   const insets = useSafeAreaInsets()
 
@@ -53,11 +53,11 @@ export function ExternalProfileScreen({
 
   const emptyContainerStyle = useMemo<StyleProp<ViewStyle>>(
     () => ({
-      paddingTop: theme.spacing.spacing60,
-      paddingHorizontal: theme.spacing.spacing36,
+      paddingTop: spacing.spacing60,
+      paddingHorizontal: spacing.spacing36,
       paddingBottom: insets.bottom,
     }),
-    [insets.bottom, theme.spacing.spacing36, theme.spacing.spacing60]
+    [insets.bottom]
   )
 
   const sharedProps = useMemo<TabContentProps>(
@@ -94,7 +94,7 @@ export function ExternalProfileScreen({
   const renderTabBar = useCallback(
     (sceneProps: SceneRendererProps) => {
       return (
-        <Box bg="surface1" paddingLeft="spacing12">
+        <Flex bg="$surface1" pl="$spacing12">
           <TabBar
             {...sceneProps}
             indicatorStyle={TAB_STYLES.activeTabIndicator}
@@ -105,16 +105,16 @@ export function ExternalProfileScreen({
             style={[
               TAB_STYLES.tabBar,
               {
-                backgroundColor: theme.colors.surface1,
-                borderBottomColor: theme.colors.surface3,
+                backgroundColor: colors.surface1.val,
+                borderBottomColor: colors.surface3.val,
               },
             ]}
             tabStyle={styles.tabStyle}
           />
-        </Box>
+        </Flex>
       )
     },
-    [tabIndex, tabs, theme]
+    [colors.surface1.val, colors.surface3.val, tabIndex, tabs]
   )
 
   const traceProperties = useMemo(
@@ -130,7 +130,7 @@ export function ExternalProfileScreen({
           logImpression
           properties={traceProperties}
           screen={Screens.ExternalProfile}>
-          <Flex grow>
+          <Flex grow gap="$spacing16">
             <ProfileHeader address={address} />
             <TraceTabView
               navigationState={{ index: tabIndex, routes: tabs }}

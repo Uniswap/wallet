@@ -4,12 +4,7 @@ import React, { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAppDispatch } from 'src/app/hooks'
 import { OnboardingStackParamList } from 'src/app/navigation/types'
-import { Button } from 'src/components/buttons/Button'
-import { TouchableArea } from 'src/components/buttons/TouchableArea'
-import { Flex } from 'src/components/layout'
-import { Text } from 'src/components/Text'
 import Trace from 'src/components/Trace/Trace'
-import { RECOVERY_PHRASE_HELP_URL } from 'src/constants/urls'
 import { useLockScreenOnBlur } from 'src/features/authentication/lockScreenContext'
 import { GenericImportForm } from 'src/features/import/GenericImportForm'
 import { SafeKeyboardOnboardingScreen } from 'src/features/onboarding/SafeKeyboardOnboardingScreen'
@@ -18,6 +13,8 @@ import { ElementName } from 'src/features/telemetry/constants'
 import { OnboardingScreens } from 'src/screens/Screens'
 import { openUri } from 'src/utils/linking'
 import { useAddBackButton } from 'src/utils/useAddBackButton'
+import { Button, Flex, Text, TouchableArea } from 'ui/src'
+import { uniswapUrls } from 'wallet/src/constants/urls'
 import { useNonPendingSignerAccounts } from 'wallet/src/features/wallet/hooks'
 import { importAccountActions } from 'wallet/src/features/wallet/import/importAccountSaga'
 import { ImportAccountType } from 'wallet/src/features/wallet/import/types'
@@ -121,20 +118,21 @@ export function SeedPhraseInputScreen({ navigation, route: { params } }: Props):
     setValue(text)
   }
 
-  const onPressRecoveryHelpButton = (): Promise<void> => openUri(RECOVERY_PHRASE_HELP_URL)
+  const onPressRecoveryHelpButton = (): Promise<void> =>
+    openUri(uniswapUrls.helpArticleUrls.recoveryPhraseHelp)
 
   const onPressTryAgainButton = (): void => {
     navigation.replace(OnboardingScreens.RestoreCloudBackupLoading, params)
   }
 
   const subtitleSize = useResponsiveProp({
-    xs: 'bodyMicro',
-    sm: 'subheadSmall',
+    xs: 'body3',
+    sm: 'subheading2',
   })
 
   const itemSpacing = useResponsiveProp({
-    xs: 'none',
-    sm: 'spacing8',
+    xs: '$none',
+    sm: '$spacing8',
   })
 
   return (
@@ -163,7 +161,7 @@ export function SeedPhraseInputScreen({ navigation, route: { params } }: Props):
           <Trace logPress element={ElementName.RecoveryHelpButton}>
             <TouchableArea
               onPress={isRestoringMnemonic ? onPressTryAgainButton : onPressRecoveryHelpButton}>
-              <Text color="accent1" variant={subtitleSize}>
+              <Text color="$accent1" variant={subtitleSize}>
                 {isRestoringMnemonic
                   ? t('Try searching again')
                   : t('How do I find my recovery phrase?')}
@@ -174,7 +172,9 @@ export function SeedPhraseInputScreen({ navigation, route: { params } }: Props):
       </Flex>
 
       <Trace logPress element={ElementName.Next}>
-        <Button disabled={!!errorMessage || !value} label={t('Continue')} onPress={onSubmit} />
+        <Button disabled={!!errorMessage || !value} testID="seed-input-submit" onPress={onSubmit}>
+          {t('Continue')}
+        </Button>
       </Trace>
     </SafeKeyboardOnboardingScreen>
   )

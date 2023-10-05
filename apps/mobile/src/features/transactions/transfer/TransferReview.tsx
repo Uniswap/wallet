@@ -1,9 +1,10 @@
 import { providers } from 'ethers'
-import React, { useCallback, useState } from 'react'
+import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Warning, WarningAction, WarningSeverity } from 'src/components/modals/WarningModal/types'
 import WarningModal from 'src/components/modals/WarningModal/WarningModal'
 import { ElementName, ModalName } from 'src/features/telemetry/constants'
+import { NetworkFeeInfoModal } from 'src/features/transactions/swap/modals/NetworkFeeInfoModal'
 import { TransactionDetails } from 'src/features/transactions/TransactionDetails'
 import { TransactionReview } from 'src/features/transactions/TransactionReview'
 import {
@@ -12,6 +13,7 @@ import {
   useTransferNFTCallback,
 } from 'src/features/transactions/transfer/hooks'
 import { formatCurrencyAmount, formatNumberOrString, NumberType } from 'utilities/src/format/format'
+import { GasFeeResult } from 'wallet/src/features/gas/types'
 import { useUSDCValue } from 'wallet/src/features/routing/useUSDCPrice'
 import { CurrencyField } from 'wallet/src/features/transactions/transactionState/types'
 import { AccountType } from 'wallet/src/features/wallet/accounts/types'
@@ -21,7 +23,7 @@ import { currencyAddress } from 'wallet/src/utils/currencyId'
 interface TransferFormProps {
   derivedTransferInfo: DerivedTransferInfo
   txRequest?: providers.TransactionRequest
-  gasFeeUSD?: string
+  gasFee: GasFeeResult
   onNext: () => void
   onPrev: () => void
   warnings: Warning[]
@@ -29,7 +31,7 @@ interface TransferFormProps {
 
 export function TransferReview({
   derivedTransferInfo,
-  gasFeeUSD,
+  gasFee,
   onNext,
   onPrev,
   txRequest,
@@ -38,14 +40,23 @@ export function TransferReview({
   const { t } = useTranslation()
   const account = useActiveAccountWithThrow()
   const [showWarningModal, setShowWarningModal] = useState(false)
+  const [showNetworkFeeInfoModal, setShowNetworkFeeInfoModal] = useState(false)
 
-  const onShowWarning = useCallback(() => {
+  const onShowWarning = (): void => {
     setShowWarningModal(true)
-  }, [])
+  }
 
-  const onCloseWarning = useCallback(() => {
+  const onCloseWarning = (): void => {
     setShowWarningModal(false)
-  }, [])
+  }
+
+  const onShowNetworkFeeInfo = (): void => {
+    setShowNetworkFeeInfoModal(true)
+  }
+
+  const onCloseNetworkFeeInfo = (): void => {
+    setShowNetworkFeeInfoModal(false)
+  }
 
   const {
     currencyAmounts,
@@ -67,7 +78,11 @@ export function TransferReview({
   )
 
   const actionButtonDisabled =
-    blockingWarning || !gasFeeUSD || !txRequest || account.type === AccountType.Readonly
+    blockingWarning ||
+    !gasFee.value ||
+    !!gasFee.error ||
+    !txRequest ||
+    account.type === AccountType.Readonly
 
   const transferERC20Callback = useTransferERC20Callback(
     txId,
@@ -128,6 +143,7 @@ export function TransferReview({
           onConfirm={onCloseWarning}
         />
       )}
+      {showNetworkFeeInfoModal && <NetworkFeeInfoModal onClose={onCloseNetworkFeeInfo} />}
       <TransactionReview
         actionButtonProps={actionButtonProps}
         currencyInInfo={currencyInInfo}
@@ -139,9 +155,10 @@ export function TransferReview({
         transactionDetails={
           <TransactionDetails
             chainId={chainId}
-            gasFeeUSD={gasFeeUSD}
+            gasFee={gasFee}
             showWarning={Boolean(transferWarning)}
             warning={transferWarning}
+            onShowNetworkFeeInfo={onShowNetworkFeeInfo}
             onShowWarning={onShowWarning}
           />
         }

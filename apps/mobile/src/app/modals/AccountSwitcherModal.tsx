@@ -1,14 +1,11 @@
 import React, { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Alert } from 'react-native'
-import 'react-native-gesture-handler'
 import { Action } from 'redux'
-import { useAppDispatch, useAppSelector, useAppTheme } from 'src/app/hooks'
+import { useAppDispatch, useAppSelector } from 'src/app/hooks'
 import { navigate } from 'src/app/navigation/rootNavigation'
 import { AccountList } from 'src/components/accounts/AccountList'
 import { AddressDisplay } from 'src/components/AddressDisplay'
-import { Button, ButtonEmphasis, ButtonSize } from 'src/components/buttons/Button'
-import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { Screen } from 'src/components/layout/Screen'
 import { ActionSheetModal, MenuItemProp } from 'src/components/modals/ActionSheetModal'
 import { BottomSheetModal } from 'src/components/modals/BottomSheetModal'
@@ -19,7 +16,7 @@ import { ImportType, OnboardingEntryPoint } from 'src/features/onboarding/utils'
 import { ElementName, ModalName } from 'src/features/telemetry/constants'
 import { OnboardingScreens, Screens } from 'src/screens/Screens'
 import { openSettings } from 'src/utils/linking'
-import { Flex, Icons, Text } from 'ui/src'
+import { Button, Flex, Icons, Text, TouchableArea, useSporeColors } from 'ui/src'
 import { dimensions, iconSizes, spacing } from 'ui/src/theme'
 import { AccountType } from 'wallet/src/features/wallet/accounts/types'
 import { createAccountActions } from 'wallet/src/features/wallet/create/createAccountSaga'
@@ -33,12 +30,12 @@ import { setAccountAsActive } from 'wallet/src/features/wallet/slice'
 
 export function AccountSwitcherModal(): JSX.Element {
   const dispatch = useAppDispatch()
-  const theme = useAppTheme()
+  const colors = useSporeColors()
 
   return (
     <BottomSheetModal
       disableSwipe
-      backgroundColor={theme.colors.surface1}
+      backgroundColor={colors.surface1.val}
       name={ModalName.AccountSwitcher}
       onClose={(): Action => dispatch(closeModal({ name: ModalName.AccountSwitcher }))}>
       <Screen bg="$surface1" noInsets={true}>
@@ -127,11 +124,7 @@ export function AccountSwitcher({ onClose }: { onClose: () => void }): JSX.Eleme
 
     const onPressImportWallet = (): void => {
       if (hasImportedSeedPhrase && activeAccountAddress) {
-        dispatch(
-          openModal({
-            name: ModalName.RemoveWallet,
-          })
-        )
+        dispatch(openModal({ name: ModalName.RemoveWallet }))
       } else {
         navigate(Screens.OnboardingStack, {
           screen: OnboardingScreens.SeedPhraseInput,
@@ -181,9 +174,8 @@ export function AccountSwitcher({ onClose }: { onClose: () => void }): JSX.Eleme
             alignItems="center"
             borderBottomColor="$surface3"
             borderBottomWidth={1}
-            gap="$none"
             p="$spacing16">
-            <Text variant="bodyLarge">{t('Create a new wallet')}</Text>
+            <Text variant="body1">{t('Create a new wallet')}</Text>
           </Flex>
         ),
       },
@@ -191,8 +183,8 @@ export function AccountSwitcher({ onClose }: { onClose: () => void }): JSX.Eleme
         key: ElementName.AddViewOnlyWallet,
         onPress: onPressAddViewOnlyWallet,
         render: () => (
-          <Flex alignItems="center" gap="$none" p="$spacing16">
-            <Text variant="bodyLarge">{t('Add a view-only wallet')}</Text>
+          <Flex alignItems="center" p="$spacing16">
+            <Text variant="body1">{t('Add a view-only wallet')}</Text>
           </Flex>
         ),
       },
@@ -200,13 +192,8 @@ export function AccountSwitcher({ onClose }: { onClose: () => void }): JSX.Eleme
         key: ElementName.ImportAccount,
         onPress: onPressImportWallet,
         render: () => (
-          <Flex
-            alignItems="center"
-            borderTopColor="$surface3"
-            borderTopWidth={1}
-            gap="$none"
-            p="$spacing16">
-            <Text variant="bodyLarge">{t('Import a new wallet')}</Text>
+          <Flex alignItems="center" borderTopColor="$surface3" borderTopWidth={1} p="$spacing16">
+            <Text variant="body1">{t('Import a new wallet')}</Text>
           </Flex>
         ),
       },
@@ -217,13 +204,8 @@ export function AccountSwitcher({ onClose }: { onClose: () => void }): JSX.Eleme
         key: ElementName.RestoreFromCloud,
         onPress: onPressRestore,
         render: () => (
-          <Flex
-            alignItems="center"
-            borderTopColor="$surface3"
-            borderTopWidth={1}
-            gap="$none"
-            p="$spacing16">
-            <Text variant="bodyLarge">
+          <Flex alignItems="center" borderTopColor="$surface3" borderTopWidth={1} p="$spacing16">
+            <Text variant="body1">
               {IS_ANDROID ? t('Restore from Google Drive') : t('Restore from iCloud')}
             </Text>
           </Flex>
@@ -246,8 +228,8 @@ export function AccountSwitcher({ onClose }: { onClose: () => void }): JSX.Eleme
   const fullScreenContentHeight = 0.89 * dimensions.fullHeight
 
   return (
-    <Flex fill gap="$none" maxHeight={fullScreenContentHeight} mb="$spacing12">
-      <Flex pb="$spacing16" pt="$spacing12">
+    <Flex fill maxHeight={fullScreenContentHeight} mb="$spacing12">
+      <Flex gap="$spacing16" pb="$spacing16" pt="$spacing12">
         <AddressDisplay
           showCopy
           address={activeAccountAddress}
@@ -256,14 +238,14 @@ export function AccountSwitcher({ onClose }: { onClose: () => void }): JSX.Eleme
           showViewOnlyBadge={isViewOnly}
           size={spacing.spacing60 - spacing.spacing4}
         />
-        <Flex gap="$none" px="$spacing24">
+        <Flex px="$spacing24">
           <Button
-            emphasis={ButtonEmphasis.Secondary}
-            label={t('Manage wallet')}
-            size={ButtonSize.Small}
+            size="small"
             testID={ElementName.WalletSettings}
-            onPress={onManageWallet}
-          />
+            theme="secondary"
+            onPress={onManageWallet}>
+            {t('Manage wallet')}
+          </Button>
         </Flex>
       </Flex>
       <AccountList
@@ -271,14 +253,9 @@ export function AccountSwitcher({ onClose }: { onClose: () => void }): JSX.Eleme
         isVisible={modalState.isOpen}
         onPress={onPressAccount}
       />
-      <TouchableArea hapticFeedback mb="spacing48" mt="spacing16" onPress={onPressAddWallet}>
-        <Flex row alignItems="center" ml="$spacing24">
-          <Flex
-            borderColor="$surface3"
-            borderRadius="$roundedFull"
-            borderWidth={1}
-            gap="$none"
-            p="$spacing8">
+      <TouchableArea hapticFeedback mb="$spacing48" mt="$spacing16" onPress={onPressAddWallet}>
+        <Flex row alignItems="center" gap="$spacing16" ml="$spacing24">
+          <Flex borderColor="$surface3" borderRadius="$roundedFull" borderWidth={1} p="$spacing8">
             <Icons.Plus
               color="$neutral2"
               height={iconSizes.icon12}
@@ -286,12 +263,11 @@ export function AccountSwitcher({ onClose }: { onClose: () => void }): JSX.Eleme
               width={iconSizes.icon12}
             />
           </Flex>
-          <Text color="$neutral2" variant="buttonLabelSmall">
+          <Text color="$neutral2" variant="buttonLabel3">
             {t('Add wallet')}
           </Text>
         </Flex>
       </TouchableArea>
-
       <ActionSheetModal
         isVisible={showAddWalletModal}
         name={ModalName.AddWallet}

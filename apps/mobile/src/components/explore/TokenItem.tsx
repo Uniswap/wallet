@@ -2,15 +2,13 @@ import { ImpactFeedbackStyle } from 'expo-haptics'
 import React, { memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import ContextMenu from 'react-native-context-menu-view'
-import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { useExploreTokenContextMenu } from 'src/components/explore/hooks'
-import { Box } from 'src/components/layout'
-import { AnimatedFlex, Flex } from 'src/components/layout/Flex'
-import { Text } from 'src/components/Text'
+import { AnimatedFlex } from 'src/components/layout'
 import { useTokenDetailsNavigation } from 'src/components/TokenDetails/hooks'
 import { TokenMetadata } from 'src/components/tokens/TokenMetadata'
 import { sendMobileAnalyticsEvent } from 'src/features/telemetry'
 import { MobileEventName, SectionName } from 'src/features/telemetry/constants'
+import { Flex, Text, TouchableArea } from 'ui/src'
 import { formatNumber, formatUSDPrice, NumberType } from 'utilities/src/format/format'
 import { TokenLogo } from 'wallet/src/components/CurrencyLogo/TokenLogo'
 import { RelativeChange } from 'wallet/src/components/text/RelativeChange'
@@ -91,7 +89,6 @@ export const TokenItem = memo(function _TokenItem({
   }
 
   const { menuActions, onContextMenuPress } = useExploreTokenContextMenu({
-    address,
     chainId,
     currencyId: _currencyId,
     analyticsSection: SectionName.ExploreTopTokensSection,
@@ -105,30 +102,30 @@ export const TokenItem = memo(function _TokenItem({
         testID={`token-item-${name}`}
         onPress={onPress}>
         <AnimatedFlex grow row gap="spacing12" px="spacing24" py="spacing8">
-          <Flex centered row gap="spacing4" overflow="hidden">
+          <Flex centered row gap="$spacing4" overflow="hidden">
             {index !== undefined && (
-              <Box minWidth={16}>
-                <Text color="neutral2" variant="buttonLabelMicro">
+              <Flex minWidth={16}>
+                <Text color="$neutral2" variant="buttonLabel4">
                   {index + 1}
                 </Text>
-              </Box>
+              </Flex>
             )}
             <TokenLogo symbol={symbol} url={logoUrl} />
           </Flex>
-          <Flex shrink gap="spacing2">
-            <Text numberOfLines={1} variant="bodyLarge">
+          <Flex shrink gap="$spacing2">
+            <Text numberOfLines={1} variant="body1">
               {name}
             </Text>
-            <Text color="neutral2" numberOfLines={1} variant="subheadSmall">
+            <Text color="$neutral2" numberOfLines={1} variant="subheading2">
               {getMetadataSubtitle()}
             </Text>
           </Flex>
           <Flex grow row alignItems="center" justifyContent="flex-end">
             <TokenMetadata>
-              <Text lineHeight={24} variant="bodyLarge">
+              <Text lineHeight={24} variant="body1">
                 {formatUSDPrice(price)}
               </Text>
-              <RelativeChange change={pricePercentChange24h} variant="bodySmall" />
+              <RelativeChange change={pricePercentChange24h} variant="body2" />
             </TokenMetadata>
           </Flex>
         </AnimatedFlex>

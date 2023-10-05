@@ -3,123 +3,99 @@
 exports[`SearchPopularTokens renders without error 1`] = `
 <View
   style={
-    [
-      {
-        "display": "flex",
-        "padding": 8,
-      },
-    ]
+    {
+      "alignItems": "stretch",
+      "flexDirection": "column",
+      "paddingBottom": 8,
+      "paddingLeft": 8,
+      "paddingRight": 8,
+      "paddingTop": 8,
+    }
   }
 >
   <View
     onLayout={[Function]}
+    style={
+      {
+        "alignItems": "stretch",
+        "flexDirection": "column",
+        "opacity": 0,
+      }
+    }
   >
     <View
-      sentry-label="Flex"
       style={
-        [
-          {
-            "alignItems": "stretch",
-            "display": "flex",
-            "flexDirection": "column",
-            "flexGrow": 1,
-            "justifyContent": "flex-start",
-          },
-        ]
+        {
+          "alignItems": "stretch",
+          "flexDirection": "column",
+          "flexGrow": 1,
+          "gap": 4,
+        }
       }
     >
       <View
-        sentry-label="Flex"
         style={
-          [
-            {
-              "alignItems": "flex-start",
-              "display": "flex",
-              "flexDirection": "row",
-              "justifyContent": "space-between",
-              "minHeight": 56,
-              "opacity": 1,
-              "paddingVertical": 8,
-            },
-          ]
+          {
+            "alignItems": "flex-start",
+            "flexDirection": "row",
+            "justifyContent": "space-between",
+            "minHeight": 56,
+            "opacity": 1,
+            "paddingBottom": 8,
+            "paddingTop": 8,
+          }
         }
       >
         <View
-          sentry-label="Flex"
           style={
-            [
-              {
-                "alignItems": "center",
-                "display": "flex",
-                "flexDirection": "row",
-                "flexShrink": 1,
-                "justifyContent": "flex-start",
-                "overflow": "hidden",
-              },
-            ]
+            {
+              "alignItems": "center",
+              "flexDirection": "row",
+              "flexShrink": 1,
+              "gap": 12,
+              "overflow": "hidden",
+            }
           }
         >
           <View
             style={
-              [
-                {
-                  "backgroundColor": "#2222220D",
-                  "borderRadius": 999999,
-                  "display": "flex",
-                  "minHeight": 40,
-                  "minWidth": 40,
-                },
-              ]
+              {
+                "alignItems": "stretch",
+                "backgroundColor": "#2222220D",
+                "borderBottomLeftRadius": 999999,
+                "borderBottomRightRadius": 999999,
+                "borderTopLeftRadius": 999999,
+                "borderTopRightRadius": 999999,
+                "flexDirection": "column",
+                "minHeight": 40,
+                "minWidth": 40,
+              }
             }
           />
           <View
             style={
-              [
-                {
-                  "display": "flex",
-                  "flexGrow": 0,
-                  "flexShrink": 0,
-                  "height": 12,
-                  "width": 12,
-                },
-              ]
-            }
-          />
-          <View
-            sentry-label="Flex"
-            style={
-              [
-                {
-                  "alignItems": "flex-start",
-                  "display": "flex",
-                  "flexDirection": "column",
-                  "flexShrink": 1,
-                  "justifyContent": "flex-start",
-                },
-              ]
+              {
+                "alignItems": "flex-start",
+                "flexDirection": "column",
+                "flexShrink": 1,
+              }
             }
           >
             <View
               style={
-                [
-                  {
-                    "alignItems": "center",
-                    "display": "flex",
-                    "flexDirection": "row",
-                  },
-                ]
+                {
+                  "alignItems": "center",
+                  "flexDirection": "row",
+                }
               }
             >
               <View
                 style={
-                  [
-                    {
-                      "alignItems": "center",
-                      "display": "flex",
-                      "flexDirection": "row",
-                      "position": "relative",
-                    },
-                  ]
+                  {
+                    "alignItems": "center",
+                    "flexDirection": "row",
+                    "position": "relative",
+                  }
                 }
               >
                 <View
@@ -128,90 +104,67 @@ exports[`SearchPopularTokens renders without error 1`] = `
                 >
                   <Text
                     allowFontScaling={true}
-                    maxFontSizeMultiplier={1.4}
                     numberOfLines={1}
                     style={
-                      [
-                        {
-                          "color": "transparent",
-                          "display": "flex",
-                          "fontFamily": "Basel-Book",
-                          "fontSize": 19,
-                          "fontWeight": "400",
-                          "lineHeight": 24,
-                          "opacity": 0,
-                        },
-                      ]
+                      {
+                        "color": "transparent",
+                        "display": "flex",
+                        "fontFamily": "Basel-Book",
+                        "fontSize": 19,
+                        "lineHeight": 24,
+                        "opacity": 0,
+                      }
                     }
+                    suppressHighlighting={true}
                   >
                     Token Full Name
                   </Text>
                 </View>
                 <View
                   style={
-                    [
-                      {
-                        "backgroundColor": "#2222220D",
-                        "borderRadius": 4,
-                        "bottom": "5%",
-                        "display": "flex",
-                        "left": 0,
-                        "position": "absolute",
-                        "right": 0,
-                        "top": "5%",
-                      },
-                    ]
+                    {
+                      "alignItems": "stretch",
+                      "backgroundColor": "#F9F9F9",
+                      "borderBottomLeftRadius": 4,
+                      "borderBottomRightRadius": 4,
+                      "borderTopLeftRadius": 4,
+                      "borderTopRightRadius": 4,
+                      "bottom": "5%",
+                      "flexDirection": "column",
+                      "left": 0,
+                      "position": "absolute",
+                      "right": 0,
+                      "top": "5%",
+                    }
                   }
                 />
               </View>
             </View>
             <View
               style={
-                [
-                  {
-                    "display": "flex",
-                    "flexGrow": 0,
-                    "flexShrink": 0,
-                    "height": 0,
-                  },
-                ]
-              }
-            />
-            <View
-              sentry-label="Flex"
-              style={
-                [
-                  {
-                    "alignItems": "center",
-                    "display": "flex",
-                    "flexDirection": "row",
-                    "justifyContent": "flex-start",
-                    "minHeight": 20,
-                  },
-                ]
+                {
+                  "alignItems": "center",
+                  "flexDirection": "row",
+                  "gap": 8,
+                  "minHeight": 20,
+                }
               }
             >
               <View
                 style={
-                  [
-                    {
-                      "alignItems": "center",
-                      "display": "flex",
-                      "flexDirection": "row",
-                    },
-                  ]
+                  {
+                    "alignItems": "center",
+                    "flexDirection": "row",
+                  }
                 }
               >
                 <View
                   style={
-                    [
-                      {
-                        "alignItems": "center",
-                        "display": "flex",
-                        "flexDirection": "row",
-                        "position": "relative",
-                      },
-                    ]
+                    {
+                      "alignItems": "center",
+                      "flexDirection": "row",
+                      "position": "relative",
+                    }
                   }
                 >
                   <View
@@ -220,39 +173,38 @@ exports[`SearchPopularTokens renders without error 1`] = `
                   >
                     <Text
                       allowFontScaling={true}
-                      maxFontSizeMultiplier={1.4}
                       numberOfLines={1}
                       style={
-                        [
-                          {
-                            "color": "transparent",
-                            "display": "flex",
-                            "fontFamily": "Basel-Book",
-                            "fontSize": 17,
-                            "fontWeight": "400",
-                            "lineHeight": 24,
-                            "opacity": 0,
-                          },
-                        ]
+                        {
+                          "color": "transparent",
+                          "display": "flex",
+                          "fontFamily": "Basel-Book",
+                          "fontSize": 17,
+                          "lineHeight": 24,
+                          "opacity": 0,
+                        }
                       }
+                      suppressHighlighting={true}
                     >
                       1,000 TFN
                     </Text>
                   </View>
                   <View
                     style={
-                      [
-                        {
-                          "backgroundColor": "#2222220D",
-                          "borderRadius": 4,
-                          "bottom": "5%",
-                          "display": "flex",
-                          "left": 0,
-                          "position": "absolute",
-                          "right": 0,
-                          "top": "5%",
-                        },
-                      ]
+                      {
+                        "alignItems": "stretch",
+                        "backgroundColor": "#F9F9F9",
+                        "borderBottomLeftRadius": 4,
+                        "borderBottomRightRadius": 4,
+                        "borderTopLeftRadius": 4,
+                        "borderTopRightRadius": 4,
+                        "bottom": "5%",
+                        "flexDirection": "column",
+                        "left": 0,
+                        "position": "absolute",
+                        "right": 0,
+                        "top": "5%",
+                      }
                     }
                   />
                 </View>
@@ -263,108 +215,67 @@ exports[`SearchPopularTokens renders without error 1`] = `
       </View>
       <View
         style={
-          [
-            {
-              "display": "flex",
-              "flexGrow": 0,
-              "flexShrink": 0,
-              "height": 4,
-            },
-          ]
-        }
-      />
-      <View
-        sentry-label="Flex"
-        style={
-          [
-            {
-              "alignItems": "flex-start",
-              "display": "flex",
-              "flexDirection": "row",
-              "justifyContent": "space-between",
-              "minHeight": 56,
-              "opacity": 0.5,
-              "paddingVertical": 8,
-            },
-          ]
+          {
+            "alignItems": "flex-start",
+            "flexDirection": "row",
+            "justifyContent": "space-between",
+            "minHeight": 56,
+            "opacity": 0.5,
+            "paddingBottom": 8,
+            "paddingTop": 8,
+          }
         }
       >
         <View
-          sentry-label="Flex"
           style={
-            [
-              {
-                "alignItems": "center",
-                "display": "flex",
-                "flexDirection": "row",
-                "flexShrink": 1,
-                "justifyContent": "flex-start",
-                "overflow": "hidden",
-              },
-            ]
+            {
+              "alignItems": "center",
+              "flexDirection": "row",
+              "flexShrink": 1,
+              "gap": 12,
+              "overflow": "hidden",
+            }
           }
         >
           <View
             style={
-              [
-                {
-                  "backgroundColor": "#2222220D",
-                  "borderRadius": 999999,
-                  "display": "flex",
-                  "minHeight": 40,
-                  "minWidth": 40,
-                },
-              ]
+              {
+                "alignItems": "stretch",
+                "backgroundColor": "#2222220D",
+                "borderBottomLeftRadius": 999999,
+                "borderBottomRightRadius": 999999,
+                "borderTopLeftRadius": 999999,
+                "borderTopRightRadius": 999999,
+                "flexDirection": "column",
+                "minHeight": 40,
+                "minWidth": 40,
+              }
             }
           />
           <View
             style={
-              [
-                {
-                  "display": "flex",
-                  "flexGrow": 0,
-                  "flexShrink": 0,
-                  "height": 12,
-                  "width": 12,
-                },
-              ]
-            }
-          />
-          <View
-            sentry-label="Flex"
-            style={
-              [
-                {
-                  "alignItems": "flex-start",
-                  "display": "flex",
-                  "flexDirection": "column",
-                  "flexShrink": 1,
-                  "justifyContent": "flex-start",
-                },
-              ]
+              {
+                "alignItems": "flex-start",
+                "flexDirection": "column",
+                "flexShrink": 1,
+              }
             }
           >
             <View
               style={
-                [
-                  {
-                    "alignItems": "center",
-                    "display": "flex",
-                    "flexDirection": "row",
-                  },
-                ]
+                {
+                  "alignItems": "center",
+                  "flexDirection": "row",
+                }
               }
             >
               <View
                 style={
-                  [
-                    {
-                      "alignItems": "center",
-                      "display": "flex",
-                      "flexDirection": "row",
-                      "position": "relative",
-                    },
-                  ]
+                  {
+                    "alignItems": "center",
+                    "flexDirection": "row",
+                    "position": "relative",
+                  }
                 }
               >
                 <View
@@ -373,90 +284,67 @@ exports[`SearchPopularTokens renders without error 1`] = `
                 >
                   <Text
                     allowFontScaling={true}
-                    maxFontSizeMultiplier={1.4}
                     numberOfLines={1}
                     style={
-                      [
-                        {
-                          "color": "transparent",
-                          "display": "flex",
-                          "fontFamily": "Basel-Book",
-                          "fontSize": 19,
-                          "fontWeight": "400",
-                          "lineHeight": 24,
-                          "opacity": 0,
-                        },
-                      ]
+                      {
+                        "color": "transparent",
+                        "display": "flex",
+                        "fontFamily": "Basel-Book",
+                        "fontSize": 19,
+                        "lineHeight": 24,
+                        "opacity": 0,
+                      }
                     }
+                    suppressHighlighting={true}
                   >
                     Token Full Name
                   </Text>
                 </View>
                 <View
                   style={
-                    [
-                      {
-                        "backgroundColor": "#2222220D",
-                        "borderRadius": 4,
-                        "bottom": "5%",
-                        "display": "flex",
-                        "left": 0,
-                        "position": "absolute",
-                        "right": 0,
-                        "top": "5%",
-                      },
-                    ]
+                    {
+                      "alignItems": "stretch",
+                      "backgroundColor": "#F9F9F9",
+                      "borderBottomLeftRadius": 4,
+                      "borderBottomRightRadius": 4,
+                      "borderTopLeftRadius": 4,
+                      "borderTopRightRadius": 4,
+                      "bottom": "5%",
+                      "flexDirection": "column",
+                      "left": 0,
+                      "position": "absolute",
+                      "right": 0,
+                      "top": "5%",
+                    }
                   }
                 />
               </View>
             </View>
             <View
               style={
-                [
-                  {
-                    "display": "flex",
-                    "flexGrow": 0,
-                    "flexShrink": 0,
-                    "height": 0,
-                  },
-                ]
-              }
-            />
-            <View
-              sentry-label="Flex"
-              style={
-                [
-                  {
-                    "alignItems": "center",
-                    "display": "flex",
-                    "flexDirection": "row",
-                    "justifyContent": "flex-start",
-                    "minHeight": 20,
-                  },
-                ]
+                {
+                  "alignItems": "center",
+                  "flexDirection": "row",
+                  "gap": 8,
+                  "minHeight": 20,
+                }
               }
             >
               <View
                 style={
-                  [
-                    {
-                      "alignItems": "center",
-                      "display": "flex",
-                      "flexDirection": "row",
-                    },
-                  ]
+                  {
+                    "alignItems": "center",
+                    "flexDirection": "row",
+                  }
                 }
               >
                 <View
                   style={
-                    [
-                      {
-                        "alignItems": "center",
-                        "display": "flex",
-                        "flexDirection": "row",
-                        "position": "relative",
-                      },
-                    ]
+                    {
+                      "alignItems": "center",
+                      "flexDirection": "row",
+                      "position": "relative",
+                    }
                   }
                 >
                   <View
@@ -465,39 +353,38 @@ exports[`SearchPopularTokens renders without error 1`] = `
                   >
                     <Text
                       allowFontScaling={true}
-                      maxFontSizeMultiplier={1.4}
                       numberOfLines={1}
                       style={
-                        [
-                          {
-                            "color": "transparent",
-                            "display": "flex",
-                            "fontFamily": "Basel-Book",
-                            "fontSize": 17,
-                            "fontWeight": "400",
-                            "lineHeight": 24,
-                            "opacity": 0,
-                          },
-                        ]
+                        {
+                          "color": "transparent",
+                          "display": "flex",
+                          "fontFamily": "Basel-Book",
+                          "fontSize": 17,
+                          "lineHeight": 24,
+                          "opacity": 0,
+                        }
                       }
+                      suppressHighlighting={true}
                     >
                       1,000 TFN
                     </Text>
                   </View>
                   <View
                     style={
-                      [
-                        {
-                          "backgroundColor": "#2222220D",
-                          "borderRadius": 4,
-                          "bottom": "5%",
-                          "display": "flex",
-                          "left": 0,
-                          "position": "absolute",
-                          "right": 0,
-                          "top": "5%",
-                        },
-                      ]
+                      {
+                        "alignItems": "stretch",
+                        "backgroundColor": "#F9F9F9",
+                        "borderBottomLeftRadius": 4,
+                        "borderBottomRightRadius": 4,
+                        "borderTopLeftRadius": 4,
+                        "borderTopRightRadius": 4,
+                        "bottom": "5%",
+                        "flexDirection": "column",
+                        "left": 0,
+                        "position": "absolute",
+                        "right": 0,
+                        "top": "5%",
+                      }
                     }
                   />
                 </View>
@@ -615,25 +502,22 @@ exports[`SearchPopularTokens renders without error 2`] = `
           onStartShouldSetResponder={[Function]}
           style={
             {
-              "display": "flex",
               "opacity": 1,
             }
           }
           testID="search-token-item"
         >
           <View
-            sentry-label="Flex"
             style={
-              [
-                {
-                  "alignItems": "center",
-                  "display": "flex",
-                  "flexDirection": "row",
-                  "justifyContent": "flex-start",
-                  "paddingHorizontal": 8,
-                  "paddingVertical": 12,
-                },
-              ]
+              {
+                "alignItems": "center",
+                "flexDirection": "row",
+                "gap": 12,
+                "paddingBottom": 12,
+                "paddingLeft": 8,
+                "paddingRight": 8,
+                "paddingTop": 12,
+              }
             }
           >
             <View
@@ -672,74 +556,45 @@ exports[`SearchPopularTokens renders without error 2`] = `
             </View>
             <View
               style={
-                [
-                  {
-                    "display": "flex",
-                    "flexGrow": 0,
-                    "flexShrink": 0,
-                    "height": 12,
-                    "width": 12,
-                  },
-                ]
-              }
-            />
-            <View
-              sentry-label="Flex"
-              style={
-                [
-                  {
-                    "alignItems": "flex-start",
-                    "display": "flex",
-                    "flexDirection": "column",
-                    "flexShrink": 1,
-                    "justifyContent": "flex-start",
-                  },
-                ]
+                {
+                  "alignItems": "flex-start",
+                  "flexDirection": "column",
+                  "flexShrink": 1,
+                }
               }
             >
               <View
-                sentry-label="Flex"
                 style={
-                  [
-                    {
-                      "alignItems": "center",
-                      "display": "flex",
-                      "flexDirection": "row",
-                      "justifyContent": "center",
-                    },
-                  ]
+                  {
+                    "alignItems": "center",
+                    "flexDirection": "row",
+                    "gap": 8,
+                    "justifyContent": "center",
+                  }
                 }
               >
                 <View
-                  sentry-label="Flex"
                   style={
-                    [
-                      {
-                        "alignItems": "stretch",
-                        "display": "flex",
-                        "flexDirection": "column",
-                        "flexShrink": 1,
-                        "justifyContent": "flex-start",
-                      },
-                    ]
+                    {
+                      "alignItems": "stretch",
+                      "flexDirection": "column",
+                      "flexShrink": 1,
+                    }
                   }
                 >
                   <Text
                     allowFontScaling={true}
-                    maxFontSizeMultiplier={1.4}
                     numberOfLines={1}
                     style={
-                      [
-                        {
-                          "color": "#222222",
-                          "display": "flex",
-                          "fontFamily": "Basel-Book",
-                          "fontSize": 19,
-                          "fontWeight": "400",
-                          "lineHeight": 24,
-                        },
-                      ]
+                      {
+                        "color": "#222222",
+                        "display": "flex",
+                        "fontFamily": "Basel-Book",
+                        "fontSize": 19,
+                        "lineHeight": 24,
+                      }
                     }
+                    suppressHighlighting={true}
                   >
                     Ethereum
                   </Text>
@@ -747,45 +602,27 @@ exports[`SearchPopularTokens renders without error 2`] = `
               </View>
               <View
                 style={
-                  [
-                    {
-                      "display": "flex",
-                      "flexGrow": 0,
-                      "flexShrink": 0,
-                      "height": 0,
-                    },
-                  ]
-                }
-              />
-              <View
-                sentry-label="Flex"
-                style={
-                  [
-                    {
-                      "alignItems": "center",
-                      "display": "flex",
-                      "flexDirection": "row",
-                      "justifyContent": "center",
-                    },
-                  ]
+                  {
+                    "alignItems": "center",
+                    "flexDirection": "row",
+                    "gap": 8,
+                    "justifyContent": "center",
+                  }
                 }
               >
                 <Text
                   allowFontScaling={true}
-                  maxFontSizeMultiplier={1.4}
                   numberOfLines={1}
                   style={
-                    [
-                      {
-                        "color": "#7D7D7D",
-                        "display": "flex",
-                        "fontFamily": "Basel-Book",
-                        "fontSize": 17,
-                        "fontWeight": "400",
-                        "lineHeight": 24,
-                      },
-                    ]
+                    {
+                      "color": "#7D7D7D",
+                      "display": "flex",
+                      "fontFamily": "Basel-Book",
+                      "fontSize": 17,
+                      "lineHeight": 24,
+                    }
                   }
+                  suppressHighlighting={true}
                 >
                   ETH
                 </Text>
@@ -860,25 +697,22 @@ exports[`SearchPopularTokens renders without error 2`] = `
           onStartShouldSetResponder={[Function]}
           style={
             {
-              "display": "flex",
               "opacity": 1,
             }
           }
           testID="search-token-item"
         >
           <View
-            sentry-label="Flex"
             style={
-              [
-                {
-                  "alignItems": "center",
-                  "display": "flex",
-                  "flexDirection": "row",
-                  "justifyContent": "flex-start",
-                  "paddingHorizontal": 8,
-                  "paddingVertical": 12,
-                },
-              ]
+              {
+                "alignItems": "center",
+                "flexDirection": "row",
+                "gap": 12,
+                "paddingBottom": 12,
+                "paddingLeft": 8,
+                "paddingRight": 8,
+                "paddingTop": 12,
+              }
             }
           >
             <View
@@ -917,74 +751,45 @@ exports[`SearchPopularTokens renders without error 2`] = `
             </View>
             <View
               style={
-                [
-                  {
-                    "display": "flex",
-                    "flexGrow": 0,
-                    "flexShrink": 0,
-                    "height": 12,
-                    "width": 12,
-                  },
-                ]
-              }
-            />
-            <View
-              sentry-label="Flex"
-              style={
-                [
-                  {
-                    "alignItems": "flex-start",
-                    "display": "flex",
-                    "flexDirection": "column",
-                    "flexShrink": 1,
-                    "justifyContent": "flex-start",
-                  },
-                ]
+                {
+                  "alignItems": "flex-start",
+                  "flexDirection": "column",
+                  "flexShrink": 1,
+                }
               }
             >
               <View
-                sentry-label="Flex"
                 style={
-                  [
-                    {
-                      "alignItems": "center",
-                      "display": "flex",
-                      "flexDirection": "row",
-                      "justifyContent": "center",
-                    },
-                  ]
+                  {
+                    "alignItems": "center",
+                    "flexDirection": "row",
+                    "gap": 8,
+                    "justifyContent": "center",
+                  }
                 }
               >
                 <View
-                  sentry-label="Flex"
                   style={
-                    [
-                      {
-                        "alignItems": "stretch",
-                        "display": "flex",
-                        "flexDirection": "column",
-                        "flexShrink": 1,
-                        "justifyContent": "flex-start",
-                      },
-                    ]
+                    {
+                      "alignItems": "stretch",
+                      "flexDirection": "column",
+                      "flexShrink": 1,
+                    }
                   }
                 >
                   <Text
                     allowFontScaling={true}
-                    maxFontSizeMultiplier={1.4}
                     numberOfLines={1}
                     style={
-                      [
-                        {
-                          "color": "#222222",
-                          "display": "flex",
-                          "fontFamily": "Basel-Book",
-                          "fontSize": 19,
-                          "fontWeight": "400",
-                          "lineHeight": 24,
-                        },
-                      ]
+                      {
+                        "color": "#222222",
+                        "display": "flex",
+                        "fontFamily": "Basel-Book",
+                        "fontSize": 19,
+                        "lineHeight": 24,
+                      }
                     }
+                    suppressHighlighting={true}
                   >
                     USD Coin
                   </Text>
@@ -992,87 +797,52 @@ exports[`SearchPopularTokens renders without error 2`] = `
               </View>
               <View
                 style={
-                  [
-                    {
-                      "display": "flex",
-                      "flexGrow": 0,
-                      "flexShrink": 0,
-                      "height": 0,
-                    },
-                  ]
-                }
-              />
-              <View
-                sentry-label="Flex"
-                style={
-                  [
-                    {
-                      "alignItems": "center",
-                      "display": "flex",
-                      "flexDirection": "row",
-                      "justifyContent": "center",
-                    },
-                  ]
+                  {
+                    "alignItems": "center",
+                    "flexDirection": "row",
+                    "gap": 8,
+                    "justifyContent": "center",
+                  }
                 }
               >
                 <Text
                   allowFontScaling={true}
-                  maxFontSizeMultiplier={1.4}
                   numberOfLines={1}
                   style={
-                    [
-                      {
-                        "color": "#7D7D7D",
-                        "display": "flex",
-                        "fontFamily": "Basel-Book",
-                        "fontSize": 17,
-                        "fontWeight": "400",
-                        "lineHeight": 24,
-                      },
-                    ]
+                    {
+                      "color": "#7D7D7D",
+                      "display": "flex",
+                      "fontFamily": "Basel-Book",
+                      "fontSize": 17,
+                      "lineHeight": 24,
+                    }
                   }
+                  suppressHighlighting={true}
                 >
                   USDC
                 </Text>
                 <View
                   style={
-                    [
-                      {
-                        "display": "flex",
-                        "flexGrow": 0,
-                        "flexShrink": 0,
-                        "height": 8,
-                        "width": 8,
-                      },
-                    ]
-                  }
-                />
-                <View
-                  style={
-                    [
-                      {
-                        "display": "flex",
-                        "flexShrink": 1,
-                      },
-                    ]
+                    {
+                      "alignItems": "stretch",
+                      "flexDirection": "column",
+                      "flexShrink": 1,
+                    }
                   }
                 >
                   <Text
                     allowFontScaling={true}
-                    maxFontSizeMultiplier={1.4}
                     numberOfLines={1}
                     style={
-                      [
-                        {
-                          "color": "#CECECE",
-                          "display": "flex",
-                          "fontFamily": "Basel-Book",
-                          "fontSize": 17,
-                          "fontWeight": "400",
-                          "lineHeight": 24,
-                        },
-                      ]
+                      {
+                        "color": "#CECECE",
+                        "display": "flex",
+                        "fontFamily": "Basel-Book",
+                        "fontSize": 17,
+                        "lineHeight": 24,
+                      }
                     }
+                    suppressHighlighting={true}
                   >
                     0xA0b8...eB48
                   </Text>

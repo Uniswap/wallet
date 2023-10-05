@@ -3,16 +3,14 @@ import React, { forwardRef, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { RefreshControl } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { useAppDispatch, useAppTheme } from 'src/app/hooks'
+import { useAppDispatch } from 'src/app/hooks'
 import { useAdaptiveFooter } from 'src/components/home/hooks'
 import { NoTransactions } from 'src/components/icons/NoTransactions'
-import { Box, Flex } from 'src/components/layout'
 import { AnimatedFlashList } from 'src/components/layout/AnimatedFlashList'
 import { BaseCard } from 'src/components/layout/BaseCard'
 import { TabProps, TAB_BAR_HEIGHT } from 'src/components/layout/TabHelpers'
 import { Loader } from 'src/components/loading'
 import { ScannerModalState } from 'src/components/QRCodeScanner/constants'
-import { Text } from 'src/components/Text'
 import { IS_ANDROID } from 'src/constants/globals'
 import { openModal } from 'src/features/modals/modalSlice'
 import { ModalName } from 'src/features/telemetry/constants'
@@ -23,6 +21,7 @@ import {
 import TransactionSummaryLayout from 'src/features/transactions/SummaryCards/TransactionSummaryLayout'
 import { useMostRecentSwapTx } from 'src/features/transactions/swap/hooks'
 import { removePendingSession } from 'src/features/walletConnect/walletConnectSlice'
+import { Flex, Text, useSporeColors } from 'ui/src'
 import { GQLQueries } from 'wallet/src/data/queries'
 import { useFormattedTransactionDataForActivity } from 'wallet/src/features/activity/hooks'
 import { getActivityItemType } from 'wallet/src/features/activity/utils'
@@ -39,11 +38,11 @@ export const ACTIVITY_TAB_DATA_DEPENDENCIES = [GQLQueries.TransactionList]
 const ESTIMATED_ITEM_SIZE = 92
 
 const SectionTitle = ({ title }: { title: string }): JSX.Element => (
-  <Box pb="spacing12">
-    <Text color="neutral2" variant="subheadSmall">
+  <Flex pb="$spacing12">
+    <Text color="$neutral2" variant="subheading2">
       {title}
     </Text>
-  </Box>
+  </Flex>
 )
 
 export const ActivityTab = forwardRef<FlashList<unknown>, TabProps>(function _ActivityTab(
@@ -60,7 +59,7 @@ export const ActivityTab = forwardRef<FlashList<unknown>, TabProps>(function _Ac
 ) {
   const { t } = useTranslation()
   const dispatch = useAppDispatch()
-  const theme = useAppTheme()
+  const colors = useSporeColors()
   const insets = useSafeAreaInsets()
 
   const { onContentSizeChange, adaptiveFooter } = useAdaptiveFooter(
@@ -124,11 +123,11 @@ export const ActivityTab = forwardRef<FlashList<unknown>, TabProps>(function _Ac
           insets.top + (IS_ANDROID && headerHeight ? headerHeight + TAB_BAR_HEIGHT : 0)
         }
         refreshing={refreshing ?? false}
-        tintColor={theme.colors.neutral3}
+        tintColor={colors.neutral3.val}
         onRefresh={onRefresh}
       />
     )
-  }, [refreshing, headerHeight, onRefresh, theme.colors.neutral3, insets.top])
+  }, [refreshing, headerHeight, onRefresh, colors.neutral3.val, insets.top])
 
   if (!hasData && isError) {
     return errorCard
@@ -139,7 +138,7 @@ export const ActivityTab = forwardRef<FlashList<unknown>, TabProps>(function _Ac
   const isLoadingInitially = isLoading && !sectionData
 
   return (
-    <Flex grow paddingHorizontal="spacing24">
+    <Flex grow px="$spacing24">
       <AnimatedFlashList
         ref={ref}
         ListEmptyComponent={
@@ -148,7 +147,7 @@ export const ActivityTab = forwardRef<FlashList<unknown>, TabProps>(function _Ac
             ? errorCard
             : // empty view
               (!isLoading && (
-                <Box flexGrow={1} style={containerProps?.emptyContainerStyle}>
+                <Flex grow style={containerProps?.emptyContainerStyle}>
                   <BaseCard.EmptyState
                     buttonLabel={isExternalProfile ? undefined : 'Receive tokens or NFTs'}
                     description={
@@ -162,7 +161,7 @@ export const ActivityTab = forwardRef<FlashList<unknown>, TabProps>(function _Ac
                     title={t('No activity yet')}
                     onPress={onPressReceive}
                   />
-                </Box>
+                </Flex>
               )) ||
               null
           // initial loading is implemented inside sectionData

@@ -1,15 +1,14 @@
 import React from 'react'
-import { useAppSelector, useAppTheme } from 'src/app/hooks'
+import { useAppSelector } from 'src/app/hooks'
 import { useEagerActivityNavigation } from 'src/app/navigation/hooks'
-import { TouchableArea } from 'src/components/buttons/TouchableArea'
 import { CheckmarkCircle } from 'src/components/icons/CheckmarkCircle'
-import { Box } from 'src/components/layout/Box'
 import { SpinningLoader } from 'src/components/loading/SpinningLoader'
-import { Text } from 'src/components/Text'
 import { useSelectAddressHasNotifications } from 'src/features/notifications/hooks'
 import { selectActiveAccountNotifications } from 'src/features/notifications/selectors'
 import { useSortedPendingTransactions } from 'src/features/transactions/hooks'
+import { Flex, Text, TouchableArea, useSporeColors } from 'ui/src'
 import AlertCircle from 'ui/src/assets/icons/alert-circle.svg'
+import { iconSizes } from 'ui/src/theme'
 import { theme as FixedTheme } from 'ui/src/theme/restyle'
 import { AppNotificationType } from 'wallet/src/features/notifications/types'
 import { TransactionStatus } from 'wallet/src/features/transactions/types'
@@ -25,7 +24,7 @@ interface Props {
 export function PendingNotificationBadge({
   size = LOADING_SPINNER_SIZE,
 }: Props): JSX.Element | null {
-  const theme = useAppTheme()
+  const colors = useSporeColors()
   const activeAccountAddress = useAppSelector(selectActiveAccountAddress)
   const notifications = useAppSelector(selectActiveAccountNotifications)
   const sortedPendingTransactions = useSortedPendingTransactions(activeAccountAddress)
@@ -41,16 +40,16 @@ export function PendingNotificationBadge({
     if (txStatus === TransactionStatus.Success) {
       return (
         <CheckmarkCircle
-          borderColor="statusSuccess"
+          borderColor="$statusSuccess"
           borderWidth={2}
           checkmarkStrokeWidth={3}
-          color={theme.colors.statusSuccess}
+          color={colors.statusSuccess.val}
           size={size}
         />
       )
     }
 
-    return <AlertCircle color={theme.colors.DEP_accentWarning} height={size} width={size} />
+    return <AlertCircle color={colors.DEP_accentWarning.val} height={size} width={size} />
   }
 
   /*************** Pending in-app txn  **************/
@@ -71,17 +70,17 @@ export function PendingNotificationBadge({
         onPressIn={async (): Promise<void | null> =>
           activeAccountAddress ? await preload(activeAccountAddress) : null
         }>
-        <Box
+        <Flex
           alignItems="center"
           height={size}
           justifyContent="center"
           position="absolute"
           width={size}
-          zIndex="modal">
-          <Text color="neutral2" fontSize={8} textAlign="center" variant="buttonLabelMicro">
+          zIndex="$modal">
+          <Text color="$neutral2" fontSize={8} textAlign="center" variant="buttonLabel4">
             {countToDisplay}
           </Text>
-        </Box>
+        </Flex>
         <SpinningLoader size={LOADING_SPINNER_SIZE} />
       </TouchableArea>
     )
@@ -94,11 +93,11 @@ export function PendingNotificationBadge({
 
   if (hasNotifications) {
     return (
-      <Box
-        backgroundColor="accent1"
-        borderRadius="roundedFull"
-        height={theme.iconSizes.icon8}
-        width={theme.iconSizes.icon8}
+      <Flex
+        backgroundColor="$accent1"
+        borderRadius="$roundedFull"
+        height={iconSizes.icon8}
+        width={iconSizes.icon8}
       />
     )
   }
