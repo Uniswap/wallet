@@ -5,19 +5,18 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Keyboard, StyleSheet } from 'react-native'
 import { FadeIn, FadeOut, FadeOutDown } from 'react-native-reanimated'
+import { useShouldShowNativeKeyboard } from 'src/app/hooks'
 import { TransferArrowButton } from 'src/components/buttons/TransferArrowButton'
 import { CurrencyInputPanel } from 'src/components/input/CurrencyInputPanel'
 import { DecimalPad } from 'src/components/input/DecimalPad'
 import { RecipientInputPanel } from 'src/components/input/RecipientInputPanel'
 import { TextInputProps } from 'src/components/input/TextInput'
-import { AnimatedFlex } from 'src/components/layout'
 import { Warning, WarningAction, WarningSeverity } from 'src/components/modals/WarningModal/types'
 import WarningModal, { getAlertColor } from 'src/components/modals/WarningModal/WarningModal'
 import { NFTTransfer } from 'src/components/NFT/NFTTransfer'
-import { TokenSelectorFlow } from 'src/components/TokenSelector/TokenSelector'
+import { TokenSelectorFlow } from 'src/components/TokenSelector/types'
 import { ElementName, ModalName } from 'src/features/telemetry/constants'
 import {
-  useShouldShowNativeKeyboard,
   useTokenFormActionHandlers,
   useTokenSelectorActionHandlers,
 } from 'src/features/transactions/hooks'
@@ -30,7 +29,7 @@ import {
 import { TransferFormSpeedbumps } from 'src/features/transactions/transfer/TransferFormWarnings'
 import { BlockedAddressWarning } from 'src/features/trm/BlockedAddressWarning'
 import { useWalletRestore } from 'src/features/wallet/hooks'
-import { Button, Flex, Text, TouchableArea, useSporeColors } from 'ui/src'
+import { AnimatedFlex, Button, Flex, Text, TouchableArea, useSporeColors } from 'ui/src'
 import AlertTriangleIcon from 'ui/src/assets/icons/alert-triangle.svg'
 import InfoCircleFilled from 'ui/src/assets/icons/info-circle-filled.svg'
 import { dimensions, iconSizes, spacing } from 'ui/src/theme'
@@ -39,6 +38,7 @@ import { useUSDCValue } from 'wallet/src/features/routing/useUSDCPrice'
 import { CurrencyField } from 'wallet/src/features/transactions/transactionState/types'
 import { createTransactionId } from 'wallet/src/features/transactions/utils'
 import { useIsBlockedActiveAddress } from 'wallet/src/features/trm/hooks'
+import { TransferSpeedbump } from './types'
 
 interface TransferTokenProps {
   dispatch: React.Dispatch<AnyAction>
@@ -46,11 +46,6 @@ interface TransferTokenProps {
   onNext: () => void
   warnings: Warning[]
   showingSelectorScreen: boolean
-}
-
-export interface TransferSpeedbump {
-  hasWarning: boolean
-  loading: boolean
 }
 
 export function TransferTokenForm({
@@ -234,7 +229,7 @@ export function TransferTokenForm({
         <AnimatedFlex
           entering={FadeIn}
           exiting={FadeOut}
-          gap="spacing2"
+          gap="$spacing2"
           onLayout={onInputPanelLayout}>
           {nftIn ? (
             <NFTTransfer asset={nftIn} nftSize={dimensions.fullHeight / 4} />
@@ -372,7 +367,7 @@ export function TransferTokenForm({
         <AnimatedFlex
           bottom={0}
           exiting={FadeOutDown}
-          gap="spacing8"
+          gap="$spacing8"
           left={0}
           opacity={isLayoutPending ? 0 : 1}
           position="absolute"

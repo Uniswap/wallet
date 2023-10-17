@@ -146,7 +146,7 @@ export function SettingsWallet({
   }
 
   const iconProps: SvgProps = {
-    color: colors.neutral2.val,
+    color: colors.neutral2.get(),
     height: iconSizes.icon24,
     strokeLinecap: 'round',
     strokeLinejoin: 'round',
@@ -161,7 +161,7 @@ export function SettingsWallet({
         {
           screen: Screens.SettingsWalletEdit,
           text: t('Nickname'),
-          icon: <EditIcon fill={colors.neutral2.val} {...iconProps} />,
+          icon: <EditIcon fill={colors.neutral2.get()} {...iconProps} />,
           screenProps: { address },
           isHidden: !!ensName,
         },
@@ -222,13 +222,7 @@ export function SettingsWallet({
               }
             : { address },
           text: IS_ANDROID ? t('Google Drive Backup') : t('iCloud backup'),
-          icon: (
-            <Icons.OSDynamicCloudIcon
-              color={colors.neutral3.val}
-              height={iconSizes.icon24}
-              width={iconSizes.icon24}
-            />
-          ),
+          icon: <Icons.OSDynamicCloudIcon color="$neutral2" size="$icon.24" />,
           isHidden: readonly,
         },
       ],

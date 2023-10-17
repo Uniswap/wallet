@@ -3,8 +3,7 @@ import React from 'react'
 import { StyleSheet } from 'react-native'
 import { IS_IOS } from 'src/constants/globals'
 import { ColorTokens, Flex, FlexProps, Logos, SpaceTokens, Text, useSporeColors } from 'ui/src'
-import { iconSizes, TextVariantTokens } from 'ui/src/theme'
-import { theme as FixedTheme } from 'ui/src/theme/restyle'
+import { borderRadii, iconSizes, spacing, TextVariantTokens } from 'ui/src/theme'
 import { formatNumber, NumberType } from 'utilities/src/format/format'
 import { Amount } from 'wallet/src/data/__generated__/types-and-hooks'
 
@@ -35,7 +34,7 @@ export function ListPriceBadge({
           <PriceAmount {...priceAmountProps} />
         </BlurView>
       ) : (
-        <Flex style={[styles.background, { backgroundColor: colors.surface2.val }]}>
+        <Flex style={[styles.background, { backgroundColor: colors.surface2.get() }]}>
           <PriceAmount {...priceAmountProps} />
         </Flex>
       )}
@@ -59,6 +58,7 @@ export function PriceAmount({
   return (
     <Flex centered row gap={gap} overflow="hidden">
       {!isUSD && (
+        // @ts-expect-error TODO(MOB-1566) convert to specific icon size token, avoiding doing too big of a change in this PR
         <Logos.Ethereum color={iconColor || '$neutral1'} height={iconSize} width={iconSize} />
       )}
       <Text color={textColor} variant={textVariant}>
@@ -74,11 +74,11 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     flex: 1,
     justifyContent: 'center',
-    paddingHorizontal: FixedTheme.spacing.spacing8,
-    paddingVertical: FixedTheme.spacing.spacing2,
+    paddingHorizontal: spacing.spacing8,
+    paddingVertical: spacing.spacing2,
   },
   blurWrapper: {
-    borderRadius: FixedTheme.borderRadii.rounded16,
+    borderRadius: borderRadii.rounded16,
     overflow: 'hidden',
   },
 })

@@ -8,7 +8,6 @@ import {
   useSharedValueEffect,
   useValue,
 } from '@shopify/react-native-skia'
-import { useResponsiveProp } from '@shopify/restyle'
 import { ResizeMode, Video } from 'expo-av'
 import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -42,11 +41,11 @@ import {
   textSlideUpAtEnd,
   videoFadeOut,
 } from 'src/screens/Onboarding/QRAnimation/animations'
-import { Button, Flex, Text, useSporeColors } from 'ui/src'
+import { Button, Flex, Text, useMedia, useSporeColors } from 'ui/src'
 import { ONBOARDING_QR_ETCHING_VIDEO_DARK, ONBOARDING_QR_ETCHING_VIDEO_LIGHT } from 'ui/src/assets'
 import LockIcon from 'ui/src/assets/icons/lock.svg'
+import { flexStyles } from 'ui/src/components/layout'
 import { fonts, iconSizes, opacify } from 'ui/src/theme'
-import { flex } from 'ui/src/theme/restyle'
 import { useIsDarkMode } from 'wallet/src/features/appearance/hooks'
 
 export function QRAnimation({
@@ -61,6 +60,7 @@ export function QRAnimation({
   const colors = useSporeColors()
   const { t } = useTranslation()
   const video = useRef<Video>(null)
+  const media = useMedia()
 
   const playEtchingAfterSlideIn = async (): Promise<void> => {
     await video.current?.playAsync()
@@ -150,38 +150,18 @@ export function QRAnimation({
 
   // used throughout the page the get the size of the QR code container
   // setting as a constant so that it doesn't get defined by padding and screen size and give us less design control
-  const QR_CONTAINER_SIZE = useResponsiveProp({ xs: 160, sm: 242 }) || 242
-  const QR_CODE_SIZE = useResponsiveProp({ xs: 140, sm: 190 }) || 190
+  const QR_CONTAINER_SIZE = media.short ? 160 : 242
+  const QR_CODE_SIZE = media.short ? 140 : 190
   const UNICON_SIZE = 64
-
-  const finalTitleMaxFontSizeMultiplier = useResponsiveProp({
-    xs: 1.1,
-    sm: fonts.heading3.maxFontSizeMultiplier,
-  })
-
-  const finalBodyMaxFontSizeMultiplier = useResponsiveProp({
-    xs: 1.1,
-    sm: fonts.body1.maxFontSizeMultiplier,
-  })
-
-  const titleSize = useResponsiveProp({
-    xs: 'subheading2',
-    sm: 'subheading1',
-  })
-
-  const bodySize = useResponsiveProp({
-    xs: 'body3',
-    sm: 'body2',
-  })
 
   return (
     <>
       <Animated.View entering={realQrTopGlowFadeIn}>
         <GradientBackground>
           <UniconThemedGradient
-            borderRadius="rounded16"
+            borderRadius="$rounded16"
             gradientEndColor={uniconColors.glow}
-            gradientStartColor={colors.surface1.val}
+            gradientStartColor={colors.surface1.get()}
             opacity={isDarkMode ? 0.3 : 0.2}
           />
         </GradientBackground>
@@ -192,7 +172,7 @@ export function QRAnimation({
             <Animated.View entering={qrSlideUpAndFadeIn}>
               <Animated.View entering={qrSlideUpAtEnd}>
                 <Animated.View entering={flashWipeAnimation} style={styles.behindQrBlur}>
-                  <Canvas style={flex.fill}>
+                  <Canvas style={flexStyles.fill}>
                     <Group transform={[{ translateX: 50 }, { translateY: 50 }]}>
                       <RoundedRect
                         color={uniconColors.glow}
@@ -242,7 +222,7 @@ export function QRAnimation({
                     </View>
                   </Animated.View>
                   <Animated.View entering={videoFadeOut} style={[styles.glow]}>
-                    <Canvas style={flex.fill}>
+                    <Canvas style={flexStyles.fill}>
                       <Group
                         transform={[
                           { translateX: QR_CONTAINER_SIZE / 2 - 40 },
@@ -284,17 +264,19 @@ export function QRAnimation({
           </Flex>
           <Animated.View entering={textSlideUpAtEnd} style={[styles.textContainer]}>
             <Text
-              maxFontSizeMultiplier={finalTitleMaxFontSizeMultiplier}
+              $short={{ variant: 'subheading2', maxFontSizeMultiplier: 1.1 }}
+              maxFontSizeMultiplier={fonts.heading3.maxFontSizeMultiplier}
               pb="$spacing12"
               textAlign="center"
-              variant={titleSize}>
+              variant="subheading1">
               {t('Welcome to your new wallet')}
             </Text>
             <Text
+              $short={{ variant: 'body3', maxFontSizeMultiplier: 1.1 }}
               color="$neutral2"
-              maxFontSizeMultiplier={finalBodyMaxFontSizeMultiplier}
+              maxFontSizeMultiplier={fonts.body1.maxFontSizeMultiplier}
               textAlign="center"
-              variant={bodySize}>
+              variant="body2">
               {isNewWallet
                 ? t('This is your personal bank vault for tokens, NFTs, and all your trades.')
                 : t(

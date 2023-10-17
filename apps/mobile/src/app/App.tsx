@@ -22,7 +22,6 @@ import { usePersistedApolloClient } from 'src/data/usePersistedApolloClient'
 import { initAppsFlyer } from 'src/features/analytics/appsflyer'
 import { LockScreenContextProvider } from 'src/features/authentication/lockScreenContext'
 import { BiometricContextProvider } from 'src/features/biometrics/context'
-import { selectFavoriteTokens } from 'src/features/favorites/selectors'
 import { NotificationToastWrapper } from 'src/features/notifications/NotificationToastWrapper'
 import { initOneSignal } from 'src/features/notifications/Onesignal'
 import { sendMobileAnalyticsEvent } from 'src/features/telemetry'
@@ -36,14 +35,16 @@ import {
 } from 'src/features/widgets/widgets'
 import { DynamicThemeProvider } from 'src/theme/DynamicThemeProvider'
 import { useAppStateTrigger } from 'src/utils/useAppStateTrigger'
-import { getSentryEnvironment, getStatsigEnvironmentTier } from 'src/utils/version'
+import { getSentryEnvironment, getStatsigEnvironmentTier, isDevBuild } from 'src/utils/version'
 import { StatsigProvider } from 'statsig-react-native'
-import { flex } from 'ui/src/theme/restyle'
+import { flexStyles } from 'ui/src'
 import { registerConsoleOverrides } from 'utilities/src/logger/console'
 import { useAsyncData } from 'utilities/src/react/hooks'
 import { AnalyticsNavigationContextProvider } from 'utilities/src/telemetry/trace/AnalyticsNavigationContext'
 import { config } from 'wallet/src/config'
+import { uniswapUrls } from 'wallet/src/constants/urls'
 import { useCurrentAppearanceSetting, useIsDarkMode } from 'wallet/src/features/appearance/hooks'
+import { selectFavoriteTokens } from 'wallet/src/features/favorites/selectors'
 import { useTrmQuery } from 'wallet/src/features/trm/api'
 import { Account, AccountType } from 'wallet/src/features/wallet/accounts/types'
 import { WalletContextProvider } from 'wallet/src/features/wallet/context'
@@ -80,6 +81,10 @@ if (!__DEV__) {
         routingInstrumentation,
       }),
     ],
+    // By default, the Sentry SDK normalizes any context to a depth of 3.
+    // We're increasing this to be able to see the full depth of the Redux state.
+    // We're testing this in the Dev build first to see if it causes any performance issues.
+    normalizeDepth: isDevBuild() ? 10 : 3,
   })
 }
 
@@ -104,7 +109,7 @@ function App(): JSX.Element | null {
       environment: {
         tier: getStatsigEnvironmentTier(),
       },
-      api: config.statSigProxyUrl,
+      api: uniswapUrls.statsigProxyUrl,
     },
     sdkKey: DUMMY_STATSIG_SDK_KEY,
     user: deviceId ? { userID: deviceId } : {},
@@ -147,7 +152,7 @@ function AppOuter(): JSX.Element | null {
       <PersistGate loading={null} persistor={persistor}>
         <DynamicThemeProvider>
           <ErrorBoundary>
-            <GestureHandlerRootView style={flex.fill}>
+            <GestureHandlerRootView style={flexStyles.fill}>
               <WalletContextProvider>
                 <BiometricContextProvider>
                   <LockScreenContextProvider>

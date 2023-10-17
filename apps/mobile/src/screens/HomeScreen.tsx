@@ -1,11 +1,10 @@
 /* eslint-disable max-lines */
 import { useScrollToTop } from '@react-navigation/native'
 import { FlashList } from '@shopify/flash-list'
-import { useResponsiveProp } from '@shopify/restyle'
 import { impactAsync } from 'expo-haptics'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { StyleProp, View, ViewProps, ViewStyle } from 'react-native'
+import { FlatList, StyleProp, View, ViewProps, ViewStyle } from 'react-native'
 import { TapGestureHandler, TapGestureHandlerGestureEvent } from 'react-native-gesture-handler'
 import Animated, {
   cancelAnimation,
@@ -29,9 +28,6 @@ import { pulseAnimation } from 'src/components/buttons/utils'
 import { ActivityTab, ACTIVITY_TAB_DATA_DEPENDENCIES } from 'src/components/home/ActivityTab'
 import { NftsTab, NFTS_TAB_DATA_DEPENDENCIES } from 'src/components/home/NftsTab'
 import { TokensTab, TOKENS_TAB_DATA_DEPENDENCIES } from 'src/components/home/TokensTab'
-import { AnimatedBox, AnimatedFlex } from 'src/components/layout'
-import { SHADOW_OFFSET_SMALL } from 'src/components/layout/BaseCard'
-import { Delay, Delayed } from 'src/components/layout/Delayed'
 import { Screen } from 'src/components/layout/Screen'
 import {
   HeaderConfig,
@@ -61,7 +57,7 @@ import { useWalletRestore } from 'src/features/wallet/hooks'
 import { removePendingSession } from 'src/features/walletConnect/walletConnectSlice'
 import { Screens } from 'src/screens/Screens'
 import { hideSplashScreen } from 'src/utils/splashScreen'
-import { Flex, Text, TouchableArea, useSporeColors } from 'ui/src'
+import { AnimatedFlex, Flex, Text, TouchableArea, useMedia, useSporeColors } from 'ui/src'
 import BuyIcon from 'ui/src/assets/icons/buy.svg'
 import ScanIcon from 'ui/src/assets/icons/scan-receive.svg'
 import SendIcon from 'ui/src/assets/icons/send-action.svg'
@@ -71,14 +67,9 @@ import { useInterval, useTimeout } from 'utilities/src/time/timing'
 import { setNotificationStatus } from 'wallet/src/features/notifications/slice'
 import { AccountType } from 'wallet/src/features/wallet/accounts/types'
 import { useActiveAccountWithThrow } from 'wallet/src/features/wallet/hooks'
+import { HomeScreenTabIndex } from './HomeScreenTabIndex'
 
 const CONTENT_HEADER_HEIGHT_ESTIMATE = 270
-
-export enum TabIndex {
-  Tokens = 0,
-  NFTs = 1,
-  Activity = 2,
-}
 
 /**
  * Home Screen hosts both Tokens and NFTs Tab
@@ -89,6 +80,7 @@ export function HomeScreen(props?: AppStackScreenProp<Screens.Home>): JSX.Elemen
   const activeAccount = useActiveAccountWithThrow()
   const { t } = useTranslation()
   const colors = useSporeColors()
+  const media = useMedia()
   const insets = useSafeAreaInsets()
   const dispatch = useAppDispatch()
 
@@ -99,13 +91,9 @@ export function HomeScreen(props?: AppStackScreenProp<Screens.Home>): JSX.Elemen
   const lastBalancesReporter = useLastBalancesReporter()
   useInterval(lastBalancesReporter, ONE_SECOND_MS * 15, true)
 
-  const listBottomPadding =
-    useResponsiveProp({
-      xs: spacing.spacing36,
-      sm: spacing.spacing12,
-    }) ?? 0
+  const listBottomPadding = media.short ? spacing.spacing36 : spacing.spacing12
 
-  const [tabIndex, setTabIndex] = useState(props?.route?.params?.tab ?? TabIndex.Tokens)
+  const [tabIndex, setTabIndex] = useState(props?.route?.params?.tab ?? HomeScreenTabIndex.Tokens)
   const routes = useMemo(
     () => [
       { key: SectionName.HomeTokensTab, title: t('Tokens') },
@@ -155,16 +143,16 @@ export function HomeScreen(props?: AppStackScreenProp<Screens.Home>): JSX.Elemen
   )
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const tokensTabScrollRef = useAnimatedRef<FlashList<any>>()
+  const tokensTabScrollRef = useAnimatedRef<FlatList<any>>()
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const nftsTabScrollRef = useAnimatedRef<FlashList<any>>()
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const activityTabScrollRef = useAnimatedRef<FlashList<any>>()
 
   const currentScrollValue = useDerivedValue(() => {
-    if (tabIndex === TabIndex.Tokens) {
+    if (tabIndex === HomeScreenTabIndex.Tokens) {
       return tokensTabScrollValue.value
-    } else if (tabIndex === TabIndex.NFTs) {
+    } else if (tabIndex === HomeScreenTabIndex.NFTs) {
       return nftsTabScrollValue.value
     }
     return activityTabScrollValue.value
@@ -204,13 +192,16 @@ export function HomeScreen(props?: AppStackScreenProp<Screens.Home>): JSX.Elemen
   useScrollToTop(
     useRef({
       scrollToTop: () => {
-        if (currentTabIndex.value === TabIndex.NFTs && isNftTabsAtTop.value) {
-          setTabIndex(TabIndex.Tokens)
-        } else if (currentTabIndex.value === TabIndex.NFTs) {
+        if (currentTabIndex.value === HomeScreenTabIndex.NFTs && isNftTabsAtTop.value) {
+          setTabIndex(HomeScreenTabIndex.Tokens)
+        } else if (currentTabIndex.value === HomeScreenTabIndex.NFTs) {
           nftsTabScrollRef.current?.scrollToOffset({ offset: 0, animated: true })
-        } else if (currentTabIndex.value === TabIndex.Activity && isActivityTabAtTop.value) {
-          setTabIndex(TabIndex.NFTs)
-        } else if (currentTabIndex.value === TabIndex.Activity) {
+        } else if (
+          currentTabIndex.value === HomeScreenTabIndex.Activity &&
+          isActivityTabAtTop.value
+        ) {
+          setTabIndex(HomeScreenTabIndex.NFTs)
+        } else if (currentTabIndex.value === HomeScreenTabIndex.Activity) {
           activityTabScrollRef.current?.scrollToOffset({ offset: 0, animated: true })
         } else {
           tokensTabScrollRef.current?.scrollToOffset({ offset: 0, animated: true })
@@ -244,7 +235,7 @@ export function HomeScreen(props?: AppStackScreenProp<Screens.Home>): JSX.Elemen
     ]
   )
 
-  const { sync } = useScrollSync(tabIndex, scrollPairs, headerConfig)
+  const { sync } = useScrollSync(currentTabIndex, scrollPairs, headerConfig)
 
   const contentHeader = useMemo(() => {
     return (
@@ -331,13 +322,13 @@ export function HomeScreen(props?: AppStackScreenProp<Screens.Home>): JSX.Elemen
               {...sceneProps}
               indicatorStyle={TAB_STYLES.activeTabIndicator}
               navigationState={{ index: tabIndex, routes }}
-              pressColor={colors.surface3.val} // Android only
+              pressColor={colors.surface3.get()} // Android only
               renderLabel={renderTabLabel}
               style={[
                 TAB_STYLES.tabBar,
                 {
-                  backgroundColor: colors.surface1.val,
-                  borderBottomColor: colors.surface3.val,
+                  backgroundColor: colors.surface1.get(),
+                  borderBottomColor: colors.surface3.get(),
                   paddingLeft: spacing.spacing12,
                 },
               ]}
@@ -351,8 +342,8 @@ export function HomeScreen(props?: AppStackScreenProp<Screens.Home>): JSX.Elemen
       )
     },
     [
-      colors.surface1.val,
-      colors.surface3.val,
+      colors.surface1,
+      colors.surface3,
       contentHeader,
       handleHeaderLayout,
       headerContainerStyle,
@@ -403,31 +394,27 @@ export function HomeScreen(props?: AppStackScreenProp<Screens.Home>): JSX.Elemen
           )
         case SectionName.HomeNFTsTab:
           return (
-            <Delayed waitBeforeShow={Delay.Normal}>
-              <NftsTab
-                ref={nftsTabScrollRef}
-                containerProps={sharedProps}
-                headerHeight={headerHeight}
-                owner={activeAccount?.address}
-                refreshing={refreshing}
-                scrollHandler={nftsTabScrollHandler}
-                onRefresh={onRefreshHomeData}
-              />
-            </Delayed>
+            <NftsTab
+              ref={nftsTabScrollRef}
+              containerProps={sharedProps}
+              headerHeight={headerHeight}
+              owner={activeAccount?.address}
+              refreshing={refreshing}
+              scrollHandler={nftsTabScrollHandler}
+              onRefresh={onRefreshHomeData}
+            />
           )
         case SectionName.HomeActivityTab:
           return (
-            <Delayed waitBeforeShow={Delay.Normal}>
-              <ActivityTab
-                ref={activityTabScrollRef}
-                containerProps={sharedProps}
-                headerHeight={headerHeight}
-                owner={activeAccount?.address}
-                refreshing={refreshing}
-                scrollHandler={activityTabScrollHandler}
-                onRefresh={onRefreshHomeData}
-              />
-            </Delayed>
+            <ActivityTab
+              ref={activityTabScrollRef}
+              containerProps={sharedProps}
+              headerHeight={headerHeight}
+              owner={activeAccount?.address}
+              refreshing={refreshing}
+              scrollHandler={activityTabScrollHandler}
+              onRefresh={onRefreshHomeData}
+            />
           )
       }
       return null
@@ -454,6 +441,7 @@ export function HomeScreen(props?: AppStackScreenProp<Screens.Home>): JSX.Elemen
     <Screen edges={['left', 'right']}>
       <View style={TAB_STYLES.container}>
         <TraceTabView
+          lazy
           initialLayout={{
             height: dimensions.fullHeight,
             width: dimensions.fullWidth,
@@ -466,7 +454,7 @@ export function HomeScreen(props?: AppStackScreenProp<Screens.Home>): JSX.Elemen
         />
       </View>
       <NavBar />
-      <AnimatedBox
+      <AnimatedFlex
         height={insets.top}
         position="absolute"
         style={statusBarStyle}
@@ -580,12 +568,11 @@ function ActionButton({
           <AnimatedFlex
             centered
             row
-            backgroundColor="DEP_backgroundActionButton"
-            borderRadius="roundedFull"
-            gap="none"
-            px="spacing12"
-            shadowColor="sporeWhite"
-            shadowOffset={SHADOW_OFFSET_SMALL}
+            backgroundColor="$DEP_backgroundActionButton"
+            borderRadius="$roundedFull"
+            gap="$none"
+            px="$spacing12"
+            shadowColor="$sporeWhite"
             shadowOpacity={0.1}
             shadowRadius={6}
             style={[
@@ -597,7 +584,7 @@ function ActionButton({
               },
             ]}>
             <Icon
-              color={colors.accent1.val}
+              color={colors.accent1.get()}
               height={iconSizes.icon20 * iconScale}
               strokeWidth={2}
               width={iconSizes.icon20 * iconScale}

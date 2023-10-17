@@ -1,14 +1,11 @@
-import { FlashList } from '@shopify/flash-list'
 import { ReactNavigationPerformanceView } from '@shopify/react-native-performance-navigation'
-import React, { forwardRef, useEffect, useMemo, useState } from 'react'
+import React, { ForwardedRef, forwardRef, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { RefreshControl } from 'react-native'
-import { FadeInDown, FadeOut } from 'react-native-reanimated'
+import { FlatList, RefreshControl } from 'react-native'
+import Animated, { FadeInDown, FadeOut } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useAdaptiveFooter } from 'src/components/home/hooks'
-import { AnimatedBox } from 'src/components/layout'
-import { AnimatedFlashList } from 'src/components/layout/AnimatedFlashList'
-import { BaseCard } from 'src/components/layout/BaseCard'
+import { AnimatedFlatList } from 'src/components/layout/AnimatedFlatList'
 import {
   TabProps,
   TAB_BAR_HEIGHT,
@@ -20,8 +17,9 @@ import { TokenBalanceItem } from 'src/components/TokenBalanceList/TokenBalanceIt
 import { IS_ANDROID } from 'src/constants/globals'
 import { useTokenBalancesGroupedByVisibility } from 'src/features/balances/hooks'
 import { Screens } from 'src/screens/Screens'
-import { Flex, useSporeColors } from 'ui/src'
+import { AnimatedFlex, Flex, useSporeColors } from 'ui/src'
 import { dimensions, zIndices } from 'ui/src/theme'
+import { BaseCard } from 'wallet/src/components/BaseCard/BaseCard'
 import { isError, isNonPollingRequestInFlight, isWarmLoadingStatus } from 'wallet/src/data/utils'
 import { usePortfolioBalances } from 'wallet/src/features/dataApi/balances'
 import { PortfolioBalance } from 'wallet/src/features/dataApi/types'
@@ -40,7 +38,7 @@ const HIDDEN_TOKEN_BALANCES_ROW = 'HIDDEN_TOKEN_BALANCES_ROW'
 
 // accept any ref
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const TokenBalanceList = forwardRef<FlashList<any>, TokenBalanceListProps>(
+export const TokenBalanceList = forwardRef<FlatList<any>, TokenBalanceListProps>(
   function _TokenBalanceList(
     {
       owner,
@@ -113,11 +111,11 @@ export const TokenBalanceList = forwardRef<FlashList<any>, TokenBalanceListProps
             insets.top + (IS_ANDROID && headerHeight ? headerHeight + TAB_BAR_HEIGHT : 0)
           }
           refreshing={refreshing ?? false}
-          tintColor={colors.neutral3.val}
+          tintColor={colors.neutral3.get()}
           onRefresh={onRefresh}
         />
       )
-    }, [refreshing, headerHeight, onRefresh, colors.neutral3.val, insets.top])
+    }, [insets.top, headerHeight, refreshing, colors.neutral3, onRefresh])
 
     // Note: `PerformanceView` must wrap the entire return statement to properly track interactive states.
     return (
@@ -142,8 +140,9 @@ export const TokenBalanceList = forwardRef<FlashList<any>, TokenBalanceListProps
             </Flex>
           )
         ) : (
-          <AnimatedFlashList
-            ref={ref}
+          <AnimatedFlatList
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            ref={ref as ForwardedRef<Animated.FlatList<any>>}
             ListEmptyComponent={
               <Flex grow px="$spacing24" style={containerProps?.emptyContainerStyle}>
                 {empty}
@@ -155,18 +154,23 @@ export const TokenBalanceList = forwardRef<FlashList<any>, TokenBalanceListProps
             ListFooterComponentStyle={{ zIndex: zIndices.negative }}
             ListHeaderComponent={
               isError(networkStatus, !!balancesById) ? (
-                <AnimatedBox entering={FadeInDown} exiting={FadeOut} px="$spacing24" py="$spacing8">
+                <AnimatedFlex
+                  entering={FadeInDown}
+                  exiting={FadeOut}
+                  px="$spacing24"
+                  py="$spacing8">
                   <BaseCard.InlineErrorState
                     title={t('Failed to fetch token balances')}
                     onRetry={refetch}
                   />
-                </AnimatedBox>
+                </AnimatedFlex>
               ) : null
             }
             data={data}
-            disableAutoLayout={true}
             estimatedItemSize={ESTIMATED_TOKEN_ITEM_HEIGHT}
+            initialNumToRender={20}
             keyExtractor={key}
+            maxToRenderPerBatch={20}
             refreshControl={refreshControl}
             refreshing={refreshing}
             renderItem={({ item }): JSX.Element | null => {
@@ -196,7 +200,7 @@ export const TokenBalanceList = forwardRef<FlashList<any>, TokenBalanceListProps
             }}
             scrollEventThrottle={TAB_VIEW_SCROLL_THROTTLE}
             showsVerticalScrollIndicator={false}
-            windowSize={5}
+            updateCellsBatchingPeriod={10}
             onContentSizeChange={onContentSizeChange}
             onRefresh={onRefresh}
             onScroll={scrollHandler}

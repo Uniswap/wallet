@@ -45,6 +45,8 @@ import { getMonitoredSagaReducers, MonitoredSaga } from 'wallet/src/state/saga'
 
 // All regular sagas must be included here
 const sagas = [
+  // TODO[MOB-1645]: Explicitly remove app rating prompts for 1.14 release. Re-enable in 1.15.
+  // appRatingWatcherSaga,
   cloudBackupsManagerSaga,
   deepLinkWatcher,
   firebaseDataWatcher,

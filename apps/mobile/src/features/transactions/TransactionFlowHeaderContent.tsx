@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 import { Keyboard } from 'react-native'
 import { ElementName } from 'src/features/telemetry/constants'
 import { useTokenFormActionHandlers } from 'src/features/transactions/hooks'
-import { TransactionFlowProps, TransactionStep } from 'src/features/transactions/TransactionFlow'
 import { Flex, Text, TouchableArea, useSporeColors } from 'ui/src'
 import DollarSign from 'ui/src/assets/icons/dollar.svg'
 import EyeIcon from 'ui/src/assets/icons/eye.svg'
@@ -12,6 +11,7 @@ import { iconSizes } from 'ui/src/theme'
 import { formatPercent } from 'utilities/src/format/format'
 import { AccountType } from 'wallet/src/features/wallet/accounts/types'
 import { useActiveAccountWithThrow } from 'wallet/src/features/wallet/hooks'
+import { TransactionFlowProps, TransactionStep } from './types'
 
 type HeaderContentProps = Pick<
   TransactionFlowProps,
@@ -55,7 +55,7 @@ export function HeaderContent({
       pb="$spacing8"
       pl="$spacing12"
       pr={customSlippageTolerance ? '$spacing8' : '$spacing16'}>
-      <Text $sm={{ variant: 'subheading1' }} $xs={{ variant: 'subheading2' }}>
+      <Text $short={{ variant: 'subheading2' }} $sm={{ variant: 'subheading1' }}>
         {flowName}
       </Text>
       <Flex row gap="$spacing4">
@@ -69,7 +69,7 @@ export function HeaderContent({
             onPress={(): void => onToggleUSDInput(!isUSDInput)}>
             <Flex row alignItems="center" gap="$spacing4">
               <DollarSign
-                color={isUSDInput ? colors.accent1.val : colors.neutral2.val}
+                color={isUSDInput ? colors.accent1.get() : colors.neutral2.get()}
                 height={iconSizes.icon16}
                 width={iconSizes.icon16}
               />
@@ -89,7 +89,7 @@ export function HeaderContent({
             onPress={(): void => setShowViewOnlyModal(true)}>
             <Flex row alignItems="center" gap="$spacing4">
               <EyeIcon
-                color={colors.neutral2.val}
+                color={colors.neutral2.get()}
                 height={iconSizes.icon16}
                 width={iconSizes.icon16}
               />
@@ -118,7 +118,7 @@ export function HeaderContent({
                 </Text>
               ) : null}
               <SettingsIcon
-                color={colors.neutral3.val}
+                color={colors.neutral3.get()}
                 height={iconSizes.icon28}
                 width={iconSizes.icon28}
               />

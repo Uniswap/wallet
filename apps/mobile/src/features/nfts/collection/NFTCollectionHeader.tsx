@@ -11,18 +11,14 @@ import VerifiedIcon from 'ui/src/assets/icons/verified.svg'
 import { iconSizes, spacing } from 'ui/src/theme'
 import { theme as FixedTheme } from 'ui/src/theme/restyle'
 import { formatNumber, NumberType } from 'utilities/src/format/format'
-import { NftCollectionScreenQuery } from 'wallet/src/data/__generated__/types-and-hooks'
 import { ImageUri } from 'wallet/src/features/images/ImageUri'
 import { NFTViewer } from 'wallet/src/features/images/NFTViewer'
 import { useExtractedColors } from 'wallet/src/utils/colors'
+import { NFTCollectionData } from './types'
 
 const PROFILE_IMAGE_SIZE = 72
 const PROFILE_IMAGE_WRAPPER_SIZE = PROFILE_IMAGE_SIZE + FixedTheme.spacing.spacing4
 export const NFT_BANNER_HEIGHT = 102
-
-export type NFTCollectionData = Maybe<
-  NonNullable<NonNullable<NftCollectionScreenQuery['nftCollections']>['edges']>[0]['node']
->
 
 export function NFTCollectionHeader({
   loading = false,
@@ -84,7 +80,7 @@ export function NFTCollectionHeader({
           <Flex
             style={[
               bannerImageStyle,
-              { backgroundColor: bannerColorsFallback?.base ?? colors.surface2.val },
+              { backgroundColor: bannerColorsFallback?.base ?? colors.surface2.get() },
             ]}
           />
         )}
@@ -157,7 +153,7 @@ export function NFTCollectionHeader({
             </Text>
             {data?.isVerified ? (
               <VerifiedIcon
-                color={colors.accent1.val}
+                color={colors.accent1.get()}
                 height={iconSizes.icon16}
                 width={iconSizes.icon16}
               />
@@ -193,7 +189,7 @@ export function NFTCollectionHeader({
                   )} `}
                 </Text>
                 {collectionStats?.floorPrice?.value !== undefined ? (
-                  <Logos.Ethereum color={colors.neutral1.val} size={iconSizes.icon16} />
+                  <Logos.Ethereum color="$neutral1" size="$icon.16" />
                 ) : null}
               </Flex>
             </Flex>
@@ -209,7 +205,7 @@ export function NFTCollectionHeader({
                   )}`}
                 </Text>
                 {collectionStats?.totalVolume?.value !== undefined ? (
-                  <Logos.Ethereum color={colors.neutral1.val} size={iconSizes.icon16} />
+                  <Logos.Ethereum color="$neutral1" size="$icon.16" />
                 ) : null}
               </Flex>
             </Flex>

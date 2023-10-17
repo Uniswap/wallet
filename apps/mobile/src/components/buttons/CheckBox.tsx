@@ -1,4 +1,3 @@
-import { useResponsiveProp } from '@shopify/restyle'
 import React from 'react'
 import { Flex, Icons, Text, TouchableArea } from 'ui/src'
 import { iconSizes } from 'ui/src/theme'
@@ -17,11 +16,6 @@ export function CheckBox({ text, checked, onCheckPressed }: CheckBoxProps): JSX.
     onCheckPressed?.(checked)
   }
 
-  const fontSize = useResponsiveProp({
-    xs: 'buttonLabel4',
-    sm: 'subheading2',
-  })
-
   return (
     <TouchableArea onPress={onPress}>
       <Flex row gap="$spacing12">
@@ -37,15 +31,17 @@ export function CheckBox({ text, checked, onCheckPressed }: CheckBoxProps): JSX.
           p="$spacing2"
           width={iconSizes.icon24}>
           {checked ? (
-            <Icons.Check
-              color={isDarkMode ? '$sporeBlack' : '$sporeWhite'}
-              height={iconSizes.icon16}
-              width={iconSizes.icon16}
-            />
+            <Icons.Check color={isDarkMode ? '$sporeBlack' : '$sporeWhite'} size="$icon.16" />
           ) : null}
         </Flex>
         <Flex shrink>
-          {typeof text === 'string' ? <Text variant={fontSize}>{text}</Text> : text}
+          {typeof text === 'string' ? (
+            <Text $short={{ variant: 'buttonLabel4' }} variant="subheading2">
+              {text}
+            </Text>
+          ) : (
+            text
+          )}
         </Flex>
       </Flex>
     </TouchableArea>

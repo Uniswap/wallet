@@ -4,11 +4,10 @@ import { FadeIn, FadeOut } from 'react-native-reanimated'
 import { AddressDisplay } from 'src/components/AddressDisplay'
 import { GradientBackground } from 'src/components/gradients/GradientBackground'
 import { UniconThemedGradient } from 'src/components/gradients/UniconThemedGradient'
-import { AnimatedFlex } from 'src/components/layout'
 import { QRCodeDisplay } from 'src/components/QRCodeScanner/QRCode'
+import { LearnMoreLink } from 'src/components/text/LearnMoreLink'
 import { useUniconColors } from 'src/components/unicons/utils'
-import { openUri } from 'src/utils/linking'
-import { Text, TouchableArea, useSporeColors } from 'ui/src'
+import { AnimatedFlex, Text, useSporeColors } from 'ui/src'
 import { uniswapUrls } from 'wallet/src/constants/urls'
 import { useIsDarkMode } from 'wallet/src/features/appearance/hooks'
 
@@ -25,10 +24,6 @@ export function WalletQRCode({ address }: Props): JSX.Element | null {
   const gradientData = useUniconColors(address)
   const { t } = useTranslation()
 
-  const onPressLearnMore = async (): Promise<void> => {
-    await openUri(uniswapUrls.helpArticleUrls.supportedNetworks)
-  }
-
   if (!address) return null
 
   return (
@@ -36,8 +31,8 @@ export function WalletQRCode({ address }: Props): JSX.Element | null {
       <GradientBackground>
         <UniconThemedGradient
           middleOut
-          borderRadius="rounded16"
-          gradientEndColor={colors.surface1.val}
+          borderRadius="$rounded16"
+          gradientEndColor={colors.surface1.get()}
           gradientStartColor={gradientData.glow}
           opacity={isDarkMode ? 0.24 : 0.2}
         />
@@ -47,10 +42,10 @@ export function WalletQRCode({ address }: Props): JSX.Element | null {
         grow
         entering={FadeIn}
         exiting={FadeOut}
-        gap="spacing24"
-        mb="spacing48"
-        mx="spacing60"
-        py="spacing24">
+        gap="$spacing24"
+        mb="$spacing48"
+        mx="$spacing60"
+        py="$spacing24">
         <AddressDisplay
           showCopy
           showCopyWrapperButton
@@ -75,11 +70,7 @@ export function WalletQRCode({ address }: Props): JSX.Element | null {
             'Only send tokens on Ethereum, Arbitrum, Optimism, Polygon, Base, BNB networks to this address.'
           )}{' '}
         </Text>
-        <TouchableArea height={18} onPress={onPressLearnMore}>
-          <Text color="$accent1" variant="buttonLabel3">
-            {t('Learn more')}
-          </Text>
-        </TouchableArea>
+        <LearnMoreLink url={uniswapUrls.helpArticleUrls.supportedNetworks} />
       </AnimatedFlex>
     </>
   )

@@ -11,6 +11,11 @@ import {
 } from 'wallet/src/data/__generated__/types-and-hooks'
 import { currencyIdToContractInput } from 'wallet/src/features/dataApi/utils'
 
+export type TokenSpotData = {
+  value: SharedValue<number>
+  relativeChange: SharedValue<number>
+}
+
 /**
  * @returns Token price history for requested duration
  */
@@ -20,10 +25,7 @@ export function useTokenPriceHistory(
 ): Omit<
   GqlResult<{
     priceHistory?: TLineChartData
-    spot?: {
-      value: SharedValue<number>
-      relativeChange: SharedValue<number>
-    }
+    spot?: TokenSpotData
   }>,
   'error'
 > & {
@@ -47,15 +49,20 @@ export function useTokenPriceHistory(
     fetchPolicy: 'cache-first',
   })
 
-  const { price, pricePercentChange24h, priceHistory } =
-    priceData?.tokenProjects?.[0]?.markets?.[0] ?? {}
+  const offChainData = priceData?.tokenProjects?.[0]?.markets?.[0]
+  const onChainData = priceData?.tokenProjects?.[0]?.tokens?.[0]?.market
+
+  const price = offChainData?.price?.value ?? onChainData?.price?.value
+  const priceHistory = offChainData?.priceHistory ?? onChainData?.priceHistory
+  const pricePercentChange24h =
+    offChainData?.pricePercentChange24h?.value ?? onChainData?.pricePercentChange24h?.value ?? 0
 
   const spot = useMemo(
     () =>
-      price && pricePercentChange24h
+      price
         ? {
-            value: { value: price?.value },
-            relativeChange: { value: pricePercentChange24h?.value },
+            value: { value: price },
+            relativeChange: { value: pricePercentChange24h },
           }
         : undefined,
     [price, pricePercentChange24h]

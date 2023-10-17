@@ -1,11 +1,12 @@
 import React, { PropsWithChildren, ReactNode } from 'react'
 import { ColorValue } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { BottomSheetModal } from 'src/components/modals/BottomSheetModal'
 import { WarningColor, WarningSeverity } from 'src/components/modals/WarningModal/types'
 import { useBiometricAppSettings, useBiometricPrompt } from 'src/features/biometrics/hooks'
 import { ElementName, ModalName } from 'src/features/telemetry/constants'
-import { Button, Flex, Icons, Text, useSporeColors } from 'ui/src'
-import { iconSizes, opacify } from 'ui/src/theme'
+import { Button, Flex, Icons, Text, ThemeKeys, useSporeColors } from 'ui/src'
+import { opacify, spacing } from 'ui/src/theme'
 
 export type WarningModalProps = {
   onClose?: () => void
@@ -21,8 +22,12 @@ export type WarningModalProps = {
   isDismissible?: boolean
   hideHandlebar?: boolean
   icon?: ReactNode
+  // when icon is undefined we default it to triangle, this allows us to hide it
+  hideIcon?: boolean
   backgroundIconColor?: ColorValue
 }
+
+const WARNING_MODAL_BG_SIZE = 48
 
 export default function WarningModal({
   onClose,
@@ -39,6 +44,7 @@ export default function WarningModal({
   isDismissible = true,
   hideHandlebar = false,
   icon,
+  hideIcon,
   backgroundIconColor,
 }: PropsWithChildren<WarningModalProps>): JSX.Element {
   const { requiredForTransactions } = useBiometricAppSettings()
@@ -54,31 +60,42 @@ export default function WarningModal({
 
   const colors = useSporeColors()
   const alertColor = getAlertColor(severity)
+  const alertColorValue = alertColor.text as keyof typeof colors
+
+  const insets = useSafeAreaInsets()
 
   return (
     <BottomSheetModal
-      backgroundColor={colors.surface1.val}
+      backgroundColor={colors.surface1.get()}
       hideHandlebar={hideHandlebar}
       isDismissible={isDismissible}
       name={modalName}
       onClose={onClose}>
-      <Flex centered gap="$spacing12" mb="$spacing24" p="$spacing24">
-        <Flex
-          centered
-          borderRadius="$rounded12"
-          mb="$spacing8"
-          p="$spacing8"
-          style={{
-            backgroundColor: backgroundIconColor ?? opacify(12, alertColor.text),
-          }}>
-          {icon ?? (
-            <Icons.AlertTriangle
-              color={alertColor.text}
-              height={iconSizes.icon24}
-              width={iconSizes.icon24}
-            />
-          )}
-        </Flex>
+      <Flex
+        centered
+        gap="$spacing12"
+        pb={insets.bottom === 0 ? '$spacing24' : insets.bottom + spacing.spacing12}
+        pt="$spacing24"
+        px="$spacing24">
+        {!hideIcon && (
+          <Flex
+            centered
+            borderRadius="$rounded12"
+            height={WARNING_MODAL_BG_SIZE}
+            mb="$spacing8"
+            style={{
+              backgroundColor:
+                backgroundIconColor ??
+                opacify(
+                  12,
+                  // TODO(MOB-1420): clean up types
+                  colors[alertColorValue as ThemeKeys].get()
+                ),
+            }}
+            width={WARNING_MODAL_BG_SIZE}>
+            {icon ?? <Icons.AlertTriangle color={alertColor.text} size="$icon.24" />}
+          </Flex>
+        )}
         <Text textAlign="center" variant="body1">
           {title}
         </Text>

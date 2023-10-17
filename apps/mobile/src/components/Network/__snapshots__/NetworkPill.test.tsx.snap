@@ -32,10 +32,10 @@ exports[`NetworkPill renders a NetworkPill with border 1`] = `
 >
   <Text
     allowFontScaling={true}
+    maxFontSizeMultiplier={1.4}
     style={
       {
         "color": "#209853",
-        "display": "flex",
         "fontFamily": "Basel-Book",
         "fontSize": 17,
         "lineHeight": 24,
@@ -81,10 +81,10 @@ exports[`NetworkPill renders a NetworkPill without image 1`] = `
 >
   <Text
     allowFontScaling={true}
+    maxFontSizeMultiplier={1.4}
     style={
       {
         "color": "#209853",
-        "display": "flex",
         "fontFamily": "Basel-Book",
         "fontSize": 17,
         "lineHeight": 24,
@@ -130,12 +130,13 @@ exports[`NetworkPill renders an InlineNetworkPill 1`] = `
 >
   <Text
     allowFontScaling={true}
+    maxFontSizeMultiplier={1.2}
     style={
       {
         "color": "#209853",
-        "display": "flex",
-        "fontFamily": "Basel-Book",
+        "fontFamily": "Basel-Medium",
         "fontSize": 13,
+        "fontWeight": "500",
         "lineHeight": 16,
         "paddingTop": 1,
       }

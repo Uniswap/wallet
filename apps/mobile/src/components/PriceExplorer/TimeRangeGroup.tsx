@@ -6,7 +6,6 @@ import {
   useAnimatedStyle,
   useSharedValue,
 } from 'react-native-reanimated'
-import { AnimatedBox } from 'src/components/layout/Box'
 import {
   BUTTON_PADDING,
   BUTTON_WIDTH,
@@ -14,9 +13,8 @@ import {
   LABEL_WIDTH,
   TIME_RANGES,
 } from 'src/components/PriceExplorer/constants'
-import { Text } from 'src/components/Text'
 import Trace from 'src/components/Trace/Trace'
-import { Flex, TouchableArea, useSporeColors } from 'ui/src'
+import { AnimatedFlex, AnimatedText, Flex, TouchableArea, useSporeColors } from 'ui/src'
 import { HistoryDuration } from 'wallet/src/data/__generated__/types-and-hooks'
 
 interface Props {
@@ -44,9 +42,9 @@ export function TimeRangeLabel({ index, label, selectedIndex, transition }: Prop
   })
 
   return (
-    <Text animated allowFontScaling={false} style={style} textAlign="center" variant="buttonLabel3">
+    <AnimatedText allowFontScaling={false} style={style} textAlign="center" variant="buttonLabel3">
       {label}
-    </Text>
+    </AnimatedText>
   )
 }
 
@@ -67,7 +65,7 @@ export function TimeRangeGroup({
   return (
     <Flex row alignSelf="center" width={CHART_WIDTH}>
       <View style={StyleSheet.absoluteFill}>
-        <AnimatedBox
+        <AnimatedFlex
           bg="$surface3"
           borderRadius="$rounded20"
           style={[StyleSheet.absoluteFillObject, sliderStyle]}

@@ -2,12 +2,20 @@
 
 exports[`renders a currency logo with network logo 1`] = `
 <div
+  className="   "
   style={
     {
       "alignItems": "center",
+      "boxSizing": "border-box",
+      "display": "flex",
+      "flexBasis": "auto",
       "flexDirection": "column",
+      "flexShrink": 0,
       "height": 20,
       "justifyContent": "center",
+      "minHeight": 0,
+      "minWidth": 0,
+      "position": "relative",
       "width": 20,
     }
   }
@@ -35,11 +43,18 @@ exports[`renders a currency logo with network logo 1`] = `
     }
   />
   <div
+    className="   "
     style={
       {
         "alignItems": "stretch",
         "bottom": 0,
+        "boxSizing": "border-box",
+        "display": "flex",
+        "flexBasis": "auto",
         "flexDirection": "column",
+        "flexShrink": 0,
+        "minHeight": 0,
+        "minWidth": 0,
         "position": "absolute",
         "right": 0,
         "shadowColor": "rgba(0,0,0,0.10)",
@@ -57,12 +72,20 @@ exports[`renders a currency logo with network logo 1`] = `
 
 exports[`renders a currency logo without network logo 1`] = `
 <div
+  className="   "
   style={
     {
       "alignItems": "center",
+      "boxSizing": "border-box",
+      "display": "flex",
+      "flexBasis": "auto",
       "flexDirection": "column",
+      "flexShrink": 0,
       "height": 20,
       "justifyContent": "center",
+      "minHeight": 0,
+      "minWidth": 0,
+      "position": "relative",
       "width": 20,
     }
   }

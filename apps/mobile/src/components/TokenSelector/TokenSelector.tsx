@@ -3,17 +3,21 @@ import { hasStringAsync } from 'expo-clipboard'
 import React, { memo, useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import PasteButton from 'src/components/buttons/PasteButton'
-import { SearchContext } from 'src/components/explore/search/SearchResultsSection'
+import { SearchContext } from 'src/components/explore/search/SearchContext'
 import { SearchTextInput } from 'src/components/input/SearchTextInput'
 import { useBottomSheetContext } from 'src/components/modals/BottomSheetContext'
 import { BottomSheetModal } from 'src/components/modals/BottomSheetModal'
 import { useFilterCallbacks } from 'src/components/TokenSelector/hooks'
 import { NetworkFilter } from 'src/components/TokenSelector/NetworkFilter'
-import { SuggestedTokenSection, TokenSection } from 'src/components/TokenSelector/TokenSelectorList'
 import { TokenSelectorSearchResultsList } from 'src/components/TokenSelector/TokenSelectorSearchResultsList'
 import { TokenSelectorSendList } from 'src/components/TokenSelector/TokenSelectorSendList'
 import { TokenSelectorSwapInputList } from 'src/components/TokenSelector/TokenSelectorSwapInputList'
 import { TokenSelectorSwapOutputList } from 'src/components/TokenSelector/TokenSelectorSwapOutputList'
+import {
+  SuggestedTokenSection,
+  TokenSection,
+  TokenSelectorFlow,
+} from 'src/components/TokenSelector/types'
 import Trace from 'src/components/Trace/Trace'
 import { IS_IOS } from 'src/constants/globals'
 import { ElementName, ModalName, SectionName } from 'src/features/telemetry/constants'
@@ -31,22 +35,6 @@ export enum TokenSelectorVariation {
 
   // used for Swap output. suggested (common bases), favorites + popular (top tokens)
   SuggestedAndFavoritesAndPopular = 'suggested-and-favorites-and-popular',
-}
-
-export enum TokenSelectorFlow {
-  Swap,
-  Transfer,
-}
-
-export function flowToModalName(flow: TokenSelectorFlow): ModalName | undefined {
-  switch (flow) {
-    case TokenSelectorFlow.Swap:
-      return ModalName.Swap
-    case TokenSelectorFlow.Transfer:
-      return ModalName.Send
-    default:
-      return undefined
-  }
 }
 
 interface TokenSelectorProps {
@@ -124,10 +112,10 @@ function TokenSelectorContent({
     <Trace logImpression element={currencyFieldName} section={SectionName.TokenSelector}>
       <Flex grow gap="$spacing16" pb={IS_IOS ? '$spacing16' : '$none'} px="$spacing16">
         <SearchTextInput
-          backgroundColor="surface2"
+          backgroundColor="$surface2"
           endAdornment={hasClipboardString ? <PasteButton inline onPress={handlePaste} /> : null}
           placeholder={t('Search tokens')}
-          py="spacing8"
+          py="$spacing8"
           value={searchFilter ?? ''}
           onChangeText={onChangeText}
         />
@@ -181,7 +169,7 @@ function _TokenSelectorModal(props: TokenSelectorProps): JSX.Element {
       fullScreen
       hideKeyboardOnDismiss
       hideKeyboardOnSwipeDown
-      backgroundColor={colors.surface1.val}
+      backgroundColor={colors.surface1.get()}
       name={ModalName.TokenSelector}
       snapPoints={['65%', '100%']}
       onClose={props.onClose}>

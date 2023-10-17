@@ -5,25 +5,21 @@ import React, { Dispatch, memo, useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Keyboard, StyleSheet, TextInputProps } from 'react-native'
 import { FadeIn, FadeOut, FadeOutDown } from 'react-native-reanimated'
+import { useShouldShowNativeKeyboard } from 'src/app/hooks'
 import { CurrencyInputPanel } from 'src/components/input/CurrencyInputPanel'
 import { DecimalPad } from 'src/components/input/DecimalPad'
-import { AnimatedFlex } from 'src/components/layout'
 import { SpinningLoader } from 'src/components/loading/SpinningLoader'
 import { Warning, WarningAction, WarningSeverity } from 'src/components/modals/WarningModal/types'
 import WarningModal, { getAlertColor } from 'src/components/modals/WarningModal/WarningModal'
-import { TokenSelectorFlow } from 'src/components/TokenSelector/TokenSelector'
+import { TokenSelectorFlow } from 'src/components/TokenSelector/types'
 import Trace from 'src/components/Trace/Trace'
 import { ElementName, ModalName, SectionName } from 'src/features/telemetry/constants'
 import {
-  useShouldShowNativeKeyboard,
   useTokenFormActionHandlers,
   useTokenSelectorActionHandlers,
 } from 'src/features/transactions/hooks'
 import { useSwapAnalytics } from 'src/features/transactions/swap/analytics'
-import {
-  DerivedSwapInfo,
-  useShowSwapNetworkNotification,
-} from 'src/features/transactions/swap/hooks'
+import { useShowSwapNetworkNotification } from 'src/features/transactions/swap/hooks'
 import { SwapArrowButton } from 'src/features/transactions/swap/SwapArrowButton'
 import { isPriceImpactWarning } from 'src/features/transactions/swap/useSwapWarnings'
 import {
@@ -33,7 +29,7 @@ import {
 } from 'src/features/transactions/swap/utils'
 import { BlockedAddressWarning } from 'src/features/trm/BlockedAddressWarning'
 import { useWalletRestore } from 'src/features/wallet/hooks'
-import { Button, Flex, Icons, Text, TouchableArea, useSporeColors } from 'ui/src'
+import { AnimatedFlex, Button, Flex, Icons, Text, TouchableArea, useSporeColors } from 'ui/src'
 import InfoCircleFilled from 'ui/src/assets/icons/info-circle-filled.svg'
 import InfoCircle from 'ui/src/assets/icons/info-circle.svg'
 import { iconSizes, spacing } from 'ui/src/theme'
@@ -42,6 +38,7 @@ import { useUSDCPrice } from 'wallet/src/features/routing/useUSDCPrice'
 import { CurrencyField } from 'wallet/src/features/transactions/transactionState/types'
 import { createTransactionId } from 'wallet/src/features/transactions/utils'
 import { useIsBlockedActiveAddress } from 'wallet/src/features/trm/hooks'
+import { DerivedSwapInfo } from './types'
 
 interface SwapFormProps {
   dispatch: Dispatch<AnyAction>
@@ -234,7 +231,7 @@ function _SwapForm({
         <AnimatedFlex
           entering={FadeIn}
           exiting={FadeOut}
-          gap="spacing2"
+          gap="$spacing2"
           onLayout={onInputPanelLayout}>
           <Trace section={SectionName.CurrencyInputPanel}>
             <Flex backgroundColor="$surface2" borderRadius="$rounded20">
@@ -259,7 +256,6 @@ function _SwapForm({
               />
             </Flex>
           </Trace>
-
           <Flex zIndex="$popover">
             <Flex alignItems="center" height={0} style={StyleSheet.absoluteFill}>
               <Flex
@@ -286,7 +282,6 @@ function _SwapForm({
               </Flex>
             </Flex>
           </Flex>
-
           <Trace section={SectionName.CurrencyOutputPanel}>
             <Flex>
               <Flex
@@ -416,7 +411,7 @@ function _SwapForm({
                       <SpinningLoader size={iconSizes.icon20} />
                     ) : (
                       <InfoCircle
-                        color={colors.neutral1.val}
+                        color={colors.neutral1.get()}
                         height={iconSizes.icon20}
                         width={iconSizes.icon20}
                       />
@@ -445,7 +440,7 @@ function _SwapForm({
         <AnimatedFlex
           bottom={0}
           exiting={FadeOutDown}
-          gap="spacing8"
+          gap="$spacing8"
           left={0}
           opacity={isLayoutPending ? 0 : 1}
           position="absolute"

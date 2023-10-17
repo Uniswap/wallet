@@ -1,12 +1,10 @@
 import { useCallback } from 'react'
 import { useAppDispatch, useAppSelector } from 'src/app/hooks'
-import {
-  addDismissedWarningToken,
-  dismissedWarningTokensSelector,
-} from 'src/features/tokens/tokensSlice'
-import { Theme } from 'ui/src/theme/restyle'
+import { addDismissedWarningToken } from 'src/features/tokens/tokensSlice'
+import { ThemeKeys } from 'ui/src'
 import { SafetyLevel } from 'wallet/src/data/__generated__/types-and-hooks'
 import { CurrencyId } from 'wallet/src/utils/currencyId'
+import { dismissedWarningTokensSelector } from './dismissedWarningTokensSelector'
 
 export function useTokenWarningDismissed(currencyId: Maybe<CurrencyId>): {
   tokenWarningDismissed: boolean // user dismissed warning
@@ -31,7 +29,7 @@ export function useTokenWarningDismissed(currencyId: Maybe<CurrencyId>): {
   }
 }
 
-export function useTokenSafetyLevelColors(safetyLevel: Maybe<SafetyLevel>): keyof Theme['colors'] {
+export function useTokenSafetyLevelColors(safetyLevel: Maybe<SafetyLevel>): ThemeKeys {
   switch (safetyLevel) {
     case SafetyLevel.MediumWarning:
       return 'DEP_accentWarning'

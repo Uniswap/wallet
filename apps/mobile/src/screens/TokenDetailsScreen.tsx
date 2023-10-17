@@ -1,5 +1,4 @@
 import { ReactNavigationPerformanceView } from '@shopify/react-native-performance-navigation'
-import { useResponsiveProp } from '@shopify/restyle'
 import React, { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import ContextMenu from 'react-native-context-menu-view'
@@ -7,9 +6,8 @@ import { FadeInDown, FadeOutDown } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useAppSelector } from 'src/app/hooks'
 import { AppStackScreenProp } from 'src/app/navigation/types'
-import { AnimatedBox, AnimatedFlex } from 'src/components/layout'
-import { BaseCard } from 'src/components/layout/BaseCard'
 import { HeaderScrollScreen } from 'src/components/layout/screens/HeaderScrollScreen'
+import { Loader } from 'src/components/loading'
 import { PriceExplorer } from 'src/components/PriceExplorer/PriceExplorer'
 import { useTokenPriceHistory } from 'src/components/PriceExplorer/usePriceHistory'
 import { useCrossChainBalances } from 'src/components/TokenDetails/hooks'
@@ -23,16 +21,26 @@ import TokenWarningModal from 'src/components/tokens/TokenWarningModal'
 import Trace from 'src/components/Trace/Trace'
 import { IS_ANDROID, IS_IOS } from 'src/constants/globals'
 import { useTokenContextMenu } from 'src/features/balances/hooks'
-import { selectModalState } from 'src/features/modals/modalSlice'
+import { selectModalState } from 'src/features/modals/selectModalState'
 import { useNavigateToSend } from 'src/features/send/hooks'
 import { useNavigateToSwap } from 'src/features/swap/hooks'
 import { ModalName } from 'src/features/telemetry/constants'
 import { useTokenWarningDismissed } from 'src/features/tokens/safetyHooks'
 import { Screens } from 'src/screens/Screens'
-import { Flex, Separator, Text, TouchableArea, useSporeColors } from 'ui/src'
+import { useSkeletonLoading } from 'src/utils/useSkeletonLoading'
+import {
+  AnimatedFlex,
+  Flex,
+  Separator,
+  Text,
+  TouchableArea,
+  useMedia,
+  useSporeColors,
+} from 'ui/src'
 import EllipsisIcon from 'ui/src/assets/icons/ellipsis.svg'
-import { iconSizes, spacing } from 'ui/src/theme'
+import { fonts, iconSizes, spacing } from 'ui/src/theme'
 import { formatUSDPrice } from 'utilities/src/format/format'
+import { BaseCard } from 'wallet/src/components/BaseCard/BaseCard'
 import { TokenLogo } from 'wallet/src/components/CurrencyLogo/TokenLogo'
 import { ChainId } from 'wallet/src/constants/chains'
 import { PollingInterval } from 'wallet/src/constants/misc'
@@ -49,20 +57,6 @@ import { CurrencyField } from 'wallet/src/features/transactions/transactionState
 import { useExtractedTokenColor } from 'wallet/src/utils/colors'
 import { currencyIdToAddress, currencyIdToChain } from 'wallet/src/utils/currencyId'
 
-type Price = NonNullable<
-  NonNullable<NonNullable<NonNullable<TokenDetailsScreenQuery['token']>['project']>['markets']>[0]
->['price']
-
-function HeaderPriceLabel({ price }: { price: Price }): JSX.Element {
-  const { t } = useTranslation()
-
-  return (
-    <Text color="$neutral1" variant="body1">
-      {formatUSDPrice(price?.value) ?? t('Unknown token')}
-    </Text>
-  )
-}
-
 function HeaderTitleElement({
   data,
   ellipsisMenuVisible,
@@ -72,24 +66,31 @@ function HeaderTitleElement({
 }): JSX.Element {
   const { t } = useTranslation()
 
-  const token = data?.token
-  const tokenProject = token?.project
+  const onChainData = data?.token
+  const offChainData = onChainData?.project
+
+  const price = offChainData?.markets?.[0]?.price?.value ?? onChainData?.market?.price?.value
+  const logo = offChainData?.logoUrl ?? undefined
+  const symbol = onChainData?.symbol
+  const chain = onChainData?.chain
 
   return (
     <Flex
       alignItems="center"
       justifyContent="space-between"
       ml={ellipsisMenuVisible ? '$spacing32' : '$none'}>
-      <HeaderPriceLabel price={tokenProject?.markets?.[0]?.price} />
+      <Text color="$neutral1" variant="body1">
+        {formatUSDPrice(price)}
+      </Text>
       <Flex centered row gap="$spacing4">
         <TokenLogo
-          chainId={fromGraphQLChain(token?.chain) ?? undefined}
+          chainId={fromGraphQLChain(chain) ?? undefined}
           size={iconSizes.icon16}
-          symbol={token?.symbol ?? undefined}
-          url={tokenProject?.logoUrl ?? undefined}
+          symbol={symbol ?? undefined}
+          url={logo}
         />
         <Text color="$neutral2" numberOfLines={1} variant="buttonLabel4">
-          {token?.symbol ?? t('Unknown token')}
+          {symbol ?? t('Unknown token')}
         </Text>
       </Flex>
     </Flex>
@@ -98,8 +99,11 @@ function HeaderTitleElement({
 
 export function TokenDetailsScreen({
   route,
+  navigation,
 }: AppStackScreenProp<Screens.TokenDetails>): JSX.Element {
   const { currencyId: _currencyId } = route.params
+  // Potentially delays loading of perf-heavy content to speed up navigation
+  const showSkeleton = useSkeletonLoading(navigation)
 
   // Token details screen query
   const { data, refetch, networkStatus } = useTokenDetailsScreenQuery({
@@ -140,6 +144,7 @@ export function TokenDetailsScreen({
           error={isError(networkStatus, !!data) || !!tokenPriceHistoryError}
           loading={isLoading}
           retry={retry}
+          showSkeleton={showSkeleton}
         />
       </Trace>
     </ReactNavigationPerformanceView>
@@ -152,14 +157,17 @@ function TokenDetails({
   error,
   retry,
   loading,
+  showSkeleton,
 }: {
   _currencyId: string
   data: TokenDetailsScreenQuery | undefined
   error: boolean
   retry: () => void
   loading: boolean
+  showSkeleton: boolean
 }): JSX.Element {
   const colors = useSporeColors()
+  const media = useMedia()
   const insets = useSafeAreaInsets()
 
   const currencyChainId = currencyIdToChain(_currencyId) ?? ChainId.Mainnet
@@ -176,8 +184,8 @@ function TokenDetails({
 
   const { tokenColor, tokenColorLoading } = useExtractedTokenColor(
     tokenLogoUrl,
-    /*background=*/ colors.surface1.val,
-    /*default=*/ colors.neutral3.val
+    /*background=*/ colors.surface1.get(),
+    /*default=*/ colors.neutral3.get()
   )
 
   const onPriceChartRetry = useCallback((): void => {
@@ -235,7 +243,7 @@ function TokenDetails({
     navigateToSwap,
   ])
 
-  const pb = useResponsiveProp(IS_IOS ? { xs: 'none', sm: 'spacing16' } : 'none')
+  const pb = IS_IOS && !media.short ? '$spacing16' : '$none'
 
   const inModal = useAppSelector(selectModalState(ModalName.Explore)).isOpen
 
@@ -249,8 +257,8 @@ function TokenDetails({
 
   const isDarkMode = useIsDarkMode()
   // shall be the same color as heart icon in not favorited state next to it
-  const ellipsisColor = isDarkMode ? colors.neutral2.val : colors.neutral2.val
-  const loadingColor = isDarkMode ? colors.neutral3.val : colors.surface3.val
+  const ellipsisColor = isDarkMode ? colors.neutral2.get() : colors.neutral2.get()
+  const loadingColor = isDarkMode ? colors.neutral3.get() : colors.surface3.get()
 
   const ellipsisMenuVisible = menuActions.length > 0
 
@@ -265,6 +273,7 @@ function TokenDetails({
               <ContextMenu dropdownMenuMode actions={menuActions} onPress={onContextMenuPress}>
                 <TouchableArea
                   hapticFeedback
+                  hitSlop={{ right: 5, left: 20, top: 20, bottom: 20 }}
                   style={{ padding: spacing.spacing8, marginRight: -spacing.spacing8 }}>
                   <EllipsisIcon
                     color={ellipsisColor}
@@ -278,7 +287,7 @@ function TokenDetails({
           </Flex>
         }
         showHandleBar={inModal}>
-        <Flex gap="$spacing36" my="$spacing8" pb="$spacing16">
+        <Flex gap="$spacing16" pb="$spacing16">
           <Flex gap="$spacing4">
             <TokenDetailsHeader
               data={data}
@@ -287,31 +296,38 @@ function TokenDetails({
             />
             <PriceExplorer
               currencyId={_currencyId}
-              tokenColor={tokenColorLoading ? loadingColor : tokenColor ?? colors.accent1.val}
+              forcePlaceholder={showSkeleton}
+              tokenColor={tokenColorLoading ? loadingColor : tokenColor ?? colors.accent1.get()}
               onRetry={onPriceChartRetry}
             />
           </Flex>
           {error ? (
-            <AnimatedBox entering={FadeInDown} exiting={FadeOutDown} px="$spacing24">
+            <AnimatedFlex entering={FadeInDown} exiting={FadeOutDown} px="$spacing24">
               <BaseCard.InlineErrorState onRetry={retry} />
-            </AnimatedBox>
+            </AnimatedFlex>
           ) : null}
-          <Flex gap="$spacing24" mb="$spacing8" px="$spacing16">
+          <Flex gap="$spacing16" mb="$spacing8" px="$spacing16">
             <TokenBalances
               currentChainBalance={currentChainBalance}
               otherChainBalances={otherChainBalances}
               onPressSend={onPressSend}
             />
             <Separator />
-            <TokenDetailsStats data={data} tokenColor={tokenColor} />
-            <TokenDetailsLinks currencyId={_currencyId} data={data} />
+            {showSkeleton ? (
+              <TokenDetailsTextPlaceholders />
+            ) : (
+              <>
+                <TokenDetailsStats data={data} tokenColor={tokenColor} />
+                <TokenDetailsLinks currencyId={_currencyId} data={data} />
+              </>
+            )}
           </Flex>
         </Flex>
       </HeaderScrollScreen>
 
       {!loading && !tokenColorLoading ? (
         <AnimatedFlex
-          backgroundColor="surface1"
+          backgroundColor="$surface1"
           entering={FadeInDown}
           pb={pb}
           style={{ marginBottom: IS_ANDROID ? insets.bottom : undefined }}>
@@ -336,5 +352,23 @@ function TokenDetails({
         }}
       />
     </Trace>
+  )
+}
+
+function TokenDetailsTextPlaceholders(): JSX.Element {
+  return (
+    <>
+      <Flex>
+        <Loader.Box height={fonts.subheading2.lineHeight} pb="$spacing4" width="100%" />
+        <Loader.Box height={fonts.body2.lineHeight} width="100%" />
+      </Flex>
+
+      <Flex>
+        <Loader.Box height={fonts.subheading2.lineHeight} pb="$spacing4" />
+        <Flex gap="$spacing8">
+          <Loader.Box height={fonts.body2.lineHeight} repeat={4} width="100%" />
+        </Flex>
+      </Flex>
+    </>
   )
 }

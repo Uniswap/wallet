@@ -6,18 +6,17 @@ import React, { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { StatusBar, StyleSheet, TouchableOpacity } from 'react-native'
 import ContextMenu from 'react-native-context-menu-view'
-import { useAppDispatch, useAppSelector, useAppTheme } from 'src/app/hooks'
+import { useAppDispatch, useAppSelector } from 'src/app/hooks'
 import { AppStackScreenProp, useAppStackNavigation } from 'src/app/navigation/types'
 import { AddressDisplay } from 'src/components/AddressDisplay'
-import { BaseCard } from 'src/components/layout/BaseCard'
 import { HeaderScrollScreen } from 'src/components/layout/screens/HeaderScrollScreen'
 import { Loader } from 'src/components/loading'
 import { LongText } from 'src/components/text/LongText'
 import Trace from 'src/components/Trace/Trace'
-import { IS_IOS } from 'src/constants/globals'
-import { selectModalState } from 'src/features/modals/modalSlice'
+import { IS_ANDROID, IS_IOS } from 'src/constants/globals'
+import { selectModalState } from 'src/features/modals/selectModalState'
 import { PriceAmount } from 'src/features/nfts/collection/ListPriceCard'
-import { GQLNftAsset, useNFTMenu } from 'src/features/nfts/hooks'
+import { useNFTMenu } from 'src/features/nfts/hooks'
 import { BlurredImageBackground } from 'src/features/nfts/item/BlurredImageBackground'
 import { CollectionPreviewCard } from 'src/features/nfts/item/CollectionPreviewCard'
 import { NFTTraitList } from 'src/features/nfts/item/traits'
@@ -25,11 +24,11 @@ import { ModalName } from 'src/features/telemetry/constants'
 import { ExploreModalAwareView } from 'src/screens/ModalAwareView'
 import { Screens } from 'src/screens/Screens'
 import { setClipboardImage } from 'src/utils/clipboard'
-import { Flex, Text, Theme, TouchableArea, useSporeColors } from 'ui/src'
+import { Flex, getTokenValue, Text, Theme, TouchableArea, useSporeColors } from 'ui/src'
 import EllipsisIcon from 'ui/src/assets/icons/ellipsis.svg'
 import ShareIcon from 'ui/src/assets/icons/share.svg'
-import { colorsDark, iconSizes } from 'ui/src/theme'
-import { darkTheme } from 'ui/src/theme/restyle'
+import { colorsDark, fonts, iconSizes } from 'ui/src/theme'
+import { BaseCard } from 'wallet/src/components/BaseCard/BaseCard'
 import { PollingInterval } from 'wallet/src/constants/misc'
 import {
   NftActivityType,
@@ -37,6 +36,7 @@ import {
   useNftItemScreenQuery,
 } from 'wallet/src/data/__generated__/types-and-hooks'
 import { NFTViewer } from 'wallet/src/features/images/NFTViewer'
+import { GQLNftAsset } from 'wallet/src/features/nfts/hooks'
 import { pushNotification } from 'wallet/src/features/notifications/slice'
 import { AppNotificationType, CopyNotificationType } from 'wallet/src/features/notifications/types'
 import { useActiveAccountAddressWithThrow } from 'wallet/src/features/wallet/hooks'
@@ -49,19 +49,31 @@ import {
 
 const MAX_NFT_IMAGE_HEIGHT = 375
 
-export function NFTItemScreen({
+type NFTItemScreenProps = AppStackScreenProp<Screens.NFTItem>
+
+export function NFTItemScreen(props: NFTItemScreenProps): JSX.Element {
+  return IS_ANDROID ? (
+    // display screen with theme dependent colors on Android
+    <NFTItemScreenContents {...props} />
+  ) : (
+    // put Theme above the Contents so our useSporeColors() gets the right colors
+    <Theme name="dark">
+      <NFTItemScreenContents {...props} />
+    </Theme>
+  )
+}
+
+function NFTItemScreenContents({
   route: {
     // ownerFromProps needed here, when nftBalances GQL query returns a user NFT,
     // but nftAssets query for this NFT returns ownerAddress === null,
     params: { owner: ownerFromProps, address, tokenId, isSpam, fallbackData },
   },
-}: AppStackScreenProp<Screens.NFTItem>): JSX.Element {
+}: NFTItemScreenProps): JSX.Element {
   const { t } = useTranslation()
   const activeAccountAddress = useActiveAccountAddressWithThrow()
   const dispatch = useAppDispatch()
-
-  const appTheme = useAppTheme()
-  const theme = IS_IOS ? darkTheme : appTheme
+  const colors = useSporeColors()
   const navigation = useAppStackNavigation()
 
   const {
@@ -95,7 +107,13 @@ export function NFTItemScreen({
     () => asset?.image?.url ?? fallbackData?.imageUrl,
     [asset?.image?.url, fallbackData?.imageUrl]
   )
-
+  const imageHeight = asset?.image?.dimensions?.height
+  const imageWidth = asset?.image?.dimensions?.width
+  const imageDimensionsExist = imageHeight && imageWidth
+  const imageDimensions = imageDimensionsExist
+    ? { height: imageHeight, width: imageWidth }
+    : undefined
+  const imageAspectRatio = imageDimensions ? imageDimensions.width / imageDimensions.height : 1
   const onPressCollection = (): void => {
     const collectionAddress = asset?.nftContract?.address ?? fallbackData?.contractAddress
     if (collectionAddress) {
@@ -131,12 +149,12 @@ export function NFTItemScreen({
   const accentTextColor = useMemo(() => {
     if (
       colorLight &&
-      passesContrast(colorLight, theme.colors.surface1, MIN_COLOR_CONTRAST_THRESHOLD)
+      passesContrast(colorLight, colors.surface1.val, MIN_COLOR_CONTRAST_THRESHOLD)
     ) {
       return colorLight
     }
-    return theme.colors.neutral2
-  }, [colorLight, theme.colors.neutral2, theme.colors.surface1])
+    return colors.neutral2.val
+  }, [colorLight, colors.neutral2, colors.surface1])
 
   const onLongPressNFTImage = async (): Promise<void> => {
     await setClipboardImage(imageUrl)
@@ -155,7 +173,7 @@ export function NFTItemScreen({
   )
 
   return (
-    <Theme name="dark">
+    <>
       {IS_IOS ? (
         <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
       ) : null}
@@ -181,11 +199,11 @@ export function NFTItemScreen({
                 imageUrl ? (
                   <Flex
                     borderRadius="$rounded8"
-                    maxHeight={theme.iconSizes.icon40}
-                    maxWidth={theme.iconSizes.icon40}
+                    maxHeight={getTokenValue('$icon.40')}
+                    maxWidth={getTokenValue('$icon.40')}
                     ml="$spacing16"
                     overflow="hidden">
-                    <NFTViewer autoplay uri={imageUrl} />
+                    <NFTViewer autoplay imageDimensions={imageDimensions} uri={imageUrl} />
                   </Flex>
                 ) : (
                   <Text color="$neutral1" numberOfLines={1} variant="body1">
@@ -211,12 +229,17 @@ export function NFTItemScreen({
                   shadowRadius={16}>
                   <Flex centered borderRadius="$rounded16" overflow="hidden">
                     {nftLoading ? (
-                      <Flex aspectRatio={1} width="100%">
+                      <Flex aspectRatio={imageAspectRatio} width="100%">
                         <Loader.Image />
                       </Flex>
                     ) : imageUrl ? (
                       <TouchableArea onPress={onLongPressNFTImage}>
-                        <NFTViewer autoplay maxHeight={MAX_NFT_IMAGE_HEIGHT} uri={imageUrl} />
+                        <NFTViewer
+                          autoplay
+                          imageDimensions={imageDimensions}
+                          maxHeight={MAX_NFT_IMAGE_HEIGHT}
+                          uri={imageUrl}
+                        />
                       </TouchableArea>
                     ) : (
                       <Flex
@@ -258,17 +281,12 @@ export function NFTItemScreen({
                 <Flex px="$spacing24">
                   {nftLoading ? (
                     <Flex mt="$spacing12">
-                      <Loader.Box
-                        height={theme.textVariants.body2.lineHeight}
-                        // TODO EXT-259 make work with shortcut props like "mb", etc
-                        marginBottom="$spacing4"
-                        repeat={3}
-                      />
+                      <Loader.Box height={fonts.body2.lineHeight} mb="$spacing4" repeat={3} />
                     </Flex>
                   ) : description ? (
                     <LongText
                       renderAsMarkdown
-                      color={theme.colors.neutral1}
+                      color={colors.neutral1.val}
                       initialDisplayedLines={3}
                       text={description || '-'}
                     />
@@ -308,7 +326,10 @@ export function NFTItemScreen({
                     <AssetMetadata
                       title={t('Owned by')}
                       valueComponent={
-                        <TouchableArea disabled={disableProfileNavigation} onPress={onPressOwner}>
+                        <TouchableArea
+                          disabled={disableProfileNavigation}
+                          hitSlop={16}
+                          onPress={onPressOwner}>
                           <AddressDisplay
                             address={owner}
                             hideAddressInSubtitle={true}
@@ -337,7 +358,7 @@ export function NFTItemScreen({
           </>
         </ExploreModalAwareView>
       </Trace>
-    </Theme>
+    </>
   )
 }
 
@@ -389,7 +410,7 @@ function RightElement({
         onlyShare ? (
           <TouchableOpacity onPress={menuActions[0]?.onPress}>
             <ShareIcon
-              color={colors.neutral1.val}
+              color={colors.neutral1.get()}
               height={iconSizes.icon24}
               width={iconSizes.icon24}
             />
@@ -397,7 +418,7 @@ function RightElement({
         ) : (
           <ContextMenu dropdownMenuMode actions={menuActions} onPress={onContextMenuPress}>
             <EllipsisIcon
-              color={colors.neutral1.val}
+              color={colors.neutral1.get()}
               height={iconSizes.icon16}
               width={iconSizes.icon16}
             />

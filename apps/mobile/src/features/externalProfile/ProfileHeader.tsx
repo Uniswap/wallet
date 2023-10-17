@@ -1,36 +1,39 @@
 import { LinearGradient } from 'expo-linear-gradient'
 import React, { memo, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { StyleSheet } from 'react-native'
+import { StatusBar, StyleSheet } from 'react-native'
 import { FadeIn } from 'react-native-reanimated'
 import Svg, { Defs, RadialGradient, Rect, Stop } from 'react-native-svg'
 import { useAppDispatch, useAppSelector } from 'src/app/hooks'
 import { AddressDisplay } from 'src/components/AddressDisplay'
 import { BackButton } from 'src/components/buttons/BackButton'
 import { Favorite } from 'src/components/icons/Favorite'
-import { AnimatedBox } from 'src/components/layout/Box'
 import { useUniconColors } from 'src/components/unicons/utils'
 import { ProfileContextMenu } from 'src/features/externalProfile/ProfileContextMenu'
 import { useToggleWatchedWalletCallback } from 'src/features/favorites/hooks'
-import { selectWatchedAddressSet } from 'src/features/favorites/selectors'
 import { openModal } from 'src/features/modals/modalSlice'
 import { ElementName, ModalName } from 'src/features/telemetry/constants'
-import { Flex, Icons, Text, TouchableArea, useSporeColors } from 'ui/src'
+import { AnimatedFlex, Flex, Icons, Text, TouchableArea, useSporeColors } from 'ui/src'
 import { iconSizes } from 'ui/src/theme'
+import { useIsDarkMode } from 'wallet/src/features/appearance/hooks'
 import { useENSAvatar } from 'wallet/src/features/ens/api'
+import { selectWatchedAddressSet } from 'wallet/src/features/favorites/selectors'
 import { CurrencyField } from 'wallet/src/features/transactions/transactionState/types'
-import { useExtractedColors } from 'wallet/src/utils/colors'
+import { passesContrast, useExtractedColors } from 'wallet/src/utils/colors'
 
-const HEADER_GRADIENT_HEIGHT = 137
+const HEADER_GRADIENT_HEIGHT = 144
 const HEADER_ICON_SIZE = 72
 
 interface ProfileHeaderProps {
   address: Address
 }
 
-export default function ProfileHeader({ address }: ProfileHeaderProps): JSX.Element {
+export const ProfileHeader = memo(function ProfileHeader({
+  address,
+}: ProfileHeaderProps): JSX.Element {
   const colors = useSporeColors()
   const dispatch = useAppDispatch()
+  const isDarkMode = useIsDarkMode()
   const isFavorited = useAppSelector(selectWatchedAddressSet).has(address)
 
   // ENS avatar and avatar colors
@@ -45,20 +48,13 @@ export default function ProfileHeader({ address }: ProfileHeaderProps): JSX.Elem
   // Wait for avatar, then render avatar extracted colors or unicon colors if no avatar
   const fixedGradientColors = useMemo(() => {
     if (loading || (hasAvatar && !avatarColors)) {
-      return [colors.surface1.val, colors.surface1.val] as [string, string]
+      return [colors.surface1.get(), colors.surface1.get()] as [string, string]
     }
     if (hasAvatar && avatarColors && avatarColors.base) {
       return [avatarColors.base, avatarColors.base]
     }
     return [uniconGradientStart, uniconGradientEnd]
-  }, [
-    avatarColors,
-    hasAvatar,
-    loading,
-    colors.surface1.val,
-    uniconGradientEnd,
-    uniconGradientStart,
-  ])
+  }, [avatarColors, hasAvatar, loading, colors.surface1, uniconGradientEnd, uniconGradientStart])
 
   const onPressFavorite = useToggleWatchedWalletCallback(address)
 
@@ -84,10 +80,17 @@ export default function ProfileHeader({ address }: ProfileHeaderProps): JSX.Elem
 
   const { t } = useTranslation()
 
+  const showLightStatusBar = passesContrast('white', uniconGradientStart, 2)
+
   return (
-    <Flex bg="$surface1" gap="$spacing16" pt="$spacing36" px="$spacing24">
+    <Flex bg="$surface1" gap="$spacing16" pt="$spacing60" px="$spacing24">
+      <StatusBar
+        translucent
+        backgroundColor="transparent"
+        barStyle={showLightStatusBar ? 'light-content' : 'dark-content'}
+      />
       {/* fixed gradient */}
-      <AnimatedBox
+      <AnimatedFlex
         bottom={0}
         entering={FadeIn}
         height={HEADER_GRADIENT_HEIGHT}
@@ -102,19 +105,13 @@ export default function ProfileHeader({ address }: ProfileHeaderProps): JSX.Elem
           style={StyleSheet.absoluteFill}
         />
         {hasAvatar && avatarColors?.primary ? <HeaderRadial color={avatarColors.primary} /> : null}
-      </AnimatedBox>
+      </AnimatedFlex>
 
       {/* header row */}
       <Flex row alignItems="center" justifyContent="space-between" mx="$spacing4">
-        <TouchableArea
-          backgroundColor="$sporeBlack"
-          borderRadius="$roundedFull"
-          opacity={0.8}
-          p="$spacing8">
-          <Flex centered grow height={iconSizes.icon16} width={iconSizes.icon16}>
-            <BackButton color="$sporeWhite" size={iconSizes.icon24} />
-          </Flex>
-        </TouchableArea>
+        <Flex height={iconSizes.icon16} width={iconSizes.icon16}>
+          <BackButton color="$sporeWhite" size={iconSizes.icon24} />
+        </Flex>
         <ProfileContextMenu address={address} />
       </Flex>
 
@@ -142,6 +139,8 @@ export default function ProfileHeader({ address }: ProfileHeaderProps): JSX.Elem
               borderWidth={1}
               height={46}
               p="$spacing12"
+              shadowColor={isDarkMode ? '$surface2' : '$neutral3'}
+              style={styles.buttonShadow}
               testID={ElementName.Favorite}
               onPress={onPressFavorite}>
               <Favorite isFavorited={isFavorited} size={iconSizes.icon20} />
@@ -155,14 +154,12 @@ export default function ProfileHeader({ address }: ProfileHeaderProps): JSX.Elem
               borderWidth={1}
               height={46}
               p="$spacing12"
+              shadowColor={isDarkMode ? '$surface2' : '$neutral3'}
+              style={styles.buttonShadow}
               testID={ElementName.Send}
               onPress={onPressSend}>
               <Flex row alignItems="center" gap="$spacing8">
-                <Icons.SendAction
-                  color="$neutral2"
-                  height={iconSizes.icon20}
-                  width={iconSizes.icon20}
-                />
+                <Icons.SendAction color="$neutral2" size="$icon.20" />
                 <Text color="$neutral2" lineHeight={20} variant="buttonLabel2">
                   {t('Send')}
                 </Text>
@@ -173,9 +170,9 @@ export default function ProfileHeader({ address }: ProfileHeaderProps): JSX.Elem
       </Flex>
     </Flex>
   )
-}
+})
 
-function _HeaderRadial({ color }: { color: string }): JSX.Element {
+export const HeaderRadial = memo(function HeaderRadial({ color }: { color: string }): JSX.Element {
   return (
     <Svg height="100%" width="100%">
       <Defs>
@@ -187,6 +184,16 @@ function _HeaderRadial({ color }: { color: string }): JSX.Element {
       <Rect fill="url(#background)" height="100%" opacity={0.6} width="100%" x="0" y="0" />
     </Svg>
   )
-}
+})
 
-export const HeaderRadial = memo(_HeaderRadial)
+const styles = StyleSheet.create({
+  buttonShadow: {
+    elevation: 2,
+    shadowOffset: {
+      height: 2,
+      width: 0,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+  },
+})

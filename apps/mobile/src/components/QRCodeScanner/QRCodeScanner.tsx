@@ -1,16 +1,15 @@
 import { BarCodeScanner, BarCodeScannerResult } from 'expo-barcode-scanner'
 import { PermissionStatus } from 'expo-modules-core'
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { memo, useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Alert, LayoutChangeEvent, LayoutRectangle, StyleSheet } from 'react-native'
 import { FadeIn, FadeOut } from 'react-native-reanimated'
 import { Defs, LinearGradient, Path, Rect, Stop, Svg } from 'react-native-svg'
 import PasteButton from 'src/components/buttons/PasteButton'
 import { DevelopmentOnly } from 'src/components/DevelopmentOnly/DevelopmentOnly'
-import { AnimatedFlex } from 'src/components/layout'
 import { SpinningLoader } from 'src/components/loading/SpinningLoader'
 import { openSettings } from 'src/utils/linking'
-import { Button, Flex, Icons, Text, useSporeColors } from 'ui/src'
+import { AnimatedFlex, Button, Flex, Icons, Text, useSporeColors } from 'ui/src'
 import CameraScan from 'ui/src/assets/icons/camera-scan.svg'
 import { dimensions, iconSizes, spacing } from 'ui/src/theme'
 import { theme as FixedTheme } from 'ui/src/theme/restyle'
@@ -45,15 +44,13 @@ export function QRCodeScanner(props: QRCodeScannerProps | WCScannerProps): JSX.E
   const [permissionResponse, requestPermissionResponse] = BarCodeScanner.usePermissions()
   const permissionStatus = permissionResponse?.status
 
-  // QR codes are a "type" of Barcode in the scanning library
-  const [barcodes, setBarcodes] = useState<BarCodeScannerResult[]>([])
-  const data = barcodes[0]?.data
-
   const [infoLayout, setInfoLayout] = useState<LayoutRectangle | null>()
   const [connectionLayout, setConnectionLayout] = useState<LayoutRectangle | null>()
 
   const handleBarCodeScanned = (result: BarCodeScannerResult): void => {
-    setBarcodes([result])
+    if (shouldFreezeCamera) return
+    const data = result?.data
+    onScanCode(data)
   }
 
   // Check for camera permissions, handle cases where not granted or undetermined
@@ -78,15 +75,10 @@ export function QRCodeScanner(props: QRCodeScannerProps | WCScannerProps): JSX.E
 
   useAsyncData(getPermissionStatuses)
 
-  useEffect(() => {
-    if (!data) return
-    onScanCode(data)
-  }, [data, onScanCode])
-
   return (
     <AnimatedFlex
       grow
-      borderRadius="rounded12"
+      borderRadius="$rounded12"
       entering={FadeIn}
       exiting={FadeOut}
       overflow="hidden">
@@ -100,7 +92,7 @@ export function QRCodeScanner(props: QRCodeScannerProps | WCScannerProps): JSX.E
               barCodeTypes={[BarCodeScanner.Constants.BarCodeType.qr]}
               style={StyleSheet.absoluteFillObject}
               type={BarCodeScanner.Constants.Type.back}
-              onBarCodeScanned={handleBarCodeScanned}
+              onBarCodeScanned={shouldFreezeCamera ? undefined : handleBarCodeScanned}
             />
           )}
           <GradientOverlay shouldFreezeCamera={shouldFreezeCamera} />
@@ -123,7 +115,7 @@ export function QRCodeScanner(props: QRCodeScannerProps | WCScannerProps): JSX.E
             top={0}
             width="100%"
             onLayout={(event: LayoutChangeEvent): void => setInfoLayout(event.nativeEvent.layout)}>
-            <Text color="$neutral1" variant="subheading1">
+            <Text color="$neutral1" variant="heading3">
               {t('Scan a QR code')}
             </Text>
           </Flex>
@@ -148,7 +140,7 @@ export function QRCodeScanner(props: QRCodeScannerProps | WCScannerProps): JSX.E
                   left={SCANNER_SIZE / 2 - LOADER_SIZE / 2}
                   position="absolute"
                   top={SCANNER_SIZE / 2 - LOADER_SIZE / 2}>
-                  <SpinningLoader color="neutral1" size={iconSizes.icon40} />
+                  <SpinningLoader color="$neutral1" size={iconSizes.icon40} />
                 </Flex>
                 <Flex style={{ marginTop: LOADER_SIZE + spacing.spacing24 }} />
                 <Text color="$neutral1" textAlign="center" variant="body1">
@@ -194,7 +186,11 @@ export function QRCodeScanner(props: QRCodeScannerProps | WCScannerProps): JSX.E
               onLayout={(event: LayoutChangeEvent): void =>
                 setConnectionLayout(event.nativeEvent.layout)
               }>
-              <Button icon={Icons.Global} theme="secondary" onPress={props.onPressConnections}>
+              <Button
+                fontFamily="$body"
+                icon={<Icons.Global color="$neutral2" />}
+                theme="secondary"
+                onPress={props.onPressConnections}>
                 {props.numConnections === 1
                   ? t('1 app connected')
                   : t('{{numConnections}} apps connected', {
@@ -254,18 +250,18 @@ const GradientOverlay = memo(function GradientOverlay({
       <Svg height="100%" width="100%">
         <Defs>
           <LinearGradient id="scan-top-fadeout" x1="0" x2="0" y1="0" y2="1">
-            <Stop offset="0" stopColor={colors.surface1.val} stopOpacity="1" />
+            <Stop offset="0" stopColor={colors.surface1.get()} stopOpacity="1" />
             <Stop
               offset="0.4"
-              stopColor={colors.surface1.val}
+              stopColor={colors.surface1.get()}
               stopOpacity={shouldFreezeCamera ? '0.5' : '0'}
             />
           </LinearGradient>
           <LinearGradient id="scan-bottom-fadeout" x1="0" x2="0" y1="1" y2="0">
-            <Stop offset="0" stopColor={colors.surface1.val} stopOpacity="1" />
+            <Stop offset="0" stopColor={colors.surface1.get()} stopOpacity="1" />
             <Stop
               offset="0.4"
-              stopColor={colors.surface1.val}
+              stopColor={colors.surface1.get()}
               stopOpacity={shouldFreezeCamera ? '0.5' : '0'}
             />
           </LinearGradient>

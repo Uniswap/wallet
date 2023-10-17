@@ -1,7 +1,8 @@
 import React, { useCallback } from 'react'
 import { useAppDispatch, useAppSelector } from 'src/app/hooks'
 import { BottomSheetModal } from 'src/components/modals/BottomSheetModal'
-import { closeModal, selectModalState } from 'src/features/modals/modalSlice'
+import { closeModal } from 'src/features/modals/modalSlice'
+import { selectModalState } from 'src/features/modals/selectModalState'
 import { ModalName } from 'src/features/telemetry/constants'
 import { TransferFlow } from 'src/features/transactions/transfer/TransferFlow'
 import { useSporeColors } from 'ui/src'
@@ -21,7 +22,7 @@ export function TransferTokenModal(): JSX.Element {
       hideHandlebar
       hideKeyboardOnDismiss
       renderBehindInset
-      backgroundColor={colors.surface1.val}
+      backgroundColor={colors.surface1.get()}
       name={ModalName.Send}
       onClose={onClose}>
       <TransferFlow prefilledState={modalState.initialState} onClose={onClose} />

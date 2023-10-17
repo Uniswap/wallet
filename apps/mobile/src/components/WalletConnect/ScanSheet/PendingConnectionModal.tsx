@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 import { useAppDispatch, useAppSelector } from 'src/app/hooks'
 import { AccountDetails } from 'src/components/accounts/AccountDetails'
 import { LinkButton } from 'src/components/buttons/LinkButton'
-import { AnimatedFlex } from 'src/components/layout'
 import { BottomSheetModal } from 'src/components/modals/BottomSheetModal'
 import { DappHeaderIcon } from 'src/components/WalletConnect/DappHeaderIcon'
 import { NetworkLogos } from 'src/components/WalletConnect/NetworkLogos'
@@ -21,9 +20,7 @@ import {
   removePendingSession,
   WalletConnectPendingSession,
 } from 'src/features/walletConnect/walletConnectSlice'
-import { Button, Flex, Separator, Text, TouchableArea, useSporeColors } from 'ui/src'
-import Checkmark from 'ui/src/assets/icons/check.svg'
-import X from 'ui/src/assets/icons/x.svg'
+import { AnimatedFlex, Button, Flex, Icons, Text, TouchableArea, useSporeColors } from 'ui/src'
 import { iconSizes } from 'ui/src/theme'
 import { ONE_SECOND_MS } from 'utilities/src/time/time'
 import { ChainId } from 'wallet/src/constants/chains'
@@ -53,63 +50,57 @@ enum PendingConnectionModalState {
 }
 
 const SitePermissions = (): JSX.Element => {
-  const colors = useSporeColors()
   const { t } = useTranslation()
 
   const normalInfoTextSize = 'body2'
   const shortInfoTextSize = 'body3'
 
   return (
-    <Flex gap="$spacing12" px="$spacing16" py="$spacing8">
-      <Text $short={{ variant: 'body3' }} color="$neutral2" variant="subheading2">
+    <Flex
+      bg="$surface2"
+      borderTopLeftRadius="$rounded16"
+      borderTopRightRadius="$rounded16"
+      gap="$spacing12"
+      p="$spacing16">
+      <Text
+        $short={{ variant: 'body3' }}
+        allowFontScaling={false}
+        color="$neutral2"
+        variant="subheading2">
         {t('App permissions')}
       </Text>
-      <Flex row alignItems="flex-start" gap="$spacing8">
-        <Flex mt="$spacing2">
-          <Checkmark
-            color={colors.statusSuccess.val}
-            height={iconSizes.icon16}
-            width={iconSizes.icon16}
-          />
-        </Flex>
-        <Flex fill>
-          <Text
-            $short={{ variant: shortInfoTextSize }}
-            color="$neutral1"
-            variant={normalInfoTextSize}>
-            {t('View your wallet address')}
-          </Text>
-        </Flex>
+      <Flex centered row gap="$spacing8">
+        <Icons.Check color="$statusSuccess" size={iconSizes.icon16} />
+        <Text
+          $short={{ variant: shortInfoTextSize }}
+          allowFontScaling={false}
+          color="$neutral1"
+          flexGrow={1}
+          variant={normalInfoTextSize}>
+          {t('View your wallet address')}
+        </Text>
       </Flex>
-      <Flex row alignItems="flex-start" gap="$spacing8">
-        <Flex mt="$spacing2">
-          <Checkmark
-            color={colors.statusSuccess.val}
-            height={iconSizes.icon16}
-            width={iconSizes.icon16}
-          />
-        </Flex>
-        <Flex fill>
-          <Text
-            $short={{ variant: shortInfoTextSize }}
-            color="$neutral1"
-            variant={normalInfoTextSize}>
-            {t('View your token balances')}
-          </Text>
-        </Flex>
+      <Flex centered row gap="$spacing8">
+        <Icons.Check color="$statusSuccess" size={iconSizes.icon16} />
+        <Text
+          $short={{ variant: shortInfoTextSize }}
+          allowFontScaling={false}
+          color="$neutral1"
+          flexGrow={1}
+          variant={normalInfoTextSize}>
+          {t('View your token balances')}
+        </Text>
       </Flex>
-      <Flex row alignItems="flex-start" gap="$spacing8">
-        <Flex mt="$spacing2">
-          <X color={colors.statusCritical.val} height={iconSizes.icon16} width={iconSizes.icon16} />
-        </Flex>
-        <Flex fill>
-          <Text
-            $short={{ variant: shortInfoTextSize }}
-            color="$neutral1"
-            variant={normalInfoTextSize}>
-            {t('Transfer your assets without consent')}
-          </Text>
-        </Flex>
+      <Flex centered row gap="$spacing8">
+        <Icons.X color="$statusCritical" size={iconSizes.icon16} />
+        <Text
+          $short={{ variant: shortInfoTextSize }}
+          allowFontScaling={false}
+          color="$neutral1"
+          flexGrow={1}
+          variant={normalInfoTextSize}>
+          {t('Transfer your assets without consent')}
+        </Text>
       </Flex>
     </Flex>
   )
@@ -119,13 +110,22 @@ const NetworksRow = ({ chains }: { chains: ChainId[] }): JSX.Element => {
   const { t } = useTranslation()
 
   return (
-    <Flex row shrink alignItems="center" justifyContent="space-between" px="$spacing12">
-      <Flex grow row justifyContent="space-between">
-        <Text color="$neutral1" variant="subheading2">
-          {t('Networks')}
-        </Text>
-        <NetworkLogos chains={chains} />
-      </Flex>
+    <Flex
+      row
+      shrink
+      alignItems="center"
+      bg="$surface2"
+      justifyContent="space-between"
+      px="$spacing16"
+      py="$spacing12">
+      <Text
+        $short={{ variant: 'body3' }}
+        allowFontScaling={false}
+        color="$neutral2"
+        variant="subheading2">
+        {t('Networks')}
+      </Text>
+      <NetworkLogos chains={chains} />
     </Flex>
   )
 }
@@ -145,12 +145,20 @@ const SwitchAccountRow = ({ activeAddress, setModalState }: SwitchAccountProps):
 
   return (
     <TouchableArea
+      bg="$surface2"
+      borderBottomLeftRadius="$rounded16"
+      borderBottomRightRadius="$rounded16"
       disabled={!accountIsSwitchable}
       m="$none"
-      p="$spacing12"
+      px="$spacing16"
+      py="$spacing12"
       testID={ElementName.WCDappSwitchAccount}
       onPress={onPress}>
-      <AccountDetails address={activeAddress} chevron={accountIsSwitchable} />
+      <AccountDetails
+        address={activeAddress}
+        allowFontScaling={false}
+        chevron={accountIsSwitchable}
+      />
     </TouchableArea>
   )
 }
@@ -234,16 +242,18 @@ export const PendingConnectionModal = ({ pendingSession, onClose }: Props): JSX.
     <BottomSheetModal name={ModalName.WCPendingConnection} onClose={onClose}>
       <AnimatedFlex
         fill
-        backgroundColor="surface1"
-        borderRadius="rounded12"
+        backgroundColor="$surface1"
+        borderRadius="$rounded12"
+        gap="$spacing16"
         overflow="hidden"
-        px="spacing24"
-        py="spacing24">
+        py="$spacing32">
         <Flex fill alignItems="center" gap="$spacing16" justifyContent="flex-end">
           <DappHeaderIcon dapp={pendingSession.dapp} />
           <Text
             $short={{ variant: 'subheading2' }}
+            allowFontScaling={false}
             fontWeight="bold"
+            px="$spacing24"
             textAlign="center"
             variant="heading3">
             {t('{{ dappName }} wants to connect to your wallet', {
@@ -253,8 +263,8 @@ export const PendingConnectionModal = ({ pendingSession, onClose }: Props): JSX.
           <LinkButton
             backgroundColor="$surface2"
             borderRadius="$rounded16"
-            color={colors.accent1.val}
-            iconColor={colors.accent1.val}
+            color={colors.accent1.get()}
+            iconColor={colors.accent1.get()}
             label={pendingSession.dapp.url}
             mb="$spacing12"
             px="$spacing8"
@@ -264,15 +274,12 @@ export const PendingConnectionModal = ({ pendingSession, onClose }: Props): JSX.
             url={pendingSession.dapp.url}
           />
         </Flex>
-        <Flex bg="$surface2" borderRadius="$rounded16" gap="$spacing2">
+        <Flex gap="$spacing1" px="$spacing24">
           <SitePermissions />
-          <Separator borderColor="$surface1" width={1} />
           <NetworksRow chains={pendingSession.chains} />
-          <Separator borderColor="$surface1" width={1} />
           <SwitchAccountRow activeAddress={activeAddress} setModalState={setModalState} />
-          <Flex />
         </Flex>
-        <Flex flexDirection="row" gap="$spacing8" justifyContent="space-between">
+        <Flex flexDirection="row" gap="$spacing8" justifyContent="space-between" px="$spacing24">
           <Button
             fill
             testID="cancel-pending-connection"

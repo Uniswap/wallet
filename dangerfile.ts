@@ -70,7 +70,7 @@ async function checkCocoaPodsVersion() {
 }
 
 async function checkApostrophes() {
-  const updatedTranslations = danger.git.modified_files.find((file) => file.includes('en.json'))
+  const updatedTranslations = danger.git.modified_files.find((file) => file.includes('en-US.json'))
   if (updatedTranslations) {
     const structuredDiff = await danger.git.structuredDiffForFile(updatedTranslations);
     const changedLines = (structuredDiff?.chunks || []).flatMap((chunk) => {
@@ -154,7 +154,8 @@ const updatedGraphQLfile = danger.git.modified_files.find((file) =>
 
 if (updatedGraphQLfile) {
   warn(
-    'You have updated the GraphQL schema. Please ensure that the Swift GraphQL Schema generation is valid by running `yarn mobile graphql:generate:swift` and rebuilding for iOS. You may need to add or remove generated files to the project.pbxproj'
+    'You have updated the GraphQL schema. Please ensure that the Swift GraphQL Schema generation is valid by running `yarn mobile ios` and rebuilding for iOS. ' +
+    'You may need to add or remove generated files to the project.pbxproj. For more information see `apps/mobile/ios/WidgetsCore/MobileSchema/README.md`'
   )
 }
 

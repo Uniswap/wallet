@@ -22,6 +22,11 @@ export interface WalletState {
     tokensOrderBy?: TokensOrderBy
     swapProtection: SwapProtectionSetting
   }
+
+  // Tracks app rating
+  appRatingPromptedMs?: number // last time user as prompted to provide rating/feedback
+  appRatingProvidedMs?: number // last time user provided rating (through native modal)
+  appRatingFeedbackProvidedMs?: number // last time user provided feedback (form)
 }
 
 export const initialWalletState: WalletState = {
@@ -128,6 +133,17 @@ const slice = createSlice({
     ) => {
       state.settings.swapProtection = newSwapProtectionSetting
     },
+    setAppRating: (
+      state,
+      {
+        payload: { ratingProvided, feedbackProvided },
+      }: PayloadAction<{ ratingProvided?: boolean; feedbackProvided?: boolean }>
+    ) => {
+      state.appRatingPromptedMs = Date.now()
+
+      if (ratingProvided) state.appRatingProvidedMs = Date.now()
+      if (feedbackProvided) state.appRatingFeedbackProvidedMs = Date.now()
+    },
     resetWallet: () => initialWalletState,
     restoreMnemonicComplete: (state) => state,
   },
@@ -149,6 +165,7 @@ export const {
   setTokensOrderBy,
   restoreMnemonicComplete,
   setSwapProtectionSetting,
+  setAppRating,
 } = slice.actions
 
 export const walletReducer = slice.reducer

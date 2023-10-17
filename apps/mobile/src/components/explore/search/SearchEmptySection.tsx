@@ -7,14 +7,10 @@ import { SearchPopularNFTCollections } from 'src/components/explore/search/Searc
 import { SearchPopularTokens } from 'src/components/explore/search/SearchPopularTokens'
 import { renderSearchItem } from 'src/components/explore/search/SearchResultsSection'
 import { SectionHeaderText } from 'src/components/explore/search/SearchSectionHeader'
-import { AnimatedFlex } from 'src/components/layout'
-import {
-  clearSearchHistory,
-  SearchResultType,
-  selectSearchHistory,
-  WalletSearchResult,
-} from 'src/features/explore/searchHistorySlice'
-import { Flex, Text, TouchableArea, useSporeColors } from 'ui/src'
+import { clearSearchHistory } from 'src/features/explore/searchHistorySlice'
+import { SearchResultType, WalletSearchResult } from 'src/features/explore/SearchResult'
+import { selectSearchHistory } from 'src/features/explore/selectSearchHistory'
+import { AnimatedFlex, Flex, Text, TouchableArea, useSporeColors } from 'ui/src'
 import ClockIcon from 'ui/src/assets/icons/clock.svg'
 import TrendArrowIcon from 'ui/src/assets/icons/trend-up.svg'
 import { iconSizes } from 'ui/src/theme'
@@ -43,7 +39,7 @@ export function SearchEmptySection(): JSX.Element {
 
   // Show search history (if applicable), trending tokens, and wallets
   return (
-    <AnimatedFlex entering={FadeIn} exiting={FadeOut} gap="spacing12">
+    <AnimatedFlex entering={FadeIn} exiting={FadeOut} gap="$spacing12">
       {searchHistory.length > 0 && (
         <AnimatedFlex entering={FadeIn} exiting={FadeOut}>
           <FlatList
@@ -95,12 +91,12 @@ const walletKey = (wallet: WalletSearchResult): string => {
 
 export const TrendIcon = (): JSX.Element => {
   const colors = useSporeColors()
-  return <TrendArrowIcon color={colors.neutral2.val} width={iconSizes.icon20} />
+  return <TrendArrowIcon color={colors.neutral2.get()} width={iconSizes.icon20} />
 }
 
 export const RecentIcon = (): JSX.Element => {
   const colors = useSporeColors()
   return (
-    <ClockIcon color={colors.neutral2.val} height={iconSizes.icon20} width={iconSizes.icon20} />
+    <ClockIcon color={colors.neutral2.get()} height={iconSizes.icon20} width={iconSizes.icon20} />
   )
 }

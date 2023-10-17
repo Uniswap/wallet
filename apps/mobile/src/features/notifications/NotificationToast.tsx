@@ -8,9 +8,9 @@ import {
 import { useAnimatedStyle, useSharedValue, withDelay, withSpring } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useAppDispatch, useAppSelector } from 'src/app/hooks'
-import { AnimatedBox } from 'src/components/layout'
 import { selectActiveAccountNotifications } from 'src/features/notifications/selectors'
-import { Flex, Text, TouchableArea } from 'ui/src'
+import { AnimatedFlex, Flex, Text, TouchableArea } from 'ui/src'
+import { spacing } from 'ui/src/theme'
 import { useTimeout } from 'utilities/src/time/timing'
 import { popNotification } from 'wallet/src/features/notifications/slice'
 
@@ -52,7 +52,7 @@ export function NotificationToast({
   const currentNotification = notifications?.[0]
   const hasQueuedNotification = !!notifications?.[1]
 
-  const showOffset = useSafeAreaInsets().top
+  const showOffset = useSafeAreaInsets().top + spacing.spacing4
   const bannerOffset = useSharedValue(HIDE_OFFSET_Y)
 
   useEffect(() => {
@@ -102,7 +102,7 @@ export function NotificationToast({
 
   return (
     <FlingGestureHandler direction={Directions.UP} onHandlerStateChange={onFling}>
-      <AnimatedBox
+      <AnimatedFlex
         borderColor={useSmallDisplay ? '$transparent' : '$surface2'}
         borderRadius="$rounded16"
         borderWidth={1}
@@ -112,6 +112,7 @@ export function NotificationToast({
         position="absolute"
         right={0}
         style={animatedStyle}
+        top={0}
         zIndex="$modal">
         {useSmallDisplay ? (
           <NotificationContentSmall
@@ -131,7 +132,7 @@ export function NotificationToast({
             onPressIn={onPressIn}
           />
         )}
-      </AnimatedBox>
+      </AnimatedFlex>
     </FlingGestureHandler>
   )
 }
@@ -189,7 +190,7 @@ export function NotificationContentSmall({
   onPressIn,
 }: NotificationContentProps): JSX.Element {
   return (
-    <Flex row flexShrink={1} justifyContent="center" pointerEvents="box-none">
+    <Flex centered row shrink pointerEvents="box-none">
       <TouchableArea
         bg="$surface2"
         borderColor="$surface2"
@@ -199,7 +200,7 @@ export function NotificationContentSmall({
         onPress={onPress}
         onPressIn={onPressIn}>
         <Flex row alignItems="center" gap="$spacing8" justifyContent="flex-start" pr="$spacing4">
-          {icon}
+          <Flex>{icon}</Flex>
           <Text adjustsFontSizeToFit numberOfLines={1} variant="body1">
             {title}
           </Text>

@@ -2,12 +2,9 @@ import { ImpactFeedbackStyle } from 'expo-haptics'
 import { default as React } from 'react'
 import { useAppDispatch } from 'src/app/hooks'
 import { useAppStackNavigation } from 'src/app/navigation/types'
-import { SearchContext } from 'src/components/explore/search/SearchResultsSection'
-import {
-  addToSearchHistory,
-  NFTCollectionSearchResult,
-  SearchResultType,
-} from 'src/features/explore/searchHistorySlice'
+import { SearchContext } from 'src/components/explore/search/SearchContext'
+import { addToSearchHistory } from 'src/features/explore/searchHistorySlice'
+import { NFTCollectionSearchResult, SearchResultType } from 'src/features/explore/SearchResult'
 import { sendMobileAnalyticsEvent } from 'src/features/telemetry'
 import { ElementName, MobileEventName } from 'src/features/telemetry/constants'
 import { Screens } from 'src/screens/Screens'
@@ -94,9 +91,7 @@ export function SearchNFTCollectionItem({
           </Text>
         </Flex>
         <Flex grow alignItems="flex-start" width="$spacing36">
-          {isVerified ? (
-            <Icons.Verified color="$accent1" height={iconSizes.icon16} width={iconSizes.icon16} />
-          ) : null}
+          {isVerified ? <Icons.Verified color="$accent1" size="$icon.16" /> : null}
         </Flex>
       </Flex>
     </TouchableArea>

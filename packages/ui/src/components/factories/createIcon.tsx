@@ -1,11 +1,41 @@
 import type { IconProps as TamaguiIconProps } from '@tamagui/helpers-icon'
 import { createElement, forwardRef } from 'react'
 import { Svg, SvgProps } from 'react-native-svg'
-import { isWeb, useProps } from 'tamagui'
-
+import {
+  ColorTokens,
+  isWeb,
+  SpecificTokens,
+  Stack,
+  styled,
+  ThemeKeys,
+  usePropsAndStyle,
+} from 'tamagui'
+import { IconSizeTokens } from 'ui/src/theme'
 import { withAnimated } from './animated'
 
 type SvgPropsWithRef = SvgProps & { ref: React.ForwardedRef<Svg>; style?: { color?: string } }
+
+export type IconProps = Omit<Omit<TamaguiIconProps, 'size' | 'width' | 'height'>, 'color'> & {
+  size?: IconSizeTokens | number
+  // we need the string & {} to allow strings but not lose the intellisense autocomplete
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  color?: (ColorTokens | ThemeKeys | (string & {})) | null
+  Component?: React.FunctionComponent<SvgPropsWithRef>
+}
+
+const getSize = <Val extends SpecificTokens | number>(val: Val): { width: Val; height: Val } => ({
+  width: val,
+  height: val,
+})
+
+// used by our usePropsAndStyle to resolve a variant
+const IconFrame = styled(Stack, {
+  variants: {
+    size: {
+      '...': getSize,
+    },
+  },
+})
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export function createIcon({
@@ -17,34 +47,25 @@ export function createIcon({
   getIcon: (props: SvgPropsWithRef) => JSX.Element
   defaultFill?: string
 }) {
-  type IconProps = TamaguiIconProps & {
-    Component?: React.FunctionComponent<SvgPropsWithRef>
-  }
-
   const Icon = forwardRef<Svg, IconProps>((propsIn, ref) => {
-    const props = useProps(
+    const [props, style] = usePropsAndStyle(
       {
         color: defaultFill ?? (isWeb ? 'currentColor' : undefined),
-        size: '$true',
+        size: '$icon.8',
+        strokeWidth: 8,
         ...propsIn,
       },
       {
         resolveValues: 'value',
+        forComponent: IconFrame,
       }
     )
 
-    const { strokeWidth: strokeWidthProp, style, size, color, width, height, ...restProps } = props
-
     const svgProps: SvgPropsWithRef = {
       ref,
-      ...restProps,
-      strokeWidth: strokeWidthProp ?? size,
-      style: {
-        width: width ?? size,
-        height: height ?? size,
-        color,
-        ...style,
-      },
+      ...props,
+      // @ts-expect-error this type is hard to map but its right
+      style,
     }
 
     if (props.Component) {
@@ -58,7 +79,7 @@ export function createIcon({
 
   const IconPlain = forwardRef<Svg, IconProps>((props, ref) => {
     return getIcon({
-      ...props,
+      ...(props as any as SvgPropsWithRef),
       ref,
     })
   })
@@ -68,7 +89,8 @@ export function createIcon({
   const AnimatedIconPlain = withAnimated(IconPlain)
 
   const AnimatedIcon = forwardRef<Svg, IconProps>((props: IconProps, ref) => (
-    <Icon ref={ref} {...props} Component={AnimatedIconPlain} />
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    <Icon ref={ref} {...props} Component={AnimatedIconPlain as any} />
   ))
 
   AnimatedIcon.displayName = `Animated${name}`

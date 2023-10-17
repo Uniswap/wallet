@@ -161,12 +161,10 @@ exports[`PriceText renders loading state 1`] = `
 exports[`PriceText renders without error 1`] = `
 <View
   style={
-    [
-      {
-        "display": "flex",
-        "flexDirection": "row",
-      },
-    ]
+    {
+      "alignItems": "stretch",
+      "flexDirection": "row",
+    }
   }
   testID="price-text"
 >
@@ -244,12 +242,10 @@ exports[`PriceText renders without error 1`] = `
 exports[`PriceText renders without error less than a dollar 1`] = `
 <View
   style={
-    [
-      {
-        "display": "flex",
-        "flexDirection": "row",
-      },
-    ]
+    {
+      "alignItems": "stretch",
+      "flexDirection": "row",
+    }
   }
   testID="price-text"
 >
@@ -484,19 +480,14 @@ exports[`RelativeChangeText renders without error 1`] = `
           "borderWidth": 0,
         },
         {
-          "0": {
-            "color": "#40B66B",
-            "transform": [
-              {
-                "rotate": "180deg",
-              },
-            ],
-          },
-          "1": {
-            "translateY": -1,
-          },
-          "color": undefined,
+          "color": "#40B66B",
           "height": 16,
+          "transform": [
+            {
+              "rotate": "180deg",
+            },
+          ],
+          "translateY": -1,
           "width": 16,
         },
         {
@@ -506,11 +497,22 @@ exports[`RelativeChangeText renders without error 1`] = `
         },
       ]
     }
+    tintColor="#40B66B"
     vbHeight={24}
     vbWidth={24}
   >
     <RNSVGGroup
       fill={null}
+      matrix={
+        [
+          1,
+          0,
+          -0,
+          1,
+          0,
+          -1,
+        ]
+      }
       propList={
         [
           "fill",

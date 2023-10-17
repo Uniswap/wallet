@@ -2,8 +2,7 @@ import { ImpactFeedbackStyle } from 'expo-haptics'
 import React, { memo, useMemo } from 'react'
 import { TextInputProps } from 'react-native'
 import { getNumberFormatSettings } from 'react-native-localize'
-import { AnimatedBox } from 'src/components/layout'
-import { Flex, Text, TouchableArea } from 'ui/src'
+import { AnimatedFlex, Flex, Text, TouchableArea } from 'ui/src'
 
 // if this setting is changed in phone settings the app would be restarted
 const { decimalSeparator } = getNumberFormatSettings()
@@ -90,7 +89,7 @@ export function _DecimalPad({
     ]
   }, [disabled, hideDecimal, cursorAtStart])
   return (
-    <AnimatedBox flexDirection="row" flexWrap="wrap">
+    <AnimatedFlex row flexWrap="wrap">
       {keys.map((key, i) =>
         key.hidden ? (
           <Flex key={i} alignItems={key.align} height="25%" width={i % 3 === 1 ? '50%' : '25%'} />
@@ -107,7 +106,7 @@ export function _DecimalPad({
           />
         )
       )}
-    </AnimatedBox>
+    </AnimatedFlex>
   )
 }
 

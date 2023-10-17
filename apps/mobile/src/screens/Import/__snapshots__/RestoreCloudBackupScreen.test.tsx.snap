@@ -9,6 +9,8 @@ exports[`RestoreCloudBackupScreen renders correctly 1`] = `
       "backgroundColor": "#FFFFFF",
       "flex": 1,
       "flexDirection": "column",
+      "paddingLeft": undefined,
+      "paddingRight": undefined,
       "paddingTop": 200,
     }
   }
@@ -35,19 +37,16 @@ exports[`RestoreCloudBackupScreen renders correctly 1`] = `
     <View
       entering={BaseAnimationMock {}}
       exiting={BaseAnimationMock {}}
-      sentry-label="Flex"
       style={
-        [
-          {
-            "alignItems": "stretch",
-            "display": "flex",
-            "flexDirection": "column",
-            "flexGrow": 1,
-            "justifyContent": "flex-start",
-            "paddingBottom": 16,
-            "paddingHorizontal": 16,
-          },
-        ]
+        {
+          "alignItems": "stretch",
+          "flexDirection": "column",
+          "flexGrow": 1,
+          "gap": 16,
+          "paddingBottom": 16,
+          "paddingLeft": 16,
+          "paddingRight": 16,
+        }
       }
     >
       <View
@@ -66,11 +65,11 @@ exports[`RestoreCloudBackupScreen renders correctly 1`] = `
       >
         <Text
           allowFontScaling={false}
+          maxFontSizeMultiplier={1.2}
           style={
             {
               "color": "#222222",
-              "display": "flex",
-              "fontFamily": "Basel-Medium",
+              "fontFamily": "Basel-Book",
               "fontSize": 25,
               "lineHeight": 32,
               "paddingTop": 0,
@@ -87,7 +86,6 @@ exports[`RestoreCloudBackupScreen renders correctly 1`] = `
           style={
             {
               "color": "#7D7D7D",
-              "display": "flex",
               "fontFamily": "Basel-Book",
               "fontSize": 17,
               "lineHeight": 24,
@@ -99,18 +97,6 @@ exports[`RestoreCloudBackupScreen renders correctly 1`] = `
           There are multiple recovery phrases backed up to your iCloud.
         </Text>
       </View>
-      <View
-        style={
-          [
-            {
-              "display": "flex",
-              "flexGrow": 0,
-              "flexShrink": 0,
-              "height": 16,
-            },
-          ]
-        }
-      />
       <View
         style={
           {

@@ -33,14 +33,7 @@ exports[`AccountHeader renders without error 1`] = `
     accessible={true}
     collapsable={false}
     focusable={true}
-    hitSlop={
-      {
-        "bottom": 5,
-        "left": 5,
-        "right": 5,
-        "top": 5,
-      }
-    }
+    hitSlop={20}
     onClick={[Function]}
     onResponderGrant={[Function]}
     onResponderMove={[Function]}
@@ -291,11 +284,11 @@ exports[`AccountHeader renders without error 1`] = `
             >
               <Text
                 allowFontScaling={true}
+                maxFontSizeMultiplier={1.4}
                 numberOfLines={1}
                 style={
                   {
                     "color": "#222222",
-                    "display": "flex",
                     "fontFamily": "Basel-Book",
                     "fontSize": 19,
                     "lineHeight": 24,
@@ -428,14 +421,7 @@ exports[`AccountHeader renders without error 1`] = `
     accessible={true}
     collapsable={false}
     focusable={true}
-    hitSlop={
-      {
-        "bottom": 5,
-        "left": 5,
-        "right": 5,
-        "top": 5,
-      }
-    }
+    hitSlop={20}
     onClick={[Function]}
     onResponderGrant={[Function]}
     onResponderMove={[Function]}
@@ -468,12 +454,12 @@ exports[`AccountHeader renders without error 1`] = `
           {
             "color": "#7D7D7D",
             "height": 28,
+            "opacity": 0.8,
             "width": 28,
           },
           {
             "flex": 0,
             "height": 28,
-            "opacity": 0.8,
             "width": 28,
           },
         ]
@@ -484,6 +470,7 @@ exports[`AccountHeader renders without error 1`] = `
     >
       <RNSVGGroup
         fill={null}
+        opacity={0.8}
         propList={
           [
             "fill",

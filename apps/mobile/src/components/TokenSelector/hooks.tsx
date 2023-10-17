@@ -1,13 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useAppSelector } from 'src/app/hooks'
 import { filter } from 'src/components/TokenSelector/filter'
-import { flowToModalName, TokenSelectorFlow } from 'src/components/TokenSelector/TokenSelector'
-import { TokenOption } from 'src/components/TokenSelector/types'
+import { TokenOption, TokenSelectorFlow } from 'src/components/TokenSelector/types'
 import { createEmptyBalanceOption } from 'src/components/TokenSelector/utils'
 import { useTokenBalancesGroupedByVisibility } from 'src/features/balances/hooks'
 import { useTokenProjects } from 'src/features/dataApi/tokenProjects'
 import { usePopularTokens } from 'src/features/dataApi/topTokens'
-import { selectFavoriteTokens } from 'src/features/favorites/selectors'
 import { sendMobileAnalyticsEvent } from 'src/features/telemetry'
 import { MobileEventName } from 'src/features/telemetry/constants'
 import { BRIDGED_BASE_ADDRESSES } from 'wallet/src/constants/addresses'
@@ -16,12 +14,14 @@ import { DAI, USDC, USDT, WBTC } from 'wallet/src/constants/tokens'
 import { sortPortfolioBalances, usePortfolioBalances } from 'wallet/src/features/dataApi/balances'
 import { CurrencyInfo, GqlResult, PortfolioBalance } from 'wallet/src/features/dataApi/types'
 import { usePersistedError } from 'wallet/src/features/dataApi/utils'
+import { selectFavoriteTokens } from 'wallet/src/features/favorites/selectors'
 import { areAddressesEqual } from 'wallet/src/utils/addresses'
 import {
   buildNativeCurrencyId,
   buildWrappedNativeCurrencyId,
   currencyId,
 } from 'wallet/src/utils/currencyId'
+import { flowToModalName } from './flowToModalName'
 
 // Use Mainnet base token addresses since TokenProjects query returns each token
 // on each network

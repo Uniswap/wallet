@@ -6,7 +6,6 @@ import { useTranslation } from 'react-i18next'
 import { StyleProp, ViewStyle } from 'react-native'
 import { useAppDispatch, useAppSelector } from 'src/app/hooks'
 import { AccountDetails } from 'src/components/accounts/AccountDetails'
-import { BaseCard } from 'src/components/layout/BaseCard'
 import { BottomSheetModal } from 'src/components/modals/BottomSheetModal'
 import { NetworkFee } from 'src/components/Network/NetworkFee'
 import { NetworkPill } from 'src/components/Network/NetworkPill'
@@ -32,6 +31,7 @@ import { Button, Flex, Text, useSporeColors } from 'ui/src'
 import AlertTriangle from 'ui/src/assets/icons/alert-triangle.svg'
 import { iconSizes } from 'ui/src/theme'
 import { logger } from 'utilities/src/logger/logger'
+import { BaseCard } from 'wallet/src/components/BaseCard/BaseCard'
 import { useTransactionGasFee } from 'wallet/src/features/gas/hooks'
 import { GasSpeed } from 'wallet/src/features/gas/types'
 import { NativeCurrency } from 'wallet/src/features/tokens/NativeCurrency'
@@ -265,7 +265,7 @@ export function WalletConnectRequestModal({ onClose, request }: Props): JSX.Elem
     <>
       {showNetworkFeeInfoModal && <NetworkFeeInfoModal onClose={onCloseNetworkFeeInfo} />}
       <BottomSheetModal name={ModalName.WCSignRequest} onClose={handleClose}>
-        <Flex gap="$spacing24" pb="$spacing48" pt="$spacing36" px="$spacing16">
+        <Flex gap="$spacing24" px="$spacing16" py="$spacing36">
           <ClientDetails permitInfo={permitInfo} request={request} />
           <Flex gap="$spacing12">
             <Flex
@@ -280,7 +280,7 @@ export function WalletConnectRequestModal({ onClose, request }: Props): JSX.Elem
                   </Flex>
                 </SectionContainer>
               )}
-              <Flex px="$spacing16" py="$spacing12">
+              <Flex px="$spacing16" py="$spacing8">
                 {methodCostsGas(request) ? (
                   <NetworkFee
                     chainId={chainId}

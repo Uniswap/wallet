@@ -14,14 +14,13 @@ import {
 } from 'react-native-reanimated'
 import PlusMinusButton, { PlusMinusButtonType } from 'src/components/buttons/PlusMinusButton'
 import { Switch } from 'src/components/buttons/Switch'
-import { AnimatedFlex } from 'src/components/layout'
 import { BottomSheetModal } from 'src/components/modals/BottomSheetModal'
+import { LearnMoreLink } from 'src/components/text/LearnMoreLink'
 import { ModalName } from 'src/features/telemetry/constants'
-import { DerivedSwapInfo } from 'src/features/transactions/swap/hooks'
 import { SwapProtectionInfoModal } from 'src/features/transactions/swap/modals/SwapProtectionModal'
+import { DerivedSwapInfo } from 'src/features/transactions/swap/types'
 import { slippageToleranceToPercent } from 'src/features/transactions/swap/utils'
-import { openUri } from 'src/utils/linking'
-import { Button, Flex, Icons, Text, TouchableArea, useSporeColors } from 'ui/src'
+import { AnimatedFlex, Button, Flex, Icons, Text, TouchableArea, useSporeColors } from 'ui/src'
 import AlertTriangleIcon from 'ui/src/assets/icons/alert-triangle.svg'
 import InfoCircle from 'ui/src/assets/icons/info-circle.svg'
 import { fonts, iconSizes, spacing } from 'ui/src/theme'
@@ -108,7 +107,7 @@ export function SwapSettingsModal({
 
   return (
     <BottomSheetModal
-      backgroundColor={colors.surface1.val}
+      backgroundColor={colors.surface1.get()}
       name={ModalName.SwapSettings}
       onClose={onClose}>
       <Flex gap="$spacing16" mb="$spacing28" px="$spacing24" py="$spacing12">
@@ -116,8 +115,7 @@ export function SwapSettingsModal({
           <TouchableArea onPress={(): void => setView(SwapSettingsModalView.Options)}>
             <Icons.Chevron
               color={view === SwapSettingsModalView.Options ? '$transparent' : '$neutral3'}
-              height={iconSizes.icon24}
-              width={iconSizes.icon24}
+              size="$icon.24"
             />
           </TouchableArea>
           <Text textAlign="center" variant="body1">
@@ -170,9 +168,8 @@ function SwapSettingsOptions({
             </Text>
             <Icons.Chevron
               color="$neutral3"
-              height={iconSizes.icon24}
+              size="$icon.24"
               style={{ transform: [{ rotate: '180deg' }] }}
-              width={iconSizes.icon24}
             />
           </Flex>
         </TouchableArea>
@@ -218,7 +215,7 @@ function SwapProtectionSettingsRow({ chainId }: { chainId: ChainId }): JSX.Eleme
                   {t('Swap protection')}
                 </Text>
                 <InfoCircle
-                  color={colors.neutral1.val}
+                  color={colors.neutral1.get()}
                   height={iconSizes.icon16}
                   width={iconSizes.icon16}
                 />
@@ -278,10 +275,6 @@ function SlippageSettings({
   const inputAnimatedStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: inputShakeX.value }],
   }))
-
-  const onPressLearnMore = async (): Promise<void> => {
-    await openUri(uniswapUrls.helpArticleUrls.swapSlippage)
-  }
 
   const onPressAutoSlippage = (): void => {
     setAutoSlippageEnabled(true)
@@ -400,15 +393,11 @@ function SlippageSettings({
   )
 
   return (
-    <Flex gap="$spacing16">
+    <Flex centered gap="$spacing16">
       <Text color="$neutral2" textAlign="center" variant="body2">
         {t('Your transaction will revert if the price changes more than the slippage percentage.')}{' '}
-        <TouchableArea height={18} onPress={onPressLearnMore}>
-          <Text color="$accent1" variant="buttonLabel3">
-            {t('Learn more')}
-          </Text>
-        </TouchableArea>
       </Text>
+      <LearnMoreLink url={uniswapUrls.helpArticleUrls.swapSlippage} />
       <Flex gap="$spacing12">
         <Flex centered row gap="$spacing16" mt="$spacing12">
           <PlusMinusButton
@@ -419,12 +408,12 @@ function SlippageSettings({
           <AnimatedFlex
             row
             alignItems="center"
-            bg={isEditingSlippage ? 'surface2' : 'surface1'}
-            borderColor="surface3"
-            borderRadius="roundedFull"
+            bg={isEditingSlippage ? '$surface2' : '$surface1'}
+            borderColor="$surface3"
+            borderRadius="$roundedFull"
             borderWidth={1}
-            gap="spacing12"
-            p="spacing16"
+            gap="$spacing12"
+            p="$spacing16"
             style={inputAnimatedStyle}>
             <TouchableArea hapticFeedback onPress={onPressAutoSlippage}>
               <Text color="$accent1" variant="buttonLabel3">
@@ -434,7 +423,7 @@ function SlippageSettings({
             <BottomSheetTextInput
               keyboardType="numeric"
               style={{
-                color: autoSlippageEnabled ? colors.neutral2.val : colors.neutral1.val,
+                color: autoSlippageEnabled ? colors.neutral2.get() : colors.neutral1.get(),
                 fontSize: fonts.subheading1.fontSize,
                 fontFamily: fonts.subheading1.family,
                 width: fonts.subheading1.fontSize * 4,

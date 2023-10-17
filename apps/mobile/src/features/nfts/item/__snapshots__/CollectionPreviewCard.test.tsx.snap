@@ -104,10 +104,10 @@ exports[`renders collection preview card 1`] = `
         >
           <Text
             allowFontScaling={true}
+            maxFontSizeMultiplier={1.4}
             style={
               {
                 "color": "#7D7D7D",
-                "display": "flex",
                 "flex": 0,
                 "fontFamily": "Basel-Book",
                 "fontSize": 17,
@@ -150,11 +150,11 @@ exports[`renders collection preview card 1`] = `
           >
             <Text
               allowFontScaling={true}
+              maxFontSizeMultiplier={1.4}
               numberOfLines={1}
               style={
                 {
                   "color": "#222222",
-                  "display": "flex",
                   "fontFamily": "Basel-Book",
                   "fontSize": 19,
                   "lineHeight": 24,
