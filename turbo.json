@@ -7,6 +7,7 @@
       ],
       "outputs": []
     },
+    "check:circular": {},
     "lint": {},
     "lint:fix": {},
     "//#staged:lint:fix": {
@@ -16,6 +17,12 @@
       "outputs": []
     },
     "test": {
+      "dependsOn": [
+        "typecheck",
+        "lint"
+      ]
+    },
+    "snapshots": {
       "dependsOn": [
         "typecheck",
         "lint"

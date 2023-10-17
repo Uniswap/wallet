@@ -9,9 +9,8 @@ import Animated, {
 } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { BackButton } from 'src/components/buttons/BackButton'
-import { AnimatedBox } from 'src/components/layout'
 import { WithScrollToTop } from 'src/components/layout/screens/WithScrollToTop'
-import { ColorTokens, Flex } from 'ui/src'
+import { AnimatedFlex, ColorTokens, Flex } from 'ui/src'
 import { iconSizes, zIndices } from 'ui/src/theme'
 
 type ScrollHeaderProps = {
@@ -89,12 +88,12 @@ export function ScrollHeader({
             {alwaysShowCenterElement ? (
               centerElement
             ) : (
-              <AnimatedBox style={visibleOnScrollStyle}>{centerElement}</AnimatedBox>
+              <AnimatedFlex style={visibleOnScrollStyle}>{centerElement}</AnimatedFlex>
             )}
           </Flex>
           {rightElement}
         </Flex>
-        <AnimatedBox
+        <AnimatedFlex
           borderBottomColor={backgroundColor ?? '$surface3'}
           borderBottomWidth={0.25}
           height={1}
@@ -122,7 +121,7 @@ function HeaderWrapper({
     return <Flex bg={backgroundColor}>{children}</Flex>
   }
   return (
-    <AnimatedBox
+    <AnimatedFlex
       bg={backgroundColor}
       left={0}
       opacity={0}
@@ -131,6 +130,6 @@ function HeaderWrapper({
       style={style}
       top={0}>
       {children}
-    </AnimatedBox>
+    </AnimatedFlex>
   )
 }

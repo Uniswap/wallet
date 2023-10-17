@@ -4,7 +4,6 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAppDispatch } from 'src/app/hooks'
 import { OnboardingStackParamList } from 'src/app/navigation/types'
-import { BaseCard } from 'src/components/layout/BaseCard'
 import { Loader } from 'src/components/loading'
 import { IS_ANDROID } from 'src/constants/globals'
 import { clearCloudBackups } from 'src/features/CloudBackup/cloudBackupSlice'
@@ -17,10 +16,11 @@ import { OnboardingScreen } from 'src/features/onboarding/OnboardingScreen'
 import { ImportType } from 'src/features/onboarding/utils'
 import { OnboardingScreens } from 'src/screens/Screens'
 import { useAddBackButton } from 'src/utils/useAddBackButton'
-import { Flex, Icons, useSporeColors } from 'ui/src'
+import { Flex, Icons } from 'ui/src'
 import { imageSizes } from 'ui/src/theme'
 import { logger } from 'utilities/src/logger/logger'
 import { ONE_SECOND_MS } from 'utilities/src/time/time'
+import { BaseCard } from 'wallet/src/components/BaseCard/BaseCard'
 import { useNonPendingSignerAccounts } from 'wallet/src/features/wallet/hooks'
 
 type Props = NativeStackScreenProps<
@@ -37,7 +37,6 @@ export function RestoreCloudBackupLoadingScreen({
   route: { params },
 }: Props): JSX.Element {
   const { t } = useTranslation()
-  const colors = useSporeColors()
   const dispatch = useAppDispatch()
   const entryPoint = params.entryPoint
   const importType = params.importType
@@ -138,13 +137,7 @@ export function RestoreCloudBackupLoadingScreen({
           description={t(
             `Failed to import backups due to lack of permissions, interruption of authorization, or due to a cloud error`
           )}
-          icon={
-            <Icons.OSDynamicCloudIcon
-              color={colors.neutral3.val}
-              height={imageSizes.image48}
-              width={imageSizes.image48}
-            />
-          }
+          icon={<Icons.OSDynamicCloudIcon color="$neutral3" size={imageSizes.image48} />}
           retryButtonLabel={t('Retry')}
           title={t('Error while importing backups')}
           onRetry={fetchCloudStorageBackups}
@@ -169,13 +162,7 @@ export function RestoreCloudBackupLoadingScreen({
                 ? t(`It looks like you haven’t backed up any of your seed phrases to Google Drive.`)
                 : t(`It looks like you haven’t backed up any of your seed phrases to iCloud.`)
             }
-            icon={
-              <Icons.OSDynamicCloudIcon
-                color={colors.neutral3.val}
-                height={imageSizes.image48}
-                width={imageSizes.image48}
-              />
-            }
+            icon={<Icons.OSDynamicCloudIcon color="$neutral3" size={imageSizes.image48} />}
             retryButtonLabel={t('Retry')}
             title={t('0 backups found')}
             onRetry={fetchCloudStorageBackups}

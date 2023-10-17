@@ -4,8 +4,8 @@ import { Pill } from 'src/components/text/Pill'
 import {
   OnSelectCurrency,
   SuggestedTokenSection,
-} from 'src/components/TokenSelector/TokenSelectorList'
-import { TokenOption } from 'src/components/TokenSelector/types'
+  TokenOption,
+} from 'src/components/TokenSelector/types'
 import { TouchableArea, useSporeColors } from 'ui/src'
 import { iconSizes } from 'ui/src/theme'
 import { TokenLogo } from 'wallet/src/components/CurrencyLogo/TokenLogo'
@@ -36,7 +36,7 @@ function _SuggestedToken({
       <Pill
         backgroundColor="$surface3"
         borderRadius="$roundedFull"
-        foregroundColor={colors.neutral1.val}
+        foregroundColor={colors.neutral1.get()}
         icon={<TokenLogo size={iconSizes.icon28} symbol={currency.symbol} url={logoUrl} />}
         label={getSymbolDisplayText(currency.symbol)}
         mr="$spacing8"

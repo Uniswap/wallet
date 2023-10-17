@@ -9,16 +9,15 @@ import { FavoriteWalletsGrid } from 'src/components/explore/FavoriteWalletsGrid'
 import { SortButton } from 'src/components/explore/SortButton'
 import { TokenItem, TokenItemData } from 'src/components/explore/TokenItem'
 import { Inset } from 'src/components/layout'
-import { BaseCard } from 'src/components/layout/BaseCard'
 import { Loader } from 'src/components/loading'
 import {
   getClientTokensOrderByCompareFn,
   getTokenMetadataDisplayType,
   getTokensOrderByValues,
 } from 'src/features/explore/utils'
-import { selectHasFavoriteTokens, selectHasWatchedWallets } from 'src/features/favorites/selectors'
 import { usePollOnFocusOnly } from 'src/utils/hooks'
 import { Flex, Text } from 'ui/src'
+import { BaseCard } from 'wallet/src/components/BaseCard/BaseCard'
 import { WRAPPED_BASE_ADDRESSES } from 'wallet/src/constants/addresses'
 import { ChainId } from 'wallet/src/constants/chains'
 import { PollingInterval } from 'wallet/src/constants/misc'
@@ -29,6 +28,10 @@ import {
 } from 'wallet/src/data/__generated__/types-and-hooks'
 import { fromGraphQLChain } from 'wallet/src/features/chains/utils'
 import { usePersistedError } from 'wallet/src/features/dataApi/utils'
+import {
+  selectHasFavoriteTokens,
+  selectHasWatchedWallets,
+} from 'wallet/src/features/favorites/selectors'
 import { selectTokensOrderBy } from 'wallet/src/features/wallet/selectors'
 import { areAddressesEqual } from 'wallet/src/utils/addresses'
 import { buildCurrencyId, buildNativeCurrencyId } from 'wallet/src/utils/currencyId'
@@ -138,7 +141,7 @@ export function ExploreSections({ listRef }: ExploreSectionsProps): JSX.Element 
       ref={listRef}
       ListEmptyComponent={
         <Flex mx="$spacing24" my="$spacing12">
-          <Loader.Token contrast repeat={5} />
+          <Loader.Token repeat={5} />
         </Flex>
       }
       ListFooterComponent={<Inset all="$spacing12" />}

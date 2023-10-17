@@ -1,4 +1,4 @@
-import { Token } from '@uniswap/sdk-core'
+import { Percent, Token } from '@uniswap/sdk-core'
 import { ChainId } from 'wallet/src/constants/chains'
 import { Trade } from 'wallet/src/features/transactions/swap/useTrade'
 
@@ -33,6 +33,7 @@ export interface QuoteRequest {
       permitNonce?: string
     }
   ]
+  sendPortionEnabled?: boolean
 }
 
 export type QuoteResponse = {
@@ -45,6 +46,7 @@ export type QuoteResponse = {
 
 export interface QuoteResult {
   quoteId?: string
+  requestId?: string
   blockNumber: string
   amount: string
   amountDecimals: string
@@ -61,6 +63,21 @@ export interface QuoteResult {
   route: Array<(V3PoolInRoute | V2PoolInRoute)[]>
   routeString: string
   simulationError?: boolean
+  portionBips?: number
+  portionRecipient?: string
+  portionAmount?: string
+  portionAmountDecimals?: string
+  quoteGasAndPortionAdjusted?: string
+  quoteGasAndPortionAdjustedDecimals?: string
+}
+
+export type SwapFee = { recipient?: string; percent: Percent; amount: string }
+
+export type SwapFeeInfo = {
+  noFeeCharged: boolean
+  formattedPercent: string
+  formattedAmount: string
+  formattedAmountUsd?: string
 }
 
 export interface TradeQuoteResult {

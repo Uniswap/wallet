@@ -1,10 +1,9 @@
-import { FlashList } from '@shopify/flash-list'
-import React, { forwardRef, useMemo } from 'react'
+import React, { forwardRef, memo, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { FlatList } from 'react-native'
 import { useAppDispatch } from 'src/app/hooks'
 import { WalletEmptyState } from 'src/components/home/WalletEmptyState'
 import { NoTokens } from 'src/components/icons/NoTokens'
-import { BaseCard } from 'src/components/layout/BaseCard'
 import { TabContentProps, TabProps } from 'src/components/layout/TabHelpers'
 import { ScannerModalState } from 'src/components/QRCodeScanner/constants'
 import { TokenBalanceList } from 'src/components/TokenBalanceList/TokenBalanceList'
@@ -12,15 +11,20 @@ import { useTokenDetailsNavigation } from 'src/components/TokenDetails/hooks'
 import { openModal } from 'src/features/modals/modalSlice'
 import { ModalName } from 'src/features/telemetry/constants'
 import { Flex } from 'ui/src'
+import { BaseCard } from 'wallet/src/components/BaseCard/BaseCard'
 import { GQLQueries } from 'wallet/src/data/queries'
 import { CurrencyId } from 'wallet/src/utils/currencyId'
 
 export const TOKENS_TAB_DATA_DEPENDENCIES = [GQLQueries.PortfolioBalances]
 
 // ignore ref type
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const TokensTab = forwardRef<FlashList<any>, TabProps & { isExternalProfile?: boolean }>(
-  function _TokensTab(
+
+export const TokensTab = memo(
+  forwardRef<
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    FlatList<any>,
+    TabProps & { isExternalProfile?: boolean }
+  >(function _TokensTab(
     {
       owner,
       containerProps,
@@ -85,5 +89,5 @@ export const TokensTab = forwardRef<FlashList<any>, TabProps & { isExternalProfi
         />
       </Flex>
     )
-  }
+  })
 )

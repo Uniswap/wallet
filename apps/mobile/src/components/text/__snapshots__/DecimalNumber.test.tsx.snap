@@ -3,10 +3,10 @@
 exports[`renders a DecimalNumber 1`] = `
 <Text
   allowFontScaling={true}
+  maxFontSizeMultiplier={1.4}
   style={
     {
       "color": "#222222",
-      "display": "flex",
       "fontFamily": "Basel-Book",
       "fontSize": 19,
       "lineHeight": 24,
@@ -17,10 +17,10 @@ exports[`renders a DecimalNumber 1`] = `
   14,123
   <Text
     allowFontScaling={true}
+    maxFontSizeMultiplier={1.4}
     style={
       {
         "color": "#CECECE",
-        "display": "flex",
         "fontFamily": "Basel-Book",
         "fontSize": 19,
         "lineHeight": 24,
@@ -37,10 +37,10 @@ exports[`renders a DecimalNumber 1`] = `
 exports[`renders a DecimalNumber without a comma separator 1`] = `
 <Text
   allowFontScaling={true}
+  maxFontSizeMultiplier={1.4}
   style={
     {
       "color": "#222222",
-      "display": "flex",
       "fontFamily": "Basel-Book",
       "fontSize": 19,
       "lineHeight": 24,
@@ -51,10 +51,10 @@ exports[`renders a DecimalNumber without a comma separator 1`] = `
   14
   <Text
     allowFontScaling={true}
+    maxFontSizeMultiplier={1.4}
     style={
       {
         "color": "#CECECE",
-        "display": "flex",
         "fontFamily": "Basel-Book",
         "fontSize": 19,
         "lineHeight": 24,
@@ -71,10 +71,10 @@ exports[`renders a DecimalNumber without a comma separator 1`] = `
 exports[`renders a DecimalNumber without a decimal part 1`] = `
 <Text
   allowFontScaling={true}
+  maxFontSizeMultiplier={1.4}
   style={
     {
       "color": "#222222",
-      "display": "flex",
       "fontFamily": "Basel-Book",
       "fontSize": 19,
       "lineHeight": 24,

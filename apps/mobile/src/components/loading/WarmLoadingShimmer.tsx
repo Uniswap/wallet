@@ -48,7 +48,11 @@ export function WarmLoadingShimmer({
 
   if (!layout) {
     return (
-      <Flex opacity={0} onLayout={(event): void => setLayout(event.nativeEvent.layout)}>
+      <Flex
+        opacity={0}
+        onLayout={(event: {
+          nativeEvent: { layout: React.SetStateAction<LayoutRectangle | null | undefined> }
+        }): void => setLayout(event.nativeEvent.layout)}>
         {children}
       </Flex>
     )
@@ -61,9 +65,9 @@ export function WarmLoadingShimmer({
         <Reanimated.View style={[StyleSheet.absoluteFill, animatedStyle]}>
           <LinearGradient
             colors={[
-              opacify(0, colors.neutral2.val.slice(0, 7)),
-              opacify(44, colors.surface2.val.slice(0, 7)),
-              opacify(0, colors.neutral2.val.slice(0, 7)),
+              opacify(0, colors.neutral2.get().slice(0, 7)),
+              opacify(44, colors.surface2.get().slice(0, 7)),
+              opacify(0, colors.neutral2.get().slice(0, 7)),
             ]}
             end={{ x: 1, y: 0 }}
             start={{ x: 0, y: 0 }}

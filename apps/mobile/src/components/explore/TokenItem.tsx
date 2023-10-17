@@ -3,12 +3,11 @@ import React, { memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import ContextMenu from 'react-native-context-menu-view'
 import { useExploreTokenContextMenu } from 'src/components/explore/hooks'
-import { AnimatedFlex } from 'src/components/layout'
 import { useTokenDetailsNavigation } from 'src/components/TokenDetails/hooks'
 import { TokenMetadata } from 'src/components/tokens/TokenMetadata'
 import { sendMobileAnalyticsEvent } from 'src/features/telemetry'
 import { MobileEventName, SectionName } from 'src/features/telemetry/constants'
-import { Flex, Text, TouchableArea } from 'ui/src'
+import { AnimatedFlex, Flex, Text, TouchableArea } from 'ui/src'
 import { formatNumber, formatUSDPrice, NumberType } from 'utilities/src/format/format'
 import { TokenLogo } from 'wallet/src/components/CurrencyLogo/TokenLogo'
 import { RelativeChange } from 'wallet/src/components/text/RelativeChange'
@@ -101,7 +100,7 @@ export const TokenItem = memo(function _TokenItem({
         hapticStyle={ImpactFeedbackStyle.Light}
         testID={`token-item-${name}`}
         onPress={onPress}>
-        <AnimatedFlex grow row gap="spacing12" px="spacing24" py="spacing8">
+        <AnimatedFlex grow row gap="$spacing12" px="$spacing24" py="$spacing8">
           <Flex centered row gap="$spacing4" overflow="hidden">
             {index !== undefined && (
               <Flex minWidth={16}>

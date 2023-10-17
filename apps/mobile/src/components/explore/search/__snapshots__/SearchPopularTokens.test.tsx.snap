@@ -61,7 +61,7 @@ exports[`SearchPopularTokens renders without error 1`] = `
             style={
               {
                 "alignItems": "stretch",
-                "backgroundColor": "#2222220D",
+                "backgroundColor": "#F9F9F9",
                 "borderBottomLeftRadius": 999999,
                 "borderBottomRightRadius": 999999,
                 "borderTopLeftRadius": 999999,
@@ -104,11 +104,11 @@ exports[`SearchPopularTokens renders without error 1`] = `
                 >
                   <Text
                     allowFontScaling={true}
+                    maxFontSizeMultiplier={1.4}
                     numberOfLines={1}
                     style={
                       {
                         "color": "transparent",
-                        "display": "flex",
                         "fontFamily": "Basel-Book",
                         "fontSize": 19,
                         "lineHeight": 24,
@@ -173,11 +173,11 @@ exports[`SearchPopularTokens renders without error 1`] = `
                   >
                     <Text
                       allowFontScaling={true}
+                      maxFontSizeMultiplier={1.4}
                       numberOfLines={1}
                       style={
                         {
                           "color": "transparent",
-                          "display": "flex",
                           "fontFamily": "Basel-Book",
                           "fontSize": 17,
                           "lineHeight": 24,
@@ -241,7 +241,7 @@ exports[`SearchPopularTokens renders without error 1`] = `
             style={
               {
                 "alignItems": "stretch",
-                "backgroundColor": "#2222220D",
+                "backgroundColor": "#F9F9F9",
                 "borderBottomLeftRadius": 999999,
                 "borderBottomRightRadius": 999999,
                 "borderTopLeftRadius": 999999,
@@ -284,11 +284,11 @@ exports[`SearchPopularTokens renders without error 1`] = `
                 >
                   <Text
                     allowFontScaling={true}
+                    maxFontSizeMultiplier={1.4}
                     numberOfLines={1}
                     style={
                       {
                         "color": "transparent",
-                        "display": "flex",
                         "fontFamily": "Basel-Book",
                         "fontSize": 19,
                         "lineHeight": 24,
@@ -353,11 +353,11 @@ exports[`SearchPopularTokens renders without error 1`] = `
                   >
                     <Text
                       allowFontScaling={true}
+                      maxFontSizeMultiplier={1.4}
                       numberOfLines={1}
                       style={
                         {
                           "color": "transparent",
-                          "display": "flex",
                           "fontFamily": "Basel-Book",
                           "fontSize": 17,
                           "lineHeight": 24,
@@ -584,11 +584,11 @@ exports[`SearchPopularTokens renders without error 2`] = `
                 >
                   <Text
                     allowFontScaling={true}
+                    maxFontSizeMultiplier={1.4}
                     numberOfLines={1}
                     style={
                       {
                         "color": "#222222",
-                        "display": "flex",
                         "fontFamily": "Basel-Book",
                         "fontSize": 19,
                         "lineHeight": 24,
@@ -612,11 +612,11 @@ exports[`SearchPopularTokens renders without error 2`] = `
               >
                 <Text
                   allowFontScaling={true}
+                  maxFontSizeMultiplier={1.4}
                   numberOfLines={1}
                   style={
                     {
                       "color": "#7D7D7D",
-                      "display": "flex",
                       "fontFamily": "Basel-Book",
                       "fontSize": 17,
                       "lineHeight": 24,
@@ -779,11 +779,11 @@ exports[`SearchPopularTokens renders without error 2`] = `
                 >
                   <Text
                     allowFontScaling={true}
+                    maxFontSizeMultiplier={1.4}
                     numberOfLines={1}
                     style={
                       {
                         "color": "#222222",
-                        "display": "flex",
                         "fontFamily": "Basel-Book",
                         "fontSize": 19,
                         "lineHeight": 24,
@@ -807,11 +807,11 @@ exports[`SearchPopularTokens renders without error 2`] = `
               >
                 <Text
                   allowFontScaling={true}
+                  maxFontSizeMultiplier={1.4}
                   numberOfLines={1}
                   style={
                     {
                       "color": "#7D7D7D",
-                      "display": "flex",
                       "fontFamily": "Basel-Book",
                       "fontSize": 17,
                       "lineHeight": 24,
@@ -832,11 +832,11 @@ exports[`SearchPopularTokens renders without error 2`] = `
                 >
                   <Text
                     allowFontScaling={true}
+                    maxFontSizeMultiplier={1.4}
                     numberOfLines={1}
                     style={
                       {
                         "color": "#CECECE",
-                        "display": "flex",
                         "fontFamily": "Basel-Book",
                         "fontSize": 17,
                         "lineHeight": 24,

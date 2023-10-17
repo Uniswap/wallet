@@ -2,12 +2,20 @@
 
 exports[`renders a relative change 1`] = `
 <div
+  className="   "
   style={
     {
       "alignItems": "center",
+      "boxSizing": "border-box",
+      "display": "flex",
+      "flexBasis": "auto",
       "flexDirection": "row",
-      "gap": 2,
+      "flexShrink": 0,
+      "gap": "",
       "justifyContent": "flex-start",
+      "minHeight": 0,
+      "minWidth": 0,
+      "position": "relative",
     }
   }
 >
@@ -74,26 +82,40 @@ exports[`renders a relative change 1`] = `
     </RNSVGGroup>
   </RNSVGSvgView>
   <div
+    className="   "
     style={
       {
         "alignItems": "stretch",
+        "boxSizing": "border-box",
+        "display": "flex",
+        "flexBasis": "auto",
         "flexDirection": "column",
+        "flexShrink": 0,
+        "minHeight": 0,
+        "minWidth": 0,
+        "position": "relative",
       }
     }
   >
     <span
+      className=" font_subHeading  "
+      maxFontSizeMultiplier={1.4}
       style={
         {
+          "boxSizing": "border-box",
           "color": "#7D7D7D",
-          "display": "flex",
-          "fontFamily": "Basel-Book",
+          "display": "inline",
+          "fontFamily": "",
           "fontSize": 17,
           "fontWeight": "400",
           "lineHeight": 24,
+          "marginBottom": 0,
+          "marginLeft": 0,
+          "marginRight": 0,
+          "marginTop": 0,
+          "wordWrap": "break-word",
         }
       }
-      suppressHighlighting={true}
-      wordWrap="break-word"
     >
       12%
     </span>
@@ -103,12 +125,20 @@ exports[`renders a relative change 1`] = `
 
 exports[`renders placeholders with absolute change 1`] = `
 <div
+  className="   "
   style={
     {
       "alignItems": "center",
+      "boxSizing": "border-box",
+      "display": "flex",
+      "flexBasis": "auto",
       "flexDirection": "row",
-      "gap": 2,
+      "flexShrink": 0,
+      "gap": "",
       "justifyContent": "flex-start",
+      "minHeight": 0,
+      "minWidth": 0,
+      "position": "relative",
     }
   }
 >
@@ -175,26 +205,40 @@ exports[`renders placeholders with absolute change 1`] = `
     </RNSVGGroup>
   </RNSVGSvgView>
   <div
+    className="   "
     style={
       {
         "alignItems": "stretch",
+        "boxSizing": "border-box",
+        "display": "flex",
+        "flexBasis": "auto",
         "flexDirection": "column",
+        "flexShrink": 0,
+        "minHeight": 0,
+        "minWidth": 0,
+        "position": "relative",
       }
     }
   >
     <span
+      className=" font_subHeading  "
+      maxFontSizeMultiplier={1.4}
       style={
         {
+          "boxSizing": "border-box",
           "color": "#7D7D7D",
-          "display": "flex",
-          "fontFamily": "Basel-Book",
+          "display": "inline",
+          "fontFamily": "",
           "fontSize": 17,
           "fontWeight": "400",
           "lineHeight": 24,
+          "marginBottom": 0,
+          "marginLeft": 0,
+          "marginRight": 0,
+          "marginTop": 0,
+          "wordWrap": "break-word",
         }
       }
-      suppressHighlighting={true}
-      wordWrap="break-word"
     >
       $100.00 (12%)
     </span>
@@ -204,36 +248,58 @@ exports[`renders placeholders with absolute change 1`] = `
 
 exports[`renders placeholders without a change 1`] = `
 <div
+  className="   "
   style={
     {
       "alignItems": "center",
+      "boxSizing": "border-box",
+      "display": "flex",
+      "flexBasis": "auto",
       "flexDirection": "row",
-      "gap": 2,
+      "flexShrink": 0,
+      "gap": "",
       "justifyContent": "flex-start",
+      "minHeight": 0,
+      "minWidth": 0,
+      "position": "relative",
     }
   }
 >
   <div
+    className="   "
     style={
       {
         "alignItems": "stretch",
+        "boxSizing": "border-box",
+        "display": "flex",
+        "flexBasis": "auto",
         "flexDirection": "column",
+        "flexShrink": 0,
+        "minHeight": 0,
+        "minWidth": 0,
+        "position": "relative",
       }
     }
   >
     <span
+      className=" font_subHeading  "
+      maxFontSizeMultiplier={1.4}
       style={
         {
+          "boxSizing": "border-box",
           "color": "#7D7D7D",
-          "display": "flex",
-          "fontFamily": "Basel-Book",
+          "display": "inline",
+          "fontFamily": "",
           "fontSize": 17,
           "fontWeight": "400",
           "lineHeight": 24,
+          "marginBottom": 0,
+          "marginLeft": 0,
+          "marginRight": 0,
+          "marginTop": 0,
+          "wordWrap": "break-word",
         }
       }
-      suppressHighlighting={true}
-      wordWrap="break-word"
     >
       -
     </span>

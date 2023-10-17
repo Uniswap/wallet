@@ -5,6 +5,7 @@ import { AccountDetails } from 'src/components/accounts/AccountDetails'
 import { Warning } from 'src/components/modals/WarningModal/types'
 import { getAlertColor } from 'src/components/modals/WarningModal/WarningModal'
 import { NetworkFee } from 'src/components/Network/NetworkFee'
+import { OnShowSwapFeeInfo, SwapFee } from 'src/components/SwapFee/SwapFee'
 import { sendMobileAnalyticsEvent } from 'src/features/telemetry'
 import { FeeOnTransferInfo } from 'src/features/transactions/swap/FeeOnTransferInfo'
 import { Box, Flex, Icons, Separator, Text, TouchableArea, useSporeColors } from 'ui/src'
@@ -13,20 +14,22 @@ import AnglesMinimize from 'ui/src/assets/icons/angles-minimize.svg'
 import { iconSizes } from 'ui/src/theme'
 import { ChainId } from 'wallet/src/constants/chains'
 import { GasFeeResult } from 'wallet/src/features/gas/types'
+import { SwapFeeInfo } from 'wallet/src/features/routing/types'
 import { useActiveAccountAddressWithThrow } from 'wallet/src/features/wallet/hooks'
-
-const ALERT_ICONS_SIZE = iconSizes.icon16
 
 interface TransactionDetailsProps {
   banner?: ReactNode
   chainId: ChainId
   gasFee: GasFeeResult
   showExpandedChildren?: boolean
+  swapFeeInfo?: SwapFeeInfo
   showWarning?: boolean
   warning?: Warning
   feeOnTransferInfo?: FeeOnTransferInfo
-  onShowNetworkFeeInfo: () => void
+  onShowNetworkFeeInfo?: () => void
+  onShowSwapFeeInfo?: OnShowSwapFeeInfo
   onShowWarning?: () => void
+  isSwap?: boolean
 }
 
 export function TransactionDetails({
@@ -35,11 +38,14 @@ export function TransactionDetails({
   showExpandedChildren,
   chainId,
   gasFee,
+  swapFeeInfo,
   showWarning,
   warning,
   feeOnTransferInfo,
   onShowNetworkFeeInfo,
+  onShowSwapFeeInfo,
   onShowWarning,
+  isSwap,
 }: PropsWithChildren<TransactionDetailsProps>): JSX.Element {
   const colors = useSporeColors()
   const { t } = useTranslation()
@@ -55,6 +61,8 @@ export function TransactionDetails({
     setShowChildren(!showChildren)
   }
 
+  const displaySwapFeeInfo = isSwap && swapFeeInfo && onShowSwapFeeInfo
+
   return (
     <Flex>
       {showWarning && warning && onShowWarning && (
@@ -68,11 +76,7 @@ export function TransactionDetails({
             gap="$spacing8"
             px="$spacing16"
             py="$spacing8">
-            <Icons.AlertTriangle
-              color={warningColor?.text}
-              height={ALERT_ICONS_SIZE}
-              width={ALERT_ICONS_SIZE}
-            />
+            <Icons.AlertTriangle color={warningColor?.text} size="$icon.16" />
             <Flex grow py="$spacing2">
               <Text color={warningColor.text} variant="body3">
                 {warning.title}
@@ -85,57 +89,53 @@ export function TransactionDetails({
         <Box
           backgroundColor="$DEP_accentCriticalSoft"
           borderRadius="$rounded16"
-          mb="$spacing12"
+          mb="$spacing16"
           p="$spacing12">
           <Text color="$statusCritical">{t('This transaction is expected to fail')}</Text>
         </Box>
       )}
-      <Flex backgroundColor="$surface2" borderRadius="$rounded16">
-        {!showWarning && (
-          <>
-            {banner}
-            <Separator borderColor="$surface2" width={1} />
-          </>
-        )}
-        <Flex gap="$spacing12" pt={banner ? '$none' : '$spacing8'} px="$spacing12">
-          {showChildren ? <Flex gap="$spacing12">{children}</Flex> : null}
-          {feeOnTransferInfo && <FeeOnTransferInfo {...feeOnTransferInfo} />}
-          <NetworkFee
-            chainId={chainId}
-            gasFee={gasFee}
-            onShowNetworkFeeInfo={onShowNetworkFeeInfo}
-          />
-        </Flex>
-        <Separator borderColor="$surface2" width={1} />
-        <Flex px="$spacing12" py="$spacing12">
-          <AccountDetails address={userAddress} iconSize={iconSizes.icon20} />
-        </Flex>
-      </Flex>
+      {!showWarning && banner && <Box py="$spacing16">{banner}</Box>}
       {children ? (
-        <TouchableArea
-          alignItems="center"
-          flexDirection="row"
-          justifyContent="center"
-          pt="$spacing12"
-          onPress={onPressToggleShowChildren}>
-          <Text color="$neutral3" variant="body3">
-            {showChildren ? t('Show less') : t('Show more')}
-          </Text>
-          {showChildren ? (
-            <AnglesMinimize
-              color={colors.neutral3.val}
-              height={iconSizes.icon20}
-              width={iconSizes.icon20}
-            />
-          ) : (
-            <AnglesMaximize
-              color={colors.neutral3.val}
-              height={iconSizes.icon20}
-              width={iconSizes.icon20}
-            />
-          )}
-        </TouchableArea>
+        <Flex centered row pb="$spacing16">
+          <Separator mr="$spacing16" />
+          <TouchableArea
+            alignContent="center"
+            flexDirection="row"
+            justifyContent="center"
+            pb="$spacing4"
+            pt="$spacing8"
+            onPress={onPressToggleShowChildren}>
+            <Text color="$neutral3" variant="body3">
+              {showChildren ? t('Show less') : t('Show more')}
+            </Text>
+            {showChildren ? (
+              <AnglesMinimize
+                color={colors.neutral3.get()}
+                height={iconSizes.icon20}
+                width={iconSizes.icon20}
+              />
+            ) : (
+              <AnglesMaximize
+                color={colors.neutral3.get()}
+                height={iconSizes.icon20}
+                width={iconSizes.icon20}
+              />
+            )}
+          </TouchableArea>
+          <Separator ml="$spacing16" />
+        </Flex>
       ) : null}
+      <Flex gap="$spacing12" pb="$spacing8" px="$spacing12">
+        {showChildren ? <Flex gap="$spacing12">{children}</Flex> : null}
+        {feeOnTransferInfo && <FeeOnTransferInfo {...feeOnTransferInfo} />}
+        {displaySwapFeeInfo && (
+          <SwapFee swapFeeInfo={swapFeeInfo} onShowSwapFeeInfo={onShowSwapFeeInfo} />
+        )}
+        <NetworkFee chainId={chainId} gasFee={gasFee} onShowNetworkFeeInfo={onShowNetworkFeeInfo} />
+        {!isSwap || !swapFeeInfo ? (
+          <AccountDetails address={userAddress} iconSize={iconSizes.icon20} />
+        ) : null}
+      </Flex>
     </Flex>
   )
 }

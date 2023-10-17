@@ -82,15 +82,15 @@ function Inputs({
       {layerType === 'foreground' ? (
         <TextInput
           ref={textInputRef}
-          backgroundColor="none"
-          color="neutral1"
+          backgroundColor="$transparent"
+          color="$neutral1"
           fontSize={inputFontSize}
           justifyContent="flex-start"
           lineHeight={inputFontSize}
           maxFontSizeMultiplier={inputMaxFontSizeMultiplier}
           multiline={true}
-          px="none"
-          py="none"
+          px="$none"
+          py="$none"
           scrollEnabled={false}
           textAlign={isInputEmpty ? 'left' : foregroundTextAlignment}
           textAlignVertical="bottom"
@@ -103,18 +103,18 @@ function Inputs({
         <TextInput
           autoFocus
           autoCapitalize="none"
-          backgroundColor="none"
-          color="neutral1"
+          backgroundColor="$transparent"
+          color="$neutral1"
           fontSize={inputFontSize}
           justifyContent="center"
           lineHeight={inputFontSize}
           maxFontSizeMultiplier={inputMaxFontSizeMultiplier}
           multiline={true}
-          px="none"
-          py="none"
+          px="$none"
+          py="$none"
           returnKeyType="done"
           scrollEnabled={false}
-          selectionColor={colors.neutral1.val}
+          selectionColor={colors.neutral1.get()}
           spellCheck={false}
           testID="import_account_form/input"
           textAlign={backgroundTextAlignment}
@@ -128,16 +128,16 @@ function Inputs({
       )}
       {inputSuffix && value && !value.includes(inputSuffix) ? (
         <TextInput
-          backgroundColor="none"
-          color="neutral2"
+          backgroundColor="$transparent"
+          color="$neutral2"
           editable={false}
           fontSize={inputFontSize}
           justifyContent="center"
           lineHeight={inputFontSize}
           maxFontSizeMultiplier={inputMaxFontSizeMultiplier}
           multiline={true}
-          px="none"
-          py="none"
+          px="$none"
+          py="$none"
           scrollEnabled={false}
           textAlignVertical="bottom"
           value={inputSuffix}

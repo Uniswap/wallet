@@ -1,21 +1,8 @@
 import { Currency, TradeType } from '@uniswap/sdk-core'
-import { SpotPrice } from 'src/features/dataApi/spotPricesQuery'
-import { GQLNftAsset } from 'src/features/nfts/hooks'
-import { formatUSDPrice } from 'utilities/src/format/format'
 import { CHAIN_INFO } from 'wallet/src/constants/chains'
-import { AssetType } from 'wallet/src/entities/assets'
-import {
-  AppNotificationType,
-  ReceiveCurrencyTxNotification,
-  ReceiveNFTNotification,
-  WalletConnectNotification,
-} from 'wallet/src/features/notifications/types'
-import {
-  NFTTradeType,
-  TransactionDetails,
-  TransactionStatus,
-  TransactionType,
-} from 'wallet/src/features/transactions/types'
+import { GQLNftAsset } from 'wallet/src/features/nfts/hooks'
+import { WalletConnectNotification } from 'wallet/src/features/notifications/types'
+import { TransactionStatus, TransactionType } from 'wallet/src/features/transactions/types'
 import { WalletConnectEvent } from 'wallet/src/features/walletConnect/types'
 import i18n from 'wallet/src/i18n/i18n'
 import { getValidAddress, shortenAddress } from 'wallet/src/utils/addresses'
@@ -74,13 +61,13 @@ export const formApproveNotificationTitle = (
 
 export const formSwapNotificationTitle = (
   txStatus: TransactionStatus,
-  tradeType: TradeType,
   inputCurrency: Maybe<Currency>,
   outputCurrency: Maybe<Currency>,
   inputCurrencyId: string,
   outputCurrencyId: string,
   inputCurrencyAmountRaw: string,
-  outputCurrencyAmountRaw: string
+  outputCurrencyAmountRaw: string,
+  tradeType?: TradeType
 ): string => {
   const inputCurrencySymbol = getCurrencyDisplayText(
     inputCurrency,
@@ -235,132 +222,6 @@ const formTransferTxTitle = (
   })
 }
 
-export interface BalanceUpdate {
-  assetValueChange: string
-  usdValueChange: string | undefined
-}
-
-interface BalanceUpdateProps {
-  transactionType: TransactionType
-  transactionStatus: TransactionStatus
-  currency: Maybe<Currency>
-  currencyAmountRaw: string
-  spotPrice?: SpotPrice
-  nftTradeType?: NFTTradeType
-  transactedUSDValue?: string | number | undefined // optional if USD amount already known
-}
-
-interface NFTTradeBalanceUpdateProps extends BalanceUpdateProps {
-  transactionType: TransactionType.NFTTrade
-  nftTradeType: NFTTradeType
-}
-
-export const createBalanceUpdate = ({
-  transactionType,
-  transactionStatus,
-  currency,
-  currencyAmountRaw,
-  spotPrice,
-  nftTradeType,
-  transactedUSDValue,
-}: BalanceUpdateProps | NFTTradeBalanceUpdateProps): BalanceUpdate | undefined => {
-  if (
-    !currency ||
-    !(
-      transactionStatus === TransactionStatus.Success ||
-      transactionStatus === TransactionStatus.Pending ||
-      transactionStatus === TransactionStatus.FailedCancel
-    )
-  ) {
-    return undefined
-  }
-  const currencyAmount = getFormattedCurrencyAmount(currency, currencyAmountRaw)
-  const isDecrease =
-    transactionType === TransactionType.Send ||
-    transactionType === TransactionType.NFTMint ||
-    (transactionType === TransactionType.NFTTrade && nftTradeType === NFTTradeType.BUY)
-  return {
-    assetValueChange: `${isDecrease ? '-' : '+'}${currencyAmount}${currency.symbol}`,
-    usdValueChange: transactedUSDValue
-      ? formatUSDPrice(transactedUSDValue)
-      : getUSDValue(spotPrice, currencyAmountRaw, currency),
-  }
-}
-
-const getUSDValue = (
-  spotPrice: SpotPrice | undefined,
-  currencyAmountRaw: string,
-  currency: Maybe<Currency>
-): string | undefined => {
-  const price = spotPrice?.price?.value
-  if (!currency || !price) return undefined
-
-  const usdValue = (Number(currencyAmountRaw) / 10 ** currency.decimals) * price
-  return formatUSDPrice(usdValue)
-}
-
 const getShortenedAddressOrEns = (addressOrENS: string): string => {
   return getValidAddress(addressOrENS) ? shortenAddress(addressOrENS) : addressOrENS
-}
-
-/**
- * Based on notification type info, returns an AppNotification object for either NFT or Currency receive.
- * Must be a 'Receive' type transaction.
- *
- * Returns undefined if not all data is found for either Currency or NFT case, or if transaction is not
- * the correct type.
- */
-export function buildReceiveNotification(
-  transactionDetails: TransactionDetails,
-  receivingAddress: Address // not included in transactionDetails
-): ReceiveNFTNotification | ReceiveCurrencyTxNotification | undefined {
-  const { typeInfo, status, chainId, hash, id } = transactionDetails
-
-  // Only build notification object on successful receive transactions.
-  if (status !== TransactionStatus.Success || typeInfo.type !== TransactionType.Receive) {
-    return undefined
-  }
-
-  const baseNotificationData = {
-    txStatus: status,
-    chainId,
-    txHash: hash,
-    address: receivingAddress,
-    txId: id,
-  }
-
-  // Currency receive txn.
-  if (
-    typeInfo?.assetType === AssetType.Currency &&
-    typeInfo?.currencyAmountRaw &&
-    typeInfo?.sender
-  ) {
-    return {
-      ...baseNotificationData,
-      type: AppNotificationType.Transaction,
-      txType: TransactionType.Receive,
-      assetType: typeInfo.assetType,
-      tokenAddress: typeInfo.tokenAddress,
-      currencyAmountRaw: typeInfo.currencyAmountRaw,
-      sender: typeInfo.sender,
-    }
-  }
-
-  // NFT receive txn.
-  if (
-    (typeInfo?.assetType === AssetType.ERC1155 || typeInfo?.assetType === AssetType.ERC721) &&
-    typeInfo?.tokenId
-  ) {
-    return {
-      ...baseNotificationData,
-      type: AppNotificationType.Transaction,
-      txType: TransactionType.Receive,
-      assetType: typeInfo.assetType,
-      tokenAddress: typeInfo.tokenAddress,
-      tokenId: typeInfo.tokenId,
-      sender: typeInfo.sender,
-    }
-  }
-
-  return undefined
 }

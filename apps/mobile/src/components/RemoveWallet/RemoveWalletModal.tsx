@@ -1,9 +1,8 @@
 import React, { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAnimatedStyle, withTiming } from 'react-native-reanimated'
-import { useAppDispatch, useAppSelector, useAppTheme } from 'src/app/hooks'
+import { useAppDispatch, useAppSelector } from 'src/app/hooks'
 import { navigate } from 'src/app/navigation/rootNavigation'
-import { AnimatedBox } from 'src/components/layout'
 import { Delay } from 'src/components/layout/Delayed'
 import { SpinningLoader } from 'src/components/loading/SpinningLoader'
 import { BottomSheetModal } from 'src/components/modals/BottomSheetModal'
@@ -12,11 +11,12 @@ import { RemoveLastMnemonicWalletFooter } from 'src/components/RemoveWallet/Remo
 import { RemoveWalletStep, useModalContent } from 'src/components/RemoveWallet/useModalContent'
 import { navigateToOnboardingImportMethod } from 'src/components/RemoveWallet/utils'
 import { useBiometricPrompt } from 'src/features/biometrics/hooks'
-import { closeModal, selectModalState } from 'src/features/modals/modalSlice'
+import { closeModal } from 'src/features/modals/modalSlice'
+import { selectModalState } from 'src/features/modals/selectModalState'
 import { ImportType, OnboardingEntryPoint } from 'src/features/onboarding/utils'
 import { ElementName, ModalName } from 'src/features/telemetry/constants'
 import { OnboardingScreens, Screens } from 'src/screens/Screens'
-import { Button, Flex, Text } from 'ui/src'
+import { AnimatedFlex, Button, ColorTokens, Flex, Text, useSporeColors } from 'ui/src'
 import { iconSizes, opacify } from 'ui/src/theme'
 import {
   EditAccountAction,
@@ -26,14 +26,9 @@ import { useAccounts } from 'wallet/src/features/wallet/hooks'
 import { selectSignerMnemonicAccounts } from 'wallet/src/features/wallet/selectors'
 import { setFinishedOnboarding } from 'wallet/src/features/wallet/slice'
 
-export interface RemoveWalletModalState {
-  address?: Address
-}
-
 export function RemoveWalletModal(): JSX.Element | null {
   const { t } = useTranslation()
-  // TODO(MOB-1280): refactor to use useSporeColors hook instead
-  const theme = useAppTheme()
+  const colors = useSporeColors()
   const dispatch = useAppDispatch()
 
   const addressToAccount = useAccounts()
@@ -135,9 +130,12 @@ export function RemoveWalletModal(): JSX.Element | null {
   const { title, description, Icon, iconColorLabel, actionButtonTheme, actionButtonLabel } =
     modalContent
 
+  // TODO(MOB-1420): clean up types
+  const labelColor = iconColorLabel as keyof typeof colors
+
   return (
     <BottomSheetModal
-      backgroundColor={theme.colors.surface1}
+      backgroundColor={colors.surface1.get()}
       name={ModalName.RemoveSeedPhraseWarningModal}
       onClose={onClose}>
       <Flex centered gap="$spacing16" height="100%" mb="$spacing24" p="$spacing24" pt="$none">
@@ -146,13 +144,9 @@ export function RemoveWalletModal(): JSX.Element | null {
           borderRadius="$rounded12"
           p="$spacing12"
           style={{
-            backgroundColor: opacify(12, theme.colors[iconColorLabel]),
+            backgroundColor: opacify(12, colors[labelColor].get()),
           }}>
-          <Icon
-            color={theme.colors[iconColorLabel]}
-            height={iconSizes.icon24}
-            width={iconSizes.icon24}
-          />
+          <Icon color={colors[labelColor].val} height={iconSizes.icon24} width={iconSizes.icon24} />
         </Flex>
         <Text textAlign="center" variant="body1">
           {title}
@@ -168,18 +162,25 @@ export function RemoveWalletModal(): JSX.Element | null {
         ) : (
           <Flex centered row gap={inProgress ? '$none' : '$spacing12'} pt="$spacing12">
             {inProgress ? (
-              <AnimatedBox style={animatedCancelButtonSpanStyles} />
+              <AnimatedFlex style={animatedCancelButtonSpanStyles} />
             ) : (
-              <Button fill disabled={inProgress} theme="tertiary" onPress={onClose}>
+              <Button fill disabled={inProgress} theme="outline" onPress={onClose}>
                 {t('Cancel')}
               </Button>
             )}
-
             <Button
               fill
-              icon={inProgress ? <SpinningLoader color={iconColorLabel} /> : undefined}
+              icon={
+                inProgress ? (
+                  <SpinningLoader
+                    // TODO(MOB-1420): clean up types (as ColorTokens)
+                    color={`$${labelColor}` as ColorTokens}
+                  />
+                ) : undefined
+              }
               testID={isRemovingRecoveryPhrase ? ElementName.Continue : ElementName.Remove}
               theme={actionButtonTheme}
+              width="100%"
               onPress={onPress}>
               {inProgress ? undefined : actionButtonLabel}
             </Button>

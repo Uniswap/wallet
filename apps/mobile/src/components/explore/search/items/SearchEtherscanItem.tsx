@@ -3,7 +3,8 @@ import { default as React } from 'react'
 import { useAppDispatch } from 'src/app/hooks'
 import { Arrow } from 'src/components/icons/Arrow'
 import { EtherscanIcon } from 'src/components/icons/EtherscanIcon'
-import { addToSearchHistory, EtherscanSearchResult } from 'src/features/explore/searchHistorySlice'
+import { addToSearchHistory } from 'src/features/explore/searchHistorySlice'
+import { EtherscanSearchResult } from 'src/features/explore/SearchResult'
 import { ElementName } from 'src/features/telemetry/constants'
 import { ExplorerDataType, getExplorerLink, openUri } from 'src/utils/linking'
 import { Flex, Text, TouchableArea, useSporeColors } from 'ui/src'
@@ -45,10 +46,10 @@ export function SearchEtherscanItem({ etherscanResult }: SearchEtherscanItemProp
         px="$spacing8"
         py="$spacing12">
         <Flex centered row gap="$spacing12">
-          <EtherscanIcon height={iconSizes.icon40} width={iconSizes.icon40} />
+          <EtherscanIcon size="$icon.40" />
           <Text variant="body1">{shortenAddress(address)}</Text>
         </Flex>
-        <Arrow color={colors.neutral2.val} direction="ne" size={iconSizes.icon24} />
+        <Arrow color={colors.neutral2.get()} direction="ne" size={iconSizes.icon24} />
       </Flex>
     </TouchableArea>
   )

@@ -1,12 +1,15 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { AnimatedFlex } from 'src/components/layout'
 import { ElementName } from 'src/features/telemetry/constants'
 import { StatusAnimation } from 'src/features/transactions/TransactionPending/StatusAnimation'
 import { openTransactionLink } from 'src/utils/linking'
-import { Button, Flex, Text, TouchableArea } from 'ui/src'
+import { AnimatedFlex, Button, Flex, Text, TouchableArea } from 'ui/src'
 import { ChainId } from 'wallet/src/constants/chains'
-import { TransactionDetails, TransactionStatus } from 'wallet/src/features/transactions/types'
+import {
+  isFinalizedTx,
+  TransactionDetails,
+  TransactionStatus,
+} from 'wallet/src/features/transactions/types'
 
 type TransactionStatusProps = {
   transaction: TransactionDetails | undefined
@@ -16,10 +19,6 @@ type TransactionStatusProps = {
   onNext: () => void
   onTryAgain: () => void
   transactionType: 'swap' | 'send'
-}
-
-function isFinalizedState(status: TransactionStatus): boolean {
-  return status === TransactionStatus.Success || status === TransactionStatus.Failed
 }
 
 export function TransactionPending({
@@ -39,7 +38,7 @@ export function TransactionPending({
   }
 
   return (
-    <AnimatedFlex grow px="spacing12">
+    <AnimatedFlex grow px="$spacing12">
       <Flex grow alignItems="center" justifyContent="flex-start" pt="$spacing60">
         <Flex alignItems="center" justifyContent="flex-end" pt="$spacing16">
           <StatusAnimation status={transaction?.status} transactionType={transactionType} />
@@ -58,14 +57,19 @@ export function TransactionPending({
           ) : null}
         </Flex>
       </Flex>
-      {transaction && isFinalizedState(transaction.status) ? (
-        <Button testID="transaction-pending-view" theme="tertiary" onPress={onPressViewTransaction}>
-          {t('View transaction')}
+      <Flex gap="$spacing8">
+        {transaction && isFinalizedTx(transaction) ? (
+          <Button
+            testID="transaction-pending-view"
+            theme="tertiary"
+            onPress={onPressViewTransaction}>
+            {t('View transaction')}
+          </Button>
+        ) : null}
+        <Button testID={ElementName.OK} onPress={onNext}>
+          {t('Close')}
         </Button>
-      ) : null}
-      <Button testID={ElementName.OK} onPress={onNext}>
-        {t('Close')}
-      </Button>
+      </Flex>
     </AnimatedFlex>
   )
 }

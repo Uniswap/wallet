@@ -10,18 +10,16 @@ import { ExploreSections } from 'src/components/explore/ExploreSections'
 import { SearchEmptySection } from 'src/components/explore/search/SearchEmptySection'
 import { SearchResultsSection } from 'src/components/explore/search/SearchResultsSection'
 import { SearchTextInput } from 'src/components/input/SearchTextInput'
-import { AnimatedFlex } from 'src/components/layout'
 import { Screen } from 'src/components/layout/Screen'
 import { VirtualizedList } from 'src/components/layout/VirtualizedList'
 import { useBottomSheetContext } from 'src/components/modals/BottomSheetContext'
 import { HandleBar } from 'src/components/modals/HandleBar'
 import { useReduxModalBackHandler } from 'src/features/modals/hooks'
-import { selectModalState } from 'src/features/modals/modalSlice'
+import { selectModalState } from 'src/features/modals/selectModalState'
 import { sendMobileAnalyticsEvent } from 'src/features/telemetry'
 import { ModalName, SectionName } from 'src/features/telemetry/constants'
 import { Screens } from 'src/screens/Screens'
-import { Flex } from 'ui/src'
-import { flex, Theme } from 'ui/src/theme/restyle'
+import { AnimatedFlex, ColorTokens, Flex, flexStyles } from 'ui/src'
 import { useDebounce } from 'utilities/src/time/timing'
 import { useIsDarkMode } from 'wallet/src/features/appearance/hooks'
 
@@ -70,12 +68,8 @@ export function ExploreScreen(): JSX.Element {
   }
 
   // Handle special case with design system light colors because surface2 is the same as surface1
-  const contrastBackgroundColor: keyof Theme['colors'] = isDarkMode
-    ? 'DEP_backgroundOverlay'
-    : 'surface1'
-  const searchBarBackgroundColor: keyof Theme['colors'] = isDarkMode
-    ? 'DEP_backgroundOverlay'
-    : 'surface1'
+  const contrastBackgroundColor: ColorTokens = isDarkMode ? '$DEP_backgroundOverlay' : '$surface1'
+  const searchBarBackgroundColor: ColorTokens = isDarkMode ? '$DEP_backgroundOverlay' : '$surface1'
 
   const onScroll = useCallback(() => {
     textInputRef.current?.blur()
@@ -98,7 +92,7 @@ export function ExploreScreen(): JSX.Element {
         />
       </Flex>
       {isSearchMode ? (
-        <KeyboardAvoidingView behavior="height" style={flex.fill}>
+        <KeyboardAvoidingView behavior="height" style={flexStyles.fill}>
           <Flex grow mx="$spacing16">
             <VirtualizedList onScroll={onScroll}>
               <Flex p="$spacing4" />

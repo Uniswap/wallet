@@ -1,4 +1,3 @@
-import { useResponsiveProp } from '@shopify/restyle'
 import React from 'react'
 import { SvgProps } from 'react-native-svg'
 import { useAppDispatch } from 'src/app/hooks'
@@ -6,7 +5,7 @@ import Trace from 'src/components/Trace/Trace'
 import { ElementName } from 'src/features/telemetry/constants'
 import { setClipboard } from 'src/utils/clipboard'
 import { openUri } from 'src/utils/linking'
-import { Flex, Text, TouchableArea, useSporeColors } from 'ui/src'
+import { Flex, IconProps, Text, TouchableArea, useSporeColors } from 'ui/src'
 import CopyIcon from 'ui/src/assets/icons/copy-sheets.svg'
 import { iconSizes } from 'ui/src/theme'
 import { pushNotification } from 'wallet/src/features/notifications/slice'
@@ -28,7 +27,7 @@ export function LinkButton({
 }: {
   buttonType: LinkButtonType
   label: string
-  Icon?: React.FC<SvgProps>
+  Icon?: React.FC<SvgProps & { size?: IconProps['size'] }>
   element: ElementName
   openExternalBrowser?: boolean
   isSafeUri?: boolean
@@ -36,11 +35,6 @@ export function LinkButton({
 }): JSX.Element {
   const dispatch = useAppDispatch()
   const colors = useSporeColors()
-
-  const fontSize = useResponsiveProp({
-    xs: 'buttonLabel4',
-    sm: 'buttonLabel3',
-  })
 
   const copyValue = async (): Promise<void> => {
     await setClipboard(value)
@@ -70,16 +64,14 @@ export function LinkButton({
         py="$spacing8"
         testID={element}
         onPress={onPress}>
-        <Flex centered row gap="$spacing8">
-          {Icon && (
-            <Icon color={colors.neutral1.val} height={iconSizes.icon16} width={iconSizes.icon16} />
-          )}
-          <Text color="$neutral1" variant={fontSize}>
+        <Flex centered row shrink gap="$spacing8" width="auto">
+          {Icon && <Icon color={colors.neutral1.get()} size="$icon.16" />}
+          <Text $short={{ variant: 'buttonLabel4' }} color="$neutral1" variant="buttonLabel3">
             {label}
           </Text>
           {buttonType === LinkButtonType.Copy && (
             <CopyIcon
-              color={colors.neutral2.val}
+              color={colors.neutral2.get()}
               height={iconSizes.icon16}
               width={iconSizes.icon16}
             />

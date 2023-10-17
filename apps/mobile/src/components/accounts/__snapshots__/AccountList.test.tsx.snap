@@ -45,10 +45,10 @@ exports[`AccountList renders without error 1`] = `
       >
         <Text
           allowFontScaling={true}
+          maxFontSizeMultiplier={1.4}
           style={
             {
               "color": "#7D7D7D",
-              "display": "flex",
               "fontFamily": "Basel-Book",
               "fontSize": 17,
               "lineHeight": 24,
@@ -119,7 +119,8 @@ exports[`AccountList renders without error 1`] = `
             {
               "opacity": 1,
               "paddingBottom": 12,
-              "paddingHorizontal": 24,
+              "paddingLeft": 24,
+              "paddingRight": 24,
               "paddingTop": 8,
             }
           }
@@ -357,11 +358,11 @@ exports[`AccountList renders without error 1`] = `
                   >
                     <Text
                       allowFontScaling={true}
+                      maxFontSizeMultiplier={1.4}
                       numberOfLines={1}
                       style={
                         {
                           "color": "#222222",
-                          "display": "flex",
                           "fontFamily": "Basel-Book",
                           "fontSize": 19,
                           "lineHeight": 24,
@@ -378,10 +379,10 @@ exports[`AccountList renders without error 1`] = `
             </View>
             <Text
               allowFontScaling={true}
+              maxFontSizeMultiplier={1.4}
               style={
                 {
                   "color": "#7D7D7D",
-                  "display": "flex",
                   "fontFamily": "Basel-Book",
                   "fontSize": 17,
                   "lineHeight": 24,

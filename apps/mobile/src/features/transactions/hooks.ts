@@ -1,11 +1,10 @@
 import { AnyAction } from '@reduxjs/toolkit'
 import { Currency } from '@uniswap/sdk-core'
 import { BigNumberish } from 'ethers'
-import { useCallback, useMemo, useState } from 'react'
-import { LayoutChangeEvent } from 'react-native'
-import { useAppSelector } from 'src/app/hooks'
-import { SearchContext } from 'src/components/explore/search/SearchResultsSection'
-import { flowToModalName, TokenSelectorFlow } from 'src/components/TokenSelector/TokenSelector'
+import { useCallback, useMemo } from 'react'
+import { SearchContext } from 'src/components/explore/search/SearchContext'
+import { flowToModalName } from 'src/components/TokenSelector/flowToModalName'
+import { TokenSelectorFlow } from 'src/components/TokenSelector/types'
 import { sendMobileAnalyticsEvent } from 'src/features/telemetry'
 import { MobileEventName } from 'src/features/telemetry/constants'
 import {
@@ -13,7 +12,7 @@ import {
   createWrapFormFromTxDetails,
 } from 'src/features/transactions/swap/createSwapFormFromTxDetails'
 import { transactionStateActions } from 'src/features/transactions/transactionState/transactionState'
-import { theme } from 'ui/src/theme/restyle'
+import { logger } from 'utilities/src/logger/logger'
 import { ChainId } from 'wallet/src/constants/chains'
 import { AssetType } from 'wallet/src/entities/assets'
 import { useCurrencyInfo } from 'wallet/src/features/tokens/useCurrencyInfo'
@@ -28,25 +27,14 @@ import {
   TransactionState,
 } from 'wallet/src/features/transactions/transactionState/types'
 import {
-  FinalizedTransactionDetails,
+  isFinalizedTx,
   TransactionDetails,
   TransactionStatus,
   TransactionType,
 } from 'wallet/src/features/transactions/types'
 import { useActiveAccountAddressWithThrow } from 'wallet/src/features/wallet/hooks'
-import { useAppDispatch } from 'wallet/src/state'
-import { currencyAddress } from 'wallet/src/utils/currencyId'
-
-function isFinalizedTx(
-  tx: TransactionDetails | FinalizedTransactionDetails
-): tx is FinalizedTransactionDetails {
-  return (
-    tx.status === TransactionStatus.Success ||
-    tx.status === TransactionStatus.Failed ||
-    tx.status === TransactionStatus.Cancelled ||
-    tx.status === TransactionStatus.FailedCancel
-  )
-}
+import { useAppDispatch, useAppSelector } from 'wallet/src/state'
+import { areCurrencyIdsEqual, buildCurrencyId, currencyAddress } from 'wallet/src/utils/currencyId'
 
 export function usePendingTransactions(
   address: Address | null,
@@ -288,36 +276,110 @@ export function useMergeLocalAndRemoteTransactions(
   const dispatch = useAppDispatch()
   const localTransactions = useSelectAddressTransactions(address)
 
-  // Merge local and remote txns into one array.
-  const combinedTransactionList = useMemo((): TransactionDetails[] | undefined => {
-    if (!address) return
-    if (!remoteTransactions) return localTransactions
-    if (!localTransactions) return remoteTransactions
+  // Merge local and remote txs into one array and reconcile data discrepancies
+  return useMemo((): TransactionDetails[] | undefined => {
+    if (!remoteTransactions?.length) return localTransactions
+    if (!localTransactions?.length) return remoteTransactions
 
-    const localTxMap: Map<string, TransactionDetails> = new Map()
-    localTransactions.forEach((tx) => localTxMap.set(tx.hash, tx))
+    const txHashes = new Set<string>()
 
-    // Filter out remote txns that are already included in the local store.
-    const deDupedRemoteTxs = remoteTransactions.filter((remoteTxn) => {
-      const dupeLocalTx = localTxMap.get(remoteTxn.hash)
-      if (!dupeLocalTx) return true
-
-      // If the tx exists both locally and remotely, then use the status of the remote tx as the source
-      // of truth to avoid infinite pending states and filter the remote tx from the combined list
-      if (dupeLocalTx.status !== remoteTxn.status) {
-        dupeLocalTx.status = remoteTxn.status
-        if (isFinalizedTx(dupeLocalTx)) dispatch(finalizeTransaction(dupeLocalTx))
+    const remoteTxMap: Map<string, TransactionDetails> = new Map()
+    remoteTransactions.forEach((tx) => {
+      if (tx.hash) {
+        const txHash = tx.hash.toLowerCase()
+        remoteTxMap.set(txHash, tx)
+        txHashes.add(txHash)
+      } else {
+        logger.error(new Error('Remote transaction is missing hash '), {
+          tags: { file: 'transactions/hooks', function: 'useMergeLocalAndRemoteTransactions' },
+          extra: { tx },
+        })
       }
-
-      return false
     })
 
-    return [...localTransactions, ...deDupedRemoteTxs].sort((a, b) =>
-      a.addedTime > b.addedTime ? -1 : 1
-    )
-  }, [dispatch, address, localTransactions, remoteTransactions])
+    const localTxMap: Map<string, TransactionDetails> = new Map()
+    localTransactions.forEach((tx) => {
+      if (tx.hash) {
+        const txHash = tx.hash.toLowerCase()
+        localTxMap.set(txHash, tx)
+        txHashes.add(txHash)
+      } else {
+        // TODO(MOB-1737): Figure out why transactions are missing a hash and fix root issue
+        logger.error(new Error('Local transaction is missing hash '), {
+          tags: { file: 'transactions/hooks', function: 'useMergeLocalAndRemoteTransactions' },
+          extra: { tx },
+        })
+      }
+    })
 
-  return combinedTransactionList
+    const deDupedTxs: TransactionDetails[] = []
+
+    for (const txHash of [...txHashes]) {
+      const remoteTx = remoteTxMap.get(txHash)
+      const localTx = localTxMap.get(txHash)
+
+      if (!localTx) {
+        if (!remoteTx) throw new Error('No local or remote tx, which is not possible')
+        deDupedTxs.push(remoteTx)
+        continue
+      }
+
+      // If the BE hasn't detected the tx, then use local data
+      if (!remoteTx) {
+        deDupedTxs.push(localTx)
+        continue
+      }
+
+      // If the local tx is not finalized and remote is, then finalize local state so confirmation toast is sent
+      // TODO(MOB-1573): This should be done further upstream when parsing data not in a display hook
+      if (!isFinalizedTx(localTx)) {
+        const mergedTx = { ...localTx, status: remoteTx.status }
+        if (isFinalizedTx(mergedTx)) dispatch(finalizeTransaction(mergedTx))
+      }
+
+      // If the tx isn't successful, then prefer local data
+      if (remoteTx.status !== TransactionStatus.Success) {
+        deDupedTxs.push(localTx)
+        continue
+      }
+
+      // If the tx was done via WC, then add the dapp info from WC to the remote data
+      if (localTx.typeInfo.type === TransactionType.WCConfirm) {
+        const externalDappInfo = { ...localTx.typeInfo.dapp }
+        const mergedTx = { ...remoteTx, typeInfo: { ...remoteTx.typeInfo, externalDappInfo } }
+        deDupedTxs.push(mergedTx)
+        continue
+      }
+
+      // Remote data should be better parsed in all other instances
+      deDupedTxs.push(remoteTx)
+    }
+
+    return deDupedTxs.sort((a, b) => {
+      // If inclusion times are equal, then sequence approve txs before swap txs
+      if (a.addedTime === b.addedTime) {
+        if (
+          a.typeInfo.type === TransactionType.Approve &&
+          b.typeInfo.type === TransactionType.Swap
+        ) {
+          const aCurrencyId = buildCurrencyId(a.chainId, a.typeInfo.tokenAddress)
+          const bCurrencyId = b.typeInfo.inputCurrencyId
+          if (areCurrencyIdsEqual(aCurrencyId, bCurrencyId)) return 1
+        }
+
+        if (
+          a.typeInfo.type === TransactionType.Swap &&
+          b.typeInfo.type === TransactionType.Approve
+        ) {
+          const aCurrencyId = a.typeInfo.inputCurrencyId
+          const bCurrencyId = buildCurrencyId(b.chainId, b.typeInfo.tokenAddress)
+          if (areCurrencyIdsEqual(aCurrencyId, bCurrencyId)) return -1
+        }
+      }
+
+      return a.addedTime > b.addedTime ? -1 : 1
+    })
+  }, [dispatch, localTransactions, remoteTransactions])
 }
 
 export function useLowestPendingNonce(): BigNumberish | undefined {
@@ -353,92 +415,4 @@ export function useAllTransactionsBetweenAddresses(
         tx.typeInfo.type === TransactionType.Send && tx.typeInfo.recipient === recipient
     )
   }, [recipient, sender, txnsToSearch])
-}
-
-const MIN_INPUT_DECIMALPAD_GAP = theme.spacing.spacing12
-
-export function useShouldShowNativeKeyboard(): {
-  onInputPanelLayout: (event: LayoutChangeEvent) => void
-  onDecimalPadLayout: (event: LayoutChangeEvent) => void
-  isLayoutPending: boolean
-  showNativeKeyboard: boolean
-  maxContentHeight?: number
-} {
-  const [containerHeight, setContainerHeight] = useState<number>()
-  const [decimalPadY, setDecimalPadY] = useState<number>()
-
-  const onInputPanelLayout = (event: LayoutChangeEvent): void => {
-    if (containerHeight === undefined) {
-      setContainerHeight(event.nativeEvent.layout.height)
-    }
-  }
-
-  const onDecimalPadLayout = (event: LayoutChangeEvent): void => {
-    if (decimalPadY === undefined) {
-      setDecimalPadY(event.nativeEvent.layout.y)
-    }
-  }
-
-  const isLayoutPending = containerHeight === undefined || decimalPadY === undefined
-
-  // If decimal pad renders below the input panel, we need to show the native keyboard
-  const showNativeKeyboard = isLayoutPending
-    ? false
-    : containerHeight + MIN_INPUT_DECIMALPAD_GAP > decimalPadY
-
-  return {
-    onInputPanelLayout,
-    onDecimalPadLayout,
-    isLayoutPending,
-    showNativeKeyboard,
-    // can be used to immitate flexGrow=1 for the input panel
-    maxContentHeight:
-      isLayoutPending || showNativeKeyboard ? undefined : decimalPadY - MIN_INPUT_DECIMALPAD_GAP,
-  }
-}
-
-export function useDynamicFontSizing(
-  maxCharWidthAtMaxFontSize: number,
-  maxFontSize: number,
-  minFontSize: number
-): {
-  onLayout: (event: LayoutChangeEvent) => void
-  fontSize: number
-  onSetFontSize: (amount: string) => void
-} {
-  const [fontSize, setFontSize] = useState(maxFontSize)
-  const [textInputElementWidth, setTextInputElementWidth] = useState<number>(0)
-
-  const onLayout = useCallback(
-    (event: LayoutChangeEvent) => {
-      if (textInputElementWidth) return
-
-      const width = event.nativeEvent.layout.width
-      setTextInputElementWidth(width)
-    },
-    [setTextInputElementWidth, textInputElementWidth]
-  )
-
-  const onSetFontSize = useCallback(
-    (amount: string) => {
-      const stringWidth = getStringWidth(amount, maxCharWidthAtMaxFontSize, fontSize, maxFontSize)
-      const scaledSize = fontSize * (textInputElementWidth / stringWidth)
-      const scaledSizeWithMin = Math.max(scaledSize, minFontSize)
-      const newFontSize = Math.round(Math.min(maxFontSize, scaledSizeWithMin))
-      setFontSize(newFontSize)
-    },
-    [fontSize, maxFontSize, minFontSize, maxCharWidthAtMaxFontSize, textInputElementWidth]
-  )
-
-  return { onLayout, fontSize, onSetFontSize }
-}
-
-const getStringWidth = (
-  value: string,
-  maxCharWidthAtMaxFontSize: number,
-  currentFontSize: number,
-  maxFontSize: number
-): number => {
-  const widthAtMaxFontSize = value.length * maxCharWidthAtMaxFontSize
-  return widthAtMaxFontSize * (currentFontSize / maxFontSize)
 }

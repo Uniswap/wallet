@@ -12,10 +12,10 @@ exports[`renders text with few matches 1`] = `
 >
   <Text
     allowFontScaling={true}
+    maxFontSizeMultiplier={1.4}
     style={
       {
         "color": "#222222",
-        "display": "flex",
         "fontFamily": "Basel-Book",
         "fontSize": 19,
         "lineHeight": 24,
@@ -27,10 +27,10 @@ exports[`renders text with few matches 1`] = `
   </Text>
   <Text
     allowFontScaling={true}
+    maxFontSizeMultiplier={1.4}
     style={
       {
         "color": "#222222",
-        "display": "flex",
         "fontFamily": "Basel-Book",
         "fontSize": 19,
         "lineHeight": 24,
@@ -42,10 +42,10 @@ exports[`renders text with few matches 1`] = `
   </Text>
   <Text
     allowFontScaling={true}
+    maxFontSizeMultiplier={1.4}
     style={
       {
         "color": "#CECECE",
-        "display": "flex",
         "fontFamily": "Basel-Book",
         "fontSize": 19,
         "lineHeight": 24,
@@ -57,10 +57,10 @@ exports[`renders text with few matches 1`] = `
   </Text>
   <Text
     allowFontScaling={true}
+    maxFontSizeMultiplier={1.4}
     style={
       {
         "color": "#CECECE",
-        "display": "flex",
         "fontFamily": "Basel-Book",
         "fontSize": 19,
         "lineHeight": 24,
@@ -72,10 +72,10 @@ exports[`renders text with few matches 1`] = `
   </Text>
   <Text
     allowFontScaling={true}
+    maxFontSizeMultiplier={1.4}
     style={
       {
         "color": "#222222",
-        "display": "flex",
         "fontFamily": "Basel-Book",
         "fontSize": 19,
         "lineHeight": 24,
@@ -87,10 +87,10 @@ exports[`renders text with few matches 1`] = `
   </Text>
   <Text
     allowFontScaling={true}
+    maxFontSizeMultiplier={1.4}
     style={
       {
         "color": "#222222",
-        "display": "flex",
         "fontFamily": "Basel-Book",
         "fontSize": 19,
         "lineHeight": 24,
@@ -102,10 +102,10 @@ exports[`renders text with few matches 1`] = `
   </Text>
   <Text
     allowFontScaling={true}
+    maxFontSizeMultiplier={1.4}
     style={
       {
         "color": "#222222",
-        "display": "flex",
         "fontFamily": "Basel-Book",
         "fontSize": 19,
         "lineHeight": 24,
@@ -117,10 +117,10 @@ exports[`renders text with few matches 1`] = `
   </Text>
   <Text
     allowFontScaling={true}
+    maxFontSizeMultiplier={1.4}
     style={
       {
         "color": "#222222",
-        "display": "flex",
         "fontFamily": "Basel-Book",
         "fontSize": 19,
         "lineHeight": 24,
@@ -132,10 +132,10 @@ exports[`renders text with few matches 1`] = `
   </Text>
   <Text
     allowFontScaling={true}
+    maxFontSizeMultiplier={1.4}
     style={
       {
         "color": "#222222",
-        "display": "flex",
         "fontFamily": "Basel-Book",
         "fontSize": 19,
         "lineHeight": 24,
@@ -147,10 +147,10 @@ exports[`renders text with few matches 1`] = `
   </Text>
   <Text
     allowFontScaling={true}
+    maxFontSizeMultiplier={1.4}
     style={
       {
         "color": "#CECECE",
-        "display": "flex",
         "fontFamily": "Basel-Book",
         "fontSize": 19,
         "lineHeight": 24,
@@ -162,10 +162,10 @@ exports[`renders text with few matches 1`] = `
   </Text>
   <Text
     allowFontScaling={true}
+    maxFontSizeMultiplier={1.4}
     style={
       {
         "color": "#CECECE",
-        "display": "flex",
         "fontFamily": "Basel-Book",
         "fontSize": 19,
         "lineHeight": 24,
@@ -177,10 +177,10 @@ exports[`renders text with few matches 1`] = `
   </Text>
   <Text
     allowFontScaling={true}
+    maxFontSizeMultiplier={1.4}
     style={
       {
         "color": "#CECECE",
-        "display": "flex",
         "fontFamily": "Basel-Book",
         "fontSize": 19,
         "lineHeight": 24,
@@ -192,10 +192,10 @@ exports[`renders text with few matches 1`] = `
   </Text>
   <Text
     allowFontScaling={true}
+    maxFontSizeMultiplier={1.4}
     style={
       {
         "color": "#CECECE",
-        "display": "flex",
         "fontFamily": "Basel-Book",
         "fontSize": 19,
         "lineHeight": 24,
@@ -207,10 +207,10 @@ exports[`renders text with few matches 1`] = `
   </Text>
   <Text
     allowFontScaling={true}
+    maxFontSizeMultiplier={1.4}
     style={
       {
         "color": "#CECECE",
-        "display": "flex",
         "fontFamily": "Basel-Book",
         "fontSize": 19,
         "lineHeight": 24,
@@ -222,10 +222,10 @@ exports[`renders text with few matches 1`] = `
   </Text>
   <Text
     allowFontScaling={true}
+    maxFontSizeMultiplier={1.4}
     style={
       {
         "color": "#CECECE",
-        "display": "flex",
         "fontFamily": "Basel-Book",
         "fontSize": 19,
         "lineHeight": 24,
@@ -237,10 +237,10 @@ exports[`renders text with few matches 1`] = `
   </Text>
   <Text
     allowFontScaling={true}
+    maxFontSizeMultiplier={1.4}
     style={
       {
         "color": "#CECECE",
-        "display": "flex",
         "fontFamily": "Basel-Book",
         "fontSize": 19,
         "lineHeight": 24,
@@ -252,10 +252,10 @@ exports[`renders text with few matches 1`] = `
   </Text>
   <Text
     allowFontScaling={true}
+    maxFontSizeMultiplier={1.4}
     style={
       {
         "color": "#CECECE",
-        "display": "flex",
         "fontFamily": "Basel-Book",
         "fontSize": 19,
         "lineHeight": 24,
@@ -267,10 +267,10 @@ exports[`renders text with few matches 1`] = `
   </Text>
   <Text
     allowFontScaling={true}
+    maxFontSizeMultiplier={1.4}
     style={
       {
         "color": "#CECECE",
-        "display": "flex",
         "fontFamily": "Basel-Book",
         "fontSize": 19,
         "lineHeight": 24,
@@ -282,10 +282,10 @@ exports[`renders text with few matches 1`] = `
   </Text>
   <Text
     allowFontScaling={true}
+    maxFontSizeMultiplier={1.4}
     style={
       {
         "color": "#CECECE",
-        "display": "flex",
         "fontFamily": "Basel-Book",
         "fontSize": 19,
         "lineHeight": 24,
@@ -297,10 +297,10 @@ exports[`renders text with few matches 1`] = `
   </Text>
   <Text
     allowFontScaling={true}
+    maxFontSizeMultiplier={1.4}
     style={
       {
         "color": "#CECECE",
-        "display": "flex",
         "fontFamily": "Basel-Book",
         "fontSize": 19,
         "lineHeight": 24,
@@ -312,10 +312,10 @@ exports[`renders text with few matches 1`] = `
   </Text>
   <Text
     allowFontScaling={true}
+    maxFontSizeMultiplier={1.4}
     style={
       {
         "color": "#CECECE",
-        "display": "flex",
         "fontFamily": "Basel-Book",
         "fontSize": 19,
         "lineHeight": 24,
@@ -327,10 +327,10 @@ exports[`renders text with few matches 1`] = `
   </Text>
   <Text
     allowFontScaling={true}
+    maxFontSizeMultiplier={1.4}
     style={
       {
         "color": "#CECECE",
-        "display": "flex",
         "fontFamily": "Basel-Book",
         "fontSize": 19,
         "lineHeight": 24,
@@ -346,11 +346,11 @@ exports[`renders text with few matches 1`] = `
 exports[`renders text without matches 1`] = `
 <Text
   allowFontScaling={true}
+  maxFontSizeMultiplier={1.4}
   numberOfLines={1}
   style={
     {
       "color": "#222222",
-      "display": "flex",
       "fontFamily": "Basel-Book",
       "fontSize": 19,
       "lineHeight": 24,

@@ -102,6 +102,11 @@ query NFTItemScreen(
         image {
           id
           url
+          dimensions {
+            id
+            width
+            height
+          }
         }
         name
         nftContract {
@@ -468,9 +473,22 @@ query TokenDetailsScreen($chain: Chain!, $address: String) {
     address
     chain
     symbol
+    name
     market(currency: USD) {
       id
       volume(duration: DAY) {
+        id
+        value
+      }
+      price {
+        id
+        value
+      }
+      priceHigh52W: priceHighLow(duration: YEAR, highLow: HIGH) {
+        id
+        value
+      }
+      priceLow52W: priceHighLow(duration: YEAR, highLow: LOW) {
         id
         value
       }
@@ -700,23 +718,6 @@ query ExploreSearch(
           id
           url
         }
-      }
-    }
-  }
-}
-
-query SpotPrices($contracts: [ContractInput!]!) {
-  tokenProjects(contracts: $contracts) {
-    id
-    markets(currencies: [USD]) {
-      id
-      price {
-        id
-        value
-      }
-      pricePercentChange24h {
-        id
-        value
       }
     }
   }

@@ -1,18 +1,18 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
-import { useResponsiveProp } from '@shopify/restyle'
 import React, { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ActivityIndicator, TextInput as NativeTextInput } from 'react-native'
+import { ActivityIndicator, StyleSheet, TextInput as NativeTextInput } from 'react-native'
 import { useAppDispatch } from 'src/app/hooks'
 import { OnboardingStackParamList } from 'src/app/navigation/types'
 import { TextInput } from 'src/components/input/TextInput'
 import Trace from 'src/components/Trace/Trace'
+import { IS_ANDROID } from 'src/constants/globals'
 import { SafeKeyboardOnboardingScreen } from 'src/features/onboarding/SafeKeyboardOnboardingScreen'
 import { ImportType } from 'src/features/onboarding/utils'
 import { ElementName } from 'src/features/telemetry/constants'
 import { OnboardingScreens } from 'src/screens/Screens'
 import { useAddBackButton } from 'src/utils/useAddBackButton'
-import { AnimatePresence, Button, Flex, Icons, Text, useSporeColors } from 'ui/src'
+import { AnimatePresence, Button, Flex, Icons, Text, useMedia } from 'ui/src'
 import { fonts } from 'ui/src/theme'
 import { NICKNAME_MAX_LENGTH } from 'wallet/src/constants/accounts'
 import {
@@ -75,7 +75,7 @@ export function EditNameScreen({ navigation, route: { params } }: Props): JSX.El
         editAccountActions.trigger({
           type: EditAccountAction.Rename,
           address: pendingAccount?.address,
-          newName: newAccountName,
+          newName: newAccountName.trim(),
         })
       )
     }
@@ -113,7 +113,7 @@ function CustomizationSection({
   setAccountName: Dispatch<SetStateAction<string>>
 }): JSX.Element {
   const { t } = useTranslation()
-  const colors = useSporeColors()
+  const media = useMedia()
   const textInputRef = useRef<NativeTextInput>(null)
 
   // we default it to `true` to avoid flickering of a pencil icon,
@@ -124,10 +124,7 @@ function CustomizationSection({
     textInputRef.current?.focus()
   }
 
-  const inputSize = useResponsiveProp({
-    xs: fonts.heading3.fontSize,
-    sm: fonts.heading2.fontSize,
-  })
+  const inputSize = media.short ? fonts.heading3.fontSize : fonts.heading2.fontSize
 
   return (
     <Flex
@@ -141,16 +138,19 @@ function CustomizationSection({
           <TextInput
             ref={textInputRef}
             autoFocus
-            backgroundColor="none"
             fontSize={inputSize}
             maxFontSizeMultiplier={fonts.heading2.maxFontSizeMultiplier}
             maxLength={NICKNAME_MAX_LENGTH}
             placeholder="Nickname"
-            placeholderTextColor={colors.neutral3.val}
+            placeholderTextColor="$neutral3"
+            style={IS_ANDROID ? styles.noHorizontalPadding : {}}
             testID="customize/name"
             textAlign="center"
             value={accountName}
-            onBlur={(): void => setFocused(false)}
+            onBlur={(): void => {
+              setFocused(false)
+              setAccountName(accountName.trim())
+            }}
             onChangeText={setAccountName}
             onFocus={(): void => setFocused(true)}
           />
@@ -160,8 +160,7 @@ function CustomizationSection({
                 fadeIn
                 fadeOut
                 animation="lazy"
-                icon={<Icons.Pencil fill="$color" />}
-                size="small"
+                icon={<Icons.Pencil color="$neutral2" />}
                 theme="secondary"
                 onPress={focusInputWithKeyboard}
               />
@@ -180,3 +179,9 @@ function CustomizationSection({
     </Flex>
   )
 }
+
+const styles = StyleSheet.create({
+  noHorizontalPadding: {
+    paddingHorizontal: 0,
+  },
+})

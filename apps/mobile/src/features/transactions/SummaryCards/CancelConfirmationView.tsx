@@ -67,7 +67,7 @@ export function CancelConfirmationView({
         borderColor="$neutral2"
         borderRadius="$rounded12"
         p="$spacing12">
-        <SlashCircleIcon color={colors.neutral2.val} height={24} strokeWidth="1" width={24} />
+        <SlashCircleIcon color={colors.neutral2.get()} height={24} strokeWidth="1" width={24} />
       </Flex>
       <Flex centered gap="$spacing8">
         <Text variant="buttonLabel2">{t('Cancel this transaction?')}</Text>
@@ -84,7 +84,7 @@ export function CancelConfirmationView({
         borderRadius="$rounded16"
         width="100%">
         <Flex grow row justifyContent="space-between" p="$spacing12">
-          <Text variant="subheading2">{t('Network fee')}</Text>
+          <Text variant="subheading2">{t('Network cost')}</Text>
           {!gasFeeUSD ? <ActivityIndicator /> : <Text variant="subheading2">{gasFeeUSD}</Text>}
         </Flex>
         {accountAddress && (

@@ -11,7 +11,6 @@ import {
   useSettingsStackNavigation,
 } from 'src/app/navigation/types'
 import { AddressDisplay } from 'src/components/AddressDisplay'
-import { AnimatedFlex } from 'src/components/layout'
 import { HeaderScrollScreen } from 'src/components/layout/screens/HeaderScrollScreen'
 import {
   SettingsRow,
@@ -24,7 +23,7 @@ import { useBiometricContext } from 'src/features/biometrics/context'
 import { useBiometricName, useDeviceSupportsBiometricAuth } from 'src/features/biometrics/hooks'
 import { Screens } from 'src/screens/Screens'
 import { getFullAppVersion } from 'src/utils/version'
-import { Flex, Icons, Text, TouchableArea, useSporeColors } from 'ui/src'
+import { AnimatedFlex, Flex, Icons, Text, TouchableArea, useSporeColors } from 'ui/src'
 import { AVATARS_DARK, AVATARS_LIGHT } from 'ui/src/assets'
 import BookOpenIcon from 'ui/src/assets/icons/book-open.svg'
 import ContrastIcon from 'ui/src/assets/icons/contrast.svg'
@@ -58,7 +57,7 @@ export function SettingsScreen(): JSX.Element {
 
   const sections: SettingsSection[] = useMemo((): SettingsSection[] => {
     const iconProps: SvgProps = {
-      color: colors.neutral2.val,
+      color: colors.neutral2.get(),
       height: iconSizes.icon24,
       strokeLinecap: 'round',
       strokeLinejoin: 'round',
@@ -159,7 +158,7 @@ export function SettingsScreen(): JSX.Element {
       },
     ]
   }, [
-    colors.neutral2.val,
+    colors.neutral2,
     t,
     currentAppearanceSetting,
     deviceSupportsBiometrics,
@@ -337,8 +336,8 @@ function FooterSettings(): JSX.Element {
           alignItems="center"
           entering={FadeInDown}
           exiting={FadeOutUp}
-          gap="none"
-          mt="spacing16">
+          gap="$none"
+          mt="$spacing16">
           <Flex gap="$spacing4">
             <Text color="$neutral3" textAlign="center" variant="body2">
               {t('Made with love, ')}

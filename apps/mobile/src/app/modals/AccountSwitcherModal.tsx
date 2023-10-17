@@ -11,13 +11,14 @@ import { ActionSheetModal, MenuItemProp } from 'src/components/modals/ActionShee
 import { BottomSheetModal } from 'src/components/modals/BottomSheetModal'
 import { IS_ANDROID } from 'src/constants/globals'
 import { isCloudStorageAvailable } from 'src/features/CloudBackup/RNCloudStorageBackupsManager'
-import { closeModal, openModal, selectModalState } from 'src/features/modals/modalSlice'
+import { closeModal, openModal } from 'src/features/modals/modalSlice'
+import { selectModalState } from 'src/features/modals/selectModalState'
 import { ImportType, OnboardingEntryPoint } from 'src/features/onboarding/utils'
 import { ElementName, ModalName } from 'src/features/telemetry/constants'
 import { OnboardingScreens, Screens } from 'src/screens/Screens'
 import { openSettings } from 'src/utils/linking'
 import { Button, Flex, Icons, Text, TouchableArea, useSporeColors } from 'ui/src'
-import { dimensions, iconSizes, spacing } from 'ui/src/theme'
+import { dimensions, spacing } from 'ui/src/theme'
 import { AccountType } from 'wallet/src/features/wallet/accounts/types'
 import { createAccountActions } from 'wallet/src/features/wallet/create/createAccountSaga'
 import {
@@ -35,7 +36,7 @@ export function AccountSwitcherModal(): JSX.Element {
   return (
     <BottomSheetModal
       disableSwipe
-      backgroundColor={colors.surface1.val}
+      backgroundColor={colors.surface1.get()}
       name={ModalName.AccountSwitcher}
       onClose={(): Action => dispatch(closeModal({ name: ModalName.AccountSwitcher }))}>
       <Screen bg="$surface1" noInsets={true}>
@@ -228,7 +229,7 @@ export function AccountSwitcher({ onClose }: { onClose: () => void }): JSX.Eleme
   const fullScreenContentHeight = 0.89 * dimensions.fullHeight
 
   return (
-    <Flex fill maxHeight={fullScreenContentHeight} mb="$spacing12">
+    <Flex fill $short={{ mb: '$none' }} maxHeight={fullScreenContentHeight} mb="$spacing12">
       <Flex gap="$spacing16" pb="$spacing16" pt="$spacing12">
         <AddressDisplay
           showCopy
@@ -253,15 +254,15 @@ export function AccountSwitcher({ onClose }: { onClose: () => void }): JSX.Eleme
         isVisible={modalState.isOpen}
         onPress={onPressAccount}
       />
-      <TouchableArea hapticFeedback mb="$spacing48" mt="$spacing16" onPress={onPressAddWallet}>
+      <TouchableArea
+        hapticFeedback
+        $short={{ mb: '$spacing24' }}
+        mb="$spacing36"
+        mt="$spacing16"
+        onPress={onPressAddWallet}>
         <Flex row alignItems="center" gap="$spacing16" ml="$spacing24">
           <Flex borderColor="$surface3" borderRadius="$roundedFull" borderWidth={1} p="$spacing8">
-            <Icons.Plus
-              color="$neutral2"
-              height={iconSizes.icon12}
-              strokeWidth={2}
-              width={iconSizes.icon12}
-            />
+            <Icons.Plus color="$neutral2" size="$icon.12" strokeWidth={2} />
           </Flex>
           <Text color="$neutral2" variant="buttonLabel3">
             {t('Add wallet')}

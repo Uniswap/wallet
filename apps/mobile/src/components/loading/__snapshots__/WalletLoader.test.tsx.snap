@@ -97,10 +97,10 @@ exports[`renders wallet loader 1`] = `
             >
               <Text
                 allowFontScaling={true}
+                maxFontSizeMultiplier={1.4}
                 style={
                   {
                     "color": "transparent",
-                    "display": "flex",
                     "fontFamily": "Basel-Book",
                     "fontSize": 19,
                     "lineHeight": 24,
@@ -166,10 +166,10 @@ exports[`renders wallet loader 1`] = `
             >
               <Text
                 allowFontScaling={true}
+                maxFontSizeMultiplier={1.4}
                 style={
                   {
                     "color": "transparent",
-                    "display": "flex",
                     "fontFamily": "Basel-Book",
                     "fontSize": 17,
                     "lineHeight": 24,

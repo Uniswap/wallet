@@ -1,7 +1,4 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
-import LockIcon from 'ui/src/assets/icons/lock.svg'
-
-import { useResponsiveProp } from '@shopify/restyle'
 import { SharedEventName } from '@uniswap/analytics-events'
 import { addScreenshotListener } from 'expo-screen-capture'
 import React, { useEffect, useReducer, useState } from 'react'
@@ -19,7 +16,8 @@ import { OnboardingScreen } from 'src/features/onboarding/OnboardingScreen'
 import { sendMobileAnalyticsEvent } from 'src/features/telemetry'
 import { ElementName, ManualPageViewScreen, ModalName } from 'src/features/telemetry/constants'
 import { OnboardingScreens } from 'src/screens/Screens'
-import { Button, Flex, Text, useSporeColors } from 'ui/src'
+import { Button, Flex, Text, useMedia, useSporeColors } from 'ui/src'
+import LockIcon from 'ui/src/assets/icons/lock.svg'
 import { iconSizes } from 'ui/src/theme'
 import {
   EditAccountAction,
@@ -38,6 +36,7 @@ enum View {
 export function ManualBackupScreen({ navigation, route: { params } }: Props): JSX.Element | null {
   const { t } = useTranslation()
   const dispatch = useAppDispatch()
+  const media = useMedia()
 
   useLockScreenOnBlur()
 
@@ -79,15 +78,11 @@ export function ManualBackupScreen({ navigation, route: { params } }: Props): JS
     }
   }, [activeAccount?.backups, navigation, params])
 
-  const responsiveTitle = useResponsiveProp({
-    xs: undefined,
-    sm: t('Confirm your recovery phrase'),
-  })
+  const responsiveTitle = media.short ? undefined : t('Confirm your recovery phrase')
 
-  const responsiveSubtitle = useResponsiveProp({
-    xs: t('Confirm your recovery phrase') + '. ' + t('Select the missing words in order.'),
-    sm: t('Select the missing words in order.'),
-  })
+  const responsiveSubtitle = media.short
+    ? t('Confirm your recovery phrase') + '. ' + t('Select the missing words in order.')
+    : t('Select the missing words in order.')
 
   // Manually log as page views as these screens are not captured in navigation events
   useEffect(() => {
@@ -169,14 +164,14 @@ const SeedWarningModal = ({ onPress }: { onPress: () => void }): JSX.Element => 
   const { t } = useTranslation()
   return (
     <BottomSheetModal
-      backgroundColor={colors.surface2.val}
+      backgroundColor={colors.surface2.get()}
       hideHandlebar={true}
       isDismissible={false}
       name={ModalName.SeedPhraseWarningModal}>
       <Flex centered gap="$spacing12" pb="$spacing48" pt="$spacing36" px="$spacing24">
         <Flex centered backgroundColor="$surface2" borderRadius="$roundedFull" p="$spacing8">
           <LockIcon
-            color={colors.neutral1.val}
+            color={colors.neutral1.get()}
             height={iconSizes.icon24}
             width={iconSizes.icon24}
           />
@@ -189,7 +184,7 @@ const SeedWarningModal = ({ onPress }: { onPress: () => void }): JSX.Element => 
             'Your recovery phrase is what grants you (and anyone who has it) access to your funds. Be sure to store it in a memorable, safe space.'
           )}
         </Text>
-        <TouchableOpacity onPress={onPress}>
+        <TouchableOpacity hitSlop={24} onPress={onPress}>
           <Text color="$accent1" pt="$spacing24" variant="buttonLabel2">
             {t('I’m ready')}
           </Text>

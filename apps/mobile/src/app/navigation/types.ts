@@ -6,10 +6,10 @@ import {
 } from '@react-navigation/native'
 import { NativeStackNavigationProp, NativeStackScreenProps } from '@react-navigation/native-stack'
 import { EducationContentType } from 'src/components/education'
-import { NFTItem } from 'src/features/nfts/types'
 import { ImportType, OnboardingEntryPoint } from 'src/features/onboarding/utils'
-import { TabIndex } from 'src/screens/HomeScreen'
+import { HomeScreenTabIndex } from 'src/screens/HomeScreenTabIndex'
 import { OnboardingScreens, Screens } from 'src/screens/Screens'
+import { NFTItem } from 'wallet/src/features/nfts/types'
 
 type NFTItemScreenParams = {
   owner?: Address
@@ -34,10 +34,6 @@ export type ExploreStackParamList = {
   [Screens.TokenDetails]: {
     currencyId: string
   }
-}
-
-export type AccountStackParamList = {
-  [Screens.Accounts]: undefined
 }
 
 export type SettingsStackParamList = {
@@ -72,7 +68,6 @@ export type OnboardingStackParamList = {
   [OnboardingScreens.Backup]: OnboardingStackBaseParams
   [OnboardingScreens.Landing]: OnboardingStackBaseParams
   [OnboardingScreens.EditName]: OnboardingStackBaseParams
-  [OnboardingScreens.SelectColor]: OnboardingStackBaseParams
   [OnboardingScreens.Notifications]: OnboardingStackBaseParams
   [OnboardingScreens.QRAnimation]: OnboardingStackBaseParams
   [OnboardingScreens.Security]: OnboardingStackBaseParams
@@ -90,11 +85,10 @@ export type OnboardingStackParamList = {
 }
 
 export type AppStackParamList = {
-  [Screens.AccountStack]: NavigatorScreenParams<AccountStackParamList>
   [Screens.Education]: {
     type: EducationContentType
   } & OnboardingStackBaseParams
-  [Screens.Home]?: { tab?: TabIndex }
+  [Screens.Home]?: { tab?: HomeScreenTabIndex }
   [Screens.OnboardingStack]: NavigatorScreenParams<OnboardingStackParamList>
   [Screens.SettingsStack]: NavigatorScreenParams<SettingsStackParamList>
   [Screens.TokenDetails]: {
@@ -133,8 +127,7 @@ export type OnboardingStackNavigationProp = CompositeNavigationProp<
   AppStackNavigationProp
 >
 
-export type RootParamList = AccountStackParamList &
-  AppStackParamList &
+export type RootParamList = AppStackParamList &
   ExploreStackParamList &
   OnboardingStackParamList &
   SettingsStackParamList

@@ -1,19 +1,15 @@
-import { AnyAction } from '@reduxjs/toolkit'
-import { providers } from 'ethers'
-import React, { Dispatch, useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TouchableWithoutFeedback } from 'react-native'
 import { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { AnimatedFlex } from 'src/components/layout'
 import { useBottomSheetContext } from 'src/components/modals/BottomSheetContext'
 import { HandleBar } from 'src/components/modals/HandleBar'
-import { Warning, WarningSeverity } from 'src/components/modals/WarningModal/types'
+import { WarningSeverity } from 'src/components/modals/WarningModal/types'
 import WarningModal from 'src/components/modals/WarningModal/WarningModal'
 import Trace from 'src/components/Trace/Trace'
 import { IS_ANDROID } from 'src/constants/globals'
 import { ModalName, SectionName } from 'src/features/telemetry/constants'
-import { DerivedSwapInfo } from 'src/features/transactions/swap/hooks'
 import { SwapSettingsModal } from 'src/features/transactions/swap/modals/SwapSettingsModal'
 import { SwapForm } from 'src/features/transactions/swap/SwapForm'
 import { SwapReview } from 'src/features/transactions/swap/SwapReview'
@@ -24,35 +20,13 @@ import { DerivedTransferInfo } from 'src/features/transactions/transfer/hooks'
 import { TransferReview } from 'src/features/transactions/transfer/TransferReview'
 import { TransferStatus } from 'src/features/transactions/transfer/TransferStatus'
 import { TransferTokenForm } from 'src/features/transactions/transfer/TransferTokenForm'
-import { Flex, useSporeColors } from 'ui/src'
+import { AnimatedFlex, Flex, useSporeColors } from 'ui/src'
 import EyeIcon from 'ui/src/assets/icons/eye.svg'
 import { dimensions, iconSizes } from 'ui/src/theme'
 import { GasFeeResult } from 'wallet/src/features/gas/types'
 import { ANIMATE_SPRING_CONFIG } from 'wallet/src/features/transactions/utils'
-
-export enum TransactionStep {
-  FORM,
-  REVIEW,
-  SUBMITTED,
-}
-
-export interface TransactionFlowProps {
-  dispatch: Dispatch<AnyAction>
-  showRecipientSelector?: boolean
-  recipientSelector?: JSX.Element
-  flowName: string
-  derivedInfo: DerivedTransferInfo | DerivedSwapInfo
-  onClose: () => void
-  approveTxRequest?: providers.TransactionRequest
-  txRequest?: providers.TransactionRequest
-  gasFee: GasFeeResult
-  step: TransactionStep
-  setStep: (newStep: TransactionStep) => void
-  warnings: Warning[]
-  exactValue: string
-  isUSDInput?: boolean
-  showUSDToggle?: boolean
-}
+import { DerivedSwapInfo } from './swap/types'
+import { TransactionFlowProps, TransactionStep } from './types'
 
 type InnerContentProps = Pick<
   TransactionFlowProps,
@@ -134,7 +108,7 @@ export function TransactionFlow({
     <TouchableWithoutFeedback>
       <Flex style={{ marginTop: insets.top }}>
         <HandleBar backgroundColor="none" />
-        <AnimatedFlex grow row gap="none" height="100%" style={wrapperStyle}>
+        <AnimatedFlex grow row height="100%" style={wrapperStyle}>
           <Flex
             gap="$spacing16"
             pb={IS_ANDROID ? '$spacing32' : '$spacing16'}
@@ -180,7 +154,7 @@ export function TransactionFlow({
               confirmText={t('Dismiss')}
               icon={
                 <EyeIcon
-                  color={colors.neutral2.val}
+                  color={colors.neutral2.get()}
                   height={iconSizes.icon24}
                   width={iconSizes.icon24}
                 />

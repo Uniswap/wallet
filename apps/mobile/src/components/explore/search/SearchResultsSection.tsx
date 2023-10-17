@@ -13,30 +13,24 @@ import {
   formatTokenSearchResults,
   getSearchResultId,
 } from 'src/components/explore/search/utils'
-import { AnimatedFlex } from 'src/components/layout'
-import { BaseCard } from 'src/components/layout/BaseCard'
 import {
   NFTCollectionSearchResult,
-  SearchResult,
   SearchResultType,
   TokenSearchResult,
   WalletSearchResult,
-} from 'src/features/explore/searchHistorySlice'
+} from 'src/features/explore/SearchResult'
 import { useIsSmartContractAddress } from 'src/features/transactions/transfer/hooks'
-import { Flex, Text } from 'ui/src'
+import { AnimatedFlex, Flex, Text } from 'ui/src'
 import { logger } from 'utilities/src/logger/logger'
+import { BaseCard } from 'wallet/src/components/BaseCard/BaseCard'
 import { ChainId } from 'wallet/src/constants/chains'
 import { SafetyLevel, useExploreSearchQuery } from 'wallet/src/data/__generated__/types-and-hooks'
 import { useENS } from 'wallet/src/features/ens/useENS'
 import i18n from 'wallet/src/i18n/i18n'
 import { getValidAddress } from 'wallet/src/utils/addresses'
-
-export const SEARCH_RESULT_HEADER_KEY = 'header'
-
-// Header type used to render header text instead of SearchResult item
-export type SearchResultOrHeader =
-  | SearchResult
-  | { type: typeof SEARCH_RESULT_HEADER_KEY; title: string }
+import { SEARCH_RESULT_HEADER_KEY } from './constants'
+import { SearchContext } from './SearchContext'
+import { SearchResultOrHeader } from './types'
 
 const WalletHeaderItem: SearchResultOrHeader = {
   type: SEARCH_RESULT_HEADER_KEY,
@@ -53,14 +47,6 @@ const NFTHeaderItem: SearchResultOrHeader = {
 const EtherscanHeaderItem: SearchResultOrHeader = {
   type: SEARCH_RESULT_HEADER_KEY,
   title: i18n.t('View on Etherscan'),
-}
-
-export interface SearchContext {
-  category?: string
-  query?: string
-  position?: number
-  suggestionCount?: number
-  isHistory?: boolean // history item click
 }
 
 export function SearchResultsSection({ searchQuery }: { searchQuery: string }): JSX.Element {
@@ -202,7 +188,7 @@ export function SearchResultsSection({ searchQuery }: { searchQuery: string }): 
 
   if (error) {
     return (
-      <AnimatedFlex entering={FadeIn} exiting={FadeOut} pt="spacing24">
+      <AnimatedFlex entering={FadeIn} exiting={FadeOut} pt="$spacing24">
         <BaseCard.ErrorState
           retryButtonLabel="Retry"
           title={t('Couldn’t load search results')}
@@ -216,7 +202,7 @@ export function SearchResultsSection({ searchQuery }: { searchQuery: string }): 
     <Flex grow gap="$spacing8">
       <FlatList
         ListEmptyComponent={
-          <AnimatedFlex entering={FadeIn} exiting={FadeOut} gap="spacing8" mx="spacing8">
+          <AnimatedFlex entering={FadeIn} exiting={FadeOut} gap="$spacing8" mx="$spacing8">
             <Text color="$neutral2" variant="body1">
               <Trans t={t}>
                 No results found for <Text color="$neutral1">"{searchQuery}"</Text>

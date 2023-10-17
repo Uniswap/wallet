@@ -7,11 +7,7 @@ import {
   withRepeat,
   withTiming,
 } from 'react-native-reanimated'
-import { useAppTheme } from 'src/app/hooks'
-import { AnimatedBox } from 'src/components/layout'
-import Loader from 'ui/src/assets/icons/circle-spinner.svg'
-import EmptySpinner from 'ui/src/assets/icons/empty-spinner.svg'
-import { Theme } from 'ui/src/theme/restyle'
+import { AnimatedFlex, ColorTokens, Icons } from 'ui/src'
 
 export function SpinningLoader({
   size = 20,
@@ -20,9 +16,8 @@ export function SpinningLoader({
 }: {
   size?: number
   disabled?: boolean
-  color?: keyof Theme['colors']
+  color?: ColorTokens
 }): JSX.Element {
-  const theme = useAppTheme()
   const rotation = useSharedValue(0)
 
   const animatedStyles = useAnimatedStyle(() => {
@@ -47,11 +42,12 @@ export function SpinningLoader({
   }, [rotation])
 
   if (disabled) {
-    return <EmptySpinner color={theme.colors.neutral3} height={size} width={size} />
+    return <Icons.EmptySpinner color="$neutral3" size={size} />
   }
+
   return (
-    <AnimatedBox sentry-label="SpinningLoader" style={[animatedStyles]}>
-      <Loader color={theme.colors[color ?? 'neutral1']} height={size} width={size} />
-    </AnimatedBox>
+    <AnimatedFlex sentry-label="SpinningLoader" style={[animatedStyles]}>
+      <Icons.CircleSpinner color={color ?? '$neutral1'} size={size} />
+    </AnimatedFlex>
   )
 }

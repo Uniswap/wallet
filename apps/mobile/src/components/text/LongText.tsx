@@ -28,11 +28,11 @@ export function LongText(props: LongTextProps): JSX.Element {
     initialDisplayedLines = 3,
     text,
     gap = '$spacing8',
-    color = colors.neutral1.val,
-    linkColor = colors.neutral2.val,
-    readMoreOrLessColor = colors.neutral2.val,
+    color = colors.neutral1.get(),
+    linkColor = colors.neutral2.get(),
+    readMoreOrLessColor = colors.neutral2.get(),
     renderAsMarkdown = false,
-    codeBackgroundColor = colors.surface3.val,
+    codeBackgroundColor = colors.surface3.get(),
     variant = 'body2',
     ...rest
   } = props
@@ -51,11 +51,12 @@ export function LongText(props: LongTextProps): JSX.Element {
     (event: LayoutChangeEvent) => {
       if (!renderAsMarkdown || initialContentHeight !== undefined) return
       const textContentHeight = event.nativeEvent.layout.height
-      setTextLengthExceedsLimit(textContentHeight > maxVisibleHeight)
+      const currentLines = Math.floor(textContentHeight / textLineHeight)
+      setTextLengthExceedsLimit(currentLines > initialDisplayedLines)
       toggleExpanded()
       setInitialContentHeight(textContentHeight)
     },
-    [initialContentHeight, maxVisibleHeight, renderAsMarkdown]
+    [initialContentHeight, initialDisplayedLines, textLineHeight, renderAsMarkdown]
   )
 
   const onTextLayout = useCallback(
@@ -78,6 +79,7 @@ export function LongText(props: LongTextProps): JSX.Element {
             style={{
               body: {
                 color,
+                fontFamily: fonts[variant].family,
                 height: !textLengthExceedsLimit || expanded ? 'auto' : maxVisibleHeight,
                 overflow: 'hidden',
               },
