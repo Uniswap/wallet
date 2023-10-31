@@ -53,6 +53,9 @@
     "pod": "./scripts/podinstall.sh"
   },
   "dependencies": {
+    "@alchemy/aa-accounts": "0.1.1",
+    "@alchemy/aa-alchemy": "0.1.1",
+    "@alchemy/aa-core": "0.1.1",
     "@amplitude/analytics-node": "1.0.0",
     "@amplitude/analytics-react-native": "1.4.0",
     "@amplitude/analytics-types": "0.13.0",
@@ -158,8 +161,10 @@
     "rive-react-native": "6.0.4",
     "statsig-react-native": "4.9.2",
     "typed-redux-saga": "1.5.0",
+    "use-async-effect": "2.2.7",
     "utilities": "workspace:^",
     "uuid": "9.0.0",
+    "viem": "1.18.1",
     "wallet": "workspace:^",
     "wcag-contrast": "3.0.0"
   },

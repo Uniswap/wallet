@@ -12,6 +12,44 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@adraffy/ens-normalize@npm:1.9.4":
+  version: 1.9.4
+  resolution: "@adraffy/ens-normalize@npm:1.9.4"
+  checksum: 7d7fff58ebe2c4961f7e5e61dad123aa6a63fec0df5c84af1fa41079dc05d398599690be4427b3a94d2baa94084544bcfdf2d51cbed7504b9b0583b0960ad550
+  languageName: node
+  linkType: hard
+
+"@alchemy/aa-accounts@npm:0.1.1":
+  version: 0.1.1
+  resolution: "@alchemy/aa-accounts@npm:0.1.1"
+  dependencies:
+    "@alchemy/aa-core": ^0.1.1
+    viem: ^1.16.2
+  checksum: 6d660f3ffae5d1e32fe02456120810f87f7b1c5282d06c76505a4451fa24ba13af0c36c3fcbdf31e1fdf70461f1693cf8d53f97b28063530f367d13d8b73406f
+  languageName: node
+  linkType: hard
+
+"@alchemy/aa-alchemy@npm:0.1.1":
+  version: 0.1.1
+  resolution: "@alchemy/aa-alchemy@npm:0.1.1"
+  dependencies:
+    "@alchemy/aa-core": ^0.1.1
+    viem: ^1.16.2
+  checksum: 9704fd88d0ed1888f9ea2ab02824c2a6af3f72dbe1ce0c9647f16cee621f0394eb04d0fa2f046a04ea5295a8f1a425442bb0cc7b79cadfe8a429831942e6a648
+  languageName: node
+  linkType: hard
+
+"@alchemy/aa-core@npm:0.1.1, @alchemy/aa-core@npm:^0.1.1":
+  version: 0.1.1
+  resolution: "@alchemy/aa-core@npm:0.1.1"
+  dependencies:
+    abitype: ^0.8.3
+    eventemitter3: ^5.0.1
+    viem: ^1.16.2
+  checksum: 65dea0793e8bce0919822a747aa236db75d5e2bad94378404c90d731e0372c3611b0447f36463c026da283eea4d21a6059874b13d835b6f8a0516cd5ede9053b
+  languageName: node
+  linkType: hard
+
 "@amplitude/analytics-browser@npm:1.12.1, @amplitude/analytics-browser@npm:^1.5.8":
   version: 1.12.1
   resolution: "@amplitude/analytics-browser@npm:1.12.1"
@@ -5644,10 +5682,26 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@noble/curves@npm:1.2.0, @noble/curves@npm:~1.2.0":
+  version: 1.2.0
+  resolution: "@noble/curves@npm:1.2.0"
+  dependencies:
+    "@noble/hashes": 1.3.2
+  checksum: bb798d7a66d8e43789e93bc3c2ddff91a1e19fdb79a99b86cd98f1e5eff0ee2024a2672902c2576ef3577b6f282f3b5c778bebd55761ddbb30e36bf275e83dd0
+  languageName: node
+  linkType: hard
+
 "@noble/hashes@npm:1.2.0, @noble/hashes@npm:~1.2.0":
   version: 1.2.0
   resolution: "@noble/hashes@npm:1.2.0"
   checksum: 8ca080ce557b8f40fb2f78d3aedffd95825a415ac8e13d7ffe3643f8626a8c2d99a3e5975b555027ac24316d8b3c02a35b8358567c0c23af681e6573602aa434
+  languageName: node
+  linkType: hard
+
+"@noble/hashes@npm:1.3.2, @noble/hashes@npm:~1.3.0, @noble/hashes@npm:~1.3.2":
+  version: 1.3.2
+  resolution: "@noble/hashes@npm:1.3.2"
+  checksum: fe23536b436539d13f90e4b9be843cc63b1b17666a07634a2b1259dded6f490be3d050249e6af98076ea8f2ea0d56f578773c2197f2aa0eeaa5fba5bc18ba474
   languageName: node
   linkType: hard
 
@@ -6887,7 +6941,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@scure/base@npm:~1.1.0":
+"@scure/base@npm:~1.1.0, @scure/base@npm:~1.1.2":
   version: 1.1.3
   resolution: "@scure/base@npm:1.1.3"
   checksum: 1606ab8a4db898cb3a1ada16c15437c3bce4e25854fadc8eb03ae93cbbbac1ed90655af4b0be3da37e12056fef11c0374499f69b9e658c9e5b7b3e06353c630c
@@ -6905,6 +6959,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@scure/bip32@npm:1.3.2":
+  version: 1.3.2
+  resolution: "@scure/bip32@npm:1.3.2"
+  dependencies:
+    "@noble/curves": ~1.2.0
+    "@noble/hashes": ~1.3.2
+    "@scure/base": ~1.1.2
+  checksum: c5ae84fae43490853693b481531132b89e056d45c945fc8b92b9d032577f753dfd79c5a7bbcbf0a7f035951006ff0311b6cf7a389e26c9ec6335e42b20c53157
+  languageName: node
+  linkType: hard
+
 "@scure/bip39@npm:1.1.1":
   version: 1.1.1
   resolution: "@scure/bip39@npm:1.1.1"
@@ -6912,6 +6977,16 @@ __metadata:
     "@noble/hashes": ~1.2.0
     "@scure/base": ~1.1.0
   checksum: fbb594c50696fa9c14e891d872f382e50a3f919b6c96c55ef2fb10c7102c546dafb8f099a62bd114c12a00525b595dcf7381846f383f0ddcedeaa6e210747d2f
+  languageName: node
+  linkType: hard
+
+"@scure/bip39@npm:1.2.1":
+  version: 1.2.1
+  resolution: "@scure/bip39@npm:1.2.1"
+  dependencies:
+    "@noble/hashes": ~1.3.0
+    "@scure/base": ~1.1.0
+  checksum: c5bd6f1328fdbeae2dcdd891825b1610225310e5e62a4942714db51066866e4f7bef242c7b06a1b9dcc8043a4a13412cf5c5df76d3b10aa9e36b82e9b6e3eeaa
   languageName: node
   linkType: hard
 
@@ -11367,6 +11442,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@uniswap/mobile@workspace:apps/mobile"
   dependencies:
+    "@alchemy/aa-accounts": 0.1.1
+    "@alchemy/aa-alchemy": 0.1.1
+    "@alchemy/aa-core": 0.1.1
     "@amplitude/analytics-node": 1.0.0
     "@amplitude/analytics-react-native": 1.4.0
     "@amplitude/analytics-types": 0.13.0
@@ -11543,8 +11621,10 @@ __metadata:
     storybook-dark-mode: 3.0.0
     typed-redux-saga: 1.5.0
     typescript: 4.9.4
+    use-async-effect: 2.2.7
     utilities: "workspace:^"
     uuid: 9.0.0
+    viem: 1.18.1
     wallet: "workspace:^"
     wcag-contrast: 3.0.0
     yarn-deduplicate: 6.0.0
@@ -12323,6 +12403,34 @@ __metadata:
   version: 1.1.1
   resolution: "abbrev@npm:1.1.1"
   checksum: a4a97ec07d7ea112c517036882b2ac22f3109b7b19077dc656316d07d308438aac28e4d9746dc4d84bf6b1e75b4a7b0a5f3cb30592419f128ca9a8cee3bcfa17
+  languageName: node
+  linkType: hard
+
+"abitype@npm:0.9.8":
+  version: 0.9.8
+  resolution: "abitype@npm:0.9.8"
+  peerDependencies:
+    typescript: ">=5.0.4"
+    zod: ^3 >=3.19.1
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+    zod:
+      optional: true
+  checksum: d7d887f29d6821e3f7a400de9620511b80ead3f85c5c87308aaec97965d3493e6687ed816e88722b4f512249bd66dee9e69231b49af0e1db8f69400a62c87cf6
+  languageName: node
+  linkType: hard
+
+"abitype@npm:^0.8.3":
+  version: 0.8.11
+  resolution: "abitype@npm:0.8.11"
+  peerDependencies:
+    typescript: ">=5.0.4"
+    zod: ^3 >=3.19.1
+  peerDependenciesMeta:
+    zod:
+      optional: true
+  checksum: 94e6ad5d3d3851f68ea54d090312d35e38aa15d19b65d25f02d8c54400b184a87b121adb23e930f2e92d597e9290e8ca4f2ff70751e6dada4e8f1440948e0c44
   languageName: node
   linkType: hard
 
@@ -18537,6 +18645,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"eventemitter3@npm:^5.0.1":
+  version: 5.0.1
+  resolution: "eventemitter3@npm:5.0.1"
+  checksum: 543d6c858ab699303c3c32e0f0f47fc64d360bf73c3daf0ac0b5079710e340d6fe9f15487f94e66c629f5f82cd1a8678d692f3dbb6f6fcd1190e1b97fcad36f8
+  languageName: node
+  linkType: hard
+
 "events@npm:3.3.0, events@npm:^3.2.0, events@npm:^3.3.0":
   version: 3.3.0
   resolution: "events@npm:3.3.0"
@@ -22796,6 +22911,15 @@ __metadata:
   peerDependencies:
     ws: "*"
   checksum: e20eb2aee09ba96247465fda40c6d22c1153394c0144fa34fe6609f341af4c8c564f60ea3ba762335a7a9c306809349f9b863c8beedf2beea09b299834ad5398
+  languageName: node
+  linkType: hard
+
+"isows@npm:1.0.3":
+  version: 1.0.3
+  resolution: "isows@npm:1.0.3"
+  peerDependencies:
+    ws: "*"
+  checksum: 9cacd5cf59f67deb51e825580cd445ab1725ecb05a67c704050383fb772856f3cd5e7da8ad08f5a3bd2823680d77d099459d0c6a7037972a74d6429af61af440
   languageName: node
   linkType: hard
 
@@ -35389,6 +35513,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"use-async-effect@npm:2.2.7":
+  version: 2.2.7
+  resolution: "use-async-effect@npm:2.2.7"
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0
+  checksum: 81fe96df0e9db68fcf5b63a88307ba09896ddbdb6ea952fb00340d5f9d1393d06f2af4d8aa547b062cac2edaaf4bc383fc30f039054ce93bc9e61298ee52e938
+  languageName: node
+  linkType: hard
+
 "use-callback-ref@npm:^1.3.0":
   version: 1.3.0
   resolution: "use-callback-ref@npm:1.3.0"
@@ -35706,6 +35839,27 @@ __metadata:
     unist-util-stringify-position: ^3.0.0
     vfile-message: ^3.0.0
   checksum: 642cce703afc186dbe7cabf698dc954c70146e853491086f5da39e1ce850676fc96b169fcf7898aa3ff245e9313aeec40da93acd1e1fcc0c146dc4f6308b4ef9
+  languageName: node
+  linkType: hard
+
+"viem@npm:1.18.1, viem@npm:^1.16.2":
+  version: 1.18.1
+  resolution: "viem@npm:1.18.1"
+  dependencies:
+    "@adraffy/ens-normalize": 1.9.4
+    "@noble/curves": 1.2.0
+    "@noble/hashes": 1.3.2
+    "@scure/bip32": 1.3.2
+    "@scure/bip39": 1.2.1
+    abitype: 0.9.8
+    isows: 1.0.3
+    ws: 8.13.0
+  peerDependencies:
+    typescript: ">=5.0.4"
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  checksum: 99adf4eae6aaf371589d3c966b5eeda76b3c780d83f8cf21b345d050b5d65d2a66b0470a22cb0c8bea39bfdbd2b90c764eb49e1cffcdf3174ccd2e88e9065180
   languageName: node
   linkType: hard
 

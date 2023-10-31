@@ -1,3 +1,4 @@
+import { LocalAccountSigner, SmartAccountSigner } from '@alchemy/aa-core'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import React from 'react'
 import { Trans, useTranslation } from 'react-i18next'
@@ -8,10 +9,12 @@ import { Screen } from 'src/components/layout/Screen'
 import Trace from 'src/components/Trace/Trace'
 import { ImportType, OnboardingEntryPoint } from 'src/features/onboarding/utils'
 import { ElementName } from 'src/features/telemetry/constants'
+import { useAlchemyProvider } from 'src/screens/Onboarding/useAlchemyProvider'
 import { OnboardingScreens } from 'src/screens/Screens'
 import { openUri } from 'src/utils/linking'
 import { hideSplashScreen } from 'src/utils/splashScreen'
 import { Button, Flex, Text, TouchableArea, useMedia } from 'ui/src'
+import useAsyncEffect from 'use-async-effect'
 import { useTimeout } from 'utilities/src/time/timing'
 import { uniswapUrls } from 'wallet/src/constants/urls'
 import { useIsDarkMode } from 'wallet/src/features/appearance/hooks'
@@ -28,6 +31,23 @@ export function LandingScreen({ navigation }: Props): JSX.Element {
   const media = useMedia()
   const { t } = useTranslation()
   const isDarkMode = useIsDarkMode()
+
+  const { provider, connectProviderToAccount, disconnectProviderFromAccount } = useAlchemyProvider()
+
+  useAsyncEffect(async () => {
+    if (!provider.isConnected()) {
+      console.log('Account Kit Provider: ', provider)
+      // Sign with a random private key from https://privatekeys.pw/keys/ethereum/random
+      const eoaSigner: SmartAccountSigner = LocalAccountSigner.privateKeyToAccountSigner(
+        '0x3ebbe28a5b6935ac657d6f8d1e9ae6b520632e33d0f90a39e9815a0f03f81105'
+      )
+      console.log('Account Kit eoaSigner: ', eoaSigner)
+      connectProviderToAccount(eoaSigner)
+      const _scaAddress = await provider.getAddress()
+      console.log('Account Kit address', _scaAddress)
+      return
+    }
+  }, [])
 
   const onPressCreateWallet = (): void => {
     dispatch(pendingAccountActions.trigger(PendingAccountActions.Delete))
