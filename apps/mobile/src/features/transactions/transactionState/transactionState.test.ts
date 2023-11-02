@@ -1,5 +1,5 @@
 import { AnyAction } from '@reduxjs/toolkit'
-import { NATIVE_ADDRESS } from 'wallet/src/constants/addresses'
+import { getNativeAddress } from 'wallet/src/constants/addresses'
 import { ChainId } from 'wallet/src/constants/chains'
 import { AssetType, CurrencyAsset } from 'wallet/src/entities/assets'
 import {
@@ -11,25 +11,25 @@ import {
   selectCurrency,
   switchCurrencySides,
   transactionStateReducer,
+  updateExactAmountFiat,
   updateExactAmountToken,
-  updateExactAmountUSD,
 } from './transactionState'
 
 const chainId = ChainId.Goerli
-const ethAddress = NATIVE_ADDRESS
+const ethAddress = getNativeAddress(ChainId.Goerli)
 const daiTradeableAsset: CurrencyAsset = { address: 'DAI', chainId, type: AssetType.Currency }
 const ethTradeableAsset: CurrencyAsset = { address: ethAddress, chainId, type: AssetType.Currency }
 
 const testInitialState: Readonly<TransactionState> = {
   [CurrencyField.INPUT]: {
-    address: NATIVE_ADDRESS,
+    address: ethAddress,
     chainId: ChainId.Goerli,
     type: AssetType.Currency,
   },
   [CurrencyField.OUTPUT]: null,
   exactCurrencyField: CurrencyField.INPUT,
   exactAmountToken: '',
-  exactAmountUSD: '',
+  exactAmountFiat: '',
 }
 
 test('should return the initial state', () => {
@@ -160,7 +160,7 @@ describe(switchCurrencySides, () => {
       focusOnCurrencyField: CurrencyField.OUTPUT,
       [CurrencyField.INPUT]: ethTradeableAsset,
       [CurrencyField.OUTPUT]: daiTradeableAsset,
-      exactAmountUSD: '',
+      exactAmountFiat: '',
       exactAmountToken: '',
     })
   })
@@ -188,12 +188,12 @@ describe(updateExactAmountToken, () => {
     expect(
       transactionStateReducer(
         previousState,
-        updateExactAmountUSD({ field: CurrencyField.INPUT, amount: '1' })
+        updateExactAmountFiat({ field: CurrencyField.INPUT, amount: '1' })
       )
     ).toEqual({
       ...previousState,
       exactCurrencyField: CurrencyField.INPUT,
-      exactAmountUSD: '1',
+      exactAmountFiat: '1',
     })
   })
 

@@ -1,9 +1,11 @@
 import { memo } from 'react'
 import { Flex, getTokenValue, Icons, Text, useSporeColors } from 'ui/src'
 import { iconSizes } from 'ui/src/theme'
-import { formatNumber, formatUSDPrice, NumberType } from 'utilities/src/format/format'
+import { NumberType } from 'utilities/src/format/types'
 import { PortfolioBalance } from 'wallet/src/features/dataApi/types'
+import { useFiatConverter } from 'wallet/src/features/fiatCurrency/conversion'
 import { RemoteImage } from 'wallet/src/features/images/RemoteImage'
+import { useLocalizedFormatter } from 'wallet/src/features/language/formatter'
 import { getSymbolDisplayText } from 'wallet/src/utils/currency'
 import { CurrencyId } from 'wallet/src/utils/currencyId'
 
@@ -24,6 +26,10 @@ export const TokenBalanceItem = memo(function _TokenBalanceItem({
   const { quantity, relativeChange24, balanceUSD, currencyInfo } = portfolioBalance
   const { currency } = currencyInfo
   const colors = useSporeColors()
+  const { convertFiatAmountFormatted } = useFiatConverter()
+  const { formatNumberOrString } = useLocalizedFormatter()
+
+  const balanceFormatted = convertFiatAmountFormatted(balanceUSD, NumberType.FiatTokenQuantity)
 
   const onPress = (): void => {
     onPressToken?.(currencyInfo.currencyId)
@@ -68,7 +74,10 @@ export const TokenBalanceItem = memo(function _TokenBalanceItem({
               {currency.name ?? getSymbolDisplayText(currency.symbol)}
             </Text>
             <Text color="$neutral2" numberOfLines={1} variant="body1">
-              {`${formatNumber(quantity, NumberType.TokenNonTx)}`}{' '}
+              {`${formatNumberOrString({
+                value: quantity,
+                type: NumberType.TokenNonTx,
+              })}`}{' '}
               {getSymbolDisplayText(currency.symbol)}
             </Text>
           </Flex>
@@ -76,7 +85,7 @@ export const TokenBalanceItem = memo(function _TokenBalanceItem({
           {/* Portfolio balance */}
           <Flex fill alignItems="flex-end" justifyContent="flex-end" width={0}>
             <Text ellipsizeMode="tail" numberOfLines={1} variant="body1">
-              {balanceUSD === 0 ? 'N/A' : formatUSDPrice(balanceUSD, NumberType.FiatTokenQuantity)}
+              {balanceUSD === 0 ? 'N/A' : balanceFormatted}
             </Text>
             <Flex row alignItems="center" gap="$spacing4">
               <Icons.ArrowChange

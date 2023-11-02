@@ -41,7 +41,7 @@ export function TransferFlow({ prefilledState, onClose }: TransferFormProps): JS
   const onSelectRecipient = useOnSelectRecipient(dispatch)
   const onToggleShowRecipientSelector = useOnToggleShowRecipientSelector(dispatch)
   const derivedTransferInfo = useDerivedTransferInfo(state)
-  const { isUSDInput, exactAmountToken, exactAmountUSD } = derivedTransferInfo
+  const { isFiatInput, exactAmountToken, exactAmountFiat } = derivedTransferInfo
   const [step, setStep] = useState<TransactionStep>(TransactionStep.FORM)
   const txRequest = useTransferTransactionRequest(derivedTransferInfo)
   const warnings = useTransferWarnings(t, derivedTransferInfo)
@@ -59,7 +59,10 @@ export function TransferFlow({ prefilledState, onClose }: TransferFormProps): JS
     [gasFee?.params, txRequest]
   )
 
-  const gasWarning = useTransactionGasWarning(derivedTransferInfo, gasFee?.value)
+  const gasWarning = useTransactionGasWarning({
+    derivedInfo: derivedTransferInfo,
+    gasFee: gasFee?.value,
+  })
 
   const allWarnings = useMemo(() => {
     return !gasWarning ? warnings : [...warnings, gasWarning]
@@ -73,13 +76,13 @@ export function TransferFlow({ prefilledState, onClose }: TransferFormProps): JS
   return (
     <>
       <TransactionFlow
-        showUSDToggle
+        showFiatToggle
         derivedInfo={derivedTransferInfo}
         dispatch={dispatch}
-        exactValue={isUSDInput ? exactAmountUSD : exactAmountToken}
+        exactValue={isFiatInput ? exactAmountFiat : exactAmountToken}
         flowName={t('Send')}
         gasFee={gasFee}
-        isUSDInput={derivedTransferInfo.isUSDInput}
+        isFiatInput={derivedTransferInfo.isFiatInput}
         recipientSelector={
           <RecipientSelect
             recipient={state.recipient}

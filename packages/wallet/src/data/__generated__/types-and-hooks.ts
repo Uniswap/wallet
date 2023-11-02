@@ -29,7 +29,6 @@ export type Scalars = {
 export type ActivityDetails = SwapOrderDetails | TransactionDetails;
 
 export type ActivityDetailsInput = {
-  swapOrder?: InputMaybe<SwapOrderDetailsInput>;
   transaction?: InputMaybe<TransactionDetailsInput>;
 };
 
@@ -204,11 +203,25 @@ export enum MediaType {
 export type Mutation = {
   __typename?: 'Mutation';
   assetActivity: AssetActivity;
+  heartbeat: Status;
+  unsubscribe: Status;
 };
 
 
 export type MutationAssetActivityArgs = {
   input: AssetActivityInput;
+};
+
+
+export type MutationHeartbeatArgs = {
+  subscriptionId: Scalars['ID'];
+  type: SubscriptionType;
+};
+
+
+export type MutationUnsubscribeArgs = {
+  subscriptionId: Scalars['ID'];
+  type: SubscriptionType;
 };
 
 export type NftActivity = {
@@ -266,7 +279,6 @@ export type NftApproval = {
 export type NftApprovalInput = {
   approvedAddress: Scalars['String'];
   asset: NftAssetInput;
-  nftStandard: NftStandard;
 };
 
 export type NftApproveForAll = {
@@ -282,7 +294,6 @@ export type NftApproveForAll = {
 export type NftApproveForAllInput = {
   approved: Scalars['Boolean'];
   asset: NftAssetInput;
-  nftStandard: NftStandard;
   operatorAddress: Scalars['String'];
 };
 
@@ -680,7 +691,6 @@ export type NftTransfer = {
 export type NftTransferInput = {
   asset: NftAssetInput;
   direction: TransactionDirection;
-  nftStandard: NftStandard;
   recipient: Scalars['String'];
   sender: Scalars['String'];
 };
@@ -762,6 +772,7 @@ export type PortfolioTokensTotalDenominatedValueChangeArgs = {
 
 export type Query = {
   __typename?: 'Query';
+  assetActivity?: Maybe<AssetActivity>;
   convert?: Maybe<Amount>;
   nftActivity?: Maybe<NftActivityConnection>;
   nftAssets?: Maybe<NftAssetConnection>;
@@ -781,6 +792,12 @@ export type Query = {
   tokens?: Maybe<Array<Maybe<Token>>>;
   topCollections?: Maybe<NftCollectionConnection>;
   topTokens?: Maybe<Array<Maybe<Token>>>;
+};
+
+
+export type QueryAssetActivityArgs = {
+  address: Scalars['String'];
+  transactionHash: Scalars['String'];
 };
 
 
@@ -902,6 +919,11 @@ export enum SafetyLevel {
   Verified = 'VERIFIED'
 }
 
+export type Status = {
+  __typename?: 'Status';
+  success: Scalars['Boolean'];
+};
+
 export type Subscription = {
   __typename?: 'Subscription';
   onAssetActivity?: Maybe<AssetActivity>;
@@ -913,6 +935,10 @@ export type SubscriptionOnAssetActivityArgs = {
   subscriptionId: Scalars['ID'];
 };
 
+export enum SubscriptionType {
+  AssetActivity = 'ASSET_ACTIVITY'
+}
+
 export type SwapOrderDetails = {
   __typename?: 'SwapOrderDetails';
   hash: Scalars['String'];
@@ -921,16 +947,6 @@ export type SwapOrderDetails = {
   inputTokenQuantity: Scalars['String'];
   offerer: Scalars['String'];
   outputToken: Token;
-  outputTokenQuantity: Scalars['String'];
-  status: SwapOrderStatus;
-};
-
-export type SwapOrderDetailsInput = {
-  hash: Scalars['String'];
-  inputToken: TokenInput;
-  inputTokenQuantity: Scalars['String'];
-  offerer: Scalars['String'];
-  outputToken: TokenInput;
   outputTokenQuantity: Scalars['String'];
   status: SwapOrderStatus;
 };
@@ -992,9 +1008,13 @@ export type TokenApproval = {
 
 export type TokenApprovalInput = {
   approvedAddress: Scalars['String'];
-  asset: TokenInput;
+  asset: TokenAssetInput;
   quantity: Scalars['String'];
-  tokenStandard: TokenStandard;
+};
+
+export type TokenAssetInput = {
+  address: Scalars['String'];
+  chain: Chain;
 };
 
 export type TokenBalance = {
@@ -1154,12 +1174,11 @@ export type TokenTransfer = {
 };
 
 export type TokenTransferInput = {
-  asset: TokenInput;
+  asset: TokenAssetInput;
   direction: TransactionDirection;
   quantity: Scalars['String'];
   recipient: Scalars['String'];
   sender: Scalars['String'];
-  tokenStandard: TokenStandard;
   transactedValue?: InputMaybe<AmountInput>;
 };
 
@@ -1257,7 +1276,7 @@ export type SearchPopularNftCollectionsQuery = { __typename?: 'Query', topCollec
 export type SearchPopularTokensQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type SearchPopularTokensQuery = { __typename?: 'Query', topTokens?: Array<{ __typename?: 'Token', id: string, address?: string | null, chain: Chain, symbol?: string | null, project?: { __typename?: 'TokenProject', id: string, name?: string | null, logoUrl?: string | null } | null } | null> | null, eth?: Array<{ __typename?: 'Token', id: string, address?: string | null, chain: Chain, symbol?: string | null, project?: { __typename?: 'TokenProject', id: string, name?: string | null, logoUrl?: string | null } | null } | null> | null };
+export type SearchPopularTokensQuery = { __typename?: 'Query', topTokens?: Array<{ __typename?: 'Token', id: string, address?: string | null, chain: Chain, symbol?: string | null, decimals?: number | null, project?: { __typename?: 'TokenProject', id: string, name?: string | null, logoUrl?: string | null, safetyLevel?: SafetyLevel | null } | null } | null> | null, eth?: Array<{ __typename?: 'Token', id: string, address?: string | null, chain: Chain, symbol?: string | null, decimals?: number | null, project?: { __typename?: 'TokenProject', id: string, name?: string | null, logoUrl?: string | null, safetyLevel?: SafetyLevel | null } | null } | null> | null };
 
 export type NftsQueryVariables = Exact<{
   ownerAddress: Scalars['String'];
@@ -1400,6 +1419,14 @@ export type TokensQueryVariables = Exact<{
 
 
 export type TokensQuery = { __typename?: 'Query', tokens?: Array<{ __typename?: 'Token', symbol?: string | null, chain: Chain, address?: string | null, project?: { __typename?: 'TokenProject', name?: string | null } | null } | null> | null };
+
+export type ConvertQueryVariables = Exact<{
+  fromCurrency: Currency;
+  toCurrency: Currency;
+}>;
+
+
+export type ConvertQuery = { __typename?: 'Query', convert?: { __typename?: 'Amount', id: string, value: number, currency?: Currency | null } | null };
 
 export type PortfolioBalanceQueryVariables = Exact<{
   owner: Scalars['String'];
@@ -1629,10 +1656,12 @@ export const SearchPopularTokensDocument = gql`
     address
     chain
     symbol
+    decimals
     project {
       id
       name
       logoUrl
+      safetyLevel
     }
   }
   eth: tokens(contracts: [{address: null, chain: ETHEREUM}]) {
@@ -1640,10 +1669,12 @@ export const SearchPopularTokensDocument = gql`
     address
     chain
     symbol
+    decimals
     project {
       id
       name
       logoUrl
+      safetyLevel
     }
   }
 }
@@ -2946,6 +2977,47 @@ export function useTokensLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Tok
 export type TokensQueryHookResult = ReturnType<typeof useTokensQuery>;
 export type TokensLazyQueryHookResult = ReturnType<typeof useTokensLazyQuery>;
 export type TokensQueryResult = Apollo.QueryResult<TokensQuery, TokensQueryVariables>;
+export const ConvertDocument = gql`
+    query Convert($fromCurrency: Currency!, $toCurrency: Currency!) {
+  convert(
+    fromAmount: {currency: $fromCurrency, value: 1.0}
+    toCurrency: $toCurrency
+  ) {
+    id
+    value
+    currency
+  }
+}
+    `;
+
+/**
+ * __useConvertQuery__
+ *
+ * To run a query within a React component, call `useConvertQuery` and pass it any options that fit your needs.
+ * When your component renders, `useConvertQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useConvertQuery({
+ *   variables: {
+ *      fromCurrency: // value for 'fromCurrency'
+ *      toCurrency: // value for 'toCurrency'
+ *   },
+ * });
+ */
+export function useConvertQuery(baseOptions: Apollo.QueryHookOptions<ConvertQuery, ConvertQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ConvertQuery, ConvertQueryVariables>(ConvertDocument, options);
+      }
+export function useConvertLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ConvertQuery, ConvertQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ConvertQuery, ConvertQueryVariables>(ConvertDocument, options);
+        }
+export type ConvertQueryHookResult = ReturnType<typeof useConvertQuery>;
+export type ConvertLazyQueryHookResult = ReturnType<typeof useConvertLazyQuery>;
+export type ConvertQueryResult = Apollo.QueryResult<ConvertQuery, ConvertQueryVariables>;
 export const PortfolioBalanceDocument = gql`
     query PortfolioBalance($owner: String!) {
   portfolios(

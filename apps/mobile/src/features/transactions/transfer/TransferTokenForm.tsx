@@ -29,15 +29,23 @@ import {
 import { TransferFormSpeedbumps } from 'src/features/transactions/transfer/TransferFormWarnings'
 import { BlockedAddressWarning } from 'src/features/trm/BlockedAddressWarning'
 import { useWalletRestore } from 'src/features/wallet/hooks'
-import { AnimatedFlex, Button, Flex, Text, TouchableArea, useSporeColors } from 'ui/src'
+import {
+  AnimatedFlex,
+  Button,
+  Flex,
+  Text,
+  TouchableArea,
+  useDeviceDimensions,
+  useSporeColors,
+} from 'ui/src'
 import AlertTriangleIcon from 'ui/src/assets/icons/alert-triangle.svg'
 import InfoCircleFilled from 'ui/src/assets/icons/info-circle-filled.svg'
-import { dimensions, iconSizes, spacing } from 'ui/src/theme'
+import { iconSizes, spacing } from 'ui/src/theme'
 import { usePrevious } from 'utilities/src/react/hooks'
 import { useUSDCValue } from 'wallet/src/features/routing/useUSDCPrice'
 import { CurrencyField } from 'wallet/src/features/transactions/transactionState/types'
 import { createTransactionId } from 'wallet/src/features/transactions/utils'
-import { useIsBlockedActiveAddress } from 'wallet/src/features/trm/hooks'
+import { useIsBlocked, useIsBlockedActiveAddress } from 'wallet/src/features/trm/hooks'
 import { TransferSpeedbump } from './types'
 
 interface TransferTokenProps {
@@ -57,14 +65,15 @@ export function TransferTokenForm({
 }: TransferTokenProps): JSX.Element {
   const { t } = useTranslation()
   const colors = useSporeColors()
+  const { fullHeight } = useDeviceDimensions()
 
   const {
     currencyAmounts,
     currencyBalances,
     exactAmountToken,
-    exactAmountUSD,
+    exactAmountFiat,
     recipient,
-    isUSDInput = false,
+    isFiatInput = false,
     currencyInInfo,
     nftIn,
     chainId,
@@ -73,9 +82,9 @@ export function TransferTokenForm({
   const currencyIn = currencyInInfo?.currency
   useUSDTokenUpdater(
     dispatch,
-    isUSDInput,
+    isFiatInput,
     exactAmountToken,
-    exactAmountUSD,
+    exactAmountFiat,
     currencyIn ?? undefined
   )
 
@@ -96,7 +105,12 @@ export function TransferTokenForm({
   const { onSetExactAmount, onSetMax } = useTokenFormActionHandlers(dispatch)
   const onToggleShowRecipientSelector = useOnToggleShowRecipientSelector(dispatch)
 
-  const { isBlocked, isBlockedLoading } = useIsBlockedActiveAddress()
+  const { isBlocked: isActiveBlocked, isBlockedLoading: isActiveBlockedLoading } =
+    useIsBlockedActiveAddress()
+  const { isBlocked: isRecipientBlocked, isBlockedLoading: isRecipientBlockedLoading } =
+    useIsBlocked(recipient)
+  const isBlocked = isActiveBlocked || isRecipientBlocked
+  const isBlockedLoading = isActiveBlockedLoading || isRecipientBlockedLoading
 
   const { walletNeedsRestore, openWalletRestoreModal } = useWalletRestore()
 
@@ -143,7 +157,7 @@ export function TransferTokenForm({
     [setInputSelection]
   )
 
-  const prevIsUSDInput = usePrevious(isUSDInput)
+  const previsFiatInput = usePrevious(isFiatInput)
 
   // when text changes on the screen, the default iOS input behavior is to use the same cursor
   // position but from the END of the input. so for example, if the cursor is currently at
@@ -151,34 +165,34 @@ export function TransferTokenForm({
   // this useEffect essentially calculates where the new cursor position is when the text has changed
   // and that only happens on toggling USD <-> token input
   useEffect(() => {
-    // only run this useEffect if isUSDInput has changed
+    // only run this useEffect if isFiatInput has changed
     // if inputSelection is undefined, then that means no text selection or cursor
     // movement has happened yet, so let iOS do its default thang
-    if (isUSDInput === prevIsUSDInput || !inputSelection) return
+    if (isFiatInput === previsFiatInput || !inputSelection) return
 
     if (inputSelection.start !== inputSelection.end) {
       setInputSelection(undefined)
       return
     }
 
-    const [prevInput, newInput] = isUSDInput
-      ? [exactAmountToken, exactAmountUSD]
-      : [exactAmountUSD, exactAmountToken]
+    const [prevInput, newInput] = isFiatInput
+      ? [exactAmountToken, exactAmountFiat]
+      : [exactAmountFiat, exactAmountToken]
     const positionFromEnd = prevInput.length - inputSelection.start
     const newPositionFromStart = newInput.length - positionFromEnd
-    const newPositionFromStartWithPrefix = newPositionFromStart + (isUSDInput ? 1 : -1)
+    const newPositionFromStartWithPrefix = newPositionFromStart + (isFiatInput ? 1 : -1)
 
     setInputSelection({
       start: newPositionFromStartWithPrefix,
       end: newPositionFromStartWithPrefix,
     })
   }, [
-    isUSDInput,
-    prevIsUSDInput,
+    isFiatInput,
+    previsFiatInput,
     inputSelection,
     setInputSelection,
     exactAmountToken,
-    exactAmountUSD,
+    exactAmountFiat,
   ])
 
   const onTransferWarningClick = (): void => {
@@ -232,7 +246,7 @@ export function TransferTokenForm({
           gap="$spacing2"
           onLayout={onInputPanelLayout}>
           {nftIn ? (
-            <NFTTransfer asset={nftIn} nftSize={dimensions.fullHeight / 4} />
+            <NFTTransfer asset={nftIn} nftSize={fullHeight / 4} />
           ) : (
             <Flex backgroundColor="$surface2" borderRadius="$rounded20" justifyContent="center">
               <CurrencyInputPanel
@@ -240,11 +254,11 @@ export function TransferTokenForm({
                 currencyBalance={currencyBalances[CurrencyField.INPUT]}
                 currencyInfo={currencyInInfo}
                 focus={currencyFieldFocused}
+                isFiatInput={isFiatInput}
                 isOnScreen={!showingSelectorScreen}
-                isUSDInput={isUSDInput}
                 showSoftInputOnFocus={showNativeKeyboard}
                 usdValue={inputCurrencyUSDValue}
-                value={isUSDInput ? exactAmountUSD : exactAmountToken}
+                value={isFiatInput ? exactAmountFiat : exactAmountToken}
                 warnings={warnings}
                 onPressIn={(): void => setCurrencyFieldFocused(true)}
                 onSelectionChange={
@@ -253,7 +267,7 @@ export function TransferTokenForm({
                     : (start, end): void => setInputSelection({ start, end })
                 }
                 onSetExactAmount={(value): void =>
-                  onSetExactAmount(CurrencyField.INPUT, value, isUSDInput)
+                  onSetExactAmount(CurrencyField.INPUT, value, isFiatInput)
                 }
                 onSetMax={(amount): void => {
                   onSetMax(amount)
@@ -357,6 +371,7 @@ export function TransferTokenForm({
                 backgroundColor="$surface2"
                 borderBottomLeftRadius="$rounded16"
                 borderBottomRightRadius="$rounded16"
+                isRecipientBlocked={isRecipientBlocked}
                 mt="$spacing2"
                 px="$spacing16"
                 py="$spacing12"
@@ -375,14 +390,14 @@ export function TransferTokenForm({
           onLayout={onDecimalPadLayout}>
           {!nftIn && !showNativeKeyboard && (
             <DecimalPad
-              hasCurrencyPrefix={isUSDInput}
+              hasCurrencyPrefix={isFiatInput}
               resetSelection={resetSelection}
               selection={inputSelection}
               setValue={(newValue): void => {
                 if (!currencyFieldFocused) return
-                onSetExactAmount(CurrencyField.INPUT, newValue, isUSDInput)
+                onSetExactAmount(CurrencyField.INPUT, newValue, isFiatInput)
               }}
-              value={isUSDInput ? exactAmountUSD : exactAmountToken}
+              value={isFiatInput ? exactAmountFiat : exactAmountToken}
             />
           )}
           <Button

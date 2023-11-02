@@ -182,11 +182,9 @@ exports[`SeedPhraseInputScreen seed phrase initial screen rendering 1`] = `
                       autoCorrect={true}
                       autoFocus={true}
                       blurOnSubmit={true}
-                      cancelable={true}
                       editable={true}
                       focusable={true}
                       maxFontSizeMultiplier={1.4}
-                      minPressDuration={0}
                       multiline={true}
                       onBlur={[Function]}
                       onChangeText={[Function]}
@@ -225,7 +223,7 @@ exports[`SeedPhraseInputScreen seed phrase initial screen rendering 1`] = `
                           "paddingLeft": 0,
                           "paddingRight": 0,
                           "paddingTop": 0,
-                          "textAlign": "center",
+                          "textAlign": "left",
                           "width": 8,
                         }
                       }
@@ -269,6 +267,8 @@ exports[`SeedPhraseInputScreen seed phrase initial screen rendering 1`] = `
                       cancelable={true}
                       focusable={true}
                       minPressDuration={0}
+                      onBlur={[Function]}
+                      onFocus={[Function]}
                       onMouseEnter={[Function]}
                       onMouseLeave={[Function]}
                       onPress={[Function]}
@@ -512,8 +512,6 @@ exports[`SeedPhraseInputScreen seed phrase initial screen rendering 1`] = `
               </View>
             </View>
             <View
-              onBlur={[Function]}
-              onFocus={[Function]}
               pointerEvents="none"
               style={
                 {

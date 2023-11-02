@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { shallowEqual } from 'react-redux'
-import { NATIVE_ADDRESS } from 'wallet/src/constants/addresses'
+import { getNativeAddress } from 'wallet/src/constants/addresses'
 import { ChainId } from 'wallet/src/constants/chains'
 import { AssetType, TradeableAsset } from 'wallet/src/entities/assets'
 import {
@@ -9,7 +9,7 @@ import {
 } from 'wallet/src/features/transactions/transactionState/types'
 
 const ETH_TRADEABLE_ASSET: TradeableAsset = {
-  address: NATIVE_ADDRESS,
+  address: getNativeAddress(ChainId.Mainnet),
   chainId: ChainId.Mainnet,
   type: AssetType.Currency,
 }
@@ -21,8 +21,8 @@ export const initialState: Readonly<TransactionState> = {
   exactCurrencyField: CurrencyField.INPUT,
   focusOnCurrencyField: CurrencyField.INPUT,
   exactAmountToken: '',
-  exactAmountUSD: '',
-  isUSDInput: false,
+  exactAmountFiat: '',
+  isFiatInput: false,
   selectingCurrencyField: undefined,
   showRecipientSelector: true,
   customSlippageTolerance: undefined,
@@ -87,7 +87,7 @@ const slice = createSlice({
       state.exactAmountToken = amount
     },
     /** Processes a new typed value for the given `field` */
-    updateExactAmountUSD: (
+    updateExactAmountFiat: (
       state,
       action: PayloadAction<{
         field?: CurrencyField
@@ -98,7 +98,7 @@ const slice = createSlice({
       if (field) {
         state.exactCurrencyField = field
       }
-      state.exactAmountUSD = amount
+      state.exactAmountFiat = amount
     },
     /** Changes the recipient */
     selectRecipient: (state, action: PayloadAction<{ recipient: Address }>) => {
@@ -111,8 +111,8 @@ const slice = createSlice({
     onFocus: (state, action: PayloadAction<CurrencyField | null>) => {
       state.focusOnCurrencyField = action.payload
     },
-    toggleUSDInput: (state, action: PayloadAction<boolean>) => {
-      state.isUSDInput = action.payload
+    toggleFiatInput: (state, action: PayloadAction<boolean>) => {
+      state.isFiatInput = action.payload
     },
     setCustomSlippageTolerance: (state, action: PayloadAction<number | undefined>) => {
       state.customSlippageTolerance = action.payload
@@ -133,10 +133,10 @@ export const {
   selectCurrency,
   switchCurrencySides,
   updateExactAmountToken,
-  updateExactAmountUSD,
+  updateExactAmountFiat,
   selectRecipient,
   clearRecipient,
-  toggleUSDInput,
+  toggleFiatInput,
   setCustomSlippageTolerance,
   setTxId,
   showTokenSelector,

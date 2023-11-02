@@ -2,29 +2,28 @@ import { CurrencyAmount, NativeCurrency } from '@uniswap/sdk-core'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
+  Warning,
   WarningAction,
   WarningLabel,
   WarningSeverity,
 } from 'src/components/modals/WarningModal/types'
 import { DerivedTransferInfo } from 'src/features/transactions/transfer/hooks'
+import { FEATURE_FLAGS } from 'wallet/src/features/experiments/constants'
+import { useFeatureFlag } from 'wallet/src/features/experiments/hooks'
 import { useOnChainNativeCurrencyBalance } from 'wallet/src/features/portfolio/api'
 import { CurrencyField } from 'wallet/src/features/transactions/transactionState/types'
 import { hasSufficientFundsIncludingGas } from 'wallet/src/features/transactions/utils'
 import { useActiveAccountAddressWithThrow } from 'wallet/src/features/wallet/hooks'
 import { DerivedSwapInfo } from './swap/types'
 
-export function useTransactionGasWarning(
-  { chainId, currencyAmounts, currencyBalances }: DerivedSwapInfo | DerivedTransferInfo,
+export function useTransactionGasWarning({
+  derivedInfo,
+  gasFee,
+}: {
+  derivedInfo: DerivedSwapInfo | DerivedTransferInfo
   gasFee?: string
-):
-  | {
-      type: WarningLabel
-      severity: WarningSeverity
-      action: WarningAction
-      title: string
-      message: string
-    }
-  | undefined {
+}): Warning | undefined {
+  const { chainId, currencyAmounts, currencyBalances } = derivedInfo
   const { t } = useTranslation()
   const address = useActiveAccountAddressWithThrow()
   const { balance: nativeCurrencyBalance } = useOnChainNativeCurrencyBalance(chainId, address)
@@ -43,6 +42,8 @@ export function useTransactionGasWarning(
   })
   const balanceInsufficient = currencyAmountIn && currencyBalanceIn?.lessThan(currencyAmountIn)
 
+  const isSwapRewriteFeatureEnabled = useFeatureFlag(FEATURE_FLAGS.SwapRewrite)
+
   return useMemo(() => {
     // if balance is already insufficient, dont need to show warning about network fee
     if (gasFee === undefined || balanceInsufficient || !nativeCurrencyBalance || hasGasFunds) return
@@ -51,12 +52,26 @@ export function useTransactionGasWarning(
       type: WarningLabel.InsufficientGasFunds,
       severity: WarningSeverity.Medium,
       action: WarningAction.DisableSubmit,
-      title: t('Not enough {{ nativeCurrency }} to pay network fee', {
-        nativeCurrency: nativeCurrencyBalance.currency.symbol,
-      }),
-      message: t('Network fees are paid in the native token. Buy more {{ nativeCurrency }}.', {
-        nativeCurrency: nativeCurrencyBalance.currency.symbol,
-      }),
+      title: isSwapRewriteFeatureEnabled
+        ? t('You don’t have enough {{ nativeCurrency }} to cover the network cost', {
+            nativeCurrency: nativeCurrencyBalance.currency.symbol,
+          })
+        : t('Not enough {{ nativeCurrency }} to cover network cost', {
+            nativeCurrency: nativeCurrencyBalance.currency.symbol,
+          }),
+      // TODO: No modal for this error state in the swap rewrite until "BUY" button implemented
+      message: isSwapRewriteFeatureEnabled
+        ? undefined
+        : t('Network fees are paid in the native token. Buy more {{ nativeCurrency }}.', {
+            nativeCurrency: nativeCurrencyBalance.currency.symbol,
+          }),
     }
-  }, [gasFee, hasGasFunds, nativeCurrencyBalance, balanceInsufficient, t])
+  }, [
+    gasFee,
+    balanceInsufficient,
+    nativeCurrencyBalance,
+    hasGasFunds,
+    isSwapRewriteFeatureEnabled,
+    t,
+  ])
 }

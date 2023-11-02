@@ -22,9 +22,8 @@ import { DerivedSwapInfo } from 'src/features/transactions/swap/types'
 import { slippageToleranceToPercent } from 'src/features/transactions/swap/utils'
 import { AnimatedFlex, Button, Flex, Icons, Text, TouchableArea, useSporeColors } from 'ui/src'
 import AlertTriangleIcon from 'ui/src/assets/icons/alert-triangle.svg'
-import InfoCircle from 'ui/src/assets/icons/info-circle.svg'
 import { fonts, iconSizes, spacing } from 'ui/src/theme'
-import { formatCurrencyAmount, formatPercent, NumberType } from 'utilities/src/format/format'
+import { NumberType } from 'utilities/src/format/types'
 import { ChainId, CHAIN_INFO } from 'wallet/src/constants/chains'
 import {
   MAX_AUTO_SLIPPAGE_TOLERANCE,
@@ -33,6 +32,7 @@ import {
 import { uniswapUrls } from 'wallet/src/constants/urls'
 import { FEATURE_FLAGS } from 'wallet/src/features/experiments/constants'
 import { useFeatureFlag } from 'wallet/src/features/experiments/hooks'
+import { useLocalizedFormatter } from 'wallet/src/features/language/formatter'
 import { isPrivateRpcSupportedOnChain } from 'wallet/src/features/providers'
 import { useSwapProtectionSetting } from 'wallet/src/features/wallet/hooks'
 import { setSwapProtectionSetting, SwapProtectionSetting } from 'wallet/src/features/wallet/slice'
@@ -146,6 +146,7 @@ function SwapSettingsOptions({
   chainId: ChainId
 }): JSX.Element {
   const { t } = useTranslation()
+  const { formatPercent } = useLocalizedFormatter()
   const isMevBlockerFeatureEnabled = useFeatureFlag(FEATURE_FLAGS.MevBlocker)
 
   return (
@@ -181,7 +182,6 @@ function SwapSettingsOptions({
 
 function SwapProtectionSettingsRow({ chainId }: { chainId: ChainId }): JSX.Element {
   const { t } = useTranslation()
-  const colors = useSporeColors()
   const dispatch = useAppDispatch()
   const swapProtectionSetting = useSwapProtectionSetting()
 
@@ -214,11 +214,7 @@ function SwapProtectionSettingsRow({ chainId }: { chainId: ChainId }): JSX.Eleme
                 <Text color="$neutral1" variant="subheading2">
                   {t('Swap protection')}
                 </Text>
-                <InfoCircle
-                  color={colors.neutral1.get()}
-                  height={iconSizes.icon16}
-                  width={iconSizes.icon16}
-                />
+                <Icons.InfoCircleFilled color="$neutral3" size={iconSizes.icon16} />
               </Flex>
               <Text color="$neutral2" variant="body3">
                 {subText}
@@ -475,6 +471,7 @@ function BottomLabel({
 }): JSX.Element | null {
   const colors = useSporeColors()
   const { t } = useTranslation()
+  const { formatCurrencyAmount } = useLocalizedFormatter()
   const slippageTolerancePercent = slippageToleranceToPercent(slippageTolerance)
 
   if (inputWarning) {
@@ -497,17 +494,17 @@ function BottomLabel({
       <Text color="$neutral2" textAlign="center" variant="body2">
         {trade.tradeType === TradeType.EXACT_INPUT
           ? t('Receive at least {{amount}} {{symbol}}', {
-              amount: formatCurrencyAmount(
-                trade.minimumAmountOut(slippageTolerancePercent),
-                NumberType.TokenTx
-              ),
+              amount: formatCurrencyAmount({
+                value: trade.minimumAmountOut(slippageTolerancePercent),
+                type: NumberType.TokenTx,
+              }),
               symbol: getSymbolDisplayText(trade.outputAmount.currency.symbol),
             })
           : t('Spend at most {{amount}} {{symbol}}', {
-              amount: formatCurrencyAmount(
-                trade.maximumAmountIn(slippageTolerancePercent),
-                NumberType.TokenTx
-              ),
+              amount: formatCurrencyAmount({
+                value: trade.maximumAmountIn(slippageTolerancePercent),
+                type: NumberType.TokenTx,
+              }),
               symbol: getSymbolDisplayText(trade.inputAmount.currency.symbol),
             })}
       </Text>

@@ -57,7 +57,7 @@ We’ll be using Homebrew to install many of the other required tools through th
 
 ### nvm
 
-`nvm` is the Node Version Manager. While not required, it makes it easy to install Node and switch between different versions. A minimum Node version of 16 is required to use this repository.
+`nvm` is the Node Version Manager. While not required, it makes it easy to install Node and switch between different versions. A minimum Node version of 18 is required to use this repository.
 
 Copy the curl command listed under _Install & Update Script_ on [this page](https://github.com/nvm-sh/nvm#install--update-script) and run it in your terminal.
 
@@ -68,15 +68,15 @@ To make sure nvm installed correctly, try running `nvm -v` (you may need to quit
 Now we want to use nvm to install a specific version of node.
 
 Run the following command in your terminal:
-`nvm install 16`
+`nvm install 18`
 
 and then when it’s finished, run:
-`nvm use 16`
+`nvm use 18`
 
 Quit and re-open the terminal, and then run:
 `node -v`
 
-to make sure you get a version number that starts with `v16.`.
+to make sure you get a version number that starts with `v18.`.
 
 ### yarn
 
@@ -106,7 +106,7 @@ Set this as your default version:
 `rbenv global 3.2.2`
 
 Install cocoapods:
-`gem install cocoapods -v 1.11.3`
+`gem install cocoapods -v 1.13.0`
 
 ### Add Xcode Command Line Tools
 
@@ -157,11 +157,9 @@ This is done in bootstrap but good to know about. Before the code will compile y
 
 In the root directory, run `yarn` to install all the necessary npm packages.
 
-Then run `yarn pod` to install all the necessary pods.
+Then run `yarn mobile pod` to install all the necessary pods. (You may need to updated source repos with `pod repo update` if this fails.)
 
-If you do not have Swift graphQL files and Env Constants in your local (probably if it is your first time running widgets) Then run `yarn graphql:generate:swift` to generate graphQL schemas and types for the widgets. Then run `yarn env:local:copy:swift` to copy over the Environment Variables into a swift constants file.
-
-Finally, run `yarn ios` to boot up the iOS Simulator and run the app inside it. The JS bundler (metro) should automatically open in a new terminal window. If it does not, start it manually with `yarn start`.
+Finally, run `yarn mobile ios` to boot up the iOS Simulator and run the app inside it. The JS bundler (metro) should automatically open in a new terminal window. If it does not, start it manually with `yarn start`.
 
 Or you can use one command to run them all one after the other: `yarn && yarn pod && yarn ios`
 
@@ -178,7 +176,7 @@ These are some tools you might want to familiarize yourself with to understand t
 - [Redux](https://redux.js.org/) and [Redux Toolkit](https://redux-toolkit.js.org/): state management
 - [redux-saga](https://redux-saga.js.org/) & [typed-redux-saga](https://github.com/agiledigital/typed-redux-saga): Redux side effect manager -- used for complex/stateful network calls
 - [ethers](https://docs.ethers.io/v5/)
-- [Shopify/restyle](https://github.com/Shopify/restyle): UI framework
+- [Tamagui](https://tamagui.dev): UI framework
 - [React navigation](https://reactnavigation.org/): routing and navigation with animations and gestures
 - [react-i18next](https://react.i18next.com/): i18n
 

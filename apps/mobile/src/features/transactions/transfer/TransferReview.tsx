@@ -12,8 +12,10 @@ import {
   useTransferERC20Callback,
   useTransferNFTCallback,
 } from 'src/features/transactions/transfer/hooks'
-import { formatCurrencyAmount, formatNumberOrString, NumberType } from 'utilities/src/format/format'
+import { NumberType } from 'utilities/src/format/types'
+import { useAppFiatCurrencyInfo } from 'wallet/src/features/fiatCurrency/hooks'
 import { GasFeeResult } from 'wallet/src/features/gas/types'
+import { useLocalizedFormatter } from 'wallet/src/features/language/formatter'
 import { useUSDCValue } from 'wallet/src/features/routing/useUSDCPrice'
 import { CurrencyField } from 'wallet/src/features/transactions/transactionState/types'
 import { AccountType } from 'wallet/src/features/wallet/accounts/types'
@@ -38,9 +40,11 @@ export function TransferReview({
   warnings,
 }: TransferFormProps): JSX.Element | null {
   const { t } = useTranslation()
+  const { formatCurrencyAmount, formatNumberOrString } = useLocalizedFormatter()
   const account = useActiveAccountWithThrow()
   const [showWarningModal, setShowWarningModal] = useState(false)
   const [showNetworkFeeInfoModal, setShowNetworkFeeInfoModal] = useState(false)
+  const currency = useAppFiatCurrencyInfo()
 
   const onShowWarning = (): void => {
     setShowWarningModal(true)
@@ -61,12 +65,12 @@ export function TransferReview({
   const {
     currencyAmounts,
     recipient,
-    isUSDInput = false,
+    isFiatInput = false,
     currencyInInfo,
     nftIn,
     chainId,
     txId,
-    exactAmountUSD,
+    exactAmountFiat,
   } = derivedTransferInfo
 
   const inputCurrencyUSDValue = useUSDCValue(currencyAmounts[CurrencyField.INPUT])
@@ -120,12 +124,16 @@ export function TransferReview({
 
   const transferWarning = warnings.find((warning) => warning.severity >= WarningSeverity.Medium)
 
-  const formattedCurrencyAmount = formatCurrencyAmount(
-    currencyAmounts[CurrencyField.INPUT],
-    NumberType.TokenTx
-  )
-  const formattedAmountIn = isUSDInput
-    ? formatNumberOrString(exactAmountUSD, NumberType.FiatTokenQuantity)
+  const formattedCurrencyAmount = formatCurrencyAmount({
+    value: currencyAmounts[CurrencyField.INPUT],
+    type: NumberType.TokenTx,
+  })
+  const formattedAmountIn = isFiatInput
+    ? formatNumberOrString({
+        value: exactAmountFiat,
+        type: NumberType.FiatTokenQuantity,
+        currencyCode: currency.code,
+      })
     : formattedCurrencyAmount
 
   return (
@@ -149,7 +157,7 @@ export function TransferReview({
         currencyInInfo={currencyInInfo}
         formattedAmountIn={formattedAmountIn}
         inputCurrencyUSDValue={inputCurrencyUSDValue}
-        isUSDInput={isUSDInput}
+        isFiatInput={isFiatInput}
         nftIn={nftIn}
         recipient={recipient}
         transactionDetails={

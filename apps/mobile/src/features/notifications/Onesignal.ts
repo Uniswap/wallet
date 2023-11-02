@@ -7,7 +7,6 @@ import { config } from 'wallet/src/config'
 import { GQLQueries } from 'wallet/src/data/queries'
 
 export const initOneSignal = (): void => {
-  OneSignal.setLogLevel(6, 0)
   OneSignal.setAppId(config.onesignalAppId)
 
   OneSignal.setNotificationWillShowInForegroundHandler((event: NotificationReceivedEvent) => {
@@ -63,14 +62,7 @@ export const getOneSignalUserIdOrError = async (): Promise<string> => {
   return onesignalUserId
 }
 
-export const getOnesignalPushTokenOrError = async (): Promise<string> => {
+export const getOneSignalPushToken = async (): Promise<string | undefined> => {
   const onesignalPushToken = (await OneSignal.getDeviceState())?.pushToken
-  if (!onesignalPushToken) {
-    if (process.env.NODE_ENV === 'test') {
-      // this was very noisy in jest
-      return ''
-    }
-    throw new Error('Onesignal push token is not defined')
-  }
   return onesignalPushToken
 }

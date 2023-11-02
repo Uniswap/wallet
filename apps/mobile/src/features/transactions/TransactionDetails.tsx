@@ -8,7 +8,7 @@ import { NetworkFee } from 'src/components/Network/NetworkFee'
 import { OnShowSwapFeeInfo, SwapFee } from 'src/components/SwapFee/SwapFee'
 import { sendMobileAnalyticsEvent } from 'src/features/telemetry'
 import { FeeOnTransferInfo } from 'src/features/transactions/swap/FeeOnTransferInfo'
-import { Box, Flex, Icons, Separator, Text, TouchableArea, useSporeColors } from 'ui/src'
+import { Flex, Icons, Separator, Text, TouchableArea, useSporeColors } from 'ui/src'
 import AnglesMaximize from 'ui/src/assets/icons/angles-maximize.svg'
 import AnglesMinimize from 'ui/src/assets/icons/angles-minimize.svg'
 import { iconSizes } from 'ui/src/theme'
@@ -86,20 +86,16 @@ export function TransactionDetails({
         </TouchableArea>
       )}
       {gasFee.error && (
-        <Box
-          backgroundColor="$DEP_accentCriticalSoft"
-          borderRadius="$rounded16"
-          mb="$spacing16"
-          p="$spacing12">
+        <Flex bg="$DEP_accentCriticalSoft" borderRadius="$rounded16" mb="$spacing12" p="$spacing12">
           <Text color="$statusCritical">{t('This transaction is expected to fail')}</Text>
-        </Box>
+        </Flex>
       )}
-      {!showWarning && banner && <Box py="$spacing16">{banner}</Box>}
+      {!showWarning && banner && <Flex py="$spacing16">{banner}</Flex>}
       {children ? (
         <Flex centered row pb="$spacing16">
           <Separator mr="$spacing16" />
           <TouchableArea
-            alignContent="center"
+            alignItems="center"
             flexDirection="row"
             justifyContent="center"
             pb="$spacing4"

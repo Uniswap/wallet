@@ -3,7 +3,8 @@ import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
 import * as Sentry from '@sentry/react-native'
 import { PerformanceProfiler, RenderPassReport } from '@shopify/react-native-performance'
 import { default as React, StrictMode, useCallback, useEffect } from 'react'
-import { NativeModules, StatusBar } from 'react-native'
+import { useTranslation } from 'react-i18next'
+import { I18nManager, NativeModules, StatusBar } from 'react-native'
 import { getUniqueId } from 'react-native-device-info'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
@@ -33,18 +34,19 @@ import {
   setAccountAddressesUserDefaults,
   setFavoritesUserDefaults,
 } from 'src/features/widgets/widgets'
-import { DynamicThemeProvider } from 'src/theme/DynamicThemeProvider'
 import { useAppStateTrigger } from 'src/utils/useAppStateTrigger'
-import { getSentryEnvironment, getStatsigEnvironmentTier, isDevBuild } from 'src/utils/version'
+import { getSentryEnvironment, getStatsigEnvironmentTier } from 'src/utils/version'
 import { StatsigProvider } from 'statsig-react-native'
 import { flexStyles } from 'ui/src'
 import { registerConsoleOverrides } from 'utilities/src/logger/console'
+import { logger } from 'utilities/src/logger/logger'
 import { useAsyncData } from 'utilities/src/react/hooks'
 import { AnalyticsNavigationContextProvider } from 'utilities/src/telemetry/trace/AnalyticsNavigationContext'
 import { config } from 'wallet/src/config'
 import { uniswapUrls } from 'wallet/src/constants/urls'
 import { useCurrentAppearanceSetting, useIsDarkMode } from 'wallet/src/features/appearance/hooks'
 import { selectFavoriteTokens } from 'wallet/src/features/favorites/selectors'
+import { useCurrentLanguageInfo } from 'wallet/src/features/language/hooks'
 import { useTrmQuery } from 'wallet/src/features/trm/api'
 import { Account, AccountType } from 'wallet/src/features/wallet/accounts/types'
 import { WalletContextProvider } from 'wallet/src/features/wallet/context'
@@ -83,8 +85,7 @@ if (!__DEV__) {
     ],
     // By default, the Sentry SDK normalizes any context to a depth of 3.
     // We're increasing this to be able to see the full depth of the Redux state.
-    // We're testing this in the Dev build first to see if it causes any performance issues.
-    normalizeDepth: isDevBuild() ? 10 : 3,
+    normalizeDepth: 10,
   })
 }
 
@@ -115,6 +116,8 @@ function App(): JSX.Element | null {
     user: deviceId ? { userID: deviceId } : {},
     waitForInitialization: true,
   }
+
+  I18nManager.forceRTL(false)
 
   return (
     <Trace>
@@ -150,27 +153,25 @@ function AppOuter(): JSX.Element | null {
   return (
     <ApolloProvider client={client}>
       <PersistGate loading={null} persistor={persistor}>
-        <DynamicThemeProvider>
-          <ErrorBoundary>
-            <GestureHandlerRootView style={flexStyles.fill}>
-              <WalletContextProvider>
-                <BiometricContextProvider>
-                  <LockScreenContextProvider>
-                    <Sentry.TouchEventBoundary>
-                      <DataUpdaters />
-                      <BottomSheetModalProvider>
-                        <AppModals />
-                        <PerformanceProfiler onReportPrepared={onReportPrepared}>
-                          <AppInner />
-                        </PerformanceProfiler>
-                      </BottomSheetModalProvider>
-                    </Sentry.TouchEventBoundary>
-                  </LockScreenContextProvider>
-                </BiometricContextProvider>
-              </WalletContextProvider>
-            </GestureHandlerRootView>
-          </ErrorBoundary>
-        </DynamicThemeProvider>
+        <ErrorBoundary>
+          <GestureHandlerRootView style={flexStyles.fill}>
+            <WalletContextProvider>
+              <BiometricContextProvider>
+                <LockScreenContextProvider>
+                  <Sentry.TouchEventBoundary>
+                    <DataUpdaters />
+                    <BottomSheetModalProvider>
+                      <AppModals />
+                      <PerformanceProfiler onReportPrepared={onReportPrepared}>
+                        <AppInner />
+                      </PerformanceProfiler>
+                    </BottomSheetModalProvider>
+                  </Sentry.TouchEventBoundary>
+                </LockScreenContextProvider>
+              </BiometricContextProvider>
+            </WalletContextProvider>
+          </GestureHandlerRootView>
+        </ErrorBoundary>
       </PersistGate>
     </ApolloProvider>
   )
@@ -193,6 +194,8 @@ function DataUpdaters(): JSX.Element {
   const activeAccount = useActiveAccount()
   const favoriteTokens: CurrencyId[] = useAppSelector(selectFavoriteTokens)
   const accountsMap: Record<string, Account> = useAccounts()
+  const currentLanguageInfo = useCurrentLanguageInfo()
+  const { i18n } = useTranslation()
 
   useTrmQuery(
     activeAccount && activeAccount.type === AccountType.SignerMnemonic
@@ -210,6 +213,21 @@ function DataUpdaters(): JSX.Element {
   useEffect(() => {
     setAccountAddressesUserDefaults(Object.values(accountsMap))
   }, [accountsMap])
+
+  useEffect(() => {
+    const locale = currentLanguageInfo.locale
+    if (locale !== i18n.language) {
+      i18n
+        .changeLanguage(locale)
+        .catch(() =>
+          logger.warn(
+            'App',
+            'DataUpdaters',
+            'Sync of language setting state and i18n instance failed'
+          )
+        )
+    }
+  }, [i18n, currentLanguageInfo])
 
   return (
     <>

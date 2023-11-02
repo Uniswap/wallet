@@ -16,7 +16,7 @@ import { ModalName } from 'src/features/telemetry/constants'
 import { removePendingSession } from 'src/features/walletConnect/walletConnectSlice'
 import { Screens } from 'src/screens/Screens'
 import { Flex, TouchableArea, useSporeColors } from 'ui/src'
-import { borderRadii, spacing } from 'ui/src/theme'
+import { borderRadii } from 'ui/src/theme'
 import { NftsList } from 'wallet/src/components/nfts/NftsList'
 import { GQLQueries } from 'wallet/src/data/queries'
 import { NFTViewer } from 'wallet/src/features/images/NFTViewer'
@@ -95,6 +95,7 @@ export const NftsTab = memo(
       refreshing,
       onRefresh,
       headerHeight = 0,
+      renderedInModal = false,
     },
     ref
   ) {
@@ -136,16 +137,16 @@ export const NftsTab = memo(
       <Flex grow px="$spacing12">
         <NftsList
           ref={ref}
-          ListFooterComponent={adaptiveFooter}
-          emptyStateStyle={{ paddingHorizontal: spacing.spacing12 }}
+          ListFooterComponent={isExternalProfile ? null : adaptiveFooter}
+          emptyStateStyle={containerProps?.emptyContainerStyle}
           errorStateStyle={containerProps?.emptyContainerStyle}
           footerHeight={footerHeight}
           isExternalProfile={isExternalProfile}
-          loadingStateStyle={containerProps?.emptyContainerStyle}
           owner={owner}
           refreshControl={refreshControl}
           refreshing={refreshing}
           renderNFTItem={renderNFTItem}
+          renderedInModal={renderedInModal}
           onContentSizeChange={onContentSizeChange}
           onPressEmptyState={onPressScan}
           onRefresh={onRefresh}

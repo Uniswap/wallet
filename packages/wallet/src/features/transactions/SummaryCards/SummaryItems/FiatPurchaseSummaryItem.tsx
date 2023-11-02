@@ -1,8 +1,9 @@
 import React, { createElement } from 'react'
 import { useTranslation } from 'react-i18next'
-import { formatFiatPrice, formatNumber } from 'utilities/src/format/format'
+import { NumberType } from 'utilities/src/format/types'
 import { LogoWithTxStatus } from 'wallet/src/components/CurrencyLogo/LogoWithTxStatus'
 import { AssetType } from 'wallet/src/entities/assets'
+import { useLocalizedFormatter } from 'wallet/src/features/language/formatter'
 import { useCurrencyInfo } from 'wallet/src/features/tokens/useCurrencyInfo'
 import {
   SummaryItemProps,
@@ -23,6 +24,7 @@ export function FiatPurchaseSummaryItem({
   transaction: TransactionDetails & { typeInfo: FiatPurchaseTransactionInfo }
 }): JSX.Element {
   const { t } = useTranslation()
+  const { formatNumberOrString } = useLocalizedFormatter()
 
   const { chainId, typeInfo } = transaction
   const { inputCurrency, inputCurrencyAmount, outputCurrency, outputCurrencyAmount } = typeInfo
@@ -33,10 +35,11 @@ export function FiatPurchaseSummaryItem({
       : undefined
   )
 
-  const fiatPurchaseAmount = formatFiatPrice(
-    inputCurrencyAmount && inputCurrencyAmount > 0 ? inputCurrencyAmount : undefined,
-    inputCurrency?.code
-  )
+  const fiatPurchaseAmount = formatNumberOrString({
+    value: inputCurrencyAmount && inputCurrencyAmount > 0 ? inputCurrencyAmount : undefined,
+    type: NumberType.FiatTokenPrice,
+    currencyCode: inputCurrency?.code ?? 'usd',
+  })
 
   const symbol = getSymbolDisplayText(outputCurrencyInfo?.currency.symbol) ?? t('unknown token')
 
@@ -44,7 +47,7 @@ export function FiatPurchaseSummaryItem({
     caption:
       outputCurrencyAmount !== undefined && outputCurrencyAmount !== null
         ? t('{{cryptoAmount}} for {{fiatAmount}}', {
-            cryptoAmount: formatNumber(outputCurrencyAmount) + ' ' + symbol,
+            cryptoAmount: formatNumberOrString({ value: outputCurrencyAmount }) + ' ' + symbol,
             fiatAmount: fiatPurchaseAmount,
           })
         : fiatPurchaseAmount,

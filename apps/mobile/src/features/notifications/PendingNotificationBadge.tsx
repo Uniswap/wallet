@@ -6,16 +6,15 @@ import { SpinningLoader } from 'src/components/loading/SpinningLoader'
 import { useSelectAddressHasNotifications } from 'src/features/notifications/hooks'
 import { selectActiveAccountNotifications } from 'src/features/notifications/selectors'
 import { useSortedPendingTransactions } from 'src/features/transactions/hooks'
-import { Flex, Text, TouchableArea, useSporeColors } from 'ui/src'
+import { Flex, TouchableArea, useSporeColors } from 'ui/src'
 import AlertCircle from 'ui/src/assets/icons/alert-circle.svg'
 import { iconSizes } from 'ui/src/theme'
-import { theme as FixedTheme } from 'ui/src/theme/restyle'
 import { AppNotificationType } from 'wallet/src/features/notifications/types'
 import { TransactionStatus } from 'wallet/src/features/transactions/types'
 import { selectActiveAccountAddress } from 'wallet/src/features/wallet/selectors'
 
 const PENDING_TX_TIME_LIMIT = 60_000 * 5 // 5 mins
-const LOADING_SPINNER_SIZE = FixedTheme.iconSizes.icon20
+const LOADING_SPINNER_SIZE = iconSizes.icon20
 
 interface Props {
   size?: number
@@ -61,8 +60,6 @@ export function PendingNotificationBadge({
 
   // If a transaction has been pending for longer than 5 mins, then don't show the pending icon anymore
   if (pendingTransactionCount >= 1 && pendingTransactionCount <= 99 && !txPendingLongerThanLimit) {
-    const countToDisplay = pendingTransactionCount === 1 ? undefined : pendingTransactionCount
-
     return (
       <TouchableArea
         position="relative"
@@ -70,18 +67,7 @@ export function PendingNotificationBadge({
         onPressIn={async (): Promise<void | null> =>
           activeAccountAddress ? await preload(activeAccountAddress) : null
         }>
-        <Flex
-          alignItems="center"
-          height={size}
-          justifyContent="center"
-          position="absolute"
-          width={size}
-          zIndex="$modal">
-          <Text color="$neutral2" fontSize={8} textAlign="center" variant="buttonLabel4">
-            {countToDisplay}
-          </Text>
-        </Flex>
-        <SpinningLoader size={LOADING_SPINNER_SIZE} />
+        <SpinningLoader color="$accent1" size={LOADING_SPINNER_SIZE} />
       </TouchableArea>
     )
   }

@@ -24,7 +24,7 @@ export enum ValueType {
  */
 export function getCurrencyAmount<T extends Currency>({
   value,
-  valueType,
+  valueType = ValueType.Raw,
   currency,
 }: {
   value?: string
@@ -48,6 +48,8 @@ export function getCurrencyAmount<T extends Currency>({
       tags: {
         file: 'getCurrencyAmount',
         function: 'getCurrencyAmount',
+      },
+      extra: {
         value,
         valueType,
         symbol: currency.symbol,

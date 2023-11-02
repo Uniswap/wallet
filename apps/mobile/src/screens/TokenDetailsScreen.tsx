@@ -39,7 +39,7 @@ import {
 } from 'ui/src'
 import EllipsisIcon from 'ui/src/assets/icons/ellipsis.svg'
 import { fonts, iconSizes, spacing } from 'ui/src/theme'
-import { formatUSDPrice } from 'utilities/src/format/format'
+import { NumberType } from 'utilities/src/format/types'
 import { BaseCard } from 'wallet/src/components/BaseCard/BaseCard'
 import { TokenLogo } from 'wallet/src/components/CurrencyLogo/TokenLogo'
 import { ChainId } from 'wallet/src/constants/chains'
@@ -53,6 +53,7 @@ import {
 import { useIsDarkMode } from 'wallet/src/features/appearance/hooks'
 import { fromGraphQLChain } from 'wallet/src/features/chains/utils'
 import { currencyIdToContractInput } from 'wallet/src/features/dataApi/utils'
+import { useFiatConverter } from 'wallet/src/features/fiatCurrency/conversion'
 import { CurrencyField } from 'wallet/src/features/transactions/transactionState/types'
 import { useExtractedTokenColor } from 'wallet/src/utils/colors'
 import { currencyIdToAddress, currencyIdToChain } from 'wallet/src/utils/currencyId'
@@ -65,6 +66,7 @@ function HeaderTitleElement({
   ellipsisMenuVisible?: boolean
 }): JSX.Element {
   const { t } = useTranslation()
+  const { convertFiatAmountFormatted } = useFiatConverter()
 
   const onChainData = data?.token
   const offChainData = onChainData?.project
@@ -80,7 +82,7 @@ function HeaderTitleElement({
       justifyContent="space-between"
       ml={ellipsisMenuVisible ? '$spacing32' : '$none'}>
       <Text color="$neutral1" variant="body1">
-        {formatUSDPrice(price)}
+        {convertFiatAmountFormatted(price, NumberType.FiatTokenPrice)}
       </Text>
       <Flex centered row gap="$spacing4">
         <TokenLogo
@@ -132,7 +134,7 @@ export function TokenDetailsScreen({
   )
 
   return (
-    <ReactNavigationPerformanceView interactive={isLoading} screenName={Screens.TokenDetails}>
+    <ReactNavigationPerformanceView interactive screenName={Screens.TokenDetails}>
       <Trace
         directFromPage
         logImpression
@@ -184,8 +186,8 @@ function TokenDetails({
 
   const { tokenColor, tokenColorLoading } = useExtractedTokenColor(
     tokenLogoUrl,
-    /*background=*/ colors.surface1.get(),
-    /*default=*/ colors.neutral3.get()
+    /*background=*/ colors.surface1.val,
+    /*default=*/ colors.neutral3.val
   )
 
   const onPriceChartRetry = useCallback((): void => {

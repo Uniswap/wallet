@@ -42,7 +42,7 @@ export function RestoreWalletModal(): JSX.Element | null {
           borderRadius="$roundedFull"
           p="$spacing12"
           style={{
-            backgroundColor: opacify(12, colors.neutral1.get()),
+            backgroundColor: opacify(12, colors.neutral1.val),
           }}>
           <LockIcon
             color={colors.neutral1.get()}

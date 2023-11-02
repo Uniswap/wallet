@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import AnimatedNumber from 'src/components/AnimatedNumber'
 import { Flex } from 'ui/src'
-import { formatUSDPrice, NumberType } from 'utilities/src/format/format'
+import { NumberType } from 'utilities/src/format/types'
 import { RelativeChange } from 'wallet/src/components/text/RelativeChange'
 import { PollingInterval } from 'wallet/src/constants/misc'
 import { isWarmLoadingStatus } from 'wallet/src/data/utils'
 import { usePortfolioBalancesQuery } from 'wallet/src/data/__generated__/types-and-hooks'
+import { useFiatConverter } from 'wallet/src/features/fiatCurrency/conversion'
 
 interface PortfolioBalanceProps {
   owner: Address
@@ -25,6 +26,7 @@ export function PortfolioBalance({ owner }: PortfolioBalanceProps): JSX.Element 
       setIsWarmLoading(false)
     },
   })
+  const { convertFiatAmount, convertFiatAmountFormatted } = useFiatConverter()
 
   const [isWarmLoading, setIsWarmLoading] = useState(false)
   const isLoading = loading && !data
@@ -37,7 +39,12 @@ export function PortfolioBalance({ owner }: PortfolioBalanceProps): JSX.Element 
 
   const portfolioBalance = data?.portfolios?.[0]
   const portfolioChange = portfolioBalance?.tokensTotalDenominatedValueChange
-  const totalBalance = portfolioBalance?.tokensTotalDenominatedValue?.value
+
+  const totalBalance = convertFiatAmountFormatted(
+    portfolioBalance?.tokensTotalDenominatedValue?.value,
+    NumberType.PortfolioBalance
+  )
+  const { amount: absoluteChange } = convertFiatAmount(portfolioChange?.absolute?.value)
 
   return (
     <Flex gap="$spacing4">
@@ -45,10 +52,10 @@ export function PortfolioBalance({ owner }: PortfolioBalanceProps): JSX.Element 
         colorIndicationDuration={2000}
         loading={isWarmLoading || isLoading}
         loadingPlaceholderText="$00000.00"
-        value={formatUSDPrice(totalBalance, NumberType.PortfolioBalance)}
+        value={totalBalance}
       />
       <RelativeChange
-        absoluteChange={portfolioChange?.absolute?.value}
+        absoluteChange={absoluteChange}
         arrowSize="$icon.20"
         change={portfolioChange?.percentage?.value}
         loading={isWarmLoading || isLoading}

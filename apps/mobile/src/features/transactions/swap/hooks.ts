@@ -11,6 +11,8 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AnyAction } from 'redux'
 import { useAppDispatch, useAppSelector } from 'src/app/hooks'
 import { sendMobileAnalyticsEvent } from 'src/features/telemetry'
+import { selectSwapStartTimestamp } from 'src/features/telemetry/timing/selectors'
+import { updateSwapStartTimestamp } from 'src/features/telemetry/timing/slice'
 import {
   getBaseTradeAnalyticsProperties,
   getBaseTradeAnalyticsPropertiesFromSwapInfo,
@@ -29,11 +31,11 @@ import {
   WrapType,
 } from 'src/features/transactions/swap/wrapSaga'
 import {
+  updateExactAmountFiat,
   updateExactAmountToken,
-  updateExactAmountUSD,
 } from 'src/features/transactions/transactionState/transactionState'
 import { toStringish } from 'src/utils/number'
-import { formatCurrencyAmount, NumberType } from 'utilities/src/format/format'
+import { NumberType } from 'utilities/src/format/types'
 import { logger } from 'utilities/src/logger/logger'
 import { flattenObjectOfObjects } from 'utilities/src/primitives/objects'
 import { useAsyncData, usePrevious } from 'utilities/src/react/hooks'
@@ -43,8 +45,10 @@ import { ChainId } from 'wallet/src/constants/chains'
 import { ContractManager } from 'wallet/src/features/contracts/ContractManager'
 import { FEATURE_FLAGS } from 'wallet/src/features/experiments/constants'
 import { useFeatureFlag } from 'wallet/src/features/experiments/hooks'
+import { useFiatConverter } from 'wallet/src/features/fiatCurrency/conversion'
 import { useTransactionGasFee } from 'wallet/src/features/gas/hooks'
 import { GasFeeResult, GasSpeed, SimulatedGasEstimationInfo } from 'wallet/src/features/gas/types'
+import { useLocalizedFormatter } from 'wallet/src/features/language/formatter'
 import { pushNotification } from 'wallet/src/features/notifications/slice'
 import { AppNotificationType } from 'wallet/src/features/notifications/types'
 import { useOnChainCurrencyBalance } from 'wallet/src/features/portfolio/api'
@@ -79,14 +83,15 @@ import { buildCurrencyId } from 'wallet/src/utils/currencyId'
 import { getCurrencyAmount, ValueType } from 'wallet/src/utils/getCurrencyAmount'
 import { DerivedSwapInfo } from './types'
 
-const NUM_USD_DECIMALS_DISPLAY = 2
+const NUM_DECIMALS_USD = 2
+const NUM_DECIMALS_DISPLAY = 2
 
 /** Returns information derived from the current swap state */
 export function useDerivedSwapInfo(state: TransactionState): DerivedSwapInfo {
   const {
     [CurrencyField.INPUT]: currencyAssetIn,
     [CurrencyField.OUTPUT]: currencyAssetOut,
-    exactAmountUSD,
+    exactAmountFiat,
     exactAmountToken,
     exactCurrencyField,
     focusOnCurrencyField = CurrencyField.INPUT,
@@ -210,7 +215,7 @@ export function useDerivedSwapInfo(state: TransactionState): DerivedSwapInfo {
       currencyAmountsUSDValue,
       currencyBalances,
       exactAmountToken,
-      exactAmountUSD,
+      exactAmountFiat,
       exactCurrencyField,
       focusOnCurrencyField,
       trade,
@@ -227,7 +232,7 @@ export function useDerivedSwapInfo(state: TransactionState): DerivedSwapInfo {
     currencyBalances,
     currencyAmountsUSDValue,
     exactAmountToken,
-    exactAmountUSD,
+    exactAmountFiat,
     exactCurrencyField,
     focusOnCurrencyField,
     selectingCurrencyField,
@@ -241,20 +246,25 @@ export function useDerivedSwapInfo(state: TransactionState): DerivedSwapInfo {
 
 export function useUSDTokenUpdater(
   dispatch: React.Dispatch<AnyAction>,
-  isUSDInput: boolean,
+  isFiatInput: boolean,
   exactAmountToken: string,
-  exactAmountUSD: string,
+  exactAmountFiat: string,
   exactCurrency?: Currency
 ): void {
   const price = useUSDCPrice(exactCurrency)
-  const shouldUseUSDRef = useRef(isUSDInput)
+  const shouldUseUSDRef = useRef(isFiatInput)
+  const { formatCurrencyAmount } = useLocalizedFormatter()
+  const { convertFiatAmount } = useFiatConverter()
+  const conversionRate = convertFiatAmount().amount
 
   useEffect(() => {
-    shouldUseUSDRef.current = isUSDInput
-  }, [isUSDInput])
+    shouldUseUSDRef.current = isFiatInput
+  }, [isFiatInput])
 
   useEffect(() => {
     if (!exactCurrency || !price) return
+
+    const exactAmountUSD = (parseFloat(exactAmountFiat) / conversionRate).toFixed(NUM_DECIMALS_USD)
 
     if (shouldUseUSDRef.current) {
       const stablecoinAmount = getCurrencyAmount({
@@ -267,7 +277,11 @@ export function useUSDTokenUpdater(
 
       return dispatch(
         updateExactAmountToken({
-          amount: formatCurrencyAmount(currencyAmount, NumberType.SwapTradeAmount, ''),
+          amount: formatCurrencyAmount({
+            value: currencyAmount,
+            type: NumberType.SwapTradeAmount,
+            placeholder: '',
+          }),
         })
       )
     }
@@ -278,10 +292,21 @@ export function useUSDTokenUpdater(
       currency: exactCurrency,
     })
     const usdPrice = exactCurrencyAmount ? price?.quote(exactCurrencyAmount) : undefined
+    const fiatPrice = parseFloat(usdPrice?.toExact() ?? '0') * conversionRate
+
     return dispatch(
-      updateExactAmountUSD({ amount: usdPrice?.toFixed(NUM_USD_DECIMALS_DISPLAY) || '' })
+      updateExactAmountFiat({ amount: fiatPrice ? fiatPrice.toFixed(NUM_DECIMALS_DISPLAY) : '0' })
     )
-  }, [dispatch, shouldUseUSDRef, exactAmountUSD, exactAmountToken, exactCurrency, price])
+  }, [
+    dispatch,
+    shouldUseUSDRef,
+    exactAmountFiat,
+    exactAmountToken,
+    exactCurrency,
+    price,
+    conversionRate,
+    formatCurrencyAmount,
+  ])
 }
 
 export enum ApprovalAction {
@@ -552,10 +577,14 @@ interface SwapTxAndGasInfo {
   gasFee: GasFeeResult
 }
 
-export function useSwapTxAndGasInfo(
-  derivedSwapInfo: DerivedSwapInfo,
+export function useSwapTxAndGasInfo({
+  derivedSwapInfo,
+  skipGasFeeQuery,
+}: {
+  derivedSwapInfo: DerivedSwapInfo
   skipGasFeeQuery: boolean
-): SwapTxAndGasInfo {
+}): SwapTxAndGasInfo {
+  const formatter = useLocalizedFormatter()
   const { chainId, wrapType, currencyAmounts, currencies, exactCurrencyField } = derivedSwapInfo
 
   const tokenApprovalInfo = useTokenApprovalInfo(
@@ -602,16 +631,39 @@ export function useSwapTxAndGasInfo(
   const swapGasFee = useTransactionGasFee(transactionRequest, GasSpeed.Urgent, skipGasFeeQuery)
 
   useEffect(() => {
-    if (swapGasFee.error && simulatedGasEstimationInfo.error) {
+    const {
+      error: simulatedGasEstimateError,
+      quoteId: simulatedGasEstimateQuoteId,
+      requestId: simulatedGasEstimateRequestId,
+    } = simulatedGasEstimationInfo
+
+    if (simulatedGasEstimateError) {
       const simulationError =
         typeof simulatedGasEstimationInfo.error === 'boolean'
           ? new Error('Unknown gas simulation error')
-          : simulatedGasEstimationInfo.error
+          : simulatedGasEstimateError
+
+      logger.error(simulationError, {
+        tags: { file: 'swap/hooks', function: 'useSwapTxAndGasInfo' },
+        extra: {
+          requestId: simulatedGasEstimateRequestId,
+          quoteId: simulatedGasEstimateQuoteId,
+        },
+      })
       sendMobileAnalyticsEvent(SwapEventName.SWAP_ESTIMATE_GAS_CALL_FAILED, {
-        ...getBaseTradeAnalyticsPropertiesFromSwapInfo(derivedSwapInfo),
-        error: shouldFetchSimulatedGasLimit
-          ? simulationError.toString()
-          : swapGasFee.error.toString(),
+        ...getBaseTradeAnalyticsPropertiesFromSwapInfo(derivedSwapInfo, formatter),
+        error: simulationError.toString(),
+        txRequest: transactionRequest,
+      })
+    }
+
+    if (swapGasFee.error) {
+      logger.error(swapGasFee.error, {
+        tags: { file: 'swap/hooks', function: 'useSwapTxAndGasInfo' },
+      })
+      sendMobileAnalyticsEvent(SwapEventName.SWAP_ESTIMATE_GAS_CALL_FAILED, {
+        ...getBaseTradeAnalyticsPropertiesFromSwapInfo(derivedSwapInfo, formatter),
+        error: swapGasFee.error.toString(),
         txRequest: transactionRequest,
       })
     }
@@ -619,8 +671,9 @@ export function useSwapTxAndGasInfo(
     derivedSwapInfo,
     transactionRequest,
     shouldFetchSimulatedGasLimit,
-    simulatedGasEstimationInfo.error,
+    simulatedGasEstimationInfo,
     swapGasFee.error,
+    formatter,
   ])
 
   const txRequestWithGasSettings = useMemo((): providers.TransactionRequest | undefined => {
@@ -644,17 +697,29 @@ export function useSwapTxAndGasInfo(
 
   const error = shouldFetchSimulatedGasLimit ? simulatedGasEstimationInfo.error : swapGasFee.error
 
-  return {
-    txRequest: txRequestWithGasSettings,
-    approveTxRequest: approveTxWithGasSettings,
-    gasFee: {
+  const gasFee = useMemo(
+    () => ({
       value: totalGasFee,
       loading:
         approveLoading ||
         (shouldFetchSimulatedGasLimit && simulatedGasEstimationInfo.loading) ||
         swapGasFee.loading,
       error,
-    },
+    }),
+    [
+      approveLoading,
+      error,
+      shouldFetchSimulatedGasLimit,
+      simulatedGasEstimationInfo.loading,
+      swapGasFee.loading,
+      totalGasFee,
+    ]
+  )
+
+  return {
+    txRequest: txRequestWithGasSettings,
+    approveTxRequest: approveTxWithGasSettings,
+    gasFee,
   }
 }
 
@@ -672,6 +737,9 @@ export function useSwapCallback(
 ): () => void {
   const appDispatch = useAppDispatch()
   const account = useActiveAccount()
+  const formatter = useLocalizedFormatter()
+
+  const swapStartTimestamp = useAppSelector(selectSwapStartTimestamp)
 
   return useMemo(() => {
     if (!account || !swapTxRequest || !trade || !gasFee.value) {
@@ -680,8 +748,8 @@ export function useSwapCallback(
           tags: {
             file: 'swap/hooks',
             function: 'useSwapCallback',
-            params: JSON.stringify({ account, swapTxRequest, trade, gasFee }),
           },
+          extra: { account, swapTxRequest, trade, gasFee },
         })
       }
     }
@@ -701,7 +769,7 @@ export function useSwapCallback(
       onSubmit()
 
       sendMobileAnalyticsEvent(SwapEventName.SWAP_SUBMITTED_BUTTON_CLICKED, {
-        ...getBaseTradeAnalyticsProperties(trade),
+        ...getBaseTradeAnalyticsProperties(formatter, trade),
         estimated_network_fee_wei: gasFee.value,
         gas_limit: toStringish(swapTxRequest.gasLimit),
         token_in_amount_usd: currencyInAmountUSD
@@ -713,7 +781,13 @@ export function useSwapCallback(
         transaction_deadline_seconds: trade.deadline,
         swap_quote_block_number: trade.quote?.blockNumber,
         is_auto_slippage: isAutoSlippage,
+        swap_flow_duration_milliseconds: swapStartTimestamp
+          ? Date.now() - swapStartTimestamp
+          : undefined,
       })
+
+      // Reset swap start timestamp now that the swap has been submitted
+      appDispatch(updateSwapStartTimestamp({ timestamp: undefined }))
     }
   }, [
     account,
@@ -727,6 +801,8 @@ export function useSwapCallback(
     approveTxRequest,
     onSubmit,
     isAutoSlippage,
+    swapStartTimestamp,
+    formatter,
   ])
 }
 
@@ -762,8 +838,8 @@ export function useWrapCallback(
             tags: {
               file: 'swap/hooks',
               function: 'useWrapCallback',
-              parameters: JSON.stringify({ account, inputCurrencyAmount, txRequest }),
             },
+            extra: { account, inputCurrencyAmount, txRequest },
           }),
       }
     }
@@ -786,12 +862,16 @@ export function useWrapCallback(
 
 // The first trade shown to the user is implicitly accepted but every subsequent update to
 // the trade params require an explicit user approval
-export function useAcceptedTrade(trade: Maybe<Trade>): {
+export function useAcceptedTrade({ derivedSwapInfo }: { derivedSwapInfo?: DerivedSwapInfo }): {
   onAcceptTrade: () => undefined
-  acceptedTrade: Trade<Currency, Currency, TradeType> | undefined
+  acceptedDerivedSwapInfo?: DerivedSwapInfo
   newTradeRequiresAcceptance: boolean
 } {
-  const [acceptedTrade, setAcceptedTrade] = useState<Trade>()
+  const [acceptedDerivedSwapInfo, setAcceptedDerivedSwapInfo] = useState<DerivedSwapInfo>()
+
+  const trade = derivedSwapInfo?.trade.trade
+  const acceptedTrade = acceptedDerivedSwapInfo?.trade.trade
+
   const newTradeRequiresAcceptance = requireAcceptNewTrade(acceptedTrade, trade)
 
   useEffect(() => {
@@ -799,19 +879,19 @@ export function useAcceptedTrade(trade: Maybe<Trade>): {
 
     // auto-accept: 1) first valid trade for the user or 2) new trade if price movement is below threshold
     if (!acceptedTrade || !newTradeRequiresAcceptance) {
-      setAcceptedTrade(trade)
+      setAcceptedDerivedSwapInfo(derivedSwapInfo)
     }
-  }, [trade, acceptedTrade, newTradeRequiresAcceptance])
+  }, [trade, acceptedTrade, newTradeRequiresAcceptance, derivedSwapInfo])
 
   const onAcceptTrade = (): undefined => {
     if (!trade) return undefined
 
-    setAcceptedTrade(trade)
+    setAcceptedDerivedSwapInfo(derivedSwapInfo)
   }
 
   return {
     onAcceptTrade,
-    acceptedTrade,
+    acceptedDerivedSwapInfo,
     newTradeRequiresAcceptance,
   }
 }
