@@ -1,7 +1,6 @@
-import { backgroundColor, BackgroundColorProps, useRestyle } from '@shopify/restyle'
+/* eslint-disable complexity */
 import { Currency, CurrencyAmount } from '@uniswap/sdk-core'
-import _ from 'lodash'
-import React, { memo, useCallback, useEffect, useRef } from 'react'
+import { forwardRef, memo, useCallback, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   NativeSyntheticEvent,
@@ -9,42 +8,48 @@ import {
   TextInputProps,
   TextInputSelectionChangeEventData,
 } from 'react-native'
+import {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated'
 import { useDynamicFontSizing } from 'src/app/hooks'
 import { AmountInput } from 'src/components/input/AmountInput'
 import { MaxAmountButton } from 'src/components/input/MaxAmountButton'
-import { Warning, WarningLabel } from 'src/components/modals/WarningModal/types'
 import { SelectTokenButton } from 'src/components/TokenSelector/SelectTokenButton'
-import { Flex, Text, useSporeColors } from 'ui/src'
-import { fonts } from 'ui/src/theme'
-import { Theme } from 'ui/src/theme/restyle/theme'
-import { formatCurrencyAmount, formatNumberOrString, NumberType } from 'utilities/src/format/format'
-import { useMemoCompare } from 'utilities/src/react/hooks'
+import { AnimatedFlex, Flex, FlexProps, Text, TouchableArea, useSporeColors } from 'ui/src'
+import { fonts, spacing } from 'ui/src/theme'
+import { NumberType } from 'utilities/src/format/types'
+import { useForwardRef, usePrevious } from 'utilities/src/react/hooks'
 import { CurrencyInfo } from 'wallet/src/features/dataApi/types'
-
-const restyleFunctions = [backgroundColor]
-type RestyleProps = BackgroundColorProps<Theme>
+import { useFiatConverter } from 'wallet/src/features/fiatCurrency/conversion'
+import { useLocalizedFormatter } from 'wallet/src/features/language/formatter'
 
 type CurrentInputPanelProps = {
-  currencyInfo: Maybe<CurrencyInfo>
+  autoFocus?: boolean
   currencyAmount: Maybe<CurrencyAmount<Currency>>
   currencyBalance: Maybe<CurrencyAmount<Currency>>
-  onShowTokenSelector: () => void
-  onSetExactAmount: (amount: string) => void
-  value?: string
-  showNonZeroBalancesOnly?: boolean
-  showSoftInputOnFocus?: boolean
-  autoFocus?: boolean
+  currencyInfo: Maybe<CurrencyInfo>
+  isLoading?: boolean
+  isCollapsed: boolean
   focus?: boolean
   isOutput?: boolean
-  isUSDInput?: boolean
-  onSetMax?: (amount: string) => void
+  isFiatInput?: boolean
   onPressIn?: () => void
-  warnings: Warning[]
-  dimTextColor?: boolean
-  selection?: TextInputProps['selection']
   onSelectionChange?: (start: number, end: number) => void
+  onSetExactAmount: (amount: string) => void
+  onSetMax?: (amount: string) => void
+  onShowTokenSelector: () => void
+  selection?: TextInputProps['selection']
+  showNonZeroBalancesOnly?: boolean
+  showSoftInputOnFocus?: boolean
   usdValue: Maybe<CurrencyAmount<Currency>>
-} & RestyleProps
+  value?: string
+  resetSelection: (start: number, end: number) => void
+} & FlexProps
 
 const MAX_INPUT_FONT_SIZE = 36
 const MIN_INPUT_FONT_SIZE = 24
@@ -53,176 +58,224 @@ const MIN_INPUT_FONT_SIZE = 24
 // changes from 36 then width value must be adjusted
 const MAX_CHAR_PIXEL_WIDTH = 23
 
-/** Input panel for a single side of a transfer action. */
-function _CurrencyInputPanel(props: CurrentInputPanelProps): JSX.Element {
-  const {
-    currencyAmount,
-    currencyBalance,
-    currencyInfo,
-    onSetExactAmount,
-    onSetMax,
-    onShowTokenSelector,
-    value,
-    showNonZeroBalancesOnly = true,
-    showSoftInputOnFocus = false,
-    focus,
-    autoFocus,
-    isOutput = false,
-    isUSDInput = false,
-    onPressIn,
-    warnings,
-    dimTextColor,
-    onSelectionChange: selectionChange,
-    usdValue,
-    ...rest
-  } = props
+/** Input panel for a single side of a swap action. */
 
-  const colors = useSporeColors()
-  const { t } = useTranslation()
-  const transformedProps = useRestyle(
-    restyleFunctions,
-    useMemoCompare(() => rest, _.isEqual)
-  )
-  const inputRef = useRef<TextInput>(null)
-
-  const insufficientBalanceWarning = warnings.find(
-    (warning) => warning.type === WarningLabel.InsufficientFunds
-  )
-
-  const showInsufficientBalanceWarning = insufficientBalanceWarning && !isOutput
-
-  const formattedUSDValue = usdValue
-    ? formatNumberOrString(usdValue?.toExact(), NumberType.FiatTokenQuantity)
-    : ''
-  const formattedCurrencyAmount = currencyAmount
-    ? formatCurrencyAmount(currencyAmount, NumberType.TokenTx)
-    : ''
-
-  // the focus state for native Inputs can sometimes be out of sync with the controlled `focus`
-  // prop. When the internal focus state differs from our `focus` prop, sync the internal
-  // focus state to be what our prop says it should be
-  const isTextInputRefActuallyFocused = inputRef.current?.isFocused()
-  useEffect(() => {
-    if (focus && !isTextInputRefActuallyFocused) {
-      inputRef.current?.focus()
-    } else if (!focus && isTextInputRefActuallyFocused) {
-      inputRef.current?.blur()
-    }
-  }, [focus, inputRef, isTextInputRefActuallyFocused])
-
-  const { onLayout, fontSize, onSetFontSize } = useDynamicFontSizing(
-    MAX_CHAR_PIXEL_WIDTH,
-    MAX_INPUT_FONT_SIZE,
-    MIN_INPUT_FONT_SIZE
-  )
-
-  // This is needed to ensure that the text resizes when modified from outside the component (e.g. custom numpad)
-  useEffect(() => {
-    if (value) {
-      onSetFontSize(value)
-    }
-  }, [value, onSetFontSize])
-
-  const handleSetMax = useCallback(
-    (amount: string) => {
-      onSetMax?.(amount)
+export const CurrencyInputPanel = memo(
+  forwardRef<TextInput, CurrentInputPanelProps>(function _CurrencyInputPanel(
+    {
+      autoFocus,
+      currencyAmount,
+      currencyBalance,
+      currencyInfo,
+      isLoading,
+      isCollapsed,
+      focus,
+      isOutput = false,
+      isFiatInput = false,
+      onPressIn,
+      onSelectionChange: selectionChange,
+      onSetExactAmount,
+      onSetMax,
+      onShowTokenSelector,
+      showNonZeroBalancesOnly = true,
+      showSoftInputOnFocus = false,
+      usdValue,
+      resetSelection,
+      value,
+      ...rest
     },
-    [onSetMax]
-  )
+    forwardedRef
+  ): JSX.Element {
+    const { t } = useTranslation()
+    const colors = useSporeColors()
+    const { convertFiatAmountFormatted } = useFiatConverter()
+    const { formatCurrencyAmount } = useLocalizedFormatter()
+    const inputRef = useRef<TextInput>(null)
 
-  const onSelectionChange = useCallback(
-    ({
-      nativeEvent: {
-        selection: { start, end },
+    useForwardRef(forwardedRef, inputRef)
+
+    const showInsufficientBalanceWarning =
+      !isOutput && !!currencyBalance && !!currencyAmount && currencyBalance.lessThan(currencyAmount)
+
+    const formattedFiatValue = convertFiatAmountFormatted(
+      usdValue?.toExact(),
+      NumberType.FiatTokenQuantity
+    )
+    const formattedCurrencyAmount = currencyAmount
+      ? formatCurrencyAmount({ value: currencyAmount, type: NumberType.TokenTx })
+      : ''
+
+    // the focus state for native Inputs can sometimes be out of sync with the controlled `focus`
+    // prop. When the internal focus state differs from our `focus` prop, sync the internal
+    // focus state to be what our prop says it should be
+    const isTextInputRefActuallyFocused = inputRef.current?.isFocused()
+    useEffect(() => {
+      if (focus && !isTextInputRefActuallyFocused) {
+        inputRef.current?.focus()
+        resetSelection(value?.length ?? 0, value?.length ?? 0)
+      } else if (!focus && isTextInputRefActuallyFocused) {
+        inputRef.current?.blur()
+      }
+    }, [focus, inputRef, isTextInputRefActuallyFocused, resetSelection, value?.length])
+
+    const { onLayout, fontSize, onSetFontSize } = useDynamicFontSizing(
+      MAX_CHAR_PIXEL_WIDTH,
+      MAX_INPUT_FONT_SIZE,
+      MIN_INPUT_FONT_SIZE
+    )
+
+    // This is needed to ensure that the text resizes when modified from outside the component (e.g. custom numpad)
+    useEffect(() => {
+      if (value) {
+        onSetFontSize(value)
+      }
+    }, [value, onSetFontSize])
+
+    const handleSetMax = useCallback(
+      (amount: string) => {
+        onSetMax?.(amount)
       },
-    }: NativeSyntheticEvent<TextInputSelectionChangeEventData>) => selectionChange?.(start, end),
-    [selectionChange]
-  )
+      [onSetMax]
+    )
 
-  const placeholderText = isOutput ? t('Receive') : t('Sell')
+    const onSelectionChange = useCallback(
+      ({
+        nativeEvent: {
+          selection: { start, end },
+        },
+      }: NativeSyntheticEvent<TextInputSelectionChangeEventData>) => selectionChange?.(start, end),
+      [selectionChange]
+    )
 
-  return (
-    <Flex {...transformedProps} p="$spacing16">
-      <Flex
-        row
-        alignItems="center"
-        gap="$spacing8"
-        justifyContent={!currencyInfo ? 'flex-end' : 'space-between'}
-        py={focus ? '$spacing4' : '$none'}>
-        <Flex
-          fill
-          grow
+    // We need to store the previous value, because new quote request resets `Trade`, and this value, to undefined
+    const previousValue = usePrevious(value)
+    const loadingTextValue = previousValue && previousValue !== '' ? previousValue : '0'
+
+    const loadingFlexProgress = useSharedValue(1)
+    loadingFlexProgress.value = withRepeat(
+      withSequence(
+        withTiming(0.4, { duration: 400, easing: Easing.ease }),
+        withTiming(1, { duration: 400, easing: Easing.ease })
+      ),
+      -1,
+      true
+    )
+    const loadingFlexStyle = useAnimatedStyle(
+      () => ({
+        opacity: isLoading ? loadingFlexProgress.value : 1,
+      }),
+      [isLoading]
+    )
+
+    const animatePaddingdStyle = useAnimatedStyle(() => {
+      return {
+        paddingTop: withTiming(focus ? spacing.spacing24 : spacing.spacing16, {
+          duration: 100,
+        }),
+      }
+    }, [focus])
+
+    return (
+      <AnimatedFlex
+        {...rest}
+        paddingBottom="$spacing16"
+        px="$spacing16"
+        style={animatePaddingdStyle}
+        onPressIn={currencyInfo ? onPressIn : onShowTokenSelector}>
+        <AnimatedFlex
           row
           alignItems="center"
-          height={MAX_INPUT_FONT_SIZE}
-          overflow="hidden"
-          onLayout={onLayout}>
-          <AmountInput
-            ref={inputRef}
-            autoFocus={autoFocus ?? focus}
-            backgroundColor="$transparent"
-            borderWidth={0}
-            dimTextColor={dimTextColor}
-            flex={1}
-            focusable={Boolean(currencyInfo)}
-            fontFamily="$heading"
-            fontSize={focus ? fontSize : MIN_INPUT_FONT_SIZE}
-            maxFontSizeMultiplier={fonts.heading2.maxFontSizeMultiplier}
-            // This is a hacky workaround for Android to prevent text from being cut off
-            // (the text input height is greater than the font size and the input is
-            // centered vertically, so the caret is cut off but the text is not)
-            minHeight={2 * MAX_INPUT_FONT_SIZE}
-            overflow="visible"
-            placeholder={currencyInfo ? '0' : placeholderText}
-            placeholderTextColor={colors.neutral3.val}
-            px="$none"
-            py="$none"
-            returnKeyType={showSoftInputOnFocus ? 'done' : undefined}
-            showCurrencySign={isUSDInput}
-            showSoftInputOnFocus={showSoftInputOnFocus}
-            testID={isOutput ? 'amount-input-out' : 'amount-input-in'}
-            value={value}
-            onChangeText={onSetExactAmount}
-            onPressIn={onPressIn}
-            onSelectionChange={onSelectionChange}
-          />
-        </Flex>
-        <Flex row alignItems="center">
-          <SelectTokenButton
-            selectedCurrencyInfo={currencyInfo}
-            showNonZeroBalancesOnly={showNonZeroBalancesOnly}
-            onPress={onShowTokenSelector}
-          />
-        </Flex>
-      </Flex>
-
-      {currencyInfo && focus && (
-        <Flex row alignItems="center" gap="$spacing8" justifyContent="space-between">
-          <Flex shrink>
-            <Text color="$neutral2" numberOfLines={1} variant="body3">
-              {!isUSDInput ? formattedUSDValue : formattedCurrencyAmount}
-            </Text>
-          </Flex>
-          <Flex row alignItems="center" gap="$spacing8" justifyContent="flex-end">
-            <Text
-              color={showInsufficientBalanceWarning ? '$DEP_accentWarning' : '$neutral2'}
-              variant="body3">
-              {formatCurrencyAmount(currencyBalance, NumberType.TokenNonTx)}{' '}
-              {currencyInfo.currency.symbol}
-            </Text>
-
-            {onSetMax && (
-              <MaxAmountButton
-                currencyAmount={currencyAmount}
-                currencyBalance={currencyBalance}
-                onSetMax={handleSetMax}
+          gap="$spacing8"
+          justifyContent={!currencyInfo ? 'flex-end' : 'space-between'}>
+          <AnimatedFlex
+            fill
+            grow
+            row
+            alignItems="center"
+            height={MAX_INPUT_FONT_SIZE}
+            overflow="hidden"
+            style={loadingFlexStyle}
+            onLayout={onLayout}>
+            {currencyInfo ? (
+              <AmountInput
+                ref={inputRef}
+                autoFocus={autoFocus ?? focus}
+                backgroundColor="$transparent"
+                borderWidth={0}
+                color={showInsufficientBalanceWarning ? '$statusCritical' : '$neutral1'}
+                disabled={!currencyInfo}
+                flex={1}
+                focusable={Boolean(currencyInfo)}
+                fontFamily="$heading"
+                fontSize={isCollapsed ? MIN_INPUT_FONT_SIZE : fontSize}
+                maxFontSizeMultiplier={fonts.heading2.maxFontSizeMultiplier}
+                // This is a hacky workaround for Android to prevent text from being cut off
+                // (the text input height is greater than the font size and the input is
+                // centered vertically, so the caret is cut off but the text is not)
+                minHeight={2 * MAX_INPUT_FONT_SIZE}
+                overflow="visible"
+                placeholder="0"
+                placeholderTextColor={colors.neutral3.val}
+                px="$none"
+                py="$none"
+                returnKeyType={showSoftInputOnFocus ? 'done' : undefined}
+                showCurrencySign={isFiatInput}
+                showSoftInputOnFocus={showSoftInputOnFocus}
+                testID={isOutput ? 'amount-input-out' : 'amount-input-in'}
+                value={isLoading ? loadingTextValue : value}
+                onChangeText={onSetExactAmount}
+                onPressIn={onPressIn}
+                onSelectionChange={onSelectionChange}
               />
+            ) : (
+              <TouchableArea hapticFeedback onPress={onShowTokenSelector}>
+                <Text color="$neutral3" variant="heading3">
+                  {isOutput ? t('Receive') : t('Send')}
+                </Text>
+              </TouchableArea>
             )}
+          </AnimatedFlex>
+          <Flex row alignItems="center">
+            <SelectTokenButton
+              selectedCurrencyInfo={currencyInfo}
+              showNonZeroBalancesOnly={showNonZeroBalancesOnly}
+              onPress={onShowTokenSelector}
+            />
           </Flex>
-        </Flex>
-      )}
-    </Flex>
-  )
-}
+        </AnimatedFlex>
 
-export const CurrencyInputPanel = memo(_CurrencyInputPanel)
+        {currencyInfo && !isCollapsed && (
+          <Flex
+            row
+            alignContent="center"
+            alignItems="center"
+            gap="$spacing8"
+            // TODO: remove this fix height when we implement "getMax" button, this is to keep entire container hieight consistent on focus change
+            height={spacing.spacing36}
+            justifyContent="space-between"
+            paddingTop="$spacing16">
+            <Flex shrink>
+              <Text color="$neutral2" numberOfLines={1} variant="body3">
+                {!isFiatInput ? (usdValue ? formattedFiatValue : '') : formattedCurrencyAmount}
+              </Text>
+            </Flex>
+            <Flex row alignItems="center" gap="$spacing8" justifyContent="flex-end">
+              <Text color="$neutral2" variant="body3">
+                {formatCurrencyAmount({ value: currencyBalance, type: NumberType.TokenNonTx })}{' '}
+                {currencyInfo.currency.symbol}
+              </Text>
+
+              {onSetMax && (
+                <MaxAmountButton
+                  currencyAmount={currencyAmount}
+                  currencyBalance={currencyBalance}
+                  onSetMax={handleSetMax}
+                />
+              )}
+            </Flex>
+          </Flex>
+        )}
+      </AnimatedFlex>
+    )
+  })
+)

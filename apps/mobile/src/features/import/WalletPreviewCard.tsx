@@ -3,10 +3,11 @@ import { SelectionCircle } from 'src/components/input/SelectionCircle'
 import { Unicon } from 'src/components/unicons/Unicon'
 import { ElementName } from 'src/features/telemetry/constants'
 import { Flex, Text, TouchableArea } from 'ui/src'
-import { formatUSDPrice, NumberType } from 'utilities/src/format/format'
+import { NumberType } from 'utilities/src/format/types'
 import { ChainId } from 'wallet/src/constants/chains'
 import { useIsDarkMode } from 'wallet/src/features/appearance/hooks'
 import { useENS } from 'wallet/src/features/ens/useENS'
+import { useFiatConverter } from 'wallet/src/features/fiatCurrency/conversion'
 import { shortenAddress } from 'wallet/src/utils/addresses'
 
 interface Props {
@@ -32,7 +33,9 @@ export default function WalletPreviewCard({
 }: Props): JSX.Element {
   const { name: ensName } = useENS(ChainId.Mainnet, address)
   const isDarkMode = useIsDarkMode()
+  const { convertFiatAmountFormatted } = useFiatConverter()
 
+  const balanceFormatted = convertFiatAmountFormatted(balance, NumberType.FiatTokenQuantity)
   const unselectedBorderColor = isDarkMode ? '$transparent' : '$surface3'
 
   return (
@@ -57,7 +60,7 @@ export default function WalletPreviewCard({
             <Text variant="body1">{ensName ?? shortenAddress(address)}</Text>
             {balance ? (
               <Text color="$neutral2" variant="subheading2">
-                {formatUSDPrice(balance, NumberType.FiatTokenQuantity)}
+                {balanceFormatted}
               </Text>
             ) : null}
           </Flex>

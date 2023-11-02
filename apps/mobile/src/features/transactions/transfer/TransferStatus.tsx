@@ -5,7 +5,8 @@ import { useSelectTransaction } from 'src/features/transactions/hooks'
 import { TransactionPending } from 'src/features/transactions/TransactionPending/TransactionPending'
 import { DerivedTransferInfo } from 'src/features/transactions/transfer/hooks'
 import { AppTFunction } from 'ui/src/i18n/types'
-import { formatCurrencyAmount, NumberType } from 'utilities/src/format/format'
+import { NumberType } from 'utilities/src/format/types'
+import { LocalizedFormatter, useLocalizedFormatter } from 'wallet/src/features/language/formatter'
 import { CurrencyField } from 'wallet/src/features/transactions/transactionState/types'
 import {
   TransactionDetails,
@@ -22,6 +23,7 @@ type TransferStatusProps = {
 
 const getTextFromTransferStatus = (
   t: AppTFunction,
+  formatter: LocalizedFormatter,
   derivedTransferInfo: DerivedTransferInfo,
   recipient: string | undefined,
   transactionDetails?: TransactionDetails
@@ -29,7 +31,8 @@ const getTextFromTransferStatus = (
   title: string
   description: string
 } => {
-  const { currencyInInfo, nftIn, currencyAmounts, isUSDInput, exactAmountUSD } = derivedTransferInfo
+  const { currencyInInfo, nftIn, currencyAmounts, isFiatInput, exactAmountFiat } =
+    derivedTransferInfo
   if (
     !transactionDetails ||
     transactionDetails.typeInfo.type !== TransactionType.Send ||
@@ -48,12 +51,15 @@ const getTextFromTransferStatus = (
     return {
       title: t('Send successful!'),
       description: t(
-        'You sent {{ currencyAmount }}{{ tokenName }}{{ usdValue }} to {{ recipient }}.',
+        'You sent {{ currencyAmount }}{{ tokenName }}{{ fiatValue }} to {{ recipient }}.',
         {
           currencyAmount: nftIn
             ? ''
-            : formatCurrencyAmount(currencyAmounts[CurrencyField.INPUT], NumberType.TokenTx),
-          usdValue: isUSDInput ? ` ($${exactAmountUSD})` : '',
+            : formatter.formatCurrencyAmount({
+                value: currencyAmounts[CurrencyField.INPUT],
+                type: NumberType.TokenTx,
+              }),
+          fiatValue: isFiatInput ? ` ($${exactAmountFiat})` : '',
           tokenName: nftIn?.name ?? ` ${currencyInInfo?.currency.symbol}` ?? ' tokens',
           recipient,
         }
@@ -81,6 +87,7 @@ export function TransferStatus({
   onTryAgain,
 }: TransferStatusProps): JSX.Element | null {
   const { t } = useTranslation()
+  const formatter = useLocalizedFormatter()
   const activeAddress = useActiveAccountAddressWithThrow()
 
   const { recipient, chainId, txId } = derivedTransferInfo
@@ -89,8 +96,8 @@ export function TransferStatus({
 
   const recipientName = useDisplayName(recipient)?.name ?? recipient
   const { title, description } = useMemo(() => {
-    return getTextFromTransferStatus(t, derivedTransferInfo, recipientName, transaction)
-  }, [t, derivedTransferInfo, recipientName, transaction])
+    return getTextFromTransferStatus(t, formatter, derivedTransferInfo, recipientName, transaction)
+  }, [t, formatter, derivedTransferInfo, recipientName, transaction])
 
   const onClose = useCallback(() => {
     onNext()

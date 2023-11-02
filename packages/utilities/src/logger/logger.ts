@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { Primitive, ScopeContext } from '@sentry/types'
+import { Extras, ScopeContext } from '@sentry/types'
 import { errorToString } from 'utilities/src/errors'
 import { Sentry } from './Sentry'
 
@@ -7,8 +7,8 @@ const SENTRY_CHAR_LIMIT = 8192
 
 type LogLevel = 'debug' | 'info' | 'warn' | 'error'
 
-export type LoggerErrorContext = Partial<ScopeContext> & {
-  tags: { file: string; function: string; [key: string]: Primitive }
+export type LoggerErrorContext = Omit<Partial<ScopeContext>, 'tags'> & {
+  tags: { file: string; function: string }
 }
 
 /**
@@ -57,20 +57,46 @@ function logException(error: unknown, captureContext: LoggerErrorContext): void 
   const fileName = captureContext?.tags.file ?? ''
   const functionName = captureContext?.tags.function ?? ''
 
+  const updatedContext = addErrorExtras(error, captureContext)
+
   if (__DEV__) {
-    console.error(formatMessage(fileName, functionName, errorMessage), captureContext)
+    console.error(formatMessage(fileName, functionName, errorMessage), updatedContext)
     return
   }
 
   // Limit character length for string tags to the max Sentry allows
-  for (const contextProp of Object.keys(captureContext.tags)) {
-    const contextValue = captureContext.tags[contextProp]
+  for (const contextProp of Object.keys(updatedContext.tags)) {
+    const prop = contextProp as 'file' | 'function'
+    const contextValue = updatedContext.tags[prop]
     if (typeof contextValue === 'string') {
-      captureContext.tags[contextProp] = contextValue.slice(0, SENTRY_CHAR_LIMIT)
+      updatedContext.tags[prop] = contextValue.slice(0, SENTRY_CHAR_LIMIT)
     }
   }
 
-  Sentry.captureException(error, captureContext)
+  Sentry.captureException(error, updatedContext)
+}
+
+interface RNError {
+  nativeStackAndroid?: unknown
+  userInfo?: unknown
+}
+// Adds extra fields from errors provided by React Native
+function addErrorExtras(error: unknown, captureContext: LoggerErrorContext): LoggerErrorContext {
+  if (error instanceof Error) {
+    const extras: Extras = {}
+    const { nativeStackAndroid, userInfo } = error as RNError
+
+    if (Array.isArray(nativeStackAndroid) && nativeStackAndroid.length > 0) {
+      extras.nativeStackAndroid = nativeStackAndroid
+    }
+
+    if (userInfo) {
+      extras.userInfo = userInfo
+    }
+
+    return { ...captureContext, extra: { ...captureContext.extra, ...extras } }
+  }
+  return captureContext
 }
 
 function formatMessage(fileName: string, functionName: string, message: string): string {

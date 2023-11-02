@@ -19,9 +19,15 @@ import {
 } from 'src/features/nfts/collection/NFTCollectionHeader'
 import { ExploreModalAwareView } from 'src/screens/ModalAwareView'
 import { Screens } from 'src/screens/Screens'
-import { AnimatedFlashList, Flex, Text, TouchableArea } from 'ui/src'
-import { dimensions, iconSizes, spacing } from 'ui/src/theme'
-import { theme } from 'ui/src/theme/restyle'
+import {
+  AnimatedBottomSheetFlashList,
+  AnimatedFlashList,
+  Flex,
+  Text,
+  TouchableArea,
+  useDeviceDimensions,
+} from 'ui/src'
+import { iconSizes, spacing } from 'ui/src/theme'
 import { BaseCard } from 'wallet/src/components/BaseCard/BaseCard'
 import { isError } from 'wallet/src/data/utils'
 import {
@@ -66,12 +72,18 @@ function gqlNFTAssetToNFTItem(data: NftCollectionScreenQuery | undefined): NFTIt
   })
 }
 
+type NFTCollectionScreenProps = AppStackScreenProp<Screens.NFTCollection> & {
+  renderedInModal?: boolean
+}
+
 export function NFTCollectionScreen({
   route: {
     params: { collectionAddress },
   },
-}: AppStackScreenProp<Screens.NFTCollection>): ReactElement {
+  renderedInModal = false,
+}: NFTCollectionScreenProps): ReactElement {
   const { t } = useTranslation()
+  const dimensions = useDeviceDimensions()
   const navigation = useAppStackNavigation()
 
   // Collection overview data and paginated grid items
@@ -134,9 +146,9 @@ export function NFTCollectionScreen({
     const last = index % 3 === 2
     const middle = !first && !last
     const containerStyle = {
-      marginLeft: middle ? theme.spacing.spacing8 : first ? theme.spacing.spacing16 : 0,
-      marginRight: middle ? theme.spacing.spacing8 : last ? theme.spacing.spacing16 : 0,
-      marginBottom: theme.spacing.spacing8,
+      marginLeft: middle ? spacing.spacing8 : first ? spacing.spacing16 : 0,
+      marginRight: middle ? spacing.spacing8 : last ? spacing.spacing16 : 0,
+      marginBottom: spacing.spacing8,
     }
     const priceColor = IS_IOS ? '$sporeWhite' : '$neutral1'
 
@@ -224,6 +236,8 @@ export function NFTCollectionScreen({
     )
   }
 
+  const List = renderedInModal ? AnimatedBottomSheetFlashList : AnimatedFlashList
+
   return (
     <ExploreModalAwareView>
       <Trace
@@ -247,7 +261,7 @@ export function NFTCollectionScreen({
             scrollY={scrollY}
             showHeaderScrollYDistance={NFT_BANNER_HEIGHT}
           />
-          <AnimatedFlashList
+          <List
             ref={listRef}
             ListEmptyComponent={
               gridDataLoading ? null : <BaseCard.EmptyState description={t('No NFTs found')} />

@@ -26,6 +26,7 @@ const ScaleTimingConfigOut = { duration: 75, easing: Easing.ease }
  */
 export function TouchableArea({
   hapticFeedback = false,
+  ignoreDragEvents = false,
   hapticStyle,
   scaleTo,
   onPress,
@@ -33,11 +34,10 @@ export function TouchableArea({
   testID,
   activeOpacity = 0.75,
   hitSlop,
+  disabled,
   ...propsIn
 }: TouchableAreaProps): JSX.Element {
-  const [rest, style] = usePropsAndStyle(propsIn, {
-    resolveValues: 'auto',
-  })
+  const [rest, style] = usePropsAndStyle(propsIn)
 
   const touchActivationPositionRef = useRef<Pick<
     GestureResponderEvent['nativeEvent'],
@@ -50,28 +50,30 @@ export function TouchableArea({
     async (event: GestureResponderEvent) => {
       if (!onPress) return
 
-      const { pageX, pageY } = event.nativeEvent
+      if (!ignoreDragEvents) {
+        const { pageX, pageY } = event.nativeEvent
 
-      const isDragEvent =
-        touchActivationPositionRef.current &&
-        isDrag(
-          touchActivationPositionRef.current.pageX,
-          touchActivationPositionRef.current.pageY,
-          pageX,
-          pageY
-        )
+        const isDragEvent =
+          touchActivationPositionRef.current &&
+          isDrag(
+            touchActivationPositionRef.current.pageX,
+            touchActivationPositionRef.current.pageY,
+            pageX,
+            pageY
+          )
 
-      if (isDragEvent) {
-        return
+        if (isDragEvent) {
+          return
+        }
       }
+
+      onPress(event)
 
       if (hapticFeedback) {
         await impactAsync(hapticStyle)
       }
-
-      onPress(event)
     },
-    [onPress, hapticFeedback, hapticStyle]
+    [onPress, ignoreDragEvents, hapticFeedback, hapticStyle]
   )
 
   const onPressInHandler = useMemo(() => {
@@ -111,6 +113,7 @@ export function TouchableArea({
   return (
     <AnimatedTouchableBox
       {...baseProps}
+      disabled={disabled}
       style={[scaleTo ? animatedStyle : null, style, restStyles]}>
       {children}
     </AnimatedTouchableBox>

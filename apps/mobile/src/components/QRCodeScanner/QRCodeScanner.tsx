@@ -9,10 +9,17 @@ import PasteButton from 'src/components/buttons/PasteButton'
 import { DevelopmentOnly } from 'src/components/DevelopmentOnly/DevelopmentOnly'
 import { SpinningLoader } from 'src/components/loading/SpinningLoader'
 import { openSettings } from 'src/utils/linking'
-import { AnimatedFlex, Button, Flex, Icons, Text, useSporeColors } from 'ui/src'
+import {
+  AnimatedFlex,
+  Button,
+  Flex,
+  Icons,
+  Text,
+  useDeviceDimensions,
+  useSporeColors,
+} from 'ui/src'
 import CameraScan from 'ui/src/assets/icons/camera-scan.svg'
-import { dimensions, iconSizes, spacing } from 'ui/src/theme'
-import { theme as FixedTheme } from 'ui/src/theme/restyle'
+import { iconSizes, spacing } from 'ui/src/theme'
 import { useAsyncData } from 'utilities/src/react/hooks'
 
 type QRCodeScannerProps = {
@@ -28,11 +35,11 @@ function isWalletConnect(props: QRCodeScannerProps | WCScannerProps): props is W
   return 'numConnections' in props
 }
 
+const CAMERA_ASPECT_RATIO = 4 / 3
+const SCAN_ICON_RADIUS_RATIO = 0.1
 const SCAN_ICON_WIDTH_RATIO = 0.7
-const SCAN_ICON_MASK_OFFSET = 5.5 // used for mask to match spacing in CameraScan SVG
-
-const LOADER_SIZE = FixedTheme.iconSizes.icon40
-const SCANNER_SIZE = dimensions.fullWidth * SCAN_ICON_WIDTH_RATIO
+const SCAN_ICON_MASK_OFFSET_RATIO = 0.02 // used for mask to match spacing in CameraScan SVG
+const LOADER_SIZE = iconSizes.icon40
 
 export function QRCodeScanner(props: QRCodeScannerProps | WCScannerProps): JSX.Element {
   const { onScanCode, shouldFreezeCamera } = props
@@ -40,10 +47,12 @@ export function QRCodeScanner(props: QRCodeScannerProps | WCScannerProps): JSX.E
 
   const { t } = useTranslation()
   const colors = useSporeColors()
+  const dimensions = useDeviceDimensions()
 
   const [permissionResponse, requestPermissionResponse] = BarCodeScanner.usePermissions()
   const permissionStatus = permissionResponse?.status
 
+  const [overlayLayout, setOverlayLayout] = useState<LayoutRectangle | null>()
   const [infoLayout, setInfoLayout] = useState<LayoutRectangle | null>()
   const [connectionLayout, setConnectionLayout] = useState<LayoutRectangle | null>()
 
@@ -75,6 +84,9 @@ export function QRCodeScanner(props: QRCodeScannerProps | WCScannerProps): JSX.E
 
   useAsyncData(getPermissionStatuses)
 
+  const overlayWidth = (overlayLayout?.height ?? 0) / CAMERA_ASPECT_RATIO
+  const scannerSize = Math.min(overlayWidth, dimensions.fullWidth) * SCAN_ICON_WIDTH_RATIO
+
   return (
     <AnimatedFlex
       grow
@@ -84,9 +96,9 @@ export function QRCodeScanner(props: QRCodeScannerProps | WCScannerProps): JSX.E
       overflow="hidden">
       <Flex justifyContent="center" style={StyleSheet.absoluteFill}>
         <Flex
-          bg="$sporeBlack"
-          height={Math.min((4 / 3) * dimensions.fullWidth, dimensions.fullHeight)}
-          overflow="hidden">
+          height={Math.max(dimensions.fullHeight, CAMERA_ASPECT_RATIO * dimensions.fullWidth)}
+          overflow="hidden"
+          width={dimensions.fullWidth}>
           {permissionStatus === PermissionStatus.GRANTED && (
             <BarCodeScanner
               barCodeTypes={[BarCodeScanner.Constants.BarCodeType.qr]}
@@ -95,10 +107,19 @@ export function QRCodeScanner(props: QRCodeScannerProps | WCScannerProps): JSX.E
               onBarCodeScanned={shouldFreezeCamera ? undefined : handleBarCodeScanned}
             />
           )}
-          <GradientOverlay shouldFreezeCamera={shouldFreezeCamera} />
         </Flex>
       </Flex>
-      <Flex centered gap="$spacing48" style={StyleSheet.absoluteFill}>
+      <GradientOverlay
+        overlayWidth={overlayWidth}
+        scannerSize={scannerSize}
+        shouldFreezeCamera={shouldFreezeCamera}
+      />
+      <Flex
+        centered
+        alignItems="center"
+        gap="$spacing48"
+        style={StyleSheet.absoluteFill}
+        onLayout={(event: LayoutChangeEvent): void => setOverlayLayout(event.nativeEvent.layout)}>
         <Flex alignItems="center">
           <Flex
             centered
@@ -123,13 +144,13 @@ export function QRCodeScanner(props: QRCodeScannerProps | WCScannerProps): JSX.E
             // camera isn't frozen (after seeing barcode) — show the camera scan icon (the four white corners)
             <CameraScan
               color={colors.sporeWhite.val}
-              height={SCANNER_SIZE}
+              height={scannerSize}
               strokeWidth={5}
-              width={SCANNER_SIZE}
+              width={scannerSize}
             />
           ) : (
             // camera has been frozen (has seen a barcode) — show the loading spinner and "Connecting..." or "Loading..."
-            <Flex height={SCANNER_SIZE} width={SCANNER_SIZE}>
+            <Flex height={scannerSize} width={scannerSize}>
               <Flex
                 alignItems="center"
                 height="100%"
@@ -137,9 +158,9 @@ export function QRCodeScanner(props: QRCodeScannerProps | WCScannerProps): JSX.E
                 position="absolute"
                 width="100%">
                 <Flex
-                  left={SCANNER_SIZE / 2 - LOADER_SIZE / 2}
+                  left={scannerSize / 2 - LOADER_SIZE / 2}
                   position="absolute"
-                  top={SCANNER_SIZE / 2 - LOADER_SIZE / 2}>
+                  top={scannerSize / 2 - LOADER_SIZE / 2}>
                   <SpinningLoader color="$neutral1" size={iconSizes.icon40} />
                 </Flex>
                 <Flex style={{ marginTop: LOADER_SIZE + spacing.spacing24 }} />
@@ -154,9 +175,9 @@ export function QRCodeScanner(props: QRCodeScannerProps | WCScannerProps): JSX.E
             {!shouldFreezeCamera ? (
               <Flex
                 centered
-                height={dimensions.fullWidth * SCAN_ICON_WIDTH_RATIO}
+                height={scannerSize}
                 style={[StyleSheet.absoluteFill]}
-                width={dimensions.fullWidth * SCAN_ICON_WIDTH_RATIO}>
+                width={scannerSize}>
                 <Flex
                   backgroundColor="$surface2"
                   borderRadius="$rounded16"
@@ -207,20 +228,26 @@ export function QRCodeScanner(props: QRCodeScannerProps | WCScannerProps): JSX.E
 
 type GradientOverlayProps = {
   shouldFreezeCamera: boolean
+  overlayWidth: number
+  scannerSize: number
 }
 
 const GradientOverlay = memo(function GradientOverlay({
   shouldFreezeCamera,
+  overlayWidth,
+  scannerSize,
 }: GradientOverlayProps): JSX.Element {
   const colors = useSporeColors()
+  const dimensions = useDeviceDimensions()
   const [size, setSize] = useState<{ width: number; height: number } | null>(null)
 
   const pathWithHole = useMemo(() => {
     if (!size) return ''
     const { width: W, height: H } = size
-    const paddingX = Math.max(0, (W - SCANNER_SIZE) / 2) + SCAN_ICON_MASK_OFFSET
-    const paddingY = Math.max(0, (H - SCANNER_SIZE) / 2) + SCAN_ICON_MASK_OFFSET
-    const r = 25
+    const iconMaskOffset = SCAN_ICON_MASK_OFFSET_RATIO * scannerSize
+    const paddingX = Math.max(0, (W - scannerSize) / 2) + iconMaskOffset
+    const paddingY = Math.max(0, (H - scannerSize) / 2) + iconMaskOffset
+    const r = scannerSize * SCAN_ICON_RADIUS_RATIO
     const L = paddingX
     const R = W - paddingX
     const T = paddingY
@@ -230,7 +257,7 @@ const GradientOverlay = memo(function GradientOverlay({
     } ${R} ${B} ${R - r} ${B}L${L + r} ${B}C${L + r} ${B} ${L} ${B} ${L} ${B - r}L${L} ${T + r} 0 ${
       T + r
     } 0 ${H} ${W} ${H} ${W} 0 0 0 0 ${T + r} ${L} ${T + r}C${L} ${T + r} ${L} ${T} ${L + r} ${T}`
-  }, [size])
+  }, [size, scannerSize])
 
   const onLayout = ({
     nativeEvent: {
@@ -239,6 +266,8 @@ const GradientOverlay = memo(function GradientOverlay({
   }: LayoutChangeEvent): void => {
     setSize({ width, height })
   }
+
+  const gradientOffset = (overlayWidth / dimensions.fullWidth - 1) / 2
 
   return (
     <Flex
@@ -250,18 +279,18 @@ const GradientOverlay = memo(function GradientOverlay({
       <Svg height="100%" width="100%">
         <Defs>
           <LinearGradient id="scan-top-fadeout" x1="0" x2="0" y1="0" y2="1">
-            <Stop offset="0" stopColor={colors.surface1.get()} stopOpacity="1" />
+            <Stop offset={gradientOffset} stopColor={colors.surface1.val} stopOpacity="1" />
             <Stop
               offset="0.4"
-              stopColor={colors.surface1.get()}
+              stopColor={colors.surface1.val}
               stopOpacity={shouldFreezeCamera ? '0.5' : '0'}
             />
           </LinearGradient>
           <LinearGradient id="scan-bottom-fadeout" x1="0" x2="0" y1="1" y2="0">
-            <Stop offset="0" stopColor={colors.surface1.get()} stopOpacity="1" />
+            <Stop offset={gradientOffset} stopColor={colors.surface1.val} stopOpacity="1" />
             <Stop
               offset="0.4"
-              stopColor={colors.surface1.get()}
+              stopColor={colors.surface1.val}
               stopOpacity={shouldFreezeCamera ? '0.5' : '0'}
             />
           </LinearGradient>

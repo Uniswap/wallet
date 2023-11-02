@@ -1,8 +1,8 @@
 import { Percent } from '@uniswap/sdk-core'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { Box, Flex, Icons, Text, TouchableArea } from 'ui/src'
-import { formatPercent } from 'utilities/src/format/format'
+import { Flex, Icons, Text, TouchableArea } from 'ui/src'
+import { useLocalizedFormatter } from 'wallet/src/features/language/formatter'
 
 export type FeeOnTransferInfo = {
   inputTokenInfo: TokenFeeInfo
@@ -44,6 +44,7 @@ function FeeOnTransferInfoRow({
   onShowInfo: () => void
 }): JSX.Element {
   const { t } = useTranslation()
+  const { formatPercent } = useLocalizedFormatter()
 
   return (
     <TouchableArea
@@ -55,9 +56,9 @@ function FeeOnTransferInfoRow({
         <Text color="$neutral2" flex={0} variant="body3">
           {t('{{ token }} fee', { token: feeInfo.tokenSymbol })}
         </Text>
-        <Box ml="$spacing4">
+        <Flex ml="$spacing4">
           <Icons.InfoCircleFilled color="$neutral3" size="$icon.16" />
-        </Box>
+        </Flex>
       </Flex>
       <Flex row alignItems="center" gap="$spacing8">
         <Text flex={0} variant="body3">

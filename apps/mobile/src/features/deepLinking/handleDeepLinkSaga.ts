@@ -18,7 +18,7 @@ import { Screens } from 'src/screens/Screens'
 import { openUri, UNISWAP_APP_NATIVE_TOKEN } from 'src/utils/linking'
 import { call, put, takeLatest } from 'typed-redux-saga'
 import { logger } from 'utilities/src/logger/logger'
-import { UNISWAP_APP_HOSTNAME } from 'wallet/src/constants/urls'
+import { uniswapUrls, UNISWAP_APP_HOSTNAME } from 'wallet/src/constants/urls'
 import { fromUniswapWebAppLink } from 'wallet/src/features/chains/utils'
 import {
   selectAccounts,
@@ -40,9 +40,11 @@ export enum LinkSource {
   Share = 'Share',
 }
 
-const UNISWAP_URL_SCHEME = 'uniswap://'
-const UNISWAP_URL_SCHEME_WALLETCONNECT = 'uniswap://wc?uri='
+export const UNISWAP_URL_SCHEME = 'uniswap://'
+export const UNISWAP_URL_SCHEME_WALLETCONNECT_AS_PARAM = 'uniswap://wc?uri='
 const UNISWAP_URL_SCHEME_WIDGET = 'uniswap://widget/'
+export const UNISWAP_WALLETCONNECT_URL = uniswapUrls.appBaseUrl + '/wc?uri='
+const WALLETCONNECT_URI_SCHEME = 'wc:' // https://eips.ethereum.org/EIPS/eip-1328
 
 const NFT_ITEM_SHARE_LINK_HASH_REGEX = /^(#\/)?nfts\/asset\/(0x[a-fA-F0-9]{40})\/(\d+)$/
 const NFT_COLLECTION_SHARE_LINK_HASH_REGEX = /^(#\/)?nfts\/collection\/(0x[a-fA-F0-9]{40})$/
@@ -191,9 +193,21 @@ export function* handleDeepLink(action: ReturnType<typeof openDeepLink>) {
       return
     }
 
-    // Handle WC deep link via URL scheme connections (ex. uniswap://wc?uri=123))
-    if (action.payload.url.startsWith(UNISWAP_URL_SCHEME_WALLETCONNECT)) {
-      let wcUri = action.payload.url.split(UNISWAP_URL_SCHEME_WALLETCONNECT)[1]
+    // Handle WC deep link via connections in the format uniswap://wc?uri=${WC_URI}
+    // Ex: uniswap://wc?uri=wc:123@2?relay-protocol=irn&symKey=51e
+    if (action.payload.url.startsWith(UNISWAP_URL_SCHEME_WALLETCONNECT_AS_PARAM)) {
+      let wcUri = action.payload.url.split(UNISWAP_URL_SCHEME_WALLETCONNECT_AS_PARAM)[1]
+      if (!wcUri) return
+      // Decode URI to handle special characters like %3A => :
+      wcUri = decodeURIComponent(wcUri)
+      yield* call(handleWalletConnectDeepLink, wcUri)
+      return
+    }
+
+    // Handle WC deep link via connections in the format uniswap://${WC_URI}
+    // Ex: uniswap://wc:123@2?relay-protocol=irn&symKey=51e
+    if (action.payload.url.startsWith(UNISWAP_URL_SCHEME + WALLETCONNECT_URI_SCHEME)) {
+      let wcUri = action.payload.url.split(UNISWAP_URL_SCHEME)[1]
       if (!wcUri) return
       // Decode URI to handle special characters like %3A => :
       wcUri = decodeURIComponent(wcUri)
@@ -215,11 +229,24 @@ export function* handleDeepLink(action: ReturnType<typeof openDeepLink>) {
       return
     }
 
-    // Handle WC universal links connections (ex. https://uniswap.org/app/wc?uri=123)
-    if (url.pathname.includes('/wc')) {
-      // Only initial session connections include `uri` param, signing requests only link to /wc
-      const wcUri = url.searchParams.get('uri')
+    /*
+    Handle WC universal links connections in the format https://uniswap.org/app/wc?uri=wc:123
+    Notice that we assume the URL has only one parameter, named uri, which is the WallectConnect URI.
+    Any other parameter present in the URI is considered to be part of the WallectConnect URI.
+    For example, in the URL below, symKey is a parameter of the WallectConnect URI.
+    https://uniswap.org/app/wc?uri=wc:111f1ff289d1cc5a70ec5354779c6a82b3bde5ac72476f7f67326c38a4ce99f2@2?relay-protocol=irn&symKey=75e152d915a717da9f7bca3df23a0c65fcc4725d769f877ccfaa1f65270cded2
+    */
+    if (action.payload.url.startsWith(UNISWAP_WALLETCONNECT_URL)) {
+      // Only initial session connections include `uri` param, signing requests only link to /wc and should be ignored
+      const wcUri = action.payload.url.split(UNISWAP_WALLETCONNECT_URL).pop()
       if (!wcUri) return
+      yield* call(handleWalletConnectDeepLink, decodeURIComponent(wcUri))
+      return
+    }
+
+    // Handle plain WalletConnect URIs
+    if (action.payload.url.startsWith(WALLETCONNECT_URI_SCHEME)) {
+      const wcUri = decodeURIComponent(action.payload.url)
       yield* call(handleWalletConnectDeepLink, wcUri)
       return
     }

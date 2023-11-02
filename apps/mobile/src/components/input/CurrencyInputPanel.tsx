@@ -1,6 +1,4 @@
-import { backgroundColor, BackgroundColorProps, useRestyle } from '@shopify/restyle'
 import { Currency, CurrencyAmount } from '@uniswap/sdk-core'
-import _ from 'lodash'
 import React, { memo, useCallback, useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
@@ -14,15 +12,12 @@ import { AmountInput } from 'src/components/input/AmountInput'
 import { MaxAmountButton } from 'src/components/input/MaxAmountButton'
 import { Warning, WarningLabel } from 'src/components/modals/WarningModal/types'
 import { SelectTokenButton } from 'src/components/TokenSelector/SelectTokenButton'
-import { Flex, SpaceTokens, Text } from 'ui/src'
+import { Flex, FlexProps, SpaceTokens, Text } from 'ui/src'
 import { fonts } from 'ui/src/theme'
-import { Theme } from 'ui/src/theme/restyle'
-import { formatCurrencyAmount, formatNumberOrString, NumberType } from 'utilities/src/format/format'
-import { useMemoCompare } from 'utilities/src/react/hooks'
+import { NumberType } from 'utilities/src/format/types'
 import { CurrencyInfo } from 'wallet/src/features/dataApi/types'
-
-const restyleFunctions = [backgroundColor]
-type RestyleProps = BackgroundColorProps<Theme>
+import { useFiatConverter } from 'wallet/src/features/fiatCurrency/conversion'
+import { useLocalizedFormatter } from 'wallet/src/features/language/formatter'
 
 type CurrentInputPanelProps = {
   currencyInfo: Maybe<CurrencyInfo>
@@ -36,7 +31,7 @@ type CurrentInputPanelProps = {
   autoFocus?: boolean
   focus?: boolean
   isOutput?: boolean
-  isUSDInput?: boolean
+  isFiatInput?: boolean
   onSetMax?: (amount: string) => void
   onPressIn?: () => void
   warnings: Warning[]
@@ -47,7 +42,7 @@ type CurrentInputPanelProps = {
 
   // sometimes CurrencyInputPanel rendered off screen like with Send input -> selector flow
   isOnScreen?: boolean
-} & RestyleProps
+} & FlexProps
 
 const MAX_INPUT_FONT_SIZE = 42
 const MIN_INPUT_FONT_SIZE = 28
@@ -108,7 +103,7 @@ export function _CurrencyInputPanel(props: CurrentInputPanelProps): JSX.Element 
     focus,
     autoFocus,
     isOutput = false,
-    isUSDInput = false,
+    isFiatInput = false,
     onPressIn,
     warnings,
     dimTextColor,
@@ -119,11 +114,9 @@ export function _CurrencyInputPanel(props: CurrentInputPanelProps): JSX.Element 
   } = props
 
   const { t } = useTranslation()
-  const transformedProps = useRestyle(
-    restyleFunctions,
-    useMemoCompare(() => rest, _.isEqual)
-  )
   const inputRef = useRef<TextInput>(null)
+  const { convertFiatAmountFormatted } = useFiatConverter()
+  const { formatCurrencyAmount } = useLocalizedFormatter()
 
   const insufficientBalanceWarning = warnings.find(
     (warning) => warning.type === WarningLabel.InsufficientFunds
@@ -131,11 +124,12 @@ export function _CurrencyInputPanel(props: CurrentInputPanelProps): JSX.Element 
 
   const showInsufficientBalanceWarning = insufficientBalanceWarning && !isOutput
 
-  const formattedUSDValue = usdValue
-    ? formatNumberOrString(usdValue?.toExact(), NumberType.FiatTokenQuantity)
-    : ''
+  const formattedFiatValue = convertFiatAmountFormatted(
+    usdValue?.toExact(),
+    NumberType.FiatTokenQuantity
+  )
   const formattedCurrencyAmount = currencyAmount
-    ? formatCurrencyAmount(currencyAmount, NumberType.TokenTx)
+    ? formatCurrencyAmount({ value: currencyAmount, type: NumberType.TokenTx })
     : ''
 
   // the focus state for native Inputs can sometimes be out of sync with the controlled `focus`
@@ -204,12 +198,7 @@ export function _CurrencyInputPanel(props: CurrentInputPanelProps): JSX.Element 
   const { paddingBottom: innerPaddingBottom, paddingTop: innerPaddingTop } = innerPadding
 
   return (
-    <Flex
-      gap="$spacing8"
-      {...transformedProps}
-      pb={paddingBottom}
-      pt={paddingTop}
-      px={paddingHorizontal}>
+    <Flex gap="$spacing8" pb={paddingBottom} pt={paddingTop} px={paddingHorizontal} {...rest}>
       <Flex
         row
         alignItems="center"
@@ -246,7 +235,7 @@ export function _CurrencyInputPanel(props: CurrentInputPanelProps): JSX.Element 
               px="$none"
               py="$none"
               returnKeyType={showSoftInputOnFocus ? 'done' : undefined}
-              showCurrencySign={isUSDInput}
+              showCurrencySign={isFiatInput}
               showSoftInputOnFocus={showSoftInputOnFocus}
               testID={isOutput ? 'amount-input-out' : 'amount-input-in'}
               value={value}
@@ -269,14 +258,18 @@ export function _CurrencyInputPanel(props: CurrentInputPanelProps): JSX.Element 
         <Flex row alignItems="center" gap="$spacing8" justifyContent="space-between" mb="$spacing4">
           <Flex shrink>
             <Text color="$neutral2" numberOfLines={1} variant="subheading2">
-              {!isUSDInput ? formattedUSDValue : formattedCurrencyAmount}
+              {!isFiatInput ? (usdValue ? formattedFiatValue : '') : formattedCurrencyAmount}
             </Text>
           </Flex>
           <Flex row alignItems="center" gap="$spacing8" justifyContent="flex-end">
             <Text
               color={showInsufficientBalanceWarning ? '$DEP_accentWarning' : '$neutral2'}
               variant="subheading2">
-              {t('Balance')}: {formatCurrencyAmount(currencyBalance, NumberType.TokenNonTx)}
+              {t('Balance')}:{' '}
+              {formatCurrencyAmount({
+                value: currencyBalance,
+                type: NumberType.TokenNonTx,
+              })}
             </Text>
 
             {onSetMax && (

@@ -4,10 +4,15 @@ import { ComponentProps, CSSProperties, forwardRef, useCallback, useEffect, useS
 import { useTranslation } from 'react-i18next'
 import { ListRenderItemInfo, StyleProp, ViewStyle } from 'react-native'
 import { SharedValue } from 'react-native-reanimated'
-import { AnimatedFlashList, Flex, useSporeColors } from 'ui/src'
+import {
+  AnimatedBottomSheetFlashList,
+  AnimatedFlashList,
+  Flex,
+  useDeviceDimensions,
+  useSporeColors,
+} from 'ui/src'
 import NoNFTsIcon from 'ui/src/assets/icons/empty-state-picture.svg'
 import { Loader } from 'ui/src/loading'
-import { dimensions } from 'ui/src/theme'
 import { BaseCard } from 'wallet/src/components/BaseCard/BaseCard'
 import { HiddenNftsRowLeft, HiddenNftsRowRight } from 'wallet/src/components/nfts/NFTHiddenRow'
 import { GQLQueries } from 'wallet/src/data/queries'
@@ -37,6 +42,7 @@ type NftsListProps = Omit<
       owner: Address
       footerHeight?: SharedValue<number>
       isExternalProfile?: boolean
+      renderedInModal?: boolean
       renderNFTItem: (item: NFTItem) => JSX.Element
       onPressEmptyState?: () => void
       loadingStateStyle?: StyleProp<ViewStyle | CSSProperties | (ViewStyle & CSSProperties)>
@@ -53,7 +59,7 @@ export const NftsList = forwardRef<FlashList<unknown>, NftsListProps>(function _
     owner,
     footerHeight,
     isExternalProfile = false,
-    loadingStateStyle,
+    renderedInModal = false,
     errorStateStyle,
     emptyStateStyle,
     ListFooterComponent,
@@ -71,6 +77,7 @@ export const NftsList = forwardRef<FlashList<unknown>, NftsListProps>(function _
 ) {
   const { t } = useTranslation()
   const colors = useSporeColors()
+  const { fullHeight } = useDeviceDimensions()
 
   const [hiddenNftsExpanded, setHiddenNftsExpanded] = useState(false)
 
@@ -99,10 +106,10 @@ export const NftsList = forwardRef<FlashList<unknown>, NftsListProps>(function _
 
   const onHiddenRowPressed = useCallback((): void => {
     if (hiddenNftsExpanded && footerHeight) {
-      footerHeight.value = dimensions.fullHeight
+      footerHeight.value = fullHeight
     }
     setHiddenNftsExpanded(!hiddenNftsExpanded)
-  }, [hiddenNftsExpanded, footerHeight])
+  }, [hiddenNftsExpanded, footerHeight, fullHeight])
 
   useEffect(() => {
     if (numHidden === 0 && hiddenNftsExpanded) {
@@ -133,16 +140,16 @@ export const NftsList = forwardRef<FlashList<unknown>, NftsListProps>(function _
 
   const onRetry = useCallback(() => refetch(), [refetch])
 
+  const List = renderedInModal ? AnimatedBottomSheetFlashList : AnimatedFlashList
+
   return (
-    <AnimatedFlashList
+    <List
       {...rest}
       ref={ref}
       ListEmptyComponent={
         // initial loading
         isNonPollingRequestInFlight(networkStatus) ? (
-          <Flex style={loadingStateStyle}>
-            <Loader.NFT repeat={6} />
-          </Flex>
+          <Loader.NFT repeat={6} />
         ) : // no response and we're not loading already
         isError(networkStatus, !!data) ? (
           <Flex centered grow style={errorStateStyle}>

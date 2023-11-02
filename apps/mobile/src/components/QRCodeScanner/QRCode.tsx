@@ -139,7 +139,7 @@ const _QRCodeDisplay = ({
             <AddressQRCode
               address={address}
               backgroundColor="$transparent"
-              color={opacify(overlayOpacityPercent, colors.neutral1.get())}
+              color={opacify(overlayOpacityPercent, colors.neutral1.val)}
               errorCorrectionLevel={errorCorrectionLevel}
               safeAreaColor={safeAreaColor}
               safeAreaSize={logoSize / 1.5}
@@ -159,7 +159,7 @@ const _QRCodeDisplay = ({
         <Unicon
           showBorder
           address={address}
-          backgroundColor={colors.surface1.get()}
+          backgroundColor={colors.surface1.val}
           size={logoSize}
         />
       </Flex>

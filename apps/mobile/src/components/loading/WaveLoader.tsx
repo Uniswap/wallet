@@ -7,7 +7,7 @@ import Animated, {
   withRepeat,
   withTiming,
 } from 'react-native-reanimated'
-import { CHART_HEIGHT } from 'src/components/PriceExplorer/constants'
+import { useChartDimensions } from 'src/components/PriceExplorer/useChartDimensions'
 import { Flex, useSporeColors } from 'ui/src'
 import Wave from 'ui/src/assets/backgrounds/wave.svg'
 
@@ -17,6 +17,7 @@ const WAVE_DURATION = 2000
 export function WaveLoader(): JSX.Element {
   const colors = useSporeColors()
   const yPosition = useSharedValue(0)
+  const { chartHeight } = useChartDimensions()
 
   useEffect(() => {
     yPosition.value = withRepeat(withTiming(1, { duration: WAVE_DURATION }), Infinity, false)
@@ -38,14 +39,14 @@ export function WaveLoader(): JSX.Element {
       grow
       row
       alignItems="center"
-      height={CHART_HEIGHT}
+      height={chartHeight}
       justifyContent="center"
       sentry-label="WaveLoader">
       <Animated.View style={[StyleSheet.absoluteFill, animatedStyle]}>
         <Flex centered grow row height="100%">
-          <Wave color={colors.surface3.get()} />
-          <Wave color={colors.surface3.get()} />
-          <Wave color={colors.surface3.get()} />
+          <Wave color={colors.neutral3.get()} />
+          <Wave color={colors.neutral3.get()} />
+          <Wave color={colors.neutral3.get()} />
         </Flex>
       </Animated.View>
     </Flex>

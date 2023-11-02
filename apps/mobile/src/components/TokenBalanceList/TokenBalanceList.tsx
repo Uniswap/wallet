@@ -5,7 +5,10 @@ import { FlatList, RefreshControl } from 'react-native'
 import Animated, { FadeInDown, FadeOut } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useAdaptiveFooter } from 'src/components/home/hooks'
-import { AnimatedFlatList } from 'src/components/layout/AnimatedFlatList'
+import {
+  AnimatedBottomSheetFlatList,
+  AnimatedFlatList,
+} from 'src/components/layout/AnimatedFlatList'
 import {
   TabProps,
   TAB_BAR_HEIGHT,
@@ -17,8 +20,8 @@ import { TokenBalanceItem } from 'src/components/TokenBalanceList/TokenBalanceIt
 import { IS_ANDROID } from 'src/constants/globals'
 import { useTokenBalancesGroupedByVisibility } from 'src/features/balances/hooks'
 import { Screens } from 'src/screens/Screens'
-import { AnimatedFlex, Flex, useSporeColors } from 'ui/src'
-import { dimensions, zIndices } from 'ui/src/theme'
+import { AnimatedFlex, Flex, useDeviceDimensions, useSporeColors } from 'ui/src'
+import { zIndices } from 'ui/src/theme'
 import { BaseCard } from 'wallet/src/components/BaseCard/BaseCard'
 import { isError, isNonPollingRequestInFlight, isWarmLoadingStatus } from 'wallet/src/data/utils'
 import { usePortfolioBalances } from 'wallet/src/features/dataApi/balances'
@@ -47,6 +50,7 @@ export const TokenBalanceList = forwardRef<FlatList<any>, TokenBalanceListProps>
       containerProps,
       scrollHandler,
       isExternalProfile = false,
+      renderedInModal = false,
       refreshing,
       headerHeight = 0,
       onRefresh,
@@ -55,6 +59,7 @@ export const TokenBalanceList = forwardRef<FlatList<any>, TokenBalanceListProps>
   ) {
     const { t } = useTranslation()
     const colors = useSporeColors()
+    const dimensions = useDeviceDimensions()
     const insets = useSafeAreaInsets()
 
     const { onContentSizeChange, adaptiveFooter, footerHeight } = useAdaptiveFooter(
@@ -117,6 +122,8 @@ export const TokenBalanceList = forwardRef<FlatList<any>, TokenBalanceListProps>
       )
     }, [insets.top, headerHeight, refreshing, colors.neutral3, onRefresh])
 
+    const List = renderedInModal ? AnimatedBottomSheetFlatList : AnimatedFlatList
+
     // Note: `PerformanceView` must wrap the entire return statement to properly track interactive states.
     return (
       <ReactNavigationPerformanceView
@@ -140,7 +147,7 @@ export const TokenBalanceList = forwardRef<FlatList<any>, TokenBalanceListProps>
             </Flex>
           )
         ) : (
-          <AnimatedFlatList
+          <List
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             ref={ref as ForwardedRef<Animated.FlatList<any>>}
             ListEmptyComponent={
@@ -149,7 +156,7 @@ export const TokenBalanceList = forwardRef<FlatList<any>, TokenBalanceListProps>
               </Flex>
             }
             // we add a footer to cover any possible space, so user can scroll the top menu all the way to the top
-            ListFooterComponent={adaptiveFooter}
+            ListFooterComponent={isExternalProfile ? null : adaptiveFooter}
             // add negative z index to prevent footer from covering hidden tokens row when minimized
             ListFooterComponentStyle={{ zIndex: zIndices.negative }}
             ListHeaderComponent={

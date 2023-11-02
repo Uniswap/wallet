@@ -11,7 +11,8 @@ import { Screens } from 'src/screens/Screens'
 import { setClipboard } from 'src/utils/clipboard'
 import { Flex, Text, TouchableArea } from 'ui/src'
 import { iconSizes } from 'ui/src/theme'
-import { formatUSDPrice, NumberType } from 'utilities/src/format/format'
+import { NumberType } from 'utilities/src/format/types'
+import { useFiatConverter } from 'wallet/src/features/fiatCurrency/conversion'
 import { pushNotification } from 'wallet/src/features/notifications/slice'
 import { AppNotificationType, CopyNotificationType } from 'wallet/src/features/notifications/types'
 
@@ -31,6 +32,7 @@ function PortfolioValue({
   portfolioValue,
 }: PortfolioValueProps): JSX.Element {
   const isLoading = isPortfolioValueLoading && portfolioValue === undefined
+  const { convertFiatAmountFormatted } = useFiatConverter()
 
   return (
     <Text
@@ -38,7 +40,7 @@ function PortfolioValue({
       loading={isLoading}
       loadingPlaceholderText="$000.00"
       variant="subheading2">
-      {formatUSDPrice(portfolioValue, NumberType.PortfolioBalance)}
+      {convertFiatAmountFormatted(portfolioValue, NumberType.PortfolioBalance)}
     </Text>
   )
 }
@@ -113,6 +115,7 @@ export function AccountCardItem({
         <Flex row alignItems="flex-start" gap="$spacing16" testID={`account_item/${address}`}>
           <Flex fill>
             <AddressDisplay
+              showNotificationsBadge
               address={address}
               captionVariant="body3"
               gapBetweenLines="$spacing2"

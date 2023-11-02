@@ -28,14 +28,24 @@ import { sendMobileAnalyticsEvent } from 'src/features/telemetry'
 import { ElementName, MobileEventName, ModalName } from 'src/features/telemetry/constants'
 import { MobileEventProperties } from 'src/features/telemetry/types'
 import { openUri } from 'src/utils/linking'
-import { AnimatedFlex, Button, Flex, Icons, Text, TouchableArea, useSporeColors } from 'ui/src'
-import { dimensions, fonts, iconSizes, spacing } from 'ui/src/theme'
-import { formatUSDPrice } from 'utilities/src/format/format'
+import {
+  AnimatedFlex,
+  Button,
+  Flex,
+  Icons,
+  Text,
+  TouchableArea,
+  useDeviceDimensions,
+  useSporeColors,
+} from 'ui/src'
+import { fonts, iconSizes, spacing } from 'ui/src/theme'
+import { NumberType } from 'utilities/src/format/types'
 import { useTimeout } from 'utilities/src/time/timing'
 import { CurrencyLogo } from 'wallet/src/components/CurrencyLogo/CurrencyLogo'
-import { NATIVE_ADDRESS } from 'wallet/src/constants/addresses'
+import { getNativeAddress } from 'wallet/src/constants/addresses'
 import { ChainId } from 'wallet/src/constants/chains'
 import { CurrencyInfo } from 'wallet/src/features/dataApi/types'
+import { useLocalizedFormatter } from 'wallet/src/features/language/formatter'
 import { useCurrencyInfo } from 'wallet/src/features/tokens/useCurrencyInfo'
 import { ANIMATE_SPRING_CONFIG } from 'wallet/src/features/transactions/utils'
 import { getSymbolDisplayText } from 'wallet/src/utils/currency'
@@ -76,6 +86,8 @@ export function FiatOnRampModal(): JSX.Element {
 
 function FiatOnRampContent({ onClose }: { onClose: () => void }): JSX.Element {
   const { t } = useTranslation()
+  const { fullWidth } = useDeviceDimensions()
+  const { formatNumberOrString } = useLocalizedFormatter()
   const inputRef = useRef<TextInput>(null)
 
   const { isSheetReady } = useBottomSheetContext()
@@ -94,8 +106,12 @@ function FiatOnRampContent({ onClose }: { onClose: () => void }): JSX.Element {
   const [value, setValue] = useState('')
 
   // We hardcode ETH as the starting currency
+  const ethCurrencyInfo = useCurrencyInfo(
+    buildCurrencyId(ChainId.Mainnet, getNativeAddress(ChainId.Mainnet))
+  )
+
   const [currency, setCurrency] = useState<FiatOnRampCurrency>({
-    currencyInfo: useCurrencyInfo(buildCurrencyId(ChainId.Mainnet, NATIVE_ADDRESS)),
+    currencyInfo: ethCurrencyInfo,
     moonpayCurrency: {
       code: 'eth',
       type: 'crypto',
@@ -106,6 +122,14 @@ function FiatOnRampContent({ onClose }: { onClose: () => void }): JSX.Element {
       notAllowedUSStates: [],
     },
   })
+
+  // We might not have ethCurrencyInfo when this component is initially rendered.
+  // If `ethCurrencyInfo` becomes available later while currency.currencyInfo is still unset, we update the currency state accordingly.
+  useEffect(() => {
+    if (ethCurrencyInfo && !currency.currencyInfo) {
+      setCurrency({ ...currency, currencyInfo: ethCurrencyInfo })
+    }
+  }, [currency, currency.currencyInfo, ethCurrencyInfo])
 
   const {
     eligible,
@@ -177,12 +201,12 @@ function FiatOnRampContent({ onClose }: { onClose: () => void }): JSX.Element {
   }, [showSoftInputOnFocus, showTokenSelector])
 
   const hideInnerContentRouter = showTokenSelector
-  const screenXOffset = useSharedValue(hideInnerContentRouter ? -dimensions.fullWidth : 0)
+  const screenXOffset = useSharedValue(hideInnerContentRouter ? -fullWidth : 0)
 
   useEffect(() => {
     const screenOffset = showTokenSelector ? 1 : 0
-    screenXOffset.value = withSpring(-(dimensions.fullWidth * screenOffset), ANIMATE_SPRING_CONFIG)
-  }, [screenXOffset, showTokenSelector])
+    screenXOffset.value = withSpring(-(fullWidth * screenOffset), ANIMATE_SPRING_CONFIG)
+  }, [screenXOffset, showTokenSelector, fullWidth])
 
   const wrapperStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: screenXOffset.value }],
@@ -318,7 +342,11 @@ function FiatOnRampContent({ onClose }: { onClose: () => void }): JSX.Element {
       )}
       {showConnectingToMoonpayScreen && (
         <FiatOnRampConnectingView
-          amount={formatUSDPrice(value)}
+          amount={formatNumberOrString({
+            value,
+            type: NumberType.FiatTokenPrice,
+            currencyCode: 'usd', // TODO remove hard-coded USD after adding support for more currencies
+          })}
           quoteCurrencyCode={currency.currencyInfo?.currency.symbol}
         />
       )}

@@ -12,17 +12,26 @@ import { TextInputProps } from 'src/components/input/TextInput'
 import { NFTTransfer } from 'src/components/NFT/NFTTransfer'
 import { useBiometricAppSettings, useBiometricPrompt } from 'src/features/biometrics/hooks'
 import { ElementName } from 'src/features/telemetry/constants'
-import { AnimatedFlex, Button, Flex, Text, useMedia, useSporeColors } from 'ui/src'
-import { dimensions, fonts, iconSizes } from 'ui/src/theme'
-import { formatNumberOrString, NumberType } from 'utilities/src/format/format'
+import {
+  AnimatedFlex,
+  Button,
+  Flex,
+  Text,
+  useDeviceDimensions,
+  useMedia,
+  useSporeColors,
+} from 'ui/src'
+import { fonts, iconSizes } from 'ui/src/theme'
+import { NumberType } from 'utilities/src/format/types'
 import { CurrencyLogo } from 'wallet/src/components/CurrencyLogo/CurrencyLogo'
 import { CurrencyInfo } from 'wallet/src/features/dataApi/types'
+import { useFiatConverter } from 'wallet/src/features/fiatCurrency/conversion'
 import { GQLNftAsset } from 'wallet/src/features/nfts/hooks'
 import { getSymbolDisplayText } from 'wallet/src/utils/currency'
 
 interface BaseReviewProps {
   actionButtonProps: { disabled: boolean; label: string; name: ElementName; onPress: () => void }
-  isUSDInput?: boolean
+  isFiatInput?: boolean
   transactionDetails?: ReactNode
   nftIn?: GQLNftAsset
   currencyInInfo: Maybe<CurrencyInfo>
@@ -59,14 +68,16 @@ export function TransactionReview({
   outputCurrencyUSDValue,
   nftIn,
   recipient,
-  isUSDInput = false,
+  isFiatInput = false,
   transactionDetails,
   usdTokenEquivalentAmount,
   onPrev,
 }: TransactionReviewProps): JSX.Element {
   const colors = useSporeColors()
   const media = useMedia()
+  const { fullHeight } = useDeviceDimensions()
   const { t } = useTranslation()
+  const { convertFiatAmountFormatted } = useFiatConverter()
 
   const { trigger: actionButtonTrigger } = useBiometricPrompt(actionButtonProps.onPress)
   const { requiredForTransactions } = useBiometricAppSettings()
@@ -91,12 +102,14 @@ export function TransactionReview({
   const arrowPadding = media.short ? '$spacing4' : '$spacing8'
   const amountAndEquivalentValueGap = media.short ? '$spacing4' : '$spacing8'
 
-  const formattedInputUsdValue = inputCurrencyUSDValue
-    ? formatNumberOrString(inputCurrencyUSDValue?.toExact(), NumberType.FiatTokenQuantity)
-    : ''
-  const formattedOutputUsdValue = outputCurrencyUSDValue
-    ? formatNumberOrString(outputCurrencyUSDValue?.toExact(), NumberType.FiatTokenQuantity)
-    : ''
+  const formattedInputFiatValue = convertFiatAmountFormatted(
+    inputCurrencyUSDValue?.toExact(),
+    NumberType.FiatTokenQuantity
+  )
+  const formattedOutputFiatValue = convertFiatAmountFormatted(
+    outputCurrencyUSDValue?.toExact(),
+    NumberType.FiatTokenQuantity
+  )
 
   return (
     <>
@@ -130,12 +143,12 @@ export function TransactionReview({
                 textAlign="center"
                 value={formattedAmountIn}
               />
-              {recipient && inputCurrencyUSDValue && !isUSDInput ? (
+              {recipient && inputCurrencyUSDValue && !isFiatInput ? (
                 <Text color="$neutral2" variant={equivalentValueTextVariant}>
-                  {formattedInputUsdValue}
+                  {formattedInputFiatValue}
                 </Text>
               ) : null}
-              {isUSDInput ? (
+              {isFiatInput ? (
                 <Text color="$neutral2" variant={equivalentValueTextVariant}>
                   {/* when sending a token with USD input, show the amount of the token being sent */}
                   {usdTokenEquivalentAmount}
@@ -146,7 +159,7 @@ export function TransactionReview({
           </Flex>
         ) : nftIn ? (
           <Flex mt="$spacing60">
-            <NFTTransfer asset={nftIn} nftSize={dimensions.fullHeight / 5} />
+            <NFTTransfer asset={nftIn} nftSize={fullHeight / 5} />
           </Flex>
         ) : null}
         <TransferArrowButton
@@ -158,25 +171,23 @@ export function TransactionReview({
         {currencyOutInfo && formattedAmountOut ? (
           <Flex centered $short={{ pb: '$spacing4' }} gap={innerGap} pb="$none">
             <Flex centered gap={amountAndEquivalentValueGap}>
-              <Flex height={fonts.heading3.lineHeight} justifyContent="center" overflow="hidden">
-                <AmountInput
-                  {...textProps}
-                  alignSelf="stretch"
-                  backgroundColor="$transparent"
-                  borderWidth={0}
-                  editable={false}
-                  px="$spacing16"
-                  py="$none"
-                  showCurrencySign={isUSDInput}
-                  showSoftInputOnFocus={false}
-                  testID="amount-input-out"
-                  textAlign="center"
-                  value={formattedAmountOut}
-                />
-              </Flex>
+              <AmountInput
+                {...textProps}
+                alignSelf="stretch"
+                backgroundColor="$transparent"
+                borderWidth={0}
+                editable={false}
+                px="$spacing16"
+                py="$none"
+                showCurrencySign={isFiatInput}
+                showSoftInputOnFocus={false}
+                testID="amount-input-out"
+                textAlign="center"
+                value={formattedAmountOut}
+              />
               {outputCurrencyUSDValue ? (
                 <Text color="$neutral2" variant={equivalentValueTextVariant}>
-                  {formattedOutputUsdValue}
+                  {formattedOutputFiatValue}
                 </Text>
               ) : null}
             </Flex>

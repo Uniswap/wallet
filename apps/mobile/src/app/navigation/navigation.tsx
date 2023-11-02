@@ -24,6 +24,7 @@ import { RestoreCloudBackupLoadingScreen } from 'src/screens/Import/RestoreCloud
 import { RestoreCloudBackupPasswordScreen } from 'src/screens/Import/RestoreCloudBackupPasswordScreen'
 import { RestoreCloudBackupScreen } from 'src/screens/Import/RestoreCloudBackupScreen'
 import { SeedPhraseInputScreen } from 'src/screens/Import/SeedPhraseInputScreen'
+import { SeedPhraseInputScreenV2 } from 'src/screens/Import/SeedPhraseInputScreenV2'
 import { SelectWalletScreen } from 'src/screens/Import/SelectWalletScreen'
 import { WatchWalletScreen } from 'src/screens/Import/WatchWalletScreen'
 import { NFTCollectionScreen } from 'src/screens/NFTCollectionScreen'
@@ -54,6 +55,8 @@ import { TokenDetailsScreen } from 'src/screens/TokenDetailsScreen'
 import { WebViewScreen } from 'src/screens/WebViewScreen'
 import { Icons, useSporeColors } from 'ui/src'
 import { spacing } from 'ui/src/theme'
+import { FEATURE_FLAGS } from 'wallet/src/features/experiments/constants'
+import { useFeatureFlag } from 'wallet/src/features/experiments/hooks'
 import { selectFinishedOnboarding } from 'wallet/src/features/wallet/selectors'
 
 const OnboardingStack = createStackNavigator<OnboardingStackParamList>()
@@ -144,8 +147,12 @@ export function ExploreStackNavigator(): JSX.Element {
         <ExploreStack.Screen component={ExploreScreen} name={Screens.Explore} />
         <ExploreStack.Group
           screenOptions={{ contentStyle: { backgroundColor: colors.surface1.get() } }}>
-          <ExploreStack.Screen component={ExternalProfileScreen} name={Screens.ExternalProfile} />
-          <ExploreStack.Screen component={NFTCollectionScreen} name={Screens.NFTCollection} />
+          <ExploreStack.Screen name={Screens.ExternalProfile}>
+            {(props): JSX.Element => <ExternalProfileScreen {...props} renderedInModal />}
+          </ExploreStack.Screen>
+          <ExploreStack.Screen name={Screens.NFTCollection}>
+            {(props): JSX.Element => <NFTCollectionScreen {...props} renderedInModal />}
+          </ExploreStack.Screen>
           <ExploreStack.Screen component={NFTItemScreen} name={Screens.NFTItem} />
           <ExploreStack.Screen component={TokenDetailsScreen} name={Screens.TokenDetails} />
         </ExploreStack.Group>
@@ -159,6 +166,10 @@ const renderEmptyBackImage = (): JSX.Element => <></>
 export function OnboardingStackNavigator(): JSX.Element {
   const colors = useSporeColors()
   const insets = useSafeAreaInsets()
+  const seedPhraseRefactorEnabled = useFeatureFlag(FEATURE_FLAGS.SeedPhraseRefactorNative)
+  const SeedPhraseInputComponent = seedPhraseRefactorEnabled
+    ? SeedPhraseInputScreenV2
+    : SeedPhraseInputScreen
 
   const renderHeaderBackImage = (): JSX.Element => (
     <Icons.RotatableChevron color="$neutral2" height={28} width={28} />
@@ -238,7 +249,7 @@ export function OnboardingStackNavigator(): JSX.Element {
           name={OnboardingScreens.RestoreCloudBackupPassword}
         />
         <OnboardingStack.Screen
-          component={SeedPhraseInputScreen}
+          component={SeedPhraseInputComponent}
           name={OnboardingScreens.SeedPhraseInput}
         />
         <OnboardingStack.Screen

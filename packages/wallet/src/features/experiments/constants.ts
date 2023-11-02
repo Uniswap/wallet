@@ -7,7 +7,11 @@ export enum FEATURE_FLAGS {
   RestoreWallet = 'restore-wallet',
   MevBlocker = 'mev-blocker',
   SwapRewrite = 'swap-rewrite',
+  SeedPhraseRefactorNative = 'refactor-seed-phrase-native',
   PortionFields = 'portion-fields',
+  DisableGoogleDriveBackup = 'disable-google-drive-backup',
+  CurrencyConversion = 'currency_conversion',
+  LanguageSelection = 'language-selection',
 }
 
 /**

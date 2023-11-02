@@ -1,13 +1,14 @@
 import React from 'react'
 import { ScrollView, StyleSheet } from 'react-native'
 import { AddressDisplay } from 'src/components/AddressDisplay'
-import { Flex, Text } from 'ui/src'
-import { dimensions, spacing } from 'ui/src/theme'
-import { formatUSDPrice, NumberType } from 'utilities/src/format/format'
+import { Flex, Text, useDeviceDimensions } from 'ui/src'
+import { spacing } from 'ui/src/theme'
+import { NumberType } from 'utilities/src/format/types'
 import {
   AccountListQuery,
   useAccountListQuery,
 } from 'wallet/src/data/__generated__/types-and-hooks'
+import { useFiatConverter } from 'wallet/src/features/fiatCurrency/conversion'
 import { Account } from 'wallet/src/features/wallet/accounts/types'
 
 const ADDRESS_ROW_HEIGHT = 40
@@ -15,6 +16,7 @@ const ADDRESS_ROW_HEIGHT = 40
 type Portfolio = NonNullable<NonNullable<NonNullable<AccountListQuery['portfolios']>[0]>>
 
 function _AssociatedAccountsList({ accounts }: { accounts: Account[] }): JSX.Element {
+  const { fullHeight } = useDeviceDimensions()
   const { data, loading } = useAccountListQuery({
     variables: {
       addresses: accounts.map((account) => account.address),
@@ -33,7 +35,7 @@ function _AssociatedAccountsList({ accounts }: { accounts: Account[] }): JSX.Ele
   // set max height to around 30% screen size, so we always cut the last visible element
   // this way user is aware if there are more elements to see
   const accountsScrollViewHeight =
-    Math.floor((dimensions.fullHeight * 0.3) / ADDRESS_ROW_HEIGHT) * ADDRESS_ROW_HEIGHT +
+    Math.floor((fullHeight * 0.3) / ADDRESS_ROW_HEIGHT) * ADDRESS_ROW_HEIGHT +
     ADDRESS_ROW_HEIGHT / 2 +
     spacing.spacing12 // 12 is the ScrollView vertical padding
 
@@ -48,22 +50,13 @@ function _AssociatedAccountsList({ accounts }: { accounts: Account[] }): JSX.Ele
       width="100%">
       <ScrollView bounces={false} contentContainerStyle={styles.accounts}>
         {sortedAddressesByBalance.map(({ address, balance }, index) => (
-          <Flex
-            key={address}
-            row
-            alignItems="center"
-            justifyContent="space-between"
-            pb={index !== accounts.length - 1 ? '$spacing16' : undefined}>
-            <AddressDisplay
-              hideAddressInSubtitle
-              address={address}
-              size={24}
-              variant="subheading2"
-            />
-            <Text color="$neutral2" loading={loading} numberOfLines={1} variant="body3">
-              {formatUSDPrice(balance, NumberType.PortfolioBalance)}
-            </Text>
-          </Flex>
+          <AssociatedAccountRow
+            address={address}
+            balance={balance}
+            index={index}
+            loading={loading}
+            totalCount={accounts.length}
+          />
         ))}
       </ScrollView>
     </Flex>
@@ -71,6 +64,37 @@ function _AssociatedAccountsList({ accounts }: { accounts: Account[] }): JSX.Ele
 }
 
 export const AssociatedAccountsList = React.memo(_AssociatedAccountsList)
+
+function AssociatedAccountRow({
+  index,
+  address,
+  balance,
+  totalCount,
+  loading,
+}: {
+  index: number
+  address: string
+  balance: number | undefined
+  totalCount: number
+  loading: boolean
+}): JSX.Element {
+  const { convertFiatAmountFormatted } = useFiatConverter()
+  const balanceFormatted = convertFiatAmountFormatted(balance, NumberType.PortfolioBalance)
+
+  return (
+    <Flex
+      key={address}
+      row
+      alignItems="center"
+      justifyContent="space-between"
+      pb={index !== totalCount - 1 ? '$spacing16' : undefined}>
+      <AddressDisplay hideAddressInSubtitle address={address} size={24} variant="subheading2" />
+      <Text color="$neutral2" loading={loading} numberOfLines={1} variant="body3">
+        {balanceFormatted}
+      </Text>
+    </Flex>
+  )
+}
 
 const styles = StyleSheet.create({
   accounts: {

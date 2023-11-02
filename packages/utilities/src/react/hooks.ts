@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
 
 // modified from https://usehooks.com/usePrevious/
 export function usePrevious<T>(value: T): T | undefined {
@@ -19,19 +19,25 @@ export function usePrevious<T>(value: T): T | undefined {
 // above link contains example on how to add delayed execution if ever needed
 export function useAsyncData<T>(
   asyncCallback: () => Promise<T> | undefined,
-  cancel?: () => void
+  onCancel?: () => void
 ): {
   isLoading: boolean
   data: T | undefined
 } {
-  const [data, setData] = useState<{
-    res: T | undefined
-    input: () => Promise<T> | undefined
+  const [state, setState] = useState<{
+    data: {
+      res: T | undefined
+      input: () => Promise<T> | undefined
+    }
+    isLoading: boolean
   }>({
-    res: undefined,
-    input: asyncCallback,
+    data: {
+      res: undefined,
+      input: asyncCallback,
+    },
+    isLoading: true,
   })
-  const [isLoading, setIsLoading] = useState(true)
+
   const isMountedRef = useRef(true)
 
   useEffect(() => {
@@ -41,19 +47,24 @@ export function useAsyncData<T>(
   }, [])
 
   useEffect(() => {
-    setIsLoading(true)
+    if (!state.isLoading) {
+      setState((currentState) => ({ ...currentState, isLoading: true }))
+    }
+
     let isCancelled = false
 
     async function runCallback(): Promise<void> {
       const res = await asyncCallback()
       // Prevent setting state if the component has unmounted (prevents memory leaks)
       if (!isMountedRef.current) return
-      setIsLoading(false)
-      // Prevent setting data if the request was cancelled
+      // Prevent setting state if the request was cancelled
       if (isCancelled) return
-      setData({
-        res,
-        input: asyncCallback,
+      setState({
+        isLoading: false,
+        data: {
+          res,
+          input: asyncCallback,
+        },
       })
     }
 
@@ -61,16 +72,16 @@ export function useAsyncData<T>(
 
     return () => {
       isCancelled = true
-      cancel?.()
+      onCancel?.()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [asyncCallback])
 
   return useMemo(() => {
-    if (asyncCallback !== data.input) return { isLoading: true, data: undefined }
+    if (asyncCallback !== state.data.input) return { isLoading: true, data: undefined }
 
-    return { isLoading, data: data.res }
-  }, [asyncCallback, isLoading, data])
+    return { isLoading: state.isLoading, data: state.data.res }
+  }, [asyncCallback, state.isLoading, state.data])
 }
 
 // modified from https://usehooks.com/useMemoCompare/
@@ -95,4 +106,22 @@ export function useMemoCompare<T>(next: () => T, compare: (a: T | undefined, b: 
 
   // Finally, if equal then return the previous value if it's set
   return isEqual && previous ? previous : nextValue
+}
+
+// This hook is a hacky way to forward the entire ref from the child to the parent
+// component. This is useful when the parent component needs to access the child's
+// ref and the ref is used in the child component.
+export function useForwardRef<T extends object>(
+  forwardedRef: React.ForwardedRef<T>,
+  localRef: React.RefObject<T>
+): void {
+  useImperativeHandle<T, T>(
+    forwardedRef,
+    () =>
+      new Proxy({} as T, {
+        get: (_, prop): T[keyof T] | undefined => {
+          return localRef.current?.[prop as keyof T]
+        },
+      })
+  )
 }

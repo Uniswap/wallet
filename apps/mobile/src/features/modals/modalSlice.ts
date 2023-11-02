@@ -16,7 +16,11 @@ type ExploreModalParams = {
   initialState?: ExploreModalState
 }
 
+type FiatCurrencySelectorParams = { name: ModalName.FiatCurrencySelector; initialState?: undefined }
+
 type FiatOnRampModalParams = { name: ModalName.FiatOnRamp; initialState?: undefined }
+
+type LanguageSelectorParams = { name: ModalName.LanguageSelector; initialState?: undefined }
 
 type RemoveWalletModalParams = {
   name: ModalName.RemoveWallet
@@ -38,12 +42,15 @@ export type OpenModalParams =
   | AccountSwitcherModalParams
   | ExperimentsModalParams
   | ExploreModalParams
+  | FiatCurrencySelectorParams
   | FiatOnRampModalParams
+  | LanguageSelectorParams
   | RemoveWalletModalParams
   | SendModalParams
   | SwapModalParams
   | WalletConnectModalParams
   | RestoreWalletModalParams
+export type CloseModalParams = { name: keyof ModalsState }
 
 export const initialModalState: ModalsState = {
   [ModalName.FiatOnRamp]: {
@@ -82,6 +89,14 @@ export const initialModalState: ModalsState = {
     isOpen: false,
     initialState: undefined,
   },
+  [ModalName.LanguageSelector]: {
+    isOpen: false,
+    initialState: undefined,
+  },
+  [ModalName.FiatCurrencySelector]: {
+    isOpen: false,
+    initialState: undefined,
+  },
 }
 
 const slice = createSlice({
@@ -93,7 +108,7 @@ const slice = createSlice({
       state[name].isOpen = true
       state[name].initialState = initialState
     },
-    closeModal: (state, action: PayloadAction<{ name: keyof ModalsState }>) => {
+    closeModal: (state, action: PayloadAction<CloseModalParams>) => {
       const { name } = action.payload
       state[name].isOpen = false
       state[name].initialState = undefined

@@ -1,4 +1,9 @@
 import { parseUri } from '@walletconnect/utils'
+import {
+  UNISWAP_URL_SCHEME,
+  UNISWAP_URL_SCHEME_WALLETCONNECT_AS_PARAM,
+  UNISWAP_WALLETCONNECT_URL,
+} from 'src/features/deepLinking/handleDeepLinkSaga'
 import { getValidAddress } from 'wallet/src/utils/addresses'
 
 export enum URIType {
@@ -14,7 +19,7 @@ export type URIFormat = {
 }
 
 const EASTER_EGG_QR_CODE = 'DO_NOT_SCAN_OR_ELSE_YOU_WILL_GO_TO_MOBILE_TEAM_JAIL'
-const CUSTOM_UNI_QR_CODE_PREFIX = 'hello_uniwallet:'
+export const CUSTOM_UNI_QR_CODE_PREFIX = 'hello_uniwallet:'
 const MAX_DAPP_NAME_LENGTH = 60
 
 export function truncateDappName(name: string): string {
@@ -36,9 +41,14 @@ export async function getSupportedURI(uri: string): Promise<URIFormat | undefine
     return { type: URIType.Address, value: maybeMetamaskAddress }
   }
 
-  // The hello_uniwallet check must be before the parseUri version 2 check because
+  // The check for custom prefixes must be before the parseUri version 2 check because
   // parseUri(hello_uniwallet:[valid_wc_uri]) also returns version 2
-  const { uri: maybeCustomWcUri, type } = (await getCustomUniswapWcCode(uri)) || {}
+  const { uri: maybeCustomWcUri, type } =
+    (await getWcUriWithCustomPrefix(uri, CUSTOM_UNI_QR_CODE_PREFIX)) ||
+    (await getWcUriWithCustomPrefix(uri, UNISWAP_URL_SCHEME_WALLETCONNECT_AS_PARAM)) ||
+    (await getWcUriWithCustomPrefix(uri, UNISWAP_URL_SCHEME)) ||
+    (await getWcUriWithCustomPrefix(decodeURIComponent(uri), UNISWAP_WALLETCONNECT_URL)) ||
+    {}
   if (maybeCustomWcUri && type) {
     return { type, value: maybeCustomWcUri }
   }
@@ -57,12 +67,15 @@ export async function getSupportedURI(uri: string): Promise<URIFormat | undefine
   }
 }
 
-async function getCustomUniswapWcCode(uri: string): Promise<{ uri: string; type: URIType } | null> {
-  if (uri.indexOf(CUSTOM_UNI_QR_CODE_PREFIX) !== 0) {
+async function getWcUriWithCustomPrefix(
+  uri: string,
+  prefix: string
+): Promise<{ uri: string; type: URIType } | null> {
+  if (uri.indexOf(prefix) !== 0) {
     return null
   }
 
-  const maybeWcUri = uri.slice(CUSTOM_UNI_QR_CODE_PREFIX.length)
+  const maybeWcUri = uri.slice(prefix.length)
 
   if (parseUri(maybeWcUri).version === 2) {
     return { uri: maybeWcUri, type: URIType.WalletConnectV2URL }

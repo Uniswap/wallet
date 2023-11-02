@@ -20,9 +20,9 @@ import { DerivedTransferInfo } from 'src/features/transactions/transfer/hooks'
 import { TransferReview } from 'src/features/transactions/transfer/TransferReview'
 import { TransferStatus } from 'src/features/transactions/transfer/TransferStatus'
 import { TransferTokenForm } from 'src/features/transactions/transfer/TransferTokenForm'
-import { AnimatedFlex, Flex, useSporeColors } from 'ui/src'
+import { AnimatedFlex, Flex, useDeviceDimensions, useSporeColors } from 'ui/src'
 import EyeIcon from 'ui/src/assets/icons/eye.svg'
-import { dimensions, iconSizes } from 'ui/src/theme'
+import { iconSizes } from 'ui/src/theme'
 import { GasFeeResult } from 'wallet/src/features/gas/types'
 import { ANIMATE_SPRING_CONFIG } from 'wallet/src/features/transactions/utils'
 import { DerivedSwapInfo } from './swap/types'
@@ -65,12 +65,13 @@ export function TransactionFlow({
   dispatch,
   warnings,
   exactValue,
-  isUSDInput,
-  showUSDToggle,
+  isFiatInput,
+  showFiatToggle,
 }: TransactionFlowProps): JSX.Element {
   const colors = useSporeColors()
   const insets = useSafeAreaInsets()
   const { t } = useTranslation()
+  const { fullWidth } = useDeviceDimensions()
 
   const { isSheetReady } = useBottomSheetContext()
 
@@ -88,11 +89,11 @@ export function TransactionFlow({
     setRenderInnerContentRouter(renderInnerContentRouter || !showRecipientSelector)
   }, [renderInnerContentRouter, showRecipientSelector])
 
-  const screenXOffset = useSharedValue(showRecipientSelector ? -dimensions.fullWidth : 0)
+  const screenXOffset = useSharedValue(showRecipientSelector ? -fullWidth : 0)
   useEffect(() => {
     const screenOffset = showRecipientSelector ? 1 : 0
-    screenXOffset.value = withSpring(-(dimensions.fullWidth * screenOffset), ANIMATE_SPRING_CONFIG)
-  }, [screenXOffset, showRecipientSelector])
+    screenXOffset.value = withSpring(-(fullWidth * screenOffset), ANIMATE_SPRING_CONFIG)
+  }, [screenXOffset, showRecipientSelector, fullWidth])
 
   const wrapperStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: screenXOffset.value }],
@@ -120,11 +121,11 @@ export function TransactionFlow({
                 customSlippageTolerance={customSlippageTolerance}
                 dispatch={dispatch}
                 flowName={flowName}
+                isFiatInput={isFiatInput}
                 isSwap={isSwap}
-                isUSDInput={isUSDInput}
                 setShowSettingsModal={setShowSettingsModal}
                 setShowViewOnlyModal={setShowViewOnlyModal}
-                showUSDToggle={showUSDToggle}
+                showFiatToggle={showFiatToggle}
                 step={step}
               />
             )}

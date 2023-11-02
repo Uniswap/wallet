@@ -40,7 +40,7 @@ async function processAddChanges() {
   }
 
   // Check for UI package imports that are longer than needed
-  const validLongerImports = [`'ui/src'`, `'ui/src/theme'`, `'ui/src/loading'`, `'ui/src/theme/restyle'`]
+  const validLongerImports = [`'ui/src'`, `'ui/src/theme'`, `'ui/src/loading'`]
   const longestImportLength = Math.max(...validLongerImports.map((i) => i.length))
   changes.forEach((change) => {
     const indices = getIndicesOf(`from 'ui/src/`, change.content)
@@ -53,6 +53,14 @@ async function processAddChanges() {
       }
     })
   })
+
+  // Check for non-recommended sentry usage
+  if (changes.some((change) => change.content.includes('logger.error(new Error('))) {
+    warn(`It appears you may be manually logging a Sentry error. Please log the error directly if possible. If you need to use a custom error message, ensure the error object is added to the 'cause' property`)
+  }
+  if (changes.some((change) => change.content.includes(`logger.error('`))) {
+    warn(`Please log an error, not a string!`)
+  }
 }
 
 async function checkCocoaPodsVersion() {
@@ -64,7 +72,7 @@ async function checkCocoaPodsVersion() {
     })
     const changedCocoaPodsVersion = changedLines.some((change) => change.content.includes('COCOAPODS: '))
     if (changedCocoaPodsVersion) {
-      warn(`You're changing the Podfile version! Ensure you are using the correct version / this change is intentional.`)
+      fail(`You're changing the Podfile version! Ensure you are using the correct version. If this change is intentional, you should ignore this check and merge anyways.`)
     }
   }
 }
@@ -202,14 +210,10 @@ if (!updatedSchemaFile && updatedMigrationsFile) {
   )
 }
 
-if (createdSliceFile && (!updatedMigrationsFile || !updatedSchemaFile)) {
-  fail(
-    'You created a new slice file. Please write a migration, update initialState in the `migrations.test.ts` file, and create a new schema.'
-  )
-}
+if ((createdSliceFile || deletedSliceFile) && (!updatedSchemaFile || !updatedMigrationsFile)) {
+  warn('You created or deleted a slice file. Make sure to create check schema and migration is updated if needed.')
 
-if (deletedSliceFile && (!updatedSchemaFile || !updatedMigrationsFile)) {
-  fail('You deleted a slice file. Make sure to define a new schema and and create a migration.')
+
 }
 
 if (updatedMigrationsFile && !updatedMigrationsTestFile) {
