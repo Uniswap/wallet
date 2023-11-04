@@ -12,7 +12,7 @@ Components that need special Trace events for impressions are Modals, Banners an
 
 ## Usage
 
-For more information, check out the documentation for the [Trace](../../components/telemetry/README.md) component
+For more information, check out the documentation for the [Trace](../telemetry/trace/README.md) component
 
 ## Logging beyond the Trace component
 
