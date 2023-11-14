@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { useAppDispatch } from 'src/app/hooks'
 import { SpinningLoader } from 'src/components/loading/SpinningLoader'
 import { BottomSheetModal } from 'src/components/modals/BottomSheetModal'
+import { useTokenDetailsNavigation } from 'src/components/TokenDetails/hooks'
 import { ModalName } from 'src/features/telemetry/constants'
 import { useLowestPendingNonce } from 'src/features/transactions/hooks'
 import { CancelConfirmationView } from 'src/features/transactions/SummaryCards/CancelConfirmationView'
@@ -23,7 +24,8 @@ import {
 } from 'wallet/src/features/transactions/SummaryCards/utils'
 import { TransactionStatus, TransactionType } from 'wallet/src/features/transactions/types'
 import { AccountType } from 'wallet/src/features/wallet/accounts/types'
-import { useActiveAccountWithThrow } from 'wallet/src/features/wallet/hooks'
+import { useActiveAccountWithThrow, useDisplayName } from 'wallet/src/features/wallet/hooks'
+import { CurrencyId } from 'wallet/src/utils/currencyId'
 
 const LOADING_SPINNER_SIZE = 20
 
@@ -36,6 +38,7 @@ function TransactionSummaryLayout({
 }: TransactionSummaryLayoutProps): JSX.Element {
   const { t } = useTranslation()
   const colors = useSporeColors()
+  const tokenDetailsNavigation = useTokenDetailsNavigation()
 
   const { type } = useActiveAccountWithThrow()
   const readonly = type === AccountType.Readonly
@@ -45,6 +48,8 @@ function TransactionSummaryLayout({
   const dispatch = useAppDispatch()
 
   const { status, addedTime, hash, chainId, typeInfo } = transaction
+
+  const walletDisplayName = useDisplayName(transaction.ownerAddress)
 
   title = title ?? getTransactionSummaryTitle(transaction, t) ?? ''
 
@@ -129,14 +134,21 @@ function TransactionSummaryLayout({
           <Flex grow shrink>
             <Flex grow>
               <Flex grow row alignItems="center" gap="$spacing4" justifyContent="space-between">
-                <Text color="$neutral2" numberOfLines={1} variant="body1">
-                  {title}
-                </Text>
+                <Flex row alignItems="center" gap="$spacing4">
+                  {walletDisplayName?.name ? (
+                    <Text color="$accent1" numberOfLines={1} variant="body1">
+                      {walletDisplayName.name}
+                    </Text>
+                  ) : null}
+                  <Text color="$neutral2" numberOfLines={1} variant="body2">
+                    {title}
+                  </Text>
+                </Flex>
                 {!inProgress && rightBlock}
               </Flex>
               <Flex grow row gap="$spacing16">
                 <Flex grow shrink>
-                  <Text color="$neutral1" variant="subheading2">
+                  <Text color="$neutral1" variant="body2">
                     {caption}
                   </Text>
                 </Flex>
@@ -181,6 +193,16 @@ function TransactionSummaryLayout({
                   return transaction.typeInfo.type === TransactionType.FiatPurchase
                     ? openMoonpayTransactionLink(transaction.typeInfo)
                     : undefined
+                }
+              : undefined
+          }
+          onViewTokenDetails={
+            typeInfo.type === TransactionType.Swap
+              ? (currencyId: CurrencyId): void | undefined => {
+                  setShowActionsModal(false)
+                  if (transaction.typeInfo.type === TransactionType.Swap) {
+                    tokenDetailsNavigation.navigate(currencyId)
+                  }
                 }
               : undefined
           }

@@ -71,19 +71,22 @@ export function SettingsBiometricAuthScreen(): JSX.Element {
     const handleFaceIdTurnedOff = (): void => {
       IS_IOS
         ? Alert.alert(
+            t('{{capitalizedAuthTypeName}} is turned off', { capitalizedAuthTypeName }),
             t(
               '{{capitalizedAuthTypeName}} is currently turned off for Uniswap Wallet—you can turn it on in your system settings.',
               { capitalizedAuthTypeName }
             ),
-            '',
             [{ text: t('Settings'), onPress: openSettings }, { text: t('Cancel') }]
           )
         : Alert.alert(
+            t('{{capitalizedAuthTypeName}} is not setup', {
+              capitalizedAuthTypeName,
+              authenticationTypeName,
+            }),
             t(
-              '{{capitalizedAuthTypeName}} is not set up on your device. To use {{authenticationTypeName}}, set up it first in settings.',
+              '{{capitalizedAuthTypeName}} is not setup on your device. To use {{authenticationTypeName}}, set it up first in Settings.',
               { capitalizedAuthTypeName, authenticationTypeName }
             ),
-            '',
             [{ text: t('Set up'), onPress: enroll }, { text: t('Cancel') }]
           )
     }
@@ -148,21 +151,23 @@ export function SettingsBiometricAuthScreen(): JSX.Element {
   }: ListRenderItemInfo<BiometricAuthSetting>): JSX.Element => {
     return (
       <Flex row alignItems="center" justifyContent="space-between">
-        <Flex row>
-          <Flex>
+        <Flex row shrink pr="$spacing12">
+          <Flex gap="$spacing4">
             <Text variant="body1">{text}</Text>
             <Text color="$neutral2" variant="body3">
               {subText}
             </Text>
           </Flex>
         </Flex>
-        <TouchableArea
-          activeOpacity={1}
-          onPress={(): void => {
-            onValueChange(!value)
-          }}>
-          <Switch pointerEvents="none" value={value} onValueChange={onValueChange} />
-        </TouchableArea>
+        <Flex grow alignItems="flex-end">
+          <TouchableArea
+            activeOpacity={1}
+            onPress={(): void => {
+              onValueChange(!value)
+            }}>
+            <Switch pointerEvents="none" value={value} onValueChange={onValueChange} />
+          </TouchableArea>
+        </Flex>
       </Flex>
     )
   }

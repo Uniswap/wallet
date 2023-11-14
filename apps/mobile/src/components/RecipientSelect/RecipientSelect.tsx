@@ -72,8 +72,11 @@ export function _RecipientSelect({
         exiting={FadeOut}
         gap="$spacing12"
         mt="$spacing16"
-        px="$spacing16"
+        px="$spacing24"
         width="100%">
+        <Flex row>
+          <Text variant="subheading1">{t('Send')}</Text>
+        </Flex>
         <SearchBar
           autoFocus
           backgroundColor="$surface2"

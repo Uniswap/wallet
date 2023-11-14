@@ -9,10 +9,11 @@ import { closeModal, openModal } from 'src/features/modals/modalSlice'
 import { ModalName } from 'src/features/telemetry/constants'
 import { Screens } from 'src/screens/Screens'
 import { setClipboard } from 'src/utils/clipboard'
+import { disableOnPress } from 'src/utils/disableOnPress'
 import { Flex, Text, TouchableArea } from 'ui/src'
 import { iconSizes } from 'ui/src/theme'
 import { NumberType } from 'utilities/src/format/types'
-import { useFiatConverter } from 'wallet/src/features/fiatCurrency/conversion'
+import { useLocalizationContext } from 'wallet/src/features/language/LocalizationContext'
 import { pushNotification } from 'wallet/src/features/notifications/slice'
 import { AppNotificationType, CopyNotificationType } from 'wallet/src/features/notifications/types'
 
@@ -32,13 +33,13 @@ function PortfolioValue({
   portfolioValue,
 }: PortfolioValueProps): JSX.Element {
   const isLoading = isPortfolioValueLoading && portfolioValue === undefined
-  const { convertFiatAmountFormatted } = useFiatConverter()
+  const { convertFiatAmountFormatted } = useLocalizationContext()
 
   return (
     <Text
       color="$neutral2"
       loading={isLoading}
-      loadingPlaceholderText="$000.00"
+      loadingPlaceholderText="0000.00"
       variant="subheading2">
       {convertFiatAmountFormatted(portfolioValue, NumberType.PortfolioBalance)}
     </Text>
@@ -111,6 +112,7 @@ export function AccountCardItem({
         pb="$spacing12"
         pt="$spacing8"
         px="$spacing24"
+        onLongPress={disableOnPress}
         onPress={(): void => onPress(address)}>
         <Flex row alignItems="flex-start" gap="$spacing16" testID={`account_item/${address}`}>
           <Flex fill>

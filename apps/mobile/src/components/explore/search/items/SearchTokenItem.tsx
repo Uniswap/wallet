@@ -10,10 +10,12 @@ import { addToSearchHistory } from 'src/features/explore/searchHistorySlice'
 import { SearchResultType, TokenSearchResult } from 'src/features/explore/SearchResult'
 import { sendMobileAnalyticsEvent } from 'src/features/telemetry'
 import { ElementName, MobileEventName, SectionName } from 'src/features/telemetry/constants'
+import { disableOnPress } from 'src/utils/disableOnPress'
 import { Flex, Text, TouchableArea } from 'ui/src'
 import { iconSizes } from 'ui/src/theme'
 import { TokenLogo } from 'wallet/src/components/CurrencyLogo/TokenLogo'
 import { SafetyLevel } from 'wallet/src/data/__generated__/types-and-hooks'
+import { useIsDarkMode } from 'wallet/src/features/appearance/hooks'
 import { shortenAddress } from 'wallet/src/utils/addresses'
 import { buildCurrencyId, buildNativeCurrencyId } from 'wallet/src/utils/currencyId'
 
@@ -23,6 +25,7 @@ type SearchTokenItemProps = {
 }
 
 export function SearchTokenItem({ token, searchContext }: SearchTokenItemProps): JSX.Element {
+  const isDarkMode = useIsDarkMode()
   const dispatch = useAppDispatch()
   const tokenDetailsNavigation = useTokenDetailsNavigation()
 
@@ -71,6 +74,7 @@ export function SearchTokenItem({ token, searchContext }: SearchTokenItemProps):
         hapticFeedback
         hapticStyle={ImpactFeedbackStyle.Light}
         testID={ElementName.SearchTokenItem}
+        onLongPress={disableOnPress}
         onPress={onPress}>
         <Flex row alignItems="center" gap="$spacing12" px="$spacing8" py="$spacing12">
           <TokenLogo chainId={chainId} symbol={symbol} url={logoUrl ?? undefined} />
@@ -97,7 +101,10 @@ export function SearchTokenItem({ token, searchContext }: SearchTokenItemProps):
               </Text>
               {address && (
                 <Flex shrink>
-                  <Text color="$neutral3" numberOfLines={1} variant="subheading2">
+                  <Text
+                    color={isDarkMode ? '$neutral3' : '$neutral2'}
+                    numberOfLines={1}
+                    variant="subheading2">
                     {shortenAddress(address)}
                   </Text>
                 </Flex>

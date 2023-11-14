@@ -97,7 +97,7 @@ module.exports = {
     'react/display-name': 'error',
     'react/react-in-jsx-scope': 'off',
     'no-restricted-imports': [
-      2,
+      'error',
       {
         paths: [
           {
@@ -120,7 +120,20 @@ module.exports = {
           },
           {
             name: 'utilities/src/format/localeBased',
-            message: "Avoid importing directly. Use localized hooks in `useFiatConverter` or `useLocalizedFormatter` instead",
+            message: "Use via `useLocalizationContext` instead.",
+          },
+          {
+            name: 'wallet/src/features/fiatCurrency/conversion',
+            message: "Use via `useLocalizationContext` instead.",
+          },
+          {
+            name: 'wallet/src/features/language/formatter',
+            message: "Use via `useLocalizationContext` instead.",
+          },
+          {
+            name: 'react-native-safe-area-context',
+            importNames: ["useSafeAreaInsets"],
+            message: "Use our internal `useDeviceInsets` hook instead.",
           }
         ],
       },
@@ -228,7 +241,7 @@ module.exports = {
         // disable rule that shouldn't be applied to json files
         '@typescript-eslint/no-unused-expressions': 0,
         'spellcheck/spell-checker': [
-          'warn',
+          'error',
           {
             comments: false,
             strings: true,
@@ -236,6 +249,9 @@ module.exports = {
             lang: 'en_US',
             // NOTE: react-i18next uses ’ over ' for apostrophes
             skipWords: [
+              'abcabcabc',
+              'abc',
+              'aaa',
               'They’re',
               '’s',
               'device’s',
@@ -257,6 +273,7 @@ module.exports = {
               'don’t',
               'eth',
               'etherscan',
+              'favorited',
               'haven’t',
               'isn’t',
               'it’s',

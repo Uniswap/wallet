@@ -26,6 +26,7 @@ import {
   Text,
   TouchableArea,
   useDeviceDimensions,
+  useDeviceInsets,
 } from 'ui/src'
 import { iconSizes, spacing } from 'ui/src/theme'
 import { BaseCard } from 'wallet/src/components/BaseCard/BaseCard'
@@ -83,6 +84,7 @@ export function NFTCollectionScreen({
   renderedInModal = false,
 }: NFTCollectionScreenProps): ReactElement {
   const { t } = useTranslation()
+  const insets = useDeviceInsets()
   const dimensions = useDeviceDimensions()
   const navigation = useAppStackNavigation()
 
@@ -273,6 +275,7 @@ export function NFTCollectionScreen({
                 loading={headerDataLoading}
               />
             }
+            contentContainerStyle={{ paddingBottom: insets.bottom }}
             data={gridDataWithLoadingElements}
             estimatedItemSize={ESTIMATED_ITEM_SIZE}
             estimatedListSize={{

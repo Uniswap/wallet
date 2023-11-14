@@ -13,7 +13,7 @@ import {
   TokenSection,
   TokenSelectorListSections,
 } from 'src/components/TokenSelector/types'
-import { AnimatedFlex, Flex, Inset, Text } from 'ui/src'
+import { AnimatedFlex, Flex, Text, useDeviceInsets } from 'ui/src'
 import { fonts } from 'ui/src/theme'
 import { BaseCard } from 'wallet/src/components/BaseCard/BaseCard'
 import { ChainId } from 'wallet/src/constants/chains'
@@ -68,10 +68,6 @@ function TokenOptionItemWrapper({
   )
 }
 
-function Footer(): JSX.Element {
-  return <Inset all="$spacing36" />
-}
-
 interface TokenSelectorListProps {
   onSelectCurrency: OnSelectCurrency
   sections?: TokenSelectorListSections
@@ -98,6 +94,7 @@ function _TokenSelectorList({
   showTokenAddress,
 }: TokenSelectorListProps): JSX.Element {
   const { t } = useTranslation()
+  const insets = useDeviceInsets()
   const sectionListRef = useRef<SectionList<TokenOption>>(null)
 
   useEffect(() => {
@@ -185,8 +182,8 @@ function _TokenSelectorList({
       <BottomSheetSectionList<TokenOption | TokenOption[], SuggestedTokenSection | TokenSection>
         ref={sectionListRef}
         ListEmptyComponent={emptyElement}
-        ListFooterComponent={Footer}
         bounces={true}
+        contentContainerStyle={{ paddingBottom: insets.bottom }}
         focusHook={useBottomSheetFocusHook}
         keyExtractor={key}
         keyboardDismissMode="on-drag"
@@ -195,6 +192,7 @@ function _TokenSelectorList({
         renderSectionHeader={renderSectionHeader}
         sections={sections ?? []}
         showsVerticalScrollIndicator={false}
+        stickySectionHeadersEnabled={true}
         windowSize={4}
       />
     </AnimatedFlex>

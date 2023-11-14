@@ -136,6 +136,7 @@ export enum Currency {
   Aud = 'AUD',
   Brl = 'BRL',
   Cad = 'CAD',
+  Cny = 'CNY',
   Eth = 'ETH',
   Eur = 'EUR',
   Gbp = 'GBP',
@@ -154,6 +155,30 @@ export enum Currency {
   Usd = 'USD',
   Vnd = 'VND'
 }
+
+export type DescriptionTranslations = {
+  __typename?: 'DescriptionTranslations';
+  descriptionEnUs?: Maybe<Scalars['String']>;
+  descriptionEs419?: Maybe<Scalars['String']>;
+  descriptionEsEs?: Maybe<Scalars['String']>;
+  descriptionEsUs?: Maybe<Scalars['String']>;
+  descriptionFrFr?: Maybe<Scalars['String']>;
+  descriptionHiIn?: Maybe<Scalars['String']>;
+  descriptionIdId?: Maybe<Scalars['String']>;
+  descriptionJaJp?: Maybe<Scalars['String']>;
+  descriptionMsMy?: Maybe<Scalars['String']>;
+  descriptionNlNl?: Maybe<Scalars['String']>;
+  descriptionPtPt?: Maybe<Scalars['String']>;
+  descriptionRuRu?: Maybe<Scalars['String']>;
+  descriptionThTh?: Maybe<Scalars['String']>;
+  descriptionTrTr?: Maybe<Scalars['String']>;
+  descriptionUkUa?: Maybe<Scalars['String']>;
+  descriptionUrPk?: Maybe<Scalars['String']>;
+  descriptionViVn?: Maybe<Scalars['String']>;
+  descriptionZhHans?: Maybe<Scalars['String']>;
+  descriptionZhHant?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+};
 
 export type Dimensions = {
   __typename?: 'Dimensions';
@@ -770,9 +795,22 @@ export type PortfolioTokensTotalDenominatedValueChangeArgs = {
   duration?: InputMaybe<HistoryDuration>;
 };
 
+export enum PriceSource {
+  SubgraphV2 = 'SUBGRAPH_V2',
+  SubgraphV3 = 'SUBGRAPH_V3'
+}
+
+export type PushNotification = {
+  __typename?: 'PushNotification';
+  contents: Scalars['String'];
+  id: Scalars['ID'];
+  notifyAddress: Scalars['String'];
+  signerHeader: Scalars['String'];
+  viewerHeader: Scalars['String'];
+};
+
 export type Query = {
   __typename?: 'Query';
-  assetActivity?: Maybe<AssetActivity>;
   convert?: Maybe<Amount>;
   nftActivity?: Maybe<NftActivityConnection>;
   nftAssets?: Maybe<NftAssetConnection>;
@@ -792,12 +830,7 @@ export type Query = {
   tokens?: Maybe<Array<Maybe<Token>>>;
   topCollections?: Maybe<NftCollectionConnection>;
   topTokens?: Maybe<Array<Maybe<Token>>>;
-};
-
-
-export type QueryAssetActivityArgs = {
-  address: Scalars['String'];
-  transactionHash: Scalars['String'];
+  transactionNotification?: Maybe<TransactionNotification>;
 };
 
 
@@ -912,6 +945,13 @@ export type QueryTopTokensArgs = {
   pageSize?: InputMaybe<Scalars['Int']>;
 };
 
+
+export type QueryTransactionNotificationArgs = {
+  address: Scalars['String'];
+  oldNotifications?: InputMaybe<Scalars['String']>;
+  transactionHash: Scalars['String'];
+};
+
 export enum SafetyLevel {
   Blocked = 'BLOCKED',
   MediumWarning = 'MEDIUM_WARNING',
@@ -932,6 +972,7 @@ export type Subscription = {
 
 export type SubscriptionOnAssetActivityArgs = {
   addresses: Array<Scalars['String']>;
+  chain: Chain;
   subscriptionId: Scalars['ID'];
 };
 
@@ -1043,6 +1084,7 @@ export type TokenMarket = {
   priceHighLow?: Maybe<Amount>;
   priceHistory?: Maybe<Array<Maybe<TimestampedAmount>>>;
   pricePercentChange?: Maybe<Amount>;
+  priceSource: PriceSource;
   token: Token;
   totalValueLocked?: Maybe<Amount>;
   volume?: Maybe<Amount>;
@@ -1072,6 +1114,7 @@ export type TokenMarketVolumeArgs = {
 export type TokenProject = {
   __typename?: 'TokenProject';
   description?: Maybe<Scalars['String']>;
+  descriptionTranslations?: Maybe<DescriptionTranslations>;
   homepageUrl?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   isSpam?: Maybe<Scalars['Boolean']>;
@@ -1096,6 +1139,7 @@ export type TokenProjectMarketsArgs = {
 export type TokenProjectMarket = {
   __typename?: 'TokenProjectMarket';
   currency: Currency;
+  fullyDilutedValuation?: Maybe<Amount>;
   id: Scalars['ID'];
   marketCap?: Maybe<Amount>;
   price?: Maybe<Amount>;
@@ -1228,6 +1272,13 @@ export enum TransactionDirection {
   Self = 'SELF'
 }
 
+export type TransactionNotification = {
+  __typename?: 'TransactionNotification';
+  hash: Scalars['String'];
+  id: Scalars['ID'];
+  push: Array<PushNotification>;
+};
+
 export enum TransactionStatus {
   Confirmed = 'CONFIRMED',
   Failed = 'FAILED',
@@ -1352,10 +1403,16 @@ export type TokenQuery = { __typename?: 'Query', token?: { __typename?: 'Token',
 export type TokenDetailsScreenQueryVariables = Exact<{
   chain: Chain;
   address?: InputMaybe<Scalars['String']>;
+  includeSpanish?: InputMaybe<Scalars['Boolean']>;
+  includeFrench?: InputMaybe<Scalars['Boolean']>;
+  includeJapanese?: InputMaybe<Scalars['Boolean']>;
+  includePortuguese?: InputMaybe<Scalars['Boolean']>;
+  includeChineseSimplified?: InputMaybe<Scalars['Boolean']>;
+  includeChineseTraditional?: InputMaybe<Scalars['Boolean']>;
 }>;
 
 
-export type TokenDetailsScreenQuery = { __typename?: 'Query', token?: { __typename?: 'Token', address?: string | null, chain: Chain, symbol?: string | null, name?: string | null, market?: { __typename?: 'TokenMarket', id: string, volume?: { __typename?: 'Amount', id: string, value: number } | null, price?: { __typename?: 'Amount', id: string, value: number } | null, priceHigh52W?: { __typename?: 'Amount', id: string, value: number } | null, priceLow52W?: { __typename?: 'Amount', id: string, value: number } | null } | null, project?: { __typename?: 'TokenProject', id: string, name?: string | null, description?: string | null, homepageUrl?: string | null, twitterName?: string | null, safetyLevel?: SafetyLevel | null, logoUrl?: string | null, markets?: Array<{ __typename?: 'TokenProjectMarket', id: string, price?: { __typename?: 'Amount', id: string, value: number } | null, marketCap?: { __typename?: 'Amount', id: string, value: number } | null, priceHigh52W?: { __typename?: 'Amount', id: string, value: number } | null, priceLow52W?: { __typename?: 'Amount', id: string, value: number } | null } | null> | null, tokens: Array<{ __typename?: 'Token', chain: Chain, address?: string | null }> } | null } | null };
+export type TokenDetailsScreenQuery = { __typename?: 'Query', token?: { __typename?: 'Token', address?: string | null, chain: Chain, symbol?: string | null, name?: string | null, market?: { __typename?: 'TokenMarket', id: string, volume?: { __typename?: 'Amount', id: string, value: number } | null, price?: { __typename?: 'Amount', id: string, value: number } | null, priceHigh52W?: { __typename?: 'Amount', id: string, value: number } | null, priceLow52W?: { __typename?: 'Amount', id: string, value: number } | null } | null, project?: { __typename?: 'TokenProject', id: string, name?: string | null, description?: string | null, homepageUrl?: string | null, twitterName?: string | null, safetyLevel?: SafetyLevel | null, logoUrl?: string | null, descriptionTranslations?: { __typename?: 'DescriptionTranslations', descriptionEsEs?: string | null, descriptionFrFr?: string | null, descriptionJaJp?: string | null, descriptionPtPt?: string | null, descriptionZhHans?: string | null, descriptionZhHant?: string | null } | null, markets?: Array<{ __typename?: 'TokenProjectMarket', id: string, price?: { __typename?: 'Amount', id: string, value: number } | null, marketCap?: { __typename?: 'Amount', id: string, value: number } | null, priceHigh52W?: { __typename?: 'Amount', id: string, value: number } | null, priceLow52W?: { __typename?: 'Amount', id: string, value: number } | null } | null> | null, tokens: Array<{ __typename?: 'Token', chain: Chain, address?: string | null }> } | null } | null };
 
 export type TokenProjectsQueryVariables = Exact<{
   contracts: Array<ContractInput> | ContractInput;
@@ -1371,6 +1428,13 @@ export type TransactionListQueryVariables = Exact<{
 
 export type TransactionListQuery = { __typename?: 'Query', portfolios?: Array<{ __typename?: 'Portfolio', id: string, assetActivities?: Array<{ __typename?: 'AssetActivity', id: string, timestamp: number, chain: Chain, details: { __typename?: 'SwapOrderDetails' } | { __typename?: 'TransactionDetails', to: string, type: TransactionType, hash: string, from: string, status: TransactionStatus, assetChanges: Array<{ __typename: 'NftApproval' } | { __typename: 'NftApproveForAll' } | { __typename: 'NftTransfer', id: string, nftStandard: NftStandard, sender: string, recipient: string, direction: TransactionDirection, asset: { __typename?: 'NftAsset', id: string, name?: string | null, isSpam?: boolean | null, tokenId: string, nftContract?: { __typename?: 'NftContract', id: string, chain: Chain, address: string } | null, image?: { __typename?: 'Image', id: string, url: string } | null, collection?: { __typename?: 'NftCollection', id: string, name?: string | null } | null } } | { __typename: 'TokenApproval', id: string, tokenStandard: TokenStandard, approvedAddress: string, quantity: string, asset: { __typename?: 'Token', id: string, symbol?: string | null, decimals?: number | null, address?: string | null, chain: Chain } } | { __typename: 'TokenTransfer', id: string, tokenStandard: TokenStandard, quantity: string, sender: string, recipient: string, direction: TransactionDirection, asset: { __typename?: 'Token', id: string, symbol?: string | null, address?: string | null, decimals?: number | null, chain: Chain, project?: { __typename?: 'TokenProject', id: string, isSpam?: boolean | null, spamCode?: number | null } | null }, transactedValue?: { __typename?: 'Amount', id: string, currency?: Currency | null, value: number } | null } | null> } } | null> | null } | null> | null };
 
+export type FeedTransactionListQueryVariables = Exact<{
+  addresses: Array<Scalars['String']> | Scalars['String'];
+}>;
+
+
+export type FeedTransactionListQuery = { __typename?: 'Query', portfolios?: Array<{ __typename?: 'Portfolio', id: string, ownerAddress: string, assetActivities?: Array<{ __typename?: 'AssetActivity', id: string, timestamp: number, chain: Chain, details: { __typename?: 'SwapOrderDetails' } | { __typename?: 'TransactionDetails', to: string, type: TransactionType, hash: string, from: string, status: TransactionStatus, assetChanges: Array<{ __typename: 'NftApproval' } | { __typename: 'NftApproveForAll' } | { __typename: 'NftTransfer', id: string, nftStandard: NftStandard, sender: string, recipient: string, direction: TransactionDirection, asset: { __typename?: 'NftAsset', id: string, name?: string | null, isSpam?: boolean | null, tokenId: string, nftContract?: { __typename?: 'NftContract', id: string, chain: Chain, address: string } | null, image?: { __typename?: 'Image', id: string, url: string } | null, collection?: { __typename?: 'NftCollection', id: string, name?: string | null } | null } } | { __typename: 'TokenApproval', id: string, tokenStandard: TokenStandard, approvedAddress: string, quantity: string, asset: { __typename?: 'Token', id: string, symbol?: string | null, decimals?: number | null, address?: string | null, chain: Chain } } | { __typename: 'TokenTransfer', id: string, tokenStandard: TokenStandard, quantity: string, sender: string, recipient: string, direction: TransactionDirection, asset: { __typename?: 'Token', id: string, symbol?: string | null, address?: string | null, decimals?: number | null, chain: Chain, project?: { __typename?: 'TokenProject', id: string, isSpam?: boolean | null, spamCode?: number | null } | null }, transactedValue?: { __typename?: 'Amount', id: string, currency?: Currency | null, value: number } | null } | null> } } | null> | null } | null> | null };
+
 export type TopTokensQueryVariables = Exact<{
   chain?: InputMaybe<Chain>;
   page?: InputMaybe<Scalars['Int']>;
@@ -1383,6 +1447,7 @@ export type TopTokensQuery = { __typename?: 'Query', topTokens?: Array<{ __typen
 
 export type SearchTokensQueryVariables = Exact<{
   searchQuery: Scalars['String'];
+  chains?: InputMaybe<Array<Chain> | Chain>;
 }>;
 
 
@@ -2426,7 +2491,7 @@ export type TokenQueryHookResult = ReturnType<typeof useTokenQuery>;
 export type TokenLazyQueryHookResult = ReturnType<typeof useTokenLazyQuery>;
 export type TokenQueryResult = Apollo.QueryResult<TokenQuery, TokenQueryVariables>;
 export const TokenDetailsScreenDocument = gql`
-    query TokenDetailsScreen($chain: Chain!, $address: String) {
+    query TokenDetailsScreen($chain: Chain!, $address: String, $includeSpanish: Boolean = false, $includeFrench: Boolean = false, $includeJapanese: Boolean = false, $includePortuguese: Boolean = false, $includeChineseSimplified: Boolean = false, $includeChineseTraditional: Boolean = false) {
   token(chain: $chain, address: $address) {
     address
     chain
@@ -2455,6 +2520,14 @@ export const TokenDetailsScreenDocument = gql`
       id
       name
       description
+      descriptionTranslations {
+        descriptionEsEs @include(if: $includeSpanish)
+        descriptionFrFr @include(if: $includeFrench)
+        descriptionJaJp @include(if: $includeJapanese)
+        descriptionPtPt @include(if: $includePortuguese)
+        descriptionZhHans @include(if: $includeChineseSimplified)
+        descriptionZhHant @include(if: $includeChineseTraditional)
+      }
       homepageUrl
       twitterName
       safetyLevel
@@ -2501,6 +2574,12 @@ export const TokenDetailsScreenDocument = gql`
  *   variables: {
  *      chain: // value for 'chain'
  *      address: // value for 'address'
+ *      includeSpanish: // value for 'includeSpanish'
+ *      includeFrench: // value for 'includeFrench'
+ *      includeJapanese: // value for 'includeJapanese'
+ *      includePortuguese: // value for 'includePortuguese'
+ *      includeChineseSimplified: // value for 'includeChineseSimplified'
+ *      includeChineseTraditional: // value for 'includeChineseTraditional'
  *   },
  * });
  */
@@ -2682,6 +2761,130 @@ export function useTransactionListLazyQuery(baseOptions?: Apollo.LazyQueryHookOp
 export type TransactionListQueryHookResult = ReturnType<typeof useTransactionListQuery>;
 export type TransactionListLazyQueryHookResult = ReturnType<typeof useTransactionListLazyQuery>;
 export type TransactionListQueryResult = Apollo.QueryResult<TransactionListQuery, TransactionListQueryVariables>;
+export const FeedTransactionListDocument = gql`
+    query FeedTransactionList($addresses: [String!]!) {
+  portfolios(
+    ownerAddresses: $addresses
+    chains: [ETHEREUM, POLYGON, ARBITRUM, OPTIMISM, BASE, BNB]
+  ) {
+    id
+    ownerAddress
+    assetActivities(
+      pageSize: 30
+      page: 1
+      chains: [ETHEREUM, POLYGON, ARBITRUM, OPTIMISM, BASE, BNB]
+    ) {
+      id
+      timestamp
+      chain
+      details {
+        ... on TransactionDetails {
+          to
+          type
+          hash
+          from
+          status
+          assetChanges {
+            __typename
+            ... on TokenTransfer {
+              id
+              asset {
+                id
+                symbol
+                address
+                decimals
+                chain
+                project {
+                  id
+                  isSpam
+                  spamCode
+                }
+              }
+              tokenStandard
+              quantity
+              sender
+              recipient
+              direction
+              transactedValue {
+                id
+                currency
+                value
+              }
+            }
+            ... on NftTransfer {
+              id
+              asset {
+                id
+                name
+                isSpam
+                nftContract {
+                  id
+                  chain
+                  address
+                }
+                tokenId
+                image {
+                  id
+                  url
+                }
+                collection {
+                  id
+                  name
+                }
+              }
+              nftStandard
+              sender
+              recipient
+              direction
+            }
+            ... on TokenApproval {
+              id
+              asset {
+                id
+                symbol
+                decimals
+                address
+                chain
+              }
+              tokenStandard
+              approvedAddress
+              quantity
+            }
+          }
+        }
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useFeedTransactionListQuery__
+ *
+ * To run a query within a React component, call `useFeedTransactionListQuery` and pass it any options that fit your needs.
+ * When your component renders, `useFeedTransactionListQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useFeedTransactionListQuery({
+ *   variables: {
+ *      addresses: // value for 'addresses'
+ *   },
+ * });
+ */
+export function useFeedTransactionListQuery(baseOptions: Apollo.QueryHookOptions<FeedTransactionListQuery, FeedTransactionListQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<FeedTransactionListQuery, FeedTransactionListQueryVariables>(FeedTransactionListDocument, options);
+      }
+export function useFeedTransactionListLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<FeedTransactionListQuery, FeedTransactionListQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<FeedTransactionListQuery, FeedTransactionListQueryVariables>(FeedTransactionListDocument, options);
+        }
+export type FeedTransactionListQueryHookResult = ReturnType<typeof useFeedTransactionListQuery>;
+export type FeedTransactionListLazyQueryHookResult = ReturnType<typeof useFeedTransactionListLazyQuery>;
+export type FeedTransactionListQueryResult = Apollo.QueryResult<FeedTransactionListQuery, FeedTransactionListQueryVariables>;
 export const TopTokensDocument = gql`
     query TopTokens($chain: Chain, $page: Int = 1, $pageSize: Int = 100, $orderBy: TokenSortableField = POPULARITY) {
   topTokens(chain: $chain, page: $page, pageSize: $pageSize, orderBy: $orderBy) {
@@ -2731,8 +2934,8 @@ export type TopTokensQueryHookResult = ReturnType<typeof useTopTokensQuery>;
 export type TopTokensLazyQueryHookResult = ReturnType<typeof useTopTokensLazyQuery>;
 export type TopTokensQueryResult = Apollo.QueryResult<TopTokensQuery, TopTokensQueryVariables>;
 export const SearchTokensDocument = gql`
-    query SearchTokens($searchQuery: String!) {
-  searchTokens(searchQuery: $searchQuery) {
+    query SearchTokens($searchQuery: String!, $chains: [Chain!]) {
+  searchTokens(searchQuery: $searchQuery, chains: $chains) {
     id
     chain
     address
@@ -2761,6 +2964,7 @@ export const SearchTokensDocument = gql`
  * const { data, loading, error } = useSearchTokensQuery({
  *   variables: {
  *      searchQuery: // value for 'searchQuery'
+ *      chains: // value for 'chains'
  *   },
  * });
  */

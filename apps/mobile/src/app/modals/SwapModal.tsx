@@ -28,13 +28,13 @@ export function SwapModal(): JSX.Element {
   }, [appDispatch])
 
   return shouldShowSwapRewrite ? (
-    <SwapFlowRewrite prefilledState={modalState.initialState} onClose={onClose} />
+    <SwapFlowRewrite />
   ) : (
     <BottomSheetModal
       fullScreen
       hideHandlebar
       hideKeyboardOnDismiss
-      renderBehindInset
+      renderBehindTopInset
       backgroundColor={colors.surface1.get()}
       name={ModalName.Swap}
       onClose={onClose}>

@@ -22,11 +22,7 @@ import { useSwapAnalytics } from 'src/features/transactions/swap/analytics'
 import { useShowSwapNetworkNotification } from 'src/features/transactions/swap/hooks'
 import { SwapArrowButton } from 'src/features/transactions/swap/SwapArrowButton'
 import { isPriceImpactWarning } from 'src/features/transactions/swap/useSwapWarnings'
-import {
-  getRateToDisplay,
-  getReviewActionName,
-  isWrapAction,
-} from 'src/features/transactions/swap/utils'
+import { getRateToDisplay, isWrapAction } from 'src/features/transactions/swap/utils'
 import { BlockedAddressWarning } from 'src/features/trm/BlockedAddressWarning'
 import { useWalletRestore } from 'src/features/wallet/hooks'
 import { AnimatedFlex, Button, Flex, Icons, Text, TouchableArea, useSporeColors } from 'ui/src'
@@ -34,8 +30,7 @@ import InfoCircleFilled from 'ui/src/assets/icons/info-circle-filled.svg'
 import InfoCircle from 'ui/src/assets/icons/info-circle.svg'
 import { iconSizes, spacing } from 'ui/src/theme'
 import { NumberType } from 'utilities/src/format/types'
-import { useFiatConverter } from 'wallet/src/features/fiatCurrency/conversion'
-import { useLocalizedFormatter } from 'wallet/src/features/language/formatter'
+import { useLocalizationContext } from 'wallet/src/features/language/LocalizationContext'
 import { useUSDCPrice } from 'wallet/src/features/routing/useUSDCPrice'
 import { CurrencyField } from 'wallet/src/features/transactions/transactionState/types'
 import { createTransactionId } from 'wallet/src/features/transactions/utils'
@@ -61,8 +56,9 @@ function _SwapForm({
 }: SwapFormProps): JSX.Element {
   const { t } = useTranslation()
   const colors = useSporeColors()
-  const { convertFiatAmountFormatted } = useFiatConverter()
-  const formatter = useLocalizedFormatter()
+
+  const formatter = useLocalizationContext()
+  const { convertFiatAmountFormatted } = formatter
 
   const {
     chainId,
@@ -468,7 +464,7 @@ function _SwapForm({
               size="large"
               testID={ElementName.ReviewSwap}
               onPress={onReview}>
-              {getReviewActionName(t, wrapType)}
+              {t('Review')}
             </Button>
           </Trace>
         </AnimatedFlex>

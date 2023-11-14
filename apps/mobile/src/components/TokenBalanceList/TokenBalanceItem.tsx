@@ -4,14 +4,14 @@ import { useTranslation } from 'react-i18next'
 import ContextMenu from 'react-native-context-menu-view'
 import { WarmLoadingShimmer } from 'src/components/loading/WarmLoadingShimmer'
 import { useTokenContextMenu } from 'src/features/balances/hooks'
+import { disableOnPress } from 'src/utils/disableOnPress'
 import { Flex, Text, TouchableArea } from 'ui/src'
 import { borderRadii } from 'ui/src/theme'
 import { NumberType } from 'utilities/src/format/types'
 import { TokenLogo } from 'wallet/src/components/CurrencyLogo/TokenLogo'
 import { RelativeChange } from 'wallet/src/components/text/RelativeChange'
 import { PortfolioBalance } from 'wallet/src/features/dataApi/types'
-import { useFiatConverter } from 'wallet/src/features/fiatCurrency/conversion'
-import { useLocalizedFormatter } from 'wallet/src/features/language/formatter'
+import { useLocalizationContext } from 'wallet/src/features/language/LocalizationContext'
 import { getSymbolDisplayText } from 'wallet/src/utils/currency'
 import { CurrencyId } from 'wallet/src/utils/currencyId'
 
@@ -31,8 +31,7 @@ export const TokenBalanceItem = memo(function _TokenBalanceItem({
   const { quantity, currencyInfo, relativeChange24, balanceUSD } = portfolioBalance
   const { currency, currencyId, isSpam } = currencyInfo
   const { t } = useTranslation()
-  const { convertFiatAmountFormatted } = useFiatConverter()
-  const { formatNumberOrString } = useLocalizedFormatter()
+  const { convertFiatAmountFormatted, formatNumberOrString } = useLocalizationContext()
 
   const onPress = (): void => {
     onPressToken?.(currencyInfo.currencyId)
@@ -71,6 +70,7 @@ export const TokenBalanceItem = memo(function _TokenBalanceItem({
         minHeight={TOKEN_BALANCE_ITEM_HEIGHT}
         px="$spacing24"
         py="$spacing8"
+        onLongPress={disableOnPress}
         onPress={onPress}>
         <Flex row shrink alignItems="center" gap="$spacing12" overflow="hidden">
           <TokenLogo
@@ -96,7 +96,7 @@ export const TokenBalanceItem = memo(function _TokenBalanceItem({
                 <Text color="$neutral2">{t('N/A')}</Text>
               </Flex>
             ) : (
-              <Flex alignItems="flex-end" gap="$spacing4" pl="$spacing8">
+              <Flex alignItems="flex-end" pl="$spacing8">
                 <Text color="$neutral1" numberOfLines={1} variant="body1">
                   {balance}
                 </Text>

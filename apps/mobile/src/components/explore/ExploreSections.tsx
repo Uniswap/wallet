@@ -15,7 +15,7 @@ import {
   getTokensOrderByValues,
 } from 'src/features/explore/utils'
 import { usePollOnFocusOnly } from 'src/utils/hooks'
-import { Flex, Inset, Text } from 'ui/src'
+import { Flex, Text, useDeviceInsets } from 'ui/src'
 import { BaseCard } from 'wallet/src/components/BaseCard/BaseCard'
 import { getWrappedNativeAddress } from 'wallet/src/constants/addresses'
 import { ChainId } from 'wallet/src/constants/chains'
@@ -41,6 +41,7 @@ type ExploreSectionsProps = {
 
 export function ExploreSections({ listRef }: ExploreSectionsProps): JSX.Element {
   const { t } = useTranslation()
+  const insets = useDeviceInsets()
 
   // Top tokens sorting
   const orderBy = useAppSelector(selectTokensOrderBy)
@@ -143,7 +144,6 @@ export function ExploreSections({ listRef }: ExploreSectionsProps): JSX.Element 
           <Loader.Token repeat={5} />
         </Flex>
       }
-      ListFooterComponent={<Inset all="$spacing12" />}
       ListHeaderComponent={
         <>
           <FavoritesSection showLoading={showLoading} />
@@ -163,6 +163,7 @@ export function ExploreSections({ listRef }: ExploreSectionsProps): JSX.Element 
           </Flex>
         </>
       }
+      contentContainerStyle={{ paddingBottom: insets.bottom }}
       data={showLoading ? undefined : topTokenItems}
       keyExtractor={tokenKey}
       renderItem={renderItem}

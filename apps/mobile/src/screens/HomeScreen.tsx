@@ -17,7 +17,6 @@ import Animated, {
   useDerivedValue,
   useSharedValue,
 } from 'react-native-reanimated'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { SvgProps } from 'react-native-svg'
 import { SceneRendererProps, TabBar } from 'react-native-tab-view'
 import { useAppDispatch } from 'src/app/hooks'
@@ -26,6 +25,7 @@ import { AppStackScreenProp } from 'src/app/navigation/types'
 import { AccountHeader } from 'src/components/accounts/AccountHeader'
 import { pulseAnimation } from 'src/components/buttons/utils'
 import { ActivityTab, ACTIVITY_TAB_DATA_DEPENDENCIES } from 'src/components/home/ActivityTab'
+import { FeedTab, FEED_TAB_DATA_DEPENDENCIES } from 'src/components/home/FeedTab'
 import { NftsTab, NFTS_TAB_DATA_DEPENDENCIES } from 'src/components/home/NftsTab'
 import { TokensTab, TOKENS_TAB_DATA_DEPENDENCIES } from 'src/components/home/TokensTab'
 import { Screen } from 'src/components/layout/Screen'
@@ -63,15 +63,19 @@ import {
   Text,
   TouchableArea,
   useDeviceDimensions,
+  useDeviceInsets,
   useMedia,
   useSporeColors,
 } from 'ui/src'
+import ReceiveIcon from 'ui/src/assets/icons/arrow-down-circle-filled.svg'
 import BuyIcon from 'ui/src/assets/icons/buy.svg'
-import ScanIcon from 'ui/src/assets/icons/scan-receive.svg'
+import ScanIcon from 'ui/src/assets/icons/scan-home.svg'
 import SendIcon from 'ui/src/assets/icons/send-action.svg'
 import { iconSizes, spacing } from 'ui/src/theme'
 import { ONE_SECOND_MS } from 'utilities/src/time/time'
 import { useInterval, useTimeout } from 'utilities/src/time/timing'
+import { FEATURE_FLAGS } from 'wallet/src/features/experiments/constants'
+import { useFeatureFlag } from 'wallet/src/features/experiments/hooks'
 import { setNotificationStatus } from 'wallet/src/features/notifications/slice'
 import { AccountType } from 'wallet/src/features/wallet/accounts/types'
 import { useActiveAccountWithThrow } from 'wallet/src/features/wallet/hooks'
@@ -89,10 +93,11 @@ export function HomeScreen(props?: AppStackScreenProp<Screens.Home>): JSX.Elemen
   const { t } = useTranslation()
   const colors = useSporeColors()
   const media = useMedia()
-  const insets = useSafeAreaInsets()
+  const insets = useDeviceInsets()
   const dimensions = useDeviceDimensions()
   const dispatch = useAppDispatch()
 
+  const showFeedTab = useFeatureFlag(FEATURE_FLAGS.FeedTab)
   // opens the wallet restore modal if recovery phrase is missing after the app is opened
   useWalletRestore({ openModalImmediately: true })
 
@@ -107,14 +112,21 @@ export function HomeScreen(props?: AppStackScreenProp<Screens.Home>): JSX.Elemen
   const tokensTitle = t('Tokens')
   const nftsTitle = t('NFTs')
   const activityTitle = t('Activity')
-  const routes = useMemo(
-    () => [
+  const feedTitle = t('Feed')
+
+  const routes = useMemo(() => {
+    const tabs = [
       { key: SectionName.HomeTokensTab, title: tokensTitle },
       { key: SectionName.HomeNFTsTab, title: nftsTitle },
       { key: SectionName.HomeActivityTab, title: activityTitle },
-    ],
-    [tokensTitle, nftsTitle, activityTitle]
-  )
+    ]
+
+    if (showFeedTab) {
+      tabs.push({ key: SectionName.HomeFeedTab, title: feedTitle })
+    }
+
+    return tabs
+  }, [tokensTitle, nftsTitle, activityTitle, feedTitle, showFeedTab])
 
   useEffect(
     function syncTabIndex() {
@@ -150,9 +162,12 @@ export function HomeScreen(props?: AppStackScreenProp<Screens.Home>): JSX.Elemen
     (event) => (nftsTabScrollValue.value = event.contentOffset.y)
   )
   const activityTabScrollValue = useSharedValue(0)
-
   const activityTabScrollHandler = useAnimatedScrollHandler(
     (event) => (activityTabScrollValue.value = event.contentOffset.y)
+  )
+  const feedTabScrollValue = useSharedValue(0)
+  const feedTabScrollHandler = useAnimatedScrollHandler(
+    (event) => (feedTabScrollValue.value = event.contentOffset.y)
   )
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -161,14 +176,18 @@ export function HomeScreen(props?: AppStackScreenProp<Screens.Home>): JSX.Elemen
   const nftsTabScrollRef = useAnimatedRef<FlashList<any>>()
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const activityTabScrollRef = useAnimatedRef<FlatList<any>>()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const feedTabScrollRef = useAnimatedRef<FlatList<any>>()
 
   const currentScrollValue = useDerivedValue(() => {
     if (tabIndex === HomeScreenTabIndex.Tokens) {
       return tokensTabScrollValue.value
     } else if (tabIndex === HomeScreenTabIndex.NFTs) {
       return nftsTabScrollValue.value
+    } else if (tabIndex === HomeScreenTabIndex.Activity) {
+      return activityTabScrollValue.value
     }
-    return activityTabScrollValue.value
+    return feedTabScrollValue.value
   }, [tabIndex])
 
   // clear the notification indicator if the user is on the activity tab
@@ -184,9 +203,11 @@ export function HomeScreen(props?: AppStackScreenProp<Screens.Home>): JSX.Elemen
     nftsTabScrollValue.value = 0
     tokensTabScrollValue.value = 0
     activityTabScrollValue.value = 0
+    feedTabScrollValue.value = 0
     nftsTabScrollRef.current?.scrollToOffset({ offset: 0, animated: true })
     tokensTabScrollRef.current?.scrollToOffset({ offset: 0, animated: true })
     activityTabScrollRef.current?.scrollToOffset({ offset: 0, animated: true })
+    feedTabScrollRef.current?.scrollToOffset({ offset: 0, animated: true })
   }, [
     activeAccount,
     activityTabScrollRef,
@@ -195,6 +216,8 @@ export function HomeScreen(props?: AppStackScreenProp<Screens.Home>): JSX.Elemen
     nftsTabScrollValue,
     tokensTabScrollRef,
     tokensTabScrollValue,
+    feedTabScrollRef,
+    feedTabScrollValue,
   ])
 
   // Need to create a derived value for tab index so it can be referenced from a static ref
@@ -237,10 +260,13 @@ export function HomeScreen(props?: AppStackScreenProp<Screens.Home>): JSX.Elemen
       { list: tokensTabScrollRef, position: tokensTabScrollValue, index: 0 },
       { list: nftsTabScrollRef, position: nftsTabScrollValue, index: 1 },
       { list: activityTabScrollRef, position: activityTabScrollValue, index: 2 },
+      { list: feedTabScrollRef, position: feedTabScrollValue, index: 3 },
     ],
     [
       activityTabScrollRef,
       activityTabScrollValue,
+      feedTabScrollRef,
+      feedTabScrollValue,
       nftsTabScrollRef,
       nftsTabScrollValue,
       tokensTabScrollRef,
@@ -262,28 +288,33 @@ export function HomeScreen(props?: AppStackScreenProp<Screens.Home>): JSX.Elemen
     )
   }, [dispatch])
   const onPressSend = useCallback(() => dispatch(openModal({ name: ModalName.Send })), [dispatch])
+  const onPressReceive = useCallback(
+    () =>
+      dispatch(
+        openModal({ name: ModalName.WalletConnectScan, initialState: ScannerModalState.WalletQr })
+      ),
+    [dispatch]
+  )
 
-  // hide fiat onramp banner when active account isn't a signer account.
-  const showFiatOnRamp = activeAccount.type === AccountType.SignerMnemonic
+  // Hide actions when active account isn't a signer account.
+  const isSignerAccount = activeAccount.type === AccountType.SignerMnemonic
   // Necessary to declare these as direct dependencies due to race condition with initializing react-i18next and useMemo
   const buyLabel = t('Buy')
   const sendLabel = t('Send')
+  const receiveLabel = t('Receive')
   const scanLabel = t('Scan')
+
   const actions = useMemo(
     (): QuickAction[] => [
-      ...(showFiatOnRamp
-        ? [
-            {
-              Icon: BuyIcon,
-              eventName: MobileEventName.FiatOnRampQuickActionButtonPressed,
-              iconScale: 1.2,
-              label: buyLabel,
-              name: ElementName.Buy,
-              sentryLabel: 'BuyActionButton',
-              onPress: onPressBuy,
-            },
-          ]
-        : []),
+      {
+        Icon: BuyIcon,
+        eventName: MobileEventName.FiatOnRampQuickActionButtonPressed,
+        iconScale: 1.2,
+        label: buyLabel,
+        name: ElementName.Buy,
+        sentryLabel: 'BuyActionButton',
+        onPress: onPressBuy,
+      },
       {
         Icon: SendIcon,
         iconScale: 1.1,
@@ -293,6 +324,13 @@ export function HomeScreen(props?: AppStackScreenProp<Screens.Home>): JSX.Elemen
         onPress: onPressSend,
       },
       {
+        Icon: ReceiveIcon,
+        label: receiveLabel,
+        name: ElementName.Receive,
+        sentryLabel: 'ReceiveActionButton',
+        onPress: onPressReceive,
+      },
+      {
         Icon: ScanIcon,
         label: scanLabel,
         name: ElementName.WalletConnectScan,
@@ -300,21 +338,38 @@ export function HomeScreen(props?: AppStackScreenProp<Screens.Home>): JSX.Elemen
         onPress: onPressScan,
       },
     ],
-    [showFiatOnRamp, buyLabel, sendLabel, scanLabel, onPressBuy, onPressScan, onPressSend]
+    [
+      buyLabel,
+      sendLabel,
+      scanLabel,
+      receiveLabel,
+      onPressBuy,
+      onPressScan,
+      onPressSend,
+      onPressReceive,
+    ]
   )
+
+  const viewOnlyLabel = t('This is a view-only wallet')
   const contentHeader = useMemo(() => {
     return (
-      <Flex bg="$surface1" gap="$spacing12" pb="$spacing16" px="$spacing24">
-        <Flex pb="$spacing12">
-          <AccountHeader />
-        </Flex>
-        <Flex pb="$spacing4">
+      <Flex bg="$surface1" gap="$spacing8" pb="$spacing16" px="$spacing24">
+        <AccountHeader />
+        <Flex pb="$spacing8">
           <PortfolioBalance owner={activeAccount.address} />
         </Flex>
-        <QuickActions actions={actions} sentry-label="QuickActions" />
+        {isSignerAccount ? (
+          <QuickActions actions={actions} sentry-label="QuickActions" />
+        ) : (
+          <Flex centered row bg="$surface2" br="$rounded12" minHeight={40} p="$spacing8">
+            <Text color="$neutral2" variant="body2">
+              {viewOnlyLabel}
+            </Text>
+          </Flex>
+        )}
       </Flex>
     )
-  }, [activeAccount.address, actions])
+  }, [activeAccount.address, isSignerAccount, viewOnlyLabel, actions])
 
   const contentContainerStyle = useMemo<StyleProp<ViewStyle>>(
     () => ({
@@ -423,18 +478,20 @@ export function HomeScreen(props?: AppStackScreenProp<Screens.Home>): JSX.Elemen
 
   const onRefreshHomeData = useCallback(async () => {
     setRefreshing(true)
+
     await apolloClient?.refetchQueries({
       include: [
         ...TOKENS_TAB_DATA_DEPENDENCIES,
         ...NFTS_TAB_DATA_DEPENDENCIES,
         ...ACTIVITY_TAB_DATA_DEPENDENCIES,
+        ...(showFeedTab ? FEED_TAB_DATA_DEPENDENCIES : []),
       ],
     })
+
     // Artificially delay 0.5 second to show the refresh animation
-    setTimeout(() => {
-      setRefreshing(false)
-    }, 500)
-  }, [])
+    const timeout = setTimeout(() => setRefreshing(false), 500)
+    return () => clearTimeout(timeout)
+  }, [showFeedTab])
 
   const renderTab = useCallback(
     ({
@@ -482,6 +539,18 @@ export function HomeScreen(props?: AppStackScreenProp<Screens.Home>): JSX.Elemen
               onRefresh={onRefreshHomeData}
             />
           )
+        case SectionName.HomeFeedTab:
+          return (
+            <FeedTab
+              ref={feedTabScrollRef}
+              containerProps={sharedProps}
+              headerHeight={headerHeight}
+              owner={activeAccount?.address}
+              refreshing={refreshing}
+              scrollHandler={feedTabScrollHandler}
+              onRefresh={onRefreshHomeData}
+            />
+          )
       }
       return null
     },
@@ -489,6 +558,8 @@ export function HomeScreen(props?: AppStackScreenProp<Screens.Home>): JSX.Elemen
       activeAccount?.address,
       activityTabScrollHandler,
       activityTabScrollRef,
+      feedTabScrollHandler,
+      feedTabScrollRef,
       nftsTabScrollHandler,
       nftsTabScrollRef,
       sharedProps,
@@ -541,9 +612,10 @@ type QuickAction = {
   sentryLabel: string
   onPress: () => void
 }
+
 function QuickActions({ actions }: { actions: QuickAction[] }): JSX.Element {
   return (
-    <Flex centered row gap="$spacing8">
+    <Flex centered row gap="$spacing12">
       {actions.map((action) => (
         <ActionButton
           Icon={action.Icon}
@@ -563,7 +635,6 @@ function QuickActions({ actions }: { actions: QuickAction[] }): JSX.Element {
 function ActionButton({
   eventName,
   name,
-  label,
   Icon,
   onPress,
   flex,
@@ -587,7 +658,8 @@ function ActionButton({
     }),
     [scale]
   )
-
+  const media = useMedia()
+  const iconSize = media.short ? iconSizes.icon24 : iconSizes.icon28
   const onGestureEvent = useAnimatedGestureHandler<TapGestureHandlerGestureEvent>({
     onStart: () => {
       cancelAnimation(scale)
@@ -604,28 +676,17 @@ function ActionButton({
         <TapGestureHandler onGestureEvent={onGestureEvent}>
           <AnimatedFlex
             centered
-            row
+            fill
             backgroundColor="$DEP_backgroundActionButton"
-            borderRadius="$roundedFull"
-            gap="$none"
-            px="$spacing12"
-            style={[
-              animatedStyle,
-              // eslint-disable-next-line react-native/no-inline-styles
-              {
-                // doing specific padding here because we need exact styles and spacing12 vs 16 either too small/big
-                paddingVertical: 14.5,
-              },
-            ]}>
+            borderRadius="$rounded20"
+            p="$spacing16"
+            style={animatedStyle}>
             <Icon
               color={colors.accent1.get()}
-              height={iconSizes.icon20 * iconScale}
+              height={iconSize * iconScale}
               strokeWidth={2}
-              width={iconSizes.icon20 * iconScale}
+              width={iconSize * iconScale}
             />
-            <Text color="$accent1" marginLeft="$spacing8" variant="buttonLabel2">
-              {label}
-            </Text>
           </AnimatedFlex>
         </TapGestureHandler>
       </TouchableArea>

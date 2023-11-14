@@ -7,16 +7,17 @@ import { Flex, Icons } from 'ui/src'
 import { spacing } from 'ui/src/theme'
 import { RemoteImage } from 'wallet/src/features/images/RemoteImage'
 
+// Determines view only icon size in relation to Account Icon size
+const EYE_ICON_SCALING_FACTOR = 0.4
+
 export interface AccountIconProps {
   size: number
   showViewOnlyBadge?: boolean
-  viewOnlyBadgeScalingFactor?: number
   address: string
   avatarUri?: string | null
   showBackground?: boolean // Display images with solid background.
+  backgroundPadding?: number
 }
-
-const INSET_PADDING = spacing.spacing16
 
 export function AccountIcon({
   size,
@@ -24,65 +25,55 @@ export function AccountIcon({
   address,
   avatarUri,
   showBackground,
-  viewOnlyBadgeScalingFactor = 0.45,
+  backgroundPadding = spacing.spacing12,
 }: AccountIconProps): JSX.Element {
-  // If background, add padding and center Unicons. Leave ENS avatars as is.
-  const shouldShowUniconInsetPadding = !avatarUri && showBackground
+  // add padding to unicon if background is displayed
+  const uniconPadding = showBackground ? backgroundPadding : spacing.none
 
-  // If Unicon and background, reduce size to account for added padding.
-  const adjustedIconSize = shouldShowUniconInsetPadding ? size - INSET_PADDING * 2 : size
+  // adjust unicon size to account for potential padding
+  const uniconSize = size - uniconPadding * 2
+
+  // scale eye icon to be a portion of container size
+  const eyeIconSize = size * EYE_ICON_SCALING_FACTOR
 
   // Color for gradient background.
-  const { gradientStart: uniconColor } = useUniconColors(address)
+  const { gradientEnd: uniconColor } = useUniconColors(address)
 
-  const iconPadding = size * 0.15
-  const iconEyeContainerSize = size * viewOnlyBadgeScalingFactor
-  const iconEyeSize = iconEyeContainerSize - iconPadding
-
-  const defaultImage = (
-    <>
-      <Unicon address={address} size={adjustedIconSize} />
+  const uniconImage = (
+    <Flex centered borderRadius="$roundedFull" height={size} padding={uniconPadding} width={size}>
+      <Unicon address={address} size={uniconSize} />
       {showBackground ? <UniconGradient color={uniconColor} size={size} /> : null}
-    </>
+    </Flex>
   )
 
   return (
     <Flex
       backgroundColor={showBackground ? '$surface1' : '$transparent'}
-      borderColor={showBackground ? '$surface1' : '$transparent'}
       borderRadius="$roundedFull"
-      borderWidth={showBackground ? 2 : 0}
-      position="relative"
-      style={{
-        padding: shouldShowUniconInsetPadding ? INSET_PADDING : spacing.none,
-      }}>
+      position="relative">
       {avatarUri ? (
         <RemoteImage
-          borderRadius={adjustedIconSize}
-          fallback={defaultImage}
-          height={adjustedIconSize}
+          borderRadius={size}
+          fallback={uniconImage}
+          height={size}
           uri={avatarUri}
-          width={adjustedIconSize}
+          width={size}
         />
       ) : (
-        defaultImage
+        uniconImage
       )}
       {showViewOnlyBadge && (
         <Flex
           alignItems="center"
           backgroundColor="$surface2"
+          borderColor="$surface1"
           borderRadius="$roundedFull"
-          bottom={-2}
-          height={iconEyeContainerSize}
+          borderWidth={2}
+          bottom={-4}
           justifyContent="center"
           position="absolute"
-          right={-2}
-          shadowColor="$sporeBlack"
-          shadowOffset={{ width: 0, height: 0 }}
-          shadowOpacity={0.2}
-          shadowRadius={10}
-          width={iconEyeContainerSize}>
-          <Icons.Eye color="$neutral1" size={iconEyeSize} />
+          right={-4}>
+          <Icons.Eye color="$neutral2" size={eyeIconSize} />
         </Flex>
       )}
     </Flex>
@@ -95,8 +86,8 @@ const UniconGradient = ({ color, size }: { color: string; size: number }): JSX.E
     <Svg height={size} style={UniconGradientStyles.svg} width={size}>
       <Defs>
         <RadialGradientSVG cy="-0.1" id="background" rx="0.8" ry="1.1">
-          <Stop offset="0" stopColor={color} stopOpacity="0.6" />
-          <Stop offset="1" stopColor={color} stopOpacity="0" />
+          <Stop offset="0" stopColor={color} stopOpacity="0.2" />
+          <Stop offset="1" stopColor={color} stopOpacity="0.2" />
         </RadialGradientSVG>
       </Defs>
       <Rect

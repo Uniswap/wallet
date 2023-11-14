@@ -12,7 +12,6 @@ import {
   useAnimatedStyle,
   useSharedValue,
 } from 'react-native-reanimated'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useAppDispatch } from 'src/app/hooks'
 import { pulseAnimation } from 'src/components/buttons/utils'
 import { IS_ANDROID, IS_IOS } from 'src/constants/globals'
@@ -29,10 +28,10 @@ import {
   LinearGradient,
   Text,
   TouchableArea,
-  useMedia,
+  useDeviceInsets,
   useSporeColors,
 } from 'ui/src'
-import { borderRadii, spacing } from 'ui/src/theme'
+import { borderRadii, fonts } from 'ui/src/theme'
 import { useIsDarkMode } from 'wallet/src/features/appearance/hooks'
 import { useHighestBalanceNativeCurrencyId } from 'wallet/src/features/dataApi/balances'
 import { useActiveAccountAddressWithThrow } from 'wallet/src/features/wallet/hooks'
@@ -52,12 +51,9 @@ function sendSwapPressAnalyticsEvent(): void {
 }
 
 export function NavBar(): JSX.Element {
-  const insets = useSafeAreaInsets()
+  const insets = useDeviceInsets()
   const colors = useSporeColors()
   const isDarkMode = useIsDarkMode()
-  const { short } = useMedia()
-
-  const BUTTONS_OFFSET = short ? spacing.spacing24 : spacing.none
 
   return (
     <>
@@ -83,7 +79,7 @@ export function NavBar(): JSX.Element {
         pointerEvents="box-none"
         position="absolute"
         right={0}
-        style={{ paddingBottom: insets.bottom + BUTTONS_OFFSET }}>
+        style={{ paddingBottom: insets.bottom }}>
         <Flex
           fill
           row
@@ -93,8 +89,12 @@ export function NavBar(): JSX.Element {
           mb={IS_ANDROID ? '$spacing8' : '$none'}
           mx="$spacing24"
           pointerEvents="auto">
-          <ExploreTabBarButton />
-          <SwapFAB />
+          <Flex grow>
+            <ExploreTabBarButton />
+          </Flex>
+          <Flex>
+            <SwapFAB />
+          </Flex>
         </Flex>
       </Flex>
     </>
@@ -249,8 +249,14 @@ function ExploreTabBarButton({ activeScale = 0.98 }: ExploreTabBarButtonProps): 
               shadowOpacity={isDarkMode ? 0.6 : 0.4}
               shadowRadius={borderRadii.rounded20}>
               <Icons.Search color="$neutral2" size="$icon.24" />
-              <Text color="$neutral1" variant="body1">
-                {t('Search web3')}
+              <Text
+                adjustsFontSizeToFit
+                color="$neutral2"
+                numberOfLines={1}
+                pr="$spacing48"
+                style={{ lineHeight: fonts.body1.lineHeight }}
+                variant="body1">
+                {t('Search')}
               </Text>
             </Flex>
           </BlurView>

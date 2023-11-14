@@ -134,13 +134,12 @@ export function SeedPhraseInputScreen({ navigation, route: { params } }: Props):
       title={isRestoringMnemonic ? t('No backups found') : t('Enter your recovery phrase')}>
       <Flex $short={{ gap: '$none' }} gap="$spacing8">
         <GenericImportForm
-          autoCorrect
           blurOnSubmit
           liveCheck
           afterPasteButtonPress={(): void => setPastePermissionModalOpen(false)}
           beforePasteButtonPress={(): void => setPastePermissionModalOpen(true)}
           errorMessage={errorMessage}
-          placeholderLabel={t('recovery phrase')}
+          placeholderLabel={t('Enter recovery phrase')}
           showSuccess={showSuccess}
           value={value}
           onBlur={onBlur}

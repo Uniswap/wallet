@@ -10,17 +10,6 @@ directive @aws_cognito_user_pools(
 ) on OBJECT | FIELD_DEFINITION
 
 """
-Tells the service which subscriptions will be published to when this mutation is
-called. This directive is deprecated use @aws_susbscribe directive instead.
-"""
-directive @aws_publish(
-  """
-  List of subscriptions which will be published to when this mutation is called.
-  """
-  subscriptions: [String]
-) on FIELD_DEFINITION
-
-"""
 Tells the service this field/object has access authorized by a Lambda Authorizer.
 """
 directive @aws_lambda on OBJECT | FIELD_DEFINITION
@@ -34,17 +23,6 @@ directive @aws_subscribe(
 ) on FIELD_DEFINITION
 
 """
-Tells the service this field/object has access authorized by sigv4 signing.
-"""
-directive @aws_iam on OBJECT | FIELD_DEFINITION
-
-"""Directs the schema to enforce authorization on a field"""
-directive @aws_auth(
-  """List of cognito user pool groups which have access on this field"""
-  cognito_groups: [String]
-) on FIELD_DEFINITION
-
-"""
 Tells the service this field/object has access authorized by an API key.
 """
 directive @aws_api_key on OBJECT | FIELD_DEFINITION
@@ -53,6 +31,28 @@ directive @aws_api_key on OBJECT | FIELD_DEFINITION
 Tells the service this field/object has access authorized by an OIDC token.
 """
 directive @aws_oidc on OBJECT | FIELD_DEFINITION
+
+"""Directs the schema to enforce authorization on a field"""
+directive @aws_auth(
+  """List of cognito user pool groups which have access on this field"""
+  cognito_groups: [String]
+) on FIELD_DEFINITION
+
+"""
+Tells the service this field/object has access authorized by sigv4 signing.
+"""
+directive @aws_iam on OBJECT | FIELD_DEFINITION
+
+"""
+Tells the service which subscriptions will be published to when this mutation is
+called. This directive is deprecated use @aws_susbscribe directive instead.
+"""
+directive @aws_publish(
+  """
+  List of subscriptions which will be published to when this mutation is called.
+  """
+  subscriptions: [String]
+) on FIELD_DEFINITION
 
 union ActivityDetails = TransactionDetails | SwapOrderDetails
 
@@ -169,6 +169,7 @@ enum Currency {
   AUD
   BRL
   CAD
+  CNY
   ETH
   EUR
   GBP
@@ -186,6 +187,29 @@ enum Currency {
   UAH
   USD
   VND
+}
+
+type DescriptionTranslations {
+  id: ID!
+  descriptionZhHans: String
+  descriptionZhHant: String
+  descriptionNlNl: String
+  descriptionEnUs: String
+  descriptionFrFr: String
+  descriptionHiIn: String
+  descriptionIdId: String
+  descriptionJaJp: String
+  descriptionMsMy: String
+  descriptionPtPt: String
+  descriptionRuRu: String
+  descriptionEsEs: String
+  descriptionEs419: String
+  descriptionEsUs: String
+  descriptionThTh: String
+  descriptionTrTr: String
+  descriptionUkUa: String
+  descriptionUrPk: String
+  descriptionViVn: String
 }
 
 type Dimensions {
@@ -700,6 +724,19 @@ type Portfolio {
   assetActivities(page: Int, pageSize: Int, includeOffChain: Boolean, chains: [Chain!]): [AssetActivity]
 }
 
+enum PriceSource {
+  SUBGRAPH_V2
+  SUBGRAPH_V3
+}
+
+type PushNotification {
+  id: ID!
+  contents: String!
+  notifyAddress: String!
+  viewerHeader: String!
+  signerHeader: String!
+}
+
 type Query {
   convert(fromAmount: AmountInput!, toCurrency: Currency!): Amount
   tokens(contracts: [ContractInput!]!): [Token]
@@ -721,7 +758,7 @@ type Query {
   nftRoute(chain: Chain, senderAddress: String!, nftTrades: [NftTradeInput!]!, tokenTrades: [TokenTradeInput!]): NftRouteResponse
   nftActivity(chain: Chain, filter: NftActivityFilterInput, after: String, first: Int): NftActivityConnection
   nftCollectionBalances(chain: Chain, ownerAddress: String!, after: String, first: Int, before: String, last: Int): NftCollectionBalanceConnection
-  assetActivity(address: String!, transactionHash: String!): AssetActivity
+  transactionNotification(address: String!, transactionHash: String!, oldNotifications: String): TransactionNotification
 }
 
 enum SafetyLevel {
@@ -736,7 +773,7 @@ type Status {
 }
 
 type Subscription {
-  onAssetActivity(subscriptionId: ID!, addresses: [String!]!): AssetActivity
+  onAssetActivity(subscriptionId: ID!, chain: Chain!, addresses: [String!]!): AssetActivity
 }
 
 enum SubscriptionType {
@@ -834,6 +871,7 @@ type TokenMarket {
   id: ID!
   token: Token!
   price: Amount
+  priceSource: PriceSource!
   totalValueLocked: Amount
   volume(duration: HistoryDuration!): Amount
   pricePercentChange(duration: HistoryDuration!): Amount
@@ -846,6 +884,7 @@ type TokenProject {
   name: String
   tokens: [Token!]!
   description: String
+  descriptionTranslations: DescriptionTranslations
   twitterName: String
   homepageUrl: String
   logoUrl: String @deprecated(reason: "use logo")
@@ -863,6 +902,7 @@ type TokenProjectMarket {
   currency: Currency!
   price: Amount
   marketCap: Amount
+  fullyDilutedValuation: Amount
   pricePercentChange24h: Amount
   priceHigh52w: Amount
   priceLow52w: Amount
@@ -970,6 +1010,12 @@ enum TransactionDirection {
   IN
   OUT
   SELF
+}
+
+type TransactionNotification {
+  id: ID!
+  hash: String!
+  push: [PushNotification!]!
 }
 
 enum TransactionStatus {

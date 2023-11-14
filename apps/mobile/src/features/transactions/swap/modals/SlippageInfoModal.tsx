@@ -10,7 +10,7 @@ import AlertTriangleIcon from 'ui/src/assets/icons/alert-triangle.svg'
 import { iconSizes } from 'ui/src/theme'
 import { NumberType } from 'utilities/src/format/types'
 import { uniswapUrls } from 'wallet/src/constants/urls'
-import { useLocalizedFormatter } from 'wallet/src/features/language/formatter'
+import { useLocalizationContext } from 'wallet/src/features/language/LocalizationContext'
 import { Trade } from 'wallet/src/features/transactions/swap/useTrade'
 import { getSymbolDisplayText } from 'wallet/src/utils/currency'
 
@@ -29,7 +29,7 @@ export function SlippageInfoModal({
 }: SlippageInfoModalProps): JSX.Element {
   const { t } = useTranslation()
   const colors = useSporeColors()
-  const { formatCurrencyAmount, formatPercent } = useLocalizedFormatter()
+  const { formatCurrencyAmount, formatPercent } = useLocalizationContext()
 
   const { slippageTolerance, tradeType } = trade
   const showSlippageWarning = autoSlippageTolerance && slippageTolerance > autoSlippageTolerance
@@ -51,7 +51,7 @@ export function SlippageInfoModal({
       backgroundColor={colors.surface1.get()}
       name={ModalName.SlippageInfo}
       onClose={onClose}>
-      <Flex centered fill gap="$spacing16" mb="$spacing12" p="$spacing24">
+      <Flex centered fill gap="$spacing16" px="$spacing24" py="$spacing12">
         <Flex centered backgroundColor="$surface2" borderRadius="$rounded12" p="$spacing12">
           <Icons.Settings color="$neutral2" size="$icon.28" />
         </Flex>
@@ -67,7 +67,6 @@ export function SlippageInfoModal({
                 'If the price slips any further, your transaction will revert. Below is the maximum amount you would need to spend.'
               )}{' '}
         </Text>
-        <LearnMoreLink url={uniswapUrls.helpArticleUrls.swapSlippage} />
         <Flex
           fill
           bg="$surface2"
@@ -76,8 +75,8 @@ export function SlippageInfoModal({
           px="$spacing16"
           py="$spacing12"
           width="100%">
-          <Flex fill row justifyContent="space-between">
-            <Text color="$neutral2" variant="body2">
+          <Flex fill row alignItems="center" gap="$spacing12" justifyContent="space-between">
+            <Text color="$neutral2" flexShrink={1} numberOfLines={3} variant="body2">
               {t('Max slippage')}
             </Text>
             <Flex row gap="$spacing8">
@@ -95,8 +94,8 @@ export function SlippageInfoModal({
               </Text>
             </Flex>
           </Flex>
-          <Flex fill row justifyContent="space-between">
-            <Text color="$neutral2" variant="body2">
+          <Flex fill row alignItems="center" gap="$spacing12" justifyContent="space-between">
+            <Text color="$neutral2" flexShrink={1} numberOfLines={3} variant="body2">
               {tradeType === TradeType.EXACT_INPUT ? t('Receive at least') : t('Spend at most')}
             </Text>
             <Text color="$neutral1" textAlign="center" variant="subheading2">
@@ -116,6 +115,7 @@ export function SlippageInfoModal({
             </Text>
           </Flex>
         ) : null}
+        <LearnMoreLink url={uniswapUrls.helpArticleUrls.swapSlippage} />
         <Flex centered row gap="$spacing12" pt="$spacing12">
           <Button fill testID="slippage-info-close" theme="secondary" onPress={onClose}>
             {t('Close')}

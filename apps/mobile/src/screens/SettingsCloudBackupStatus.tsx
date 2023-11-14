@@ -107,8 +107,10 @@ export function SettingsCloudBackupStatus({
                 )}
           </Text>
           <Flex row justifyContent="space-between">
-            <Text variant="body1">{t('Recovery phrase')}</Text>
-            <Flex alignItems="flex-end" gap="$spacing4">
+            <Text flexShrink={1} variant="body1">
+              {t('Recovery phrase')}
+            </Text>
+            <Flex alignItems="flex-end" flexGrow={1} gap="$spacing4">
               <Flex row alignItems="center" gap="$spacing12" justifyContent="space-around">
                 <Text color="$neutral2" variant="buttonLabel4">
                   {t('Backed up')}
@@ -135,7 +137,7 @@ export function SettingsCloudBackupStatus({
           onPress={(): void => {
             setShowBackupDeleteWarning(true)
           }}>
-          {IS_ANDROID ? t('Delete Google Drive backup') : t('Delete iCloud backup')}
+          {IS_ANDROID ? t('Delete backup') : t('Delete backup')}
         </Button>
       </Flex>
 
@@ -144,7 +146,7 @@ export function SettingsCloudBackupStatus({
           caption={t(
             'If you delete your iCloud backup, you’ll only be able to recover your wallet with a manual backup of your recovery phrase. Uniswap Labs can’t recover your assets if you lose your recovery phrase.'
           )}
-          closeText={t('Cancel')}
+          closeText={t('Close')}
           confirmText={t('Delete')}
           modalName={ModalName.ViewSeedPhraseWarning}
           title={t('Are you sure?')}

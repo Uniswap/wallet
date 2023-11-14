@@ -9,6 +9,7 @@ import RemoveButton from 'src/components/explore/RemoveButton'
 import { Loader } from 'src/components/loading'
 import { useTokenDetailsNavigation } from 'src/components/TokenDetails/hooks'
 import { SectionName } from 'src/features/telemetry/constants'
+import { disableOnPress } from 'src/utils/disableOnPress'
 import { usePollOnFocusOnly } from 'src/utils/hooks'
 import { AnimatedTouchableArea, Flex, Text } from 'ui/src'
 import { borderRadii, imageSizes } from 'ui/src/theme'
@@ -23,7 +24,7 @@ import { useFavoriteTokenCardQuery } from 'wallet/src/data/__generated__/types-a
 import { fromGraphQLChain } from 'wallet/src/features/chains/utils'
 import { currencyIdToContractInput } from 'wallet/src/features/dataApi/utils'
 import { removeFavoriteToken } from 'wallet/src/features/favorites/slice'
-import { useFiatConverter } from 'wallet/src/features/fiatCurrency/conversion'
+import { useLocalizationContext } from 'wallet/src/features/language/LocalizationContext'
 import { getSymbolDisplayText } from 'wallet/src/utils/currency'
 
 export const FAVORITE_TOKEN_CARD_LOADER_HEIGHT = 114
@@ -42,7 +43,7 @@ function FavoriteTokenCard({
 }: FavoriteTokenCardProps): JSX.Element {
   const dispatch = useAppDispatch()
   const tokenDetailsNavigation = useTokenDetailsNavigation()
-  const { convertFiatAmountFormatted } = useFiatConverter()
+  const { convertFiatAmountFormatted } = useLocalizationContext()
 
   const { data, networkStatus, startPolling, stopPolling } = useFavoriteTokenCardQuery({
     variables: currencyIdToContractInput(currencyId),
@@ -106,6 +107,7 @@ function FavoriteTokenCard({
         hapticStyle={ImpactFeedbackStyle.Light}
         m="$spacing4"
         testID={`token-box-${token?.symbol}`}
+        onLongPress={disableOnPress}
         onPress={onPress}>
         <BaseCard.Shadow>
           <Flex alignItems="flex-start" gap="$spacing8">

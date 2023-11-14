@@ -14,7 +14,7 @@ import { OnboardingScreens } from 'src/screens/Screens'
 import { openUri } from 'src/utils/linking'
 import { hideSplashScreen } from 'src/utils/splashScreen'
 import { isDevBuild } from 'src/utils/version'
-import { Button, Flex, Text, TouchableArea, useMedia } from 'ui/src'
+import { Button, Flex, Text, TouchableArea } from 'ui/src'
 import { useTimeout } from 'utilities/src/time/timing'
 import { uniswapUrls } from 'wallet/src/constants/urls'
 import { useIsDarkMode } from 'wallet/src/features/appearance/hooks'
@@ -28,7 +28,6 @@ type Props = NativeStackScreenProps<OnboardingStackParamList, OnboardingScreens.
 
 export function LandingScreen({ navigation }: Props): JSX.Element {
   const dispatch = useAppDispatch()
-  const media = useMedia()
   const { t } = useTranslation()
   const isDarkMode = useIsDarkMode()
 
@@ -68,7 +67,8 @@ export function LandingScreen({ navigation }: Props): JSX.Element {
           <Trace logPress element={ElementName.CreateAccount}>
             <Button
               hapticFeedback
-              size={media.short ? 'medium' : 'large'}
+              $short={{ size: 'medium' }}
+              size="large"
               onPress={onPressCreateWallet}>
               {t('Create a new wallet')}
             </Button>
@@ -85,12 +85,15 @@ export function LandingScreen({ navigation }: Props): JSX.Element {
                 }
               }}
               onPress={onPressImportWallet}>
-              <Text $short={{ variant: 'buttonLabel2' }} color="$accent1" variant="buttonLabel1">
+              <Text
+                $short={{ variant: 'buttonLabel2', fontSize: '$medium' }}
+                color="$accent1"
+                variant="buttonLabel1">
                 {t('Add an existing wallet')}
               </Text>
             </TouchableArea>
           </Trace>
-          <Flex $short={{ pb: '$spacing16' }} mx="$spacing24" py="$spacing12">
+          <Flex $short={{ py: '$none', mx: '$spacing12' }} mx="$spacing24" py="$spacing12">
             <Text color="$neutral2" mx="$spacing4" textAlign="center" variant="buttonLabel4">
               <Trans t={t}>
                 By continuing, I agree to the{' '}

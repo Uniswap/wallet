@@ -24,7 +24,16 @@ import { useBiometricName, useDeviceSupportsBiometricAuth } from 'src/features/b
 import { ModalName } from 'src/features/telemetry/constants'
 import { Screens } from 'src/screens/Screens'
 import { getFullAppVersion } from 'src/utils/version'
-import { AnimatedFlex, Flex, IconProps, Icons, Text, TouchableArea, useSporeColors } from 'ui/src'
+import {
+  AnimatedFlex,
+  Flex,
+  IconProps,
+  Icons,
+  Text,
+  TouchableArea,
+  useDeviceInsets,
+  useSporeColors,
+} from 'ui/src'
 import { AVATARS_DARK, AVATARS_LIGHT } from 'ui/src/assets'
 import BookOpenIcon from 'ui/src/assets/icons/book-open.svg'
 import ContrastIcon from 'ui/src/assets/icons/contrast.svg'
@@ -34,7 +43,7 @@ import LikeSquare from 'ui/src/assets/icons/like-square.svg'
 import LockIcon from 'ui/src/assets/icons/lock.svg'
 import MessageQuestion from 'ui/src/assets/icons/message-question.svg'
 import UniswapIcon from 'ui/src/assets/icons/uniswap-logo.svg'
-import { iconSizes } from 'ui/src/theme'
+import { iconSizes, spacing } from 'ui/src/theme'
 import { ONE_SECOND_MS } from 'utilities/src/time/time'
 import { useTimeout } from 'utilities/src/time/timing'
 import { uniswapUrls } from 'wallet/src/constants/urls'
@@ -42,7 +51,6 @@ import { useCurrentAppearanceSetting, useIsDarkMode } from 'wallet/src/features/
 import { FEATURE_FLAGS } from 'wallet/src/features/experiments/constants'
 import { useFeatureFlag } from 'wallet/src/features/experiments/hooks'
 import { useAppFiatCurrencyInfo } from 'wallet/src/features/fiatCurrency/hooks'
-import { useCurrentLanguageInfo } from 'wallet/src/features/language/hooks'
 import { AccountType, SignerMnemonicAccount } from 'wallet/src/features/wallet/accounts/types'
 import { useAccounts } from 'wallet/src/features/wallet/hooks'
 import { resetWallet, setFinishedOnboarding } from 'wallet/src/features/wallet/slice'
@@ -50,10 +58,10 @@ import { resetWallet, setFinishedOnboarding } from 'wallet/src/features/wallet/s
 export function SettingsScreen(): JSX.Element {
   const navigation = useNavigation<SettingsStackNavigationProp & OnboardingStackNavigationProp>()
   const colors = useSporeColors()
+  const insets = useDeviceInsets()
   const { deviceSupportsBiometrics } = useBiometricContext()
   const { t } = useTranslation()
 
-  const languageSelectionEnabled = useFeatureFlag(FEATURE_FLAGS.LanguageSelection)
   const currencyConversionEnabled = useFeatureFlag(FEATURE_FLAGS.CurrencyConversion)
 
   // check if device supports biometric authentication, if not, hide option
@@ -62,7 +70,6 @@ export function SettingsScreen(): JSX.Element {
 
   const authenticationTypeName = useBiometricName(isTouchIdSupported, true)
   const currentAppearanceSetting = useCurrentAppearanceSetting()
-  const currentLanguageInfo = useCurrentLanguageInfo()
   const currentFiatCurrencyInfo = useAppFiatCurrencyInfo()
 
   const sections: SettingsSection[] = useMemo((): SettingsSection[] => {
@@ -91,22 +98,12 @@ export function SettingsScreen(): JSX.Element {
             text: t('Appearance'),
             currentSetting:
               currentAppearanceSetting === 'system'
-                ? t('Device settings')
+                ? t('Device')
                 : currentAppearanceSetting === 'dark'
                 ? t('Dark mode')
                 : t('Light mode'),
             icon: <ContrastIcon {...svgProps} />,
           },
-          ...(languageSelectionEnabled
-            ? ([
-                {
-                  modal: ModalName.LanguageSelector,
-                  text: t('Language'),
-                  currentSetting: currentLanguageInfo.name,
-                  icon: <Icons.Globe {...iconProps} />,
-                },
-              ] as SettingsSectionItem[])
-            : []),
           ...(currencyConversionEnabled
             ? ([
                 {
@@ -141,18 +138,18 @@ export function SettingsScreen(): JSX.Element {
             screen: Screens.WebView,
             screenProps: {
               uriLink: APP_FEEDBACK_LINK,
-              headerTitle: t('Send Feedback'),
+              headerTitle: t('Send feedback'),
             },
-            text: t('Send Feedback'),
+            text: t('Send feedback'),
             icon: <LikeSquare {...svgProps} />,
           },
           {
             screen: Screens.WebView,
             screenProps: {
               uriLink: uniswapUrls.helpUrl,
-              headerTitle: t('Get Help'),
+              headerTitle: t('Get help'),
             },
-            text: t('Get Help'),
+            text: t('Get help'),
             icon: <MessageQuestion {...svgProps} />,
           },
         ],
@@ -164,18 +161,18 @@ export function SettingsScreen(): JSX.Element {
             screen: Screens.WebView,
             screenProps: {
               uriLink: uniswapUrls.privacyPolicyUrl,
-              headerTitle: t('Privacy Policy'),
+              headerTitle: t('Privacy policy'),
             },
-            text: t('Privacy Policy'),
+            text: t('Privacy policy'),
             icon: <LockIcon {...svgProps} />,
           },
           {
             screen: Screens.WebView,
             screenProps: {
               uriLink: uniswapUrls.termsOfServiceUrl,
-              headerTitle: t('Terms of Service'),
+              headerTitle: t('Terms of service'),
             },
-            text: t('Terms of Service'),
+            text: t('Terms of service'),
             icon: <BookOpenIcon {...svgProps} />,
           },
         ],
@@ -186,7 +183,7 @@ export function SettingsScreen(): JSX.Element {
         data: [
           {
             screen: Screens.Dev,
-            text: t('Dev Options'),
+            text: t('Dev options'),
             icon: <UniswapIcon {...svgProps} />,
           },
           { component: <OnboardingRow iconProps={svgProps} /> },
@@ -201,8 +198,6 @@ export function SettingsScreen(): JSX.Element {
     isTouchIdSupported,
     isFaceIdSupported,
     authenticationTypeName,
-    languageSelectionEnabled,
-    currentLanguageInfo,
     currentFiatCurrencyInfo,
     currencyConversionEnabled,
   ])
@@ -221,7 +216,7 @@ export function SettingsScreen(): JSX.Element {
     <HeaderScrollScreen
       alwaysShowCenterElement
       centerElement={<Text variant="body1">{t('Settings')}</Text>}>
-      <Flex px="$spacing24" py="$spacing12">
+      <Flex pb={insets.bottom - spacing.spacing16} pt="$spacing12" px="$spacing24">
         <SectionList
           ItemSeparatorComponent={renderItemSeparator}
           ListFooterComponent={<FooterSettings />}

@@ -1,12 +1,9 @@
 import { ImpactFeedbackStyle } from 'expo-haptics'
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { LayoutChangeEvent } from 'react-native'
-import { getNumberFormatSettings } from 'react-native-localize'
-import { Flex, Icons, Text, TouchableArea } from 'ui/src'
+import { Flex, Icons, Text, TouchableArea, useMedia } from 'ui/src'
 import { fonts } from 'ui/src/theme'
-
-// if this setting is changed in phone settings the app would be restarted
-const { decimalSeparator } = getNumberFormatSettings()
+import { useAppFiatCurrencyInfo } from 'wallet/src/features/fiatCurrency/hooks'
 
 export enum KeyAction {
   Insert = 'insert',
@@ -147,8 +144,8 @@ export const DecimalPad = memo(function DecimalPad({
             ) : (
               <KeyButton
                 {...key}
-                key={keyIndex}
                 disabled={disabled || disabledKeys[key.label]}
+                index={keyIndex}
                 sizeMultiplier={sizeMultiplier}
                 onLongPress={onKeyLongPress}
                 onPress={onKeyPress}
@@ -162,6 +159,7 @@ export const DecimalPad = memo(function DecimalPad({
 })
 
 type KeyButtonProps = KeyProps & {
+  index: number
   disabled?: boolean
   sizeMultiplier: SizeMultiplier
   onPress?: (label: KeyLabel, action: KeyAction) => void
@@ -169,6 +167,7 @@ type KeyButtonProps = KeyProps & {
 }
 
 const KeyButton = memo(function KeyButton({
+  index,
   action,
   disabled,
   label,
@@ -176,6 +175,9 @@ const KeyButton = memo(function KeyButton({
   onPress,
   onLongPress,
 }: KeyButtonProps): JSX.Element {
+  const media = useMedia()
+  const { decimalSeparator } = useAppFiatCurrencyInfo()
+
   const handlePress = (): void => {
     if (disabled) return
     onPress?.(label, action)
@@ -188,18 +190,29 @@ const KeyButton = memo(function KeyButton({
 
   const color = disabled ? '$neutral3' : '$neutral1'
 
+  // On smaller screens, we want a wider numpad display
+  const keyWidth = useMemo(() => {
+    if (media.short) {
+      return index % 3 === 1 ? '60%' : '20%'
+    } else {
+      return index % 3 === 1 ? '50%' : '25%'
+    }
+  }, [index, media.short])
+
   return (
     <TouchableArea
       hapticFeedback
       ignoreDragEvents
+      $short={{ py: 16 * sizeMultiplier.padding }}
       activeOpacity={1}
       alignItems="center"
       disabled={disabled}
       hapticStyle={ImpactFeedbackStyle.Light}
-      p={16 * sizeMultiplier.padding}
+      px={16 * sizeMultiplier.padding}
+      py={12 * sizeMultiplier.padding}
       scaleTo={1.2}
       testID={'decimal-pad-' + label}
-      width="33%"
+      width={keyWidth}
       onLongPress={handleLongPress}
       onPress={handlePress}>
       {label === 'backspace' ? (
