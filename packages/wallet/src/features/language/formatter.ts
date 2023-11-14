@@ -1,7 +1,8 @@
 import { Currency, CurrencyAmount } from '@uniswap/sdk-core'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 // eslint-disable-next-line no-restricted-imports
 import {
+  addFiatSymbolToNumber,
   formatCurrencyAmount,
   formatNumberOrString,
   formatPercent,
@@ -20,10 +21,16 @@ type FormatCurrencyAmountInput = {
   type?: NumberType
   placeholder?: string
 }
+type AddFiatSymbolToNumberInput = {
+  value: Maybe<number | string>
+  currencyCode: string
+  currencySymbol: string
+}
 export interface LocalizedFormatter {
   formatNumberOrString: (input: FormatNumberOrStringInput) => string
   formatCurrencyAmount: (input: FormatCurrencyAmountInput) => string
   formatPercent: (value: Maybe<number | string>) => string
+  addFiatSymbolToNumber: (input: AddFiatSymbolToNumberInput) => string
 }
 
 /**
@@ -55,9 +62,24 @@ export function useLocalizedFormatter(): LocalizedFormatter {
     [locale]
   )
 
-  return {
-    formatNumberOrString: formatNumberOrStringInner,
-    formatCurrencyAmount: formatCurrencyAmountInner,
-    formatPercent: formatPercentInner,
-  }
+  const addFiatSymbolToNumberInner = useCallback(
+    ({ value, currencyCode, currencySymbol }: AddFiatSymbolToNumberInput): string =>
+      addFiatSymbolToNumber({ value, currencyCode, currencySymbol, locale }),
+    [locale]
+  )
+
+  return useMemo(
+    () => ({
+      formatNumberOrString: formatNumberOrStringInner,
+      formatCurrencyAmount: formatCurrencyAmountInner,
+      formatPercent: formatPercentInner,
+      addFiatSymbolToNumber: addFiatSymbolToNumberInner,
+    }),
+    [
+      formatNumberOrStringInner,
+      formatCurrencyAmountInner,
+      formatPercentInner,
+      addFiatSymbolToNumberInner,
+    ]
+  )
 }

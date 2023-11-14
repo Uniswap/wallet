@@ -1,16 +1,17 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+// eslint-disable-next-line no-restricted-imports
+import { FiatCurrencyComponents, getFiatCurrencyComponents } from 'utilities/src/format/localeBased'
 import { FEATURE_FLAGS } from 'wallet/src/features/experiments/constants'
 import { useFeatureFlag } from 'wallet/src/features/experiments/hooks'
 import { FiatCurrency } from 'wallet/src/features/fiatCurrency/constants'
-import { useCurrentLanguageInfo } from 'wallet/src/features/language/hooks'
+import { useCurrentLocale } from 'wallet/src/features/language/hooks'
 import { useAppSelector } from 'wallet/src/state'
 
 export type FiatCurrencyInfo = {
   name: string
   code: string
-  symbol: string
-}
+} & FiatCurrencyComponents
 
 /**
  * Helper function for getting the ISO currency code from our internal enum
@@ -28,19 +29,12 @@ export function getFiatCurrencyCode(currency: FiatCurrency): string {
  * @param currency target currency
  * @returns currency symbol
  */
-export function useFiatCurrencySymbol(currency: FiatCurrency): string {
-  const locale = useCurrentLanguageInfo().locale
+export function useFiatCurrencyComponents(currency: FiatCurrency): FiatCurrencyComponents {
+  const locale = useCurrentLocale()
   const currencyCode = getFiatCurrencyCode(currency)
 
-  // Parts is different based on locale
-  // E.g. [{"type":"currency","value":"$"},{"type":"integer","value":"1"}]
-  const parts = Intl.NumberFormat(locale, {
-    style: 'currency',
-    currency: currencyCode,
-  }).formatToParts(1)
-
-  const currencyPart = parts.find((part) => part.type === 'currency')
-  return currencyPart?.value ?? ''
+  const components = getFiatCurrencyComponents(locale, currencyCode)
+  return components
 }
 
 /**
@@ -56,6 +50,7 @@ export function useFiatCurrencyName(currency: FiatCurrency): string {
       [FiatCurrency.AustrialianDollor]: t('Australian Dollar'),
       [FiatCurrency.BrazilianReal]: t('Brazilian Real'),
       [FiatCurrency.CanadianDollar]: t('Canadian Dollar'),
+      [FiatCurrency.ChineseYuan]: t('Chinese Yuan'),
       [FiatCurrency.Euro]: t('Euro'),
       [FiatCurrency.BritishPound]: t('British Pound'),
       [FiatCurrency.HongKongDollar]: t('Hong Kong Dollar'),
@@ -83,10 +78,12 @@ export function useFiatCurrencyName(currency: FiatCurrency): string {
  * @returns all relevant currency info
  */
 export function useFiatCurrencyInfo(currency: FiatCurrency): FiatCurrencyInfo {
+  const components = useFiatCurrencyComponents(currency)
+
   return {
+    ...components,
     name: useFiatCurrencyName(currency),
     code: getFiatCurrencyCode(currency),
-    symbol: useFiatCurrencySymbol(currency),
   }
 }
 
@@ -107,9 +104,11 @@ export function useAppFiatCurrency(): FiatCurrency {
  */
 export function useAppFiatCurrencyInfo(): FiatCurrencyInfo {
   const currency = useAppFiatCurrency()
+  const components = useFiatCurrencyComponents(currency)
+
   return {
+    ...components,
     name: useFiatCurrencyName(currency),
     code: getFiatCurrencyCode(currency),
-    symbol: useFiatCurrencySymbol(currency),
   }
 }
