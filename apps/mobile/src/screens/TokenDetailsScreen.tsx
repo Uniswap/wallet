@@ -3,7 +3,6 @@ import React, { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import ContextMenu from 'react-native-context-menu-view'
 import { FadeInDown, FadeOutDown } from 'react-native-reanimated'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useAppSelector } from 'src/app/hooks'
 import { AppStackScreenProp } from 'src/app/navigation/types'
 import { HeaderScrollScreen } from 'src/components/layout/screens/HeaderScrollScreen'
@@ -19,7 +18,6 @@ import { TokenDetailsLinks } from 'src/components/TokenDetails/TokenDetailsLinks
 import { TokenDetailsStats } from 'src/components/TokenDetails/TokenDetailsStats'
 import TokenWarningModal from 'src/components/tokens/TokenWarningModal'
 import Trace from 'src/components/Trace/Trace'
-import { IS_ANDROID, IS_IOS } from 'src/constants/globals'
 import { useTokenContextMenu } from 'src/features/balances/hooks'
 import { selectModalState } from 'src/features/modals/selectModalState'
 import { useNavigateToSend } from 'src/features/send/hooks'
@@ -27,6 +25,7 @@ import { useNavigateToSwap } from 'src/features/swap/hooks'
 import { ModalName } from 'src/features/telemetry/constants'
 import { useTokenWarningDismissed } from 'src/features/tokens/safetyHooks'
 import { Screens } from 'src/screens/Screens'
+import { disableOnPress } from 'src/utils/disableOnPress'
 import { useSkeletonLoading } from 'src/utils/useSkeletonLoading'
 import {
   AnimatedFlex,
@@ -34,7 +33,7 @@ import {
   Separator,
   Text,
   TouchableArea,
-  useMedia,
+  useDeviceInsets,
   useSporeColors,
 } from 'ui/src'
 import EllipsisIcon from 'ui/src/assets/icons/ellipsis.svg'
@@ -53,7 +52,9 @@ import {
 import { useIsDarkMode } from 'wallet/src/features/appearance/hooks'
 import { fromGraphQLChain } from 'wallet/src/features/chains/utils'
 import { currencyIdToContractInput } from 'wallet/src/features/dataApi/utils'
-import { useFiatConverter } from 'wallet/src/features/fiatCurrency/conversion'
+import { Language } from 'wallet/src/features/language/constants'
+import { useCurrentLanguage } from 'wallet/src/features/language/hooks'
+import { useLocalizationContext } from 'wallet/src/features/language/LocalizationContext'
 import { CurrencyField } from 'wallet/src/features/transactions/transactionState/types'
 import { useExtractedTokenColor } from 'wallet/src/utils/colors'
 import { currencyIdToAddress, currencyIdToChain } from 'wallet/src/utils/currencyId'
@@ -66,7 +67,7 @@ function HeaderTitleElement({
   ellipsisMenuVisible?: boolean
 }): JSX.Element {
   const { t } = useTranslation()
-  const { convertFiatAmountFormatted } = useFiatConverter()
+  const { convertFiatAmountFormatted } = useLocalizationContext()
 
   const onChainData = data?.token
   const offChainData = onChainData?.project
@@ -106,10 +107,20 @@ export function TokenDetailsScreen({
   const { currencyId: _currencyId } = route.params
   // Potentially delays loading of perf-heavy content to speed up navigation
   const showSkeleton = useSkeletonLoading(navigation)
+  const language = useCurrentLanguage()
 
   // Token details screen query
   const { data, refetch, networkStatus } = useTokenDetailsScreenQuery({
-    variables: currencyIdToContractInput(_currencyId),
+    variables: {
+      ...currencyIdToContractInput(_currencyId),
+      includeSpanish:
+        language in [Language.SpanishSpain, Language.SpanishLatam, Language.SpanishUnitedStates],
+      includeFrench: language === Language.French,
+      includeJapanese: language === Language.Japanese,
+      includePortuguese: language === Language.Portuguese,
+      includeChineseSimplified: language === Language.ChineseSimplified,
+      includeChineseTraditional: language === Language.ChineseTraditional,
+    },
     pollInterval: PollingInterval.Normal,
     notifyOnNetworkStatusChange: true,
     returnPartialData: true,
@@ -169,8 +180,7 @@ function TokenDetails({
   showSkeleton: boolean
 }): JSX.Element {
   const colors = useSporeColors()
-  const media = useMedia()
-  const insets = useSafeAreaInsets()
+  const insets = useDeviceInsets()
 
   const currencyChainId = currencyIdToChain(_currencyId) ?? ChainId.Mainnet
   const currencyAddress = currencyIdToAddress(_currencyId)
@@ -245,8 +255,6 @@ function TokenDetails({
     navigateToSwap,
   ])
 
-  const pb = IS_IOS && !media.short ? '$spacing16' : '$none'
-
   const inModal = useAppSelector(selectModalState(ModalName.Explore)).isOpen
 
   const { menuActions, onContextMenuPress } = useTokenContextMenu({
@@ -276,7 +284,9 @@ function TokenDetails({
                 <TouchableArea
                   hapticFeedback
                   hitSlop={{ right: 5, left: 20, top: 20, bottom: 20 }}
-                  style={{ padding: spacing.spacing8, marginRight: -spacing.spacing8 }}>
+                  style={{ padding: spacing.spacing8, marginRight: -spacing.spacing8 }}
+                  onLongPress={disableOnPress}
+                  onPress={disableOnPress}>
                   <EllipsisIcon
                     color={ellipsisColor}
                     height={iconSizes.icon16}
@@ -319,8 +329,10 @@ function TokenDetails({
               <TokenDetailsTextPlaceholders />
             ) : (
               <>
-                <TokenDetailsStats data={data} tokenColor={tokenColor} />
-                <TokenDetailsLinks currencyId={_currencyId} data={data} />
+                <Flex gap="$spacing24">
+                  <TokenDetailsStats data={data} tokenColor={tokenColor} />
+                  <TokenDetailsLinks currencyId={_currencyId} data={data} />
+                </Flex>
               </>
             )}
           </Flex>
@@ -331,8 +343,7 @@ function TokenDetails({
         <AnimatedFlex
           backgroundColor="$surface1"
           entering={FadeInDown}
-          pb={pb}
-          style={{ marginBottom: IS_ANDROID ? insets.bottom : undefined }}>
+          style={{ marginBottom: insets.bottom }}>
           <TokenDetailsActionButtons
             tokenColor={tokenColor}
             onPressBuy={(): void => onPressSwap(CurrencyField.OUTPUT)}

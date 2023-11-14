@@ -6,7 +6,6 @@ import { useAppDispatch, useAppSelector } from 'src/app/hooks'
 import { navigate } from 'src/app/navigation/rootNavigation'
 import { AccountList } from 'src/components/accounts/AccountList'
 import { AddressDisplay } from 'src/components/AddressDisplay'
-import { Screen } from 'src/components/layout/Screen'
 import { ActionSheetModal, MenuItemProp } from 'src/components/modals/ActionSheetModal'
 import { BottomSheetModal } from 'src/components/modals/BottomSheetModal'
 import { IS_ANDROID } from 'src/constants/globals'
@@ -24,6 +23,7 @@ import {
   Text,
   TouchableArea,
   useDeviceDimensions,
+  useDeviceInsets,
   useSporeColors,
 } from 'ui/src'
 import { spacing } from 'ui/src/theme'
@@ -45,17 +45,16 @@ export function AccountSwitcherModal(): JSX.Element {
 
   return (
     <BottomSheetModal
-      disableSwipe
       backgroundColor={colors.surface1.get()}
       name={ModalName.AccountSwitcher}
       onClose={(): Action => dispatch(closeModal({ name: ModalName.AccountSwitcher }))}>
-      <Screen bg="$surface1" noInsets={true}>
+      <Flex bg="$surface1">
         <AccountSwitcher
           onClose={(): void => {
             dispatch(closeModal({ name: ModalName.AccountSwitcher }))
           }}
         />
-      </Screen>
+      </Flex>
     </BottomSheetModal>
   )
 }
@@ -65,6 +64,7 @@ export function AccountSwitcherModal(): JSX.Element {
  * TODO [MOB-259] Once testing works with the BottomSheetModal stop exporting this component.
  */
 export function AccountSwitcher({ onClose }: { onClose: () => void }): JSX.Element | null {
+  const insets = useDeviceInsets()
   const dimensions = useDeviceDimensions()
   const { t } = useTranslation()
   const activeAccountAddress = useActiveAccountAddress()
@@ -239,10 +239,11 @@ export function AccountSwitcher({ onClose }: { onClose: () => void }): JSX.Eleme
     return null
   }
 
-  const fullScreenContentHeight = 0.89 * dimensions.fullHeight
+  const fullScreenContentHeight =
+    dimensions.fullHeight - insets.top - insets.bottom - spacing.spacing36 // approximate bottom sheet handle height + padding bottom
 
   return (
-    <Flex fill $short={{ mb: '$none' }} maxHeight={fullScreenContentHeight} mb="$spacing12">
+    <Flex $short={{ pb: '$none' }} maxHeight={fullScreenContentHeight} pb="$spacing12">
       <Flex gap="$spacing16" pb="$spacing16" pt="$spacing12">
         <AddressDisplay
           showCopy
@@ -267,12 +268,7 @@ export function AccountSwitcher({ onClose }: { onClose: () => void }): JSX.Eleme
         isVisible={modalState.isOpen}
         onPress={onPressAccount}
       />
-      <TouchableArea
-        hapticFeedback
-        $short={{ mb: '$spacing24' }}
-        mb="$spacing36"
-        mt="$spacing16"
-        onPress={onPressAddWallet}>
+      <TouchableArea hapticFeedback mt="$spacing16" onPress={onPressAddWallet}>
         <Flex row alignItems="center" gap="$spacing16" ml="$spacing24">
           <Flex borderColor="$surface3" borderRadius="$roundedFull" borderWidth={1} p="$spacing8">
             <Icons.Plus color="$neutral2" size="$icon.12" strokeWidth={2} />

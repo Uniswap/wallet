@@ -118,19 +118,35 @@ const transformForLocale = {
   'en-US': commaThousDotDec,
   it: dotThousCommaDec,
   fr: spaceThousCommaDec,
+  'fr-FR': spaceThousCommaDec,
   de: dotThousCommaDec,
   'de-DE': dotThousCommaDec,
   'de-AT': dotThousCommaDec,
   'de-CH': apostropheThousDotDec,
   'de-LI': apostropheThousDotDec,
   'de-BE': dotThousCommaDec,
+  'es-ES': dotThousCommaDec,
+  'es-US': commaThousDotDec,
+  'es-419': commaThousDotDec,
+  'hi-IN': dotThousCommaDec,
+  'id-ID': commaThousDotDec,
+  'ja-JP': commaThousDotDec,
+  'ms-MY': dotThousCommaDec,
   nl: dotThousCommaDec,
   'nl-BE': dotThousCommaDec,
   'nl-NL': dotThousCommaDec,
+  'pt-PT': spaceThousCommaDec,
   ro: dotThousCommaDec,
   'ro-RO': dotThousCommaDec,
   ru: spaceThousCommaDec,
   'ru-RU': spaceThousCommaDec,
+  'th-TH': commaThousDotDec,
+  'tr-TR': dotThousCommaDec,
+  'uk-UA': spaceThousCommaDec,
+  'ur-PK': commaThousDotDec,
+  'vi-VN': dotThousCommaDec,
+  'zh-Hans': commaThousDotDec,
+  'zh-Hant': commaThousDotDec,
   hu: spaceThousCommaDec,
   'hu-HU': spaceThousCommaDec,
   'da-DK': dotThousCommaDec,
@@ -143,19 +159,35 @@ const currencyFormatMap = {
   'en-US': 'pre',
   it: 'post',
   fr: 'post',
+  'fr-FR': 'post',
   de: 'post',
   'de-DE': 'post',
   'de-AT': 'prespace',
   'de-CH': 'prespace',
   'de-LI': 'post',
   'de-BE': 'post',
+  'es-ES': 'post',
+  'es-US': 'pre',
+  'es-419': 'pre',
+  'hi-IN': 'pre',
+  'id-ID': 'pre',
+  'ja-JP': 'pre',
+  'ms-MY': 'pre',
   nl: 'post',
   'nl-BE': 'post',
   'nl-NL': 'post',
+  'pt-PT': 'post',
   ro: 'post',
   'ro-RO': 'post',
   ru: 'post',
   'ru-RU': 'post',
+  'th-TH': 'pre',
+  'tr-TR': 'pre',
+  'uk-UA': 'post',
+  'ur-PK': 'pre',
+  'vi-VN': 'post',
+  'zh-Hans': 'pre',
+  'zh-Hant': 'pre',
   hu: 'post',
   'hu-HU': 'post',
   'da-DK': 'post',
@@ -311,7 +343,8 @@ function convertSmallSciNotationToDecimal(value: number): string {
 export function numberToLocaleStringWorklet(
   value: number,
   locale: Language = 'en-US',
-  options: OptionsType = {}
+  options: OptionsType = {},
+  symbol?: string
 ): string {
   'worklet'
   if (locale && locale.length < 2) {
@@ -342,11 +375,11 @@ export function numberToLocaleStringWorklet(
 
   if (options && options.currency && options.style === 'currency') {
     const format = currencyFormats[<string>mapMatch(currencyFormatMap, locale)]
-    const symbol = currencySymbols[options.currency.toLowerCase()]
+    const targetSymbol = symbol ?? currencySymbols[options.currency.toLowerCase()]
     if (format) {
       sNum = renderFormat(format, {
         num: sNum,
-        code: options.currencyDisplay === 'code' || !symbol ? options.currency : symbol,
+        code: options.currencyDisplay === 'code' || !targetSymbol ? options.currency : targetSymbol,
       })
     }
   }

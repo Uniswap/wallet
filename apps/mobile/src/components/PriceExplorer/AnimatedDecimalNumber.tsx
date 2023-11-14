@@ -7,7 +7,7 @@ import { ValueAndFormatted } from './usePrice'
 
 type AnimatedDecimalNumberProps = {
   number: ValueAndFormatted
-  separator?: string
+  separator: string
   variant: TextVariantTokens
   wholePartColor?: string
   decimalPartColor?: string
@@ -22,7 +22,7 @@ export function AnimatedDecimalNumber(props: AnimatedDecimalNumberProps): JSX.El
 
   const {
     number,
-    separator = '.',
+    separator,
     variant,
     wholePartColor = colors.neutral1.val,
     decimalPartColor = colors.neutral3.val,
@@ -54,12 +54,14 @@ export function AnimatedDecimalNumber(props: AnimatedDecimalNumberProps): JSX.El
   return (
     <Flex row testID={testID}>
       <AnimatedText style={wholeStyle} testID="wholePart" text={wholePart} variant={variant} />
-      <AnimatedText
-        style={decimalStyle}
-        testID="decimalPart"
-        text={decimalPart}
-        variant={variant}
-      />
+      {decimalPart.value !== separator && (
+        <AnimatedText
+          style={decimalStyle}
+          testID="decimalPart"
+          text={decimalPart}
+          variant={variant}
+        />
+      )}
     </Flex>
   )
 }

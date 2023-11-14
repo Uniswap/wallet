@@ -175,7 +175,7 @@ export function QRAnimation({
           />
         </GradientBackground>
       </AnimatedFlex>
-      <Flex grow justifyContent="space-between" px="$spacing16" py="$spacing24">
+      <Flex grow justifyContent="space-between" pb="$spacing12" pt="$spacing24" px="$spacing16">
         <Flex centered grow gap="$spacing36" mb="$spacing12" mt="$spacing12">
           <Flex centered gap="$spacing12" pt="$spacing48">
             <AnimatedFlex entering={qrSlideUpAndFadeIn}>
@@ -287,7 +287,7 @@ export function QRAnimation({
               textAlign="center"
               variant="body2">
               {isNewWallet
-                ? t('This is your personal bank vault for tokens, NFTs, and all your trades.')
+                ? t('Your personal space for tokens, NFTs, and all your trades.')
                 : t(
                     'Check out your tokens and NFTs, follow crypto wallets, and stay up to date on the go.'
                   )}

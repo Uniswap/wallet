@@ -11855,10 +11855,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@uniswap/ethers-rs-mobile@npm:0.0.3":
-  version: 0.0.3
-  resolution: "@uniswap/ethers-rs-mobile@npm:0.0.3"
-  checksum: d688e5b1895ce6aaa52f34594d9871a5b03461bcc06c10c12f61361d4387a6f51308f140c9c75d2fafc0f3384ea67b240c7fcabf6b811789ddfe16a0365b0d9c
+"@uniswap/ethers-rs-mobile@npm:0.0.4":
+  version: 0.0.4
+  resolution: "@uniswap/ethers-rs-mobile@npm:0.0.4"
+  checksum: 08cd4d9e59dee649b690f7dae9b5100e3e244e4753fc5d5d1ef598ce05b1bb36b85856308f66c0a1da6c570db00e4d4b47e7bf17fb2c628efe8941443e6964bf
   languageName: node
   linkType: hard
 
@@ -11934,7 +11934,7 @@ __metadata:
     "@types/wcag-contrast": 3.0.0
     "@uniswap/analytics": 1.4.0
     "@uniswap/analytics-events": 2.15.0
-    "@uniswap/ethers-rs-mobile": 0.0.3
+    "@uniswap/ethers-rs-mobile": 0.0.4
     "@uniswap/permit2-sdk": 1.2.0
     "@uniswap/router-sdk": 1.7.1
     "@uniswap/sdk-core": 4.0.7
@@ -11975,6 +11975,7 @@ __metadata:
     expo-linear-gradient: 12.3.0
     expo-linking: 4.0.1
     expo-local-authentication: 13.0.2
+    expo-localization: 14.1.1
     expo-modules-core: 1.5.8
     expo-screen-capture: 4.2.0
     expo-store-review: ~6.2.1
@@ -11999,7 +12000,7 @@ __metadata:
     react-devtools: 4.28.0
     react-dom: 18.2.0
     react-i18next: 11.18.6
-    react-native: 0.71.11
+    react-native: 0.71.13
     react-native-apollo-devtools-client: 1.0.4
     react-native-appsflyer: 6.10.3
     react-native-asset: ^2.1.1
@@ -12022,7 +12023,7 @@ __metadata:
     react-native-pager-view: 6.0.1
     react-native-permissions: 3.6.0
     react-native-reanimated: 3.3.0
-    react-native-restart: 0.0.24
+    react-native-restart: 0.0.27
     react-native-safe-area-context: 4.5.0
     react-native-screens: 3.24.0
     react-native-splash-screen: 3.3.0
@@ -12041,8 +12042,8 @@ __metadata:
     redux-persist: 6.0.0
     redux-saga: 1.2.2
     redux-saga-test-plan: 4.0.4
-    rive-react-native: 6.0.4
-    statsig-react-native: 4.9.2
+    rive-react-native: 6.1.1
+    statsig-react-native: 4.11.0
     storybook: 7.0.2
     storybook-addon-apollo-client: ^4.1.4
     storybook-dark-mode: 3.0.0
@@ -12238,7 +12239,7 @@ __metadata:
     npm-run-all: ^4.1.5
     react: 18.2.0
     react-dom: 18.2.0
-    react-native: 0.71.11
+    react-native: 0.71.13
     react-native-reanimated: 3.3.0
     react-native-web: 0.18.12
     react-redux: 8.0.5
@@ -20022,6 +20023,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"expo-localization@npm:14.1.1":
+  version: 14.1.1
+  resolution: "expo-localization@npm:14.1.1"
+  dependencies:
+    rtl-detect: ^1.0.2
+  peerDependencies:
+    expo: "*"
+  checksum: c449a590ff20ec49b21bcbdef3c4dc1566945cd82341662ff48d098f37cf943a1bc8af614a74dd306abe5b076e99488a1e296e64ba246fdf3257fc47e71fa7ae
+  languageName: node
+  linkType: hard
+
 "expo-modules-autolinking@npm:1.2.0":
   version: 1.2.0
   resolution: "expo-modules-autolinking@npm:1.2.0"
@@ -24890,10 +24902,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"js-sha256@npm:^0.9.0":
-  version: 0.9.0
-  resolution: "js-sha256@npm:0.9.0"
-  checksum: ffad54b3373f81581e245866abfda50a62c483803a28176dd5c28fd2d313e0bdf830e77dac7ff8afd193c53031618920f3d98daf21cbbe80082753ab639c0365
+"js-sha256@npm:^0.10.1":
+  version: 0.10.1
+  resolution: "js-sha256@npm:0.10.1"
+  checksum: 6eb5c9f95aa902cec1930f036deb3bc664024b75fede456c0ac74b855797776c18620f47efec36787077a56ba2f3b8d6aacc7733ff8a2b5bb9ce6b655a35c5e6
   languageName: node
   linkType: hard
 
@@ -31541,6 +31553,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-native-context-menu-view@patch:react-native-context-menu-view@npm%3A1.6.0#./.yarn/patches/react-native-context-menu-view-npm-1.6.0-f5f5410f50.patch::locator=universe%40workspace%3A.":
+  version: 1.6.0
+  resolution: "react-native-context-menu-view@patch:react-native-context-menu-view@npm%3A1.6.0#./.yarn/patches/react-native-context-menu-view-npm-1.6.0-f5f5410f50.patch::version=1.6.0&hash=3e2cbb&locator=universe%40workspace%3A."
+  peerDependencies:
+    react: ^16.8.1 || ^17.0.0
+    react-native: ">=0.60.0-rc.0 <1.0.x"
+  checksum: 2813e5dc43cf5f0bd3245014e10876afe51f1d6cd4b3e21334d85dca30e17b8a6361069e9a618a95474d14d03e13d5bd9e3a9dcaf7a5a22e8e4dc9daff6baf02
+  languageName: node
+  linkType: hard
+
 "react-native-device-info@npm:10.0.2":
   version: 10.0.2
   resolution: "react-native-device-info@npm:10.0.2"
@@ -31783,13 +31805,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-restart@npm:0.0.24":
-  version: 0.0.24
-  resolution: "react-native-restart@npm:0.0.24"
+"react-native-restart@npm:0.0.27":
+  version: 0.0.27
+  resolution: "react-native-restart@npm:0.0.27"
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 2ea5f1e9c31d3d705ad2061966a240db32131ad11fd227f244919f2882a1ed7a6d48aed6b7bcab59a989fb58f59ca7e1d6d5316089d011a6955975f1148160f0
+  checksum: 49cfaa954f12c37c6e34988cb47bf0626f4a2cd68ecc15be3d8d6acc7a5ca3032729545ddb66b6d3a5c30dfe626e46010e3e2148e709487354907997fde64255
   languageName: node
   linkType: hard
 
@@ -31977,9 +31999,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native@npm:0.71.11":
-  version: 0.71.11
-  resolution: "react-native@npm:0.71.11"
+"react-native@npm:0.71.13":
+  version: 0.71.13
+  resolution: "react-native@npm:0.71.13"
   dependencies:
     "@jest/create-cache-key-function": ^29.2.1
     "@react-native-community/cli": 10.2.4
@@ -31990,6 +32012,7 @@ __metadata:
     "@react-native/polyfills": 2.0.0
     abort-controller: ^3.0.0
     anser: ^1.4.9
+    ansi-regex: ^5.0.0
     base64-js: ^1.1.2
     deprecated-react-native-prop-types: ^3.0.1
     event-target-shim: ^5.0.1
@@ -32019,53 +32042,7 @@ __metadata:
     react: 18.2.0
   bin:
     react-native: cli.js
-  checksum: a6f7139a167f977ef7ef5569d20cf21fddd60d88aa6f5530caadf3ab88d7c12160eaac701086a0c245b49ea8003bac8bd615cb2494ee781ffcca43c80024f8a3
-  languageName: node
-  linkType: hard
-
-"react-native@patch:react-native@npm%3A0.71.11#./.yarn/patches/react-native-npm-0.71.11-c31ec9c2e7.patch::locator=universe%40workspace%3A.":
-  version: 0.71.11
-  resolution: "react-native@patch:react-native@npm%3A0.71.11#./.yarn/patches/react-native-npm-0.71.11-c31ec9c2e7.patch::version=0.71.11&hash=d56b89&locator=universe%40workspace%3A."
-  dependencies:
-    "@jest/create-cache-key-function": ^29.2.1
-    "@react-native-community/cli": 10.2.4
-    "@react-native-community/cli-platform-android": 10.2.0
-    "@react-native-community/cli-platform-ios": 10.2.4
-    "@react-native/assets": 1.0.0
-    "@react-native/normalize-color": 2.1.0
-    "@react-native/polyfills": 2.0.0
-    abort-controller: ^3.0.0
-    anser: ^1.4.9
-    base64-js: ^1.1.2
-    deprecated-react-native-prop-types: ^3.0.1
-    event-target-shim: ^5.0.1
-    invariant: ^2.2.4
-    jest-environment-node: ^29.2.1
-    jsc-android: ^250231.0.0
-    memoize-one: ^5.0.0
-    metro-react-native-babel-transformer: 0.73.10
-    metro-runtime: 0.73.10
-    metro-source-map: 0.73.10
-    mkdirp: ^0.5.1
-    nullthrows: ^1.1.1
-    pretty-format: ^26.5.2
-    promise: ^8.3.0
-    react-devtools-core: ^4.26.1
-    react-native-codegen: ^0.71.5
-    react-native-gradle-plugin: ^0.71.19
-    react-refresh: ^0.4.0
-    react-shallow-renderer: ^16.15.0
-    regenerator-runtime: ^0.13.2
-    scheduler: ^0.23.0
-    stacktrace-parser: ^0.1.3
-    use-sync-external-store: ^1.0.0
-    whatwg-fetch: ^3.0.0
-    ws: ^6.2.2
-  peerDependencies:
-    react: 18.2.0
-  bin:
-    react-native: cli.js
-  checksum: 71c3f71c0b6af995cf0472016635a17fb41f481ff62e2ce484d33fd370d8c61a843fbbc6b3ce7adf33a3f1fd98001b9afd475a02515b4d6ca85d40ec7626361b
+  checksum: c895895b88af8a9268ea0d919d41637cabd5450b8397f4e2609095e09925f583471c27b722e78cb583f0e1fdc27f0db09610a95b4bba0bf817081132c695006d
   languageName: node
   linkType: hard
 
@@ -33270,13 +33247,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rive-react-native@npm:6.0.4":
-  version: 6.0.4
-  resolution: "rive-react-native@npm:6.0.4"
+"rive-react-native@npm:6.1.1":
+  version: 6.1.1
+  resolution: "rive-react-native@npm:6.1.1"
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 2d1782f19842dfdb317bfc0d81c18767d2c086f9ebd64b83920b1b1f0785b9cca96dd96cca8787432f7c88aa0acee389bc67db5883cc62ac446ea904c5279eb6
+  checksum: f410800f1728a5ad2eb0ecc38281a5bb5586f90d5130be4e1b1799c3816ada2d803fa5d1118ec43b5366540d5c6830b5c51bcbf8940c59c6ed5e6b115aafef65
   languageName: node
   linkType: hard
 
@@ -33316,6 +33293,13 @@ __metadata:
   version: 3.2.1
   resolution: "rsvp@npm:3.2.1"
   checksum: e2ac49cbe35b8c2701b07698066d7cd8004115b070f3352d45759dfcd820fa57e687230331ba41f5a40e1871789cbf122de6e73559598777a0b18b66953dc09b
+  languageName: node
+  linkType: hard
+
+"rtl-detect@npm:^1.0.2":
+  version: 1.1.2
+  resolution: "rtl-detect@npm:1.1.2"
+  checksum: 4a43a1e5df0617eb86d5485640b318787d12b86acf53d840a3b2ff701ee941e95479d4e9ae97e907569ec763d1c47218cb87639bc87bcdad60a85747e5270cf0
   languageName: node
   linkType: hard
 
@@ -34631,40 +34615,38 @@ __metadata:
   languageName: node
   linkType: hard
 
-"statsig-js@npm:^4.28.1":
-  version: 4.29.0
-  resolution: "statsig-js@npm:4.29.0"
+"statsig-js@npm:^4.39.1":
+  version: 4.40.1
+  resolution: "statsig-js@npm:4.40.1"
   dependencies:
-    js-sha256: ^0.9.0
+    js-sha256: ^0.10.1
     uuid: ^8.3.2
-  checksum: c2cb6d2beca81c4b2ac5eb251081d1e655e50fd35ecac55fab3c1668f0bb15c5c4ea797fa0231df274b122769fd8e8c8ee657f04bc324b12c0efc29ad38bb4fe
+  checksum: a05ef5116221fc819b304519f14c24784c539323b910dc17e0e1cad0cfa03edf061a3a41a7e49ba6a1f2b089bf24ac9b67e3dc058c6c362c6dbc65578a00252a
   languageName: node
   linkType: hard
 
-"statsig-react-native@npm:4.9.2":
-  version: 4.9.2
-  resolution: "statsig-react-native@npm:4.9.2"
+"statsig-react-native@npm:4.11.0":
+  version: 4.11.0
+  resolution: "statsig-react-native@npm:4.11.0"
   dependencies:
-    js-sha256: ^0.9.0
-    statsig-react: ^1.21.1
-    uuid: ^3.4.0
+    statsig-react: ^1.30.3
   peerDependencies:
     "@react-native-async-storage/async-storage": ^1.15.10
-    react-native: ">=0.60.0"
+    react-native: ^0.60.0
     react-native-device-info: ^8.1.3
     react-native-get-random-values: ^1.6.0
-  checksum: 719c239a9afdd5f2d99ebede415527a4b1a9e593e75d943e8522d311a67ba13e2655fa0bef47baa78ded157268c37c5ac535cad83d0916d48e2c4dd0c1b73467
+  checksum: 9cadc8d03927f3b5f6058cd2ee183bcb7f332e6248ecd3e679bc56e1e4b6392b9a173113e2a786fd9404ac3c598aa305f7b76d3079944f075f14fb27f48e075a
   languageName: node
   linkType: hard
 
-"statsig-react@npm:^1.21.1":
-  version: 1.22.0
-  resolution: "statsig-react@npm:1.22.0"
+"statsig-react@npm:^1.30.3":
+  version: 1.30.3
+  resolution: "statsig-react@npm:1.30.3"
   dependencies:
-    statsig-js: ^4.28.1
+    statsig-js: ^4.39.1
   peerDependencies:
     react: ^16.6.3 || ^17.0.0 || ^18.0.0
-  checksum: 2c001862b6a6b23eaf757b677ef986ecbc6c6ac9f381a350ed48747ff3d0fff2d3ca35d761a256f63237861ff04eab5d350f75d798cfc13a207f6a0aec436825
+  checksum: 62ac65180aaff186bf5f8b09e3c818a4f23136d8ec3cf7828040e945412f867a506b7a7915dfd348578c3f285bd067463a71c3c9bef83c59fd7f2219fc1388a9
   languageName: node
   linkType: hard
 
@@ -36733,10 +36715,11 @@ __metadata:
     eslint: 8.44.0
     ethers: 5.7.2
     expo-haptics: 12.0.1
+    expo-localization: 14.1.1
     fs-extra: ^11.1.1
     react: 18.2.0
     react-i18next: 11.18.6
-    react-native: 0.71.11
+    react-native: 0.71.13
     react-native-reanimated: 3.3.0
     react-native-svg: 13.9.0
     tamagui: 1.74.16
@@ -37426,7 +37409,7 @@ __metadata:
     jest-presets: "workspace:^"
     jsbi: 3.2.5
     react: 18.2.0
-    react-native: 0.71.11
+    react-native: 0.71.13
     react-native-device-info: 10.0.2
     react-test-renderer: 18.2.0
     typescript: 4.9.4
@@ -37781,7 +37764,7 @@ __metadata:
     jest-presets: "workspace:^"
     react: 18.2.0
     react-i18next: 11.18.6
-    react-native: 0.71.11
+    react-native: 0.71.13
     react-native-dotenv: 3.2.0
     react-native-fast-image: 8.6.3
     react-native-reanimated: 3.3.0
@@ -37793,7 +37776,7 @@ __metadata:
     redux-persist: 6.0.0
     redux-saga: 1.2.2
     redux-saga-test-plan: 4.0.4
-    statsig-react-native: 4.9.2
+    statsig-react-native: 4.11.0
     tamagui: 1.74.16
     typed-redux-saga: 1.5.0
     typescript: 4.9.4

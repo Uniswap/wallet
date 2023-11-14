@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import {
   Keyboard,
   LayoutChangeEvent,
@@ -19,7 +18,7 @@ interface Props {
   value: string | undefined
   errorMessage: string | undefined
   onChange: (text: string | undefined) => void
-  placeholderLabel: string | undefined
+  placeholderLabel: string
   onSubmit?: () => void
   showSuccess?: boolean // show success indicator
   inputSuffix?: string //text to auto to end of input string
@@ -52,7 +51,6 @@ export function GenericImportForm({
   textAlign,
   inputAlignment = 'center',
 }: Props): JSX.Element {
-  const { t } = useTranslation()
   const colors = useSporeColors()
   const [focused, setFocused] = useState(false)
   const [layout, setLayout] = useState<LayoutRectangle | null>()
@@ -100,7 +98,14 @@ export function GenericImportForm({
 
   return (
     <Trace section={SectionName.ImportAccountForm}>
-      <Flex gap="$spacing16" onTouchEnd={handleFocus}>
+      <Flex
+        gap="$spacing16"
+        onStartShouldSetResponder={(): boolean => {
+          // Disable touch events when keyboard is visible (it prevents dismissing the keyboard
+          // when this component is pressed while the keyboard is visible)
+          return focused
+        }}
+        onTouchEnd={handleFocus}>
         <Flex
           centered
           shrink
@@ -152,23 +157,13 @@ export function GenericImportForm({
                 numberOfLines={1}
                 style={styles.placeholderLabelStyle}
                 variant="body1">
-                {t('Type or')}
+                {placeholderLabel}
               </Text>
               <PasteButton
                 afterClipboardReceived={afterPasteButtonPress}
                 beforePress={beforePasteButtonPress}
                 onPress={onChange}
               />
-              {placeholderLabel && (
-                <Text
-                  adjustsFontSizeToFit
-                  color="$neutral2"
-                  numberOfLines={1}
-                  style={styles.placeholderLabelStyle}
-                  variant="body1">
-                  {placeholderLabel}
-                </Text>
-              )}
             </Flex>
           )}
         </Flex>

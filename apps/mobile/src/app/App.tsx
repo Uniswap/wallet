@@ -2,11 +2,13 @@ import { ApolloProvider } from '@apollo/client'
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
 import * as Sentry from '@sentry/react-native'
 import { PerformanceProfiler, RenderPassReport } from '@shopify/react-native-performance'
+import { getLocales } from 'expo-localization'
 import { default as React, StrictMode, useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { I18nManager, NativeModules, StatusBar } from 'react-native'
 import { getUniqueId } from 'react-native-device-info'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
+import RNRestart from 'react-native-restart'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { PersistGate } from 'redux-persist/integration/react'
 import { ErrorBoundary } from 'src/app/ErrorBoundary'
@@ -46,15 +48,27 @@ import { config } from 'wallet/src/config'
 import { uniswapUrls } from 'wallet/src/constants/urls'
 import { useCurrentAppearanceSetting, useIsDarkMode } from 'wallet/src/features/appearance/hooks'
 import { selectFavoriteTokens } from 'wallet/src/features/favorites/selectors'
-import { useCurrentLanguageInfo } from 'wallet/src/features/language/hooks'
+import {
+  Language,
+  Locale,
+  mapLocaleToLanguage,
+  SUPPORTED_LANGUAGES,
+} from 'wallet/src/features/language/constants'
+import { useCurrentLanguage, useCurrentLocale } from 'wallet/src/features/language/hooks'
+import { LocalizationContextProvider } from 'wallet/src/features/language/LocalizationContext'
+import { setCurrentLanguage } from 'wallet/src/features/language/slice'
 import { useTrmQuery } from 'wallet/src/features/trm/api'
+import {
+  EditAccountAction,
+  editAccountActions,
+} from 'wallet/src/features/wallet/accounts/editAccountSaga'
 import { Account, AccountType } from 'wallet/src/features/wallet/accounts/types'
 import { WalletContextProvider } from 'wallet/src/features/wallet/context'
 import { useAccounts, useActiveAccount } from 'wallet/src/features/wallet/hooks'
 import { initializeTranslation } from 'wallet/src/i18n/i18n'
 import { SharedProvider } from 'wallet/src/provider'
+import { useAppDispatch } from 'wallet/src/state'
 import { CurrencyId } from 'wallet/src/utils/currencyId'
-
 if (__DEV__) {
   registerConsoleOverrides()
 }
@@ -155,21 +169,29 @@ function AppOuter(): JSX.Element | null {
       <PersistGate loading={null} persistor={persistor}>
         <ErrorBoundary>
           <GestureHandlerRootView style={flexStyles.fill}>
-            <WalletContextProvider>
-              <BiometricContextProvider>
-                <LockScreenContextProvider>
-                  <Sentry.TouchEventBoundary>
-                    <DataUpdaters />
-                    <BottomSheetModalProvider>
-                      <AppModals />
-                      <PerformanceProfiler onReportPrepared={onReportPrepared}>
-                        <AppInner />
-                      </PerformanceProfiler>
-                    </BottomSheetModalProvider>
-                  </Sentry.TouchEventBoundary>
-                </LockScreenContextProvider>
-              </BiometricContextProvider>
-            </WalletContextProvider>
+            <LocalizationContextProvider>
+              <WalletContextProvider>
+                <BiometricContextProvider>
+                  <LockScreenContextProvider>
+                    <Sentry.TouchEventBoundary>
+                      <DataUpdaters />
+                      <NavigationContainer
+                        onReady={(navigationRef): void => {
+                          routingInstrumentation.registerNavigationContainer(navigationRef)
+                        }}>
+                        <BottomSheetModalProvider>
+                          <AppModals />
+                          <PerformanceProfiler onReportPrepared={onReportPrepared}>
+                            <AppInner />
+                          </PerformanceProfiler>
+                        </BottomSheetModalProvider>
+                        <NotificationToastWrapper />
+                      </NavigationContainer>
+                    </Sentry.TouchEventBoundary>
+                  </LockScreenContextProvider>
+                </BiometricContextProvider>
+              </WalletContextProvider>
+            </LocalizationContextProvider>
           </GestureHandlerRootView>
         </ErrorBoundary>
       </PersistGate>
@@ -187,15 +209,23 @@ function AppInner(): JSX.Element {
     NativeModules.ThemeModule.setColorScheme(themeSetting)
   }, [themeSetting])
 
-  return <NavStack isDarkMode={isDarkMode} />
+  return (
+    <>
+      <OfflineBanner />
+      <AppStackNavigator />
+      <StatusBar
+        translucent
+        backgroundColor="transparent"
+        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+      />
+    </>
+  )
 }
 
 function DataUpdaters(): JSX.Element {
   const activeAccount = useActiveAccount()
   const favoriteTokens: CurrencyId[] = useAppSelector(selectFavoriteTokens)
   const accountsMap: Record<string, Account> = useAccounts()
-  const currentLanguageInfo = useCurrentLanguageInfo()
-  const { i18n } = useTranslation()
 
   useTrmQuery(
     activeAccount && activeAccount.type === AccountType.SignerMnemonic
@@ -214,20 +244,7 @@ function DataUpdaters(): JSX.Element {
     setAccountAddressesUserDefaults(Object.values(accountsMap))
   }, [accountsMap])
 
-  useEffect(() => {
-    const locale = currentLanguageInfo.locale
-    if (locale !== i18n.language) {
-      i18n
-        .changeLanguage(locale)
-        .catch(() =>
-          logger.warn(
-            'App',
-            'DataUpdaters',
-            'Sync of language setting state and i18n instance failed'
-          )
-        )
-    }
-  }, [i18n, currentLanguageInfo])
+  useI18NDataUpdaters()
 
   return (
     <>
@@ -237,22 +254,76 @@ function DataUpdaters(): JSX.Element {
   )
 }
 
-function NavStack({ isDarkMode }: { isDarkMode: boolean }): JSX.Element {
-  return (
-    <NavigationContainer
-      onReady={(navigationRef): void => {
-        routingInstrumentation.registerNavigationContainer(navigationRef)
-      }}>
-      <OfflineBanner />
-      <AppStackNavigator />
-      <StatusBar
-        translucent
-        backgroundColor="transparent"
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-      />
-      <NotificationToastWrapper />
-    </NavigationContainer>
-  )
+function useI18NDataUpdaters(): void {
+  const currentLanguage = useCurrentLanguage()
+  const currentLocale = useCurrentLocale()
+  const { i18n } = useTranslation()
+  const dispatch = useAppDispatch()
+  const accounts = useAccounts()
+
+  // Effect hook used to keep redux state synced with i18next, primarily on app start
+  // And to force app restart if RTL is flipped
+  useEffect(() => {
+    if (currentLocale !== i18n.language) {
+      i18n
+        .changeLanguage(currentLocale)
+        .catch(() =>
+          logger.warn(
+            'App',
+            'DataUpdaters',
+            'Sync of language setting state and i18n instance failed'
+          )
+        )
+    }
+
+    const isRtl = i18n.dir(currentLocale) === 'rtl'
+    if (isRtl !== I18nManager.isRTL) {
+      logger.info('App', 'DataUpdaters', `Changing RTL to ${isRtl} for locale ${currentLocale}`)
+      I18nManager.forceRTL(isRtl)
+
+      // Need to restart to apply RTL changes
+      // RNRestart requires timeout to work properly with reanimated
+      setTimeout(() => {
+        RNRestart.restart()
+      }, 1000)
+    }
+  }, [i18n, currentLocale])
+
+  // Effect hook used to sync app language with system OS language
+  useEffect(() => {
+    const locales = getLocales()
+    for (const locale of locales) {
+      // Normalizes language tags like 'zh-Hans-ch' to 'zh-Hans' that could happen on Android
+      const normalizedLanguageTag = locale.languageTag.split('-').slice(0, 2).join('-') as Locale
+      const mappedLanguageFromTag = Object.values(Locale).includes(normalizedLanguageTag)
+        ? mapLocaleToLanguage[normalizedLanguageTag]
+        : undefined
+      const mappedLanguageFromCode = locale.languageCode as Maybe<Language>
+      // Prefer languageTag as it's more specific, falls back to languageCode
+      const mappedLanguage = mappedLanguageFromTag || mappedLanguageFromCode
+
+      if (mappedLanguage && SUPPORTED_LANGUAGES.includes(mappedLanguage)) {
+        if (mappedLanguage !== currentLanguage) {
+          dispatch(setCurrentLanguage(mappedLanguage))
+        }
+        break
+      }
+    }
+  }, [currentLanguage, dispatch, i18n])
+
+  // Effect hook used to keep language in sync with firestore
+  useEffect(() => {
+    const addresses = Object.keys(accounts)
+    addresses.forEach((address) => {
+      dispatch(
+        editAccountActions.trigger({
+          type: EditAccountAction.UpdateLanguage,
+          address,
+          locale: currentLocale,
+        })
+      )
+    })
+  }, [accounts, currentLocale, dispatch])
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type

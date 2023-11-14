@@ -1,9 +1,16 @@
-import React, { ComponentProps, useCallback, useMemo, useReducer, useState } from 'react'
+import React, { ComponentProps, useCallback, useReducer, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LayoutChangeEvent, NativeSyntheticEvent, TextLayoutEventData } from 'react-native'
-import Markdown from 'react-native-markdown-display'
+import Markdown, { MarkdownProps } from 'react-native-markdown-display'
+import {
+  runOnJS,
+  useAnimatedReaction,
+  useAnimatedStyle,
+  useDerivedValue,
+  useSharedValue,
+} from 'react-native-reanimated'
 import { openUri } from 'src/utils/linking'
-import { Flex, SpaceTokens, Text, useSporeColors } from 'ui/src'
+import { AnimatedFlex, Flex, SpaceTokens, Text, useSporeColors } from 'ui/src'
 import { fonts } from 'ui/src/theme'
 
 type LongTextProps = {
@@ -42,21 +49,40 @@ export function LongText(props: LongTextProps): JSX.Element {
     renderAsMarkdown ? true : false
   )
   const [textLengthExceedsLimit, setTextLengthExceedsLimit] = useState(false)
-  const [initialContentHeight, setInitialContentHeight] = useState<number | undefined>(undefined)
 
-  const textLineHeight = fonts[variant].lineHeight
-  const maxVisibleHeight = textLineHeight * initialDisplayedLines
+  const initialContentHeight = useSharedValue<number | undefined>(undefined)
+  const textLineHeight = useSharedValue(0)
+  const maxVisibleHeight = useDerivedValue(
+    () => textLineHeight.value * initialDisplayedLines,
+    [initialDisplayedLines]
+  )
+  const animatedStyle = useAnimatedStyle(
+    () => ({
+      height: !textLengthExceedsLimit || expanded ? 'auto' : maxVisibleHeight.value,
+      overflow: 'hidden',
+    }),
+    [expanded, textLengthExceedsLimit]
+  )
 
-  const onLayout = useCallback(
+  useAnimatedReaction(
+    () => ({
+      initialHeight: initialContentHeight.value,
+      lineHeight: textLineHeight.value,
+    }),
+    ({ initialHeight, lineHeight }) => {
+      if (initialHeight === undefined) return false
+      const numberOfLines = Math.floor(initialHeight / lineHeight)
+      runOnJS(setTextLengthExceedsLimit)(numberOfLines >= initialDisplayedLines)
+    }
+  )
+
+  const onMarkdownLayout = useCallback(
     (event: LayoutChangeEvent) => {
-      if (!renderAsMarkdown || initialContentHeight !== undefined) return
-      const textContentHeight = event.nativeEvent.layout.height
-      const currentLines = Math.floor(textContentHeight / textLineHeight)
-      setTextLengthExceedsLimit(currentLines > initialDisplayedLines)
+      if (initialContentHeight.value !== undefined) return
+      initialContentHeight.value = event.nativeEvent.layout.height
       toggleExpanded()
-      setInitialContentHeight(textContentHeight)
     },
-    [initialContentHeight, initialDisplayedLines, textLineHeight, renderAsMarkdown]
+    [initialContentHeight]
   )
 
   const onTextLayout = useCallback(
@@ -66,34 +92,53 @@ export function LongText(props: LongTextProps): JSX.Element {
     [initialDisplayedLines]
   )
 
-  const codeStyle = useMemo(
-    () => ({ backgroundColor: codeBackgroundColor, borderColor: 'transparent' }),
-    [codeBackgroundColor]
-  )
+  const codeStyle = { backgroundColor: codeBackgroundColor, borderColor: 'transparent' }
+
+  const markdownStyle: MarkdownProps['style'] = {
+    body: {
+      color,
+      fontFamily: fonts[variant].family,
+      overflow: 'hidden',
+    },
+    code_inline: codeStyle,
+    fence: codeStyle,
+    code_block: codeStyle,
+    link: { color: linkColor },
+    paragraph: {
+      marginBottom: 0,
+      marginTop: 0,
+      fontSize: fonts[variant].fontSize,
+      lineHeight: fonts[variant].lineHeight,
+    },
+  }
 
   return (
     <Flex gap={gap}>
-      <Flex onLayout={onLayout}>
-        {renderAsMarkdown ? (
+      {renderAsMarkdown ? (
+        <AnimatedFlex style={animatedStyle} onLayout={onMarkdownLayout}>
+          {/* Render fake one-line markdown to properly measure the height of a single text line */}
+          <Flex
+            opacity={0}
+            pointerEvents="none"
+            position="absolute"
+            onLayout={({
+              nativeEvent: {
+                layout: { height },
+              },
+            }): void => {
+              textLineHeight.value = height
+            }}>
+            <Markdown
+              style={{
+                ...markdownStyle,
+                body: {},
+                paragraph: { ...markdownStyle.paragraph, lineHeight: fonts[variant].lineHeight },
+              }}
+              {...{ children: '.' }}
+            />
+          </Flex>
           <Markdown
-            style={{
-              body: {
-                color,
-                fontFamily: fonts[variant].family,
-                height: !textLengthExceedsLimit || expanded ? 'auto' : maxVisibleHeight,
-                overflow: 'hidden',
-              },
-              code_inline: codeStyle,
-              fence: codeStyle,
-              code_block: codeStyle,
-              link: { color: linkColor },
-              paragraph: {
-                marginBottom: 0,
-                marginTop: 0,
-                fontSize: fonts.body2.fontSize,
-                lineHeight: fonts.body2.lineHeight,
-              },
-            }}
+            style={markdownStyle}
             onLinkPress={(url): false => {
               // add our own custom link handler since it has security checks that only open http/https links
               openUri(url).catch(() => undefined)
@@ -102,17 +147,17 @@ export function LongText(props: LongTextProps): JSX.Element {
             // HACK: children prop no in TS definition
             {...{ children: text }}
           />
-        ) : (
-          <Text
-            numberOfLines={expanded ? undefined : initialDisplayedLines}
-            style={{ color }}
-            variant={variant}
-            onTextLayout={onTextLayout}
-            {...rest}>
-            {text}
-          </Text>
-        )}
-      </Flex>
+        </AnimatedFlex>
+      ) : (
+        <Text
+          numberOfLines={expanded ? undefined : initialDisplayedLines}
+          style={{ color }}
+          variant={variant}
+          onTextLayout={onTextLayout}
+          {...rest}>
+          {text}
+        </Text>
+      )}
 
       {/* Text is removed vs hidden using opacity to ensure spacing after the element is consistent in all cases.
       This will cause mild thrash as data loads into a page but will ensure consistent spacing */}

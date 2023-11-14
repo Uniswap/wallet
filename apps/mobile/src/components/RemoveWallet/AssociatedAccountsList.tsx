@@ -8,7 +8,7 @@ import {
   AccountListQuery,
   useAccountListQuery,
 } from 'wallet/src/data/__generated__/types-and-hooks'
-import { useFiatConverter } from 'wallet/src/features/fiatCurrency/conversion'
+import { useLocalizationContext } from 'wallet/src/features/language/LocalizationContext'
 import { Account } from 'wallet/src/features/wallet/accounts/types'
 
 const ADDRESS_ROW_HEIGHT = 40
@@ -45,7 +45,6 @@ function _AssociatedAccountsList({ accounts }: { accounts: Account[] }): JSX.Ele
       borderRadius="$rounded16"
       borderWidth={1}
       maxHeight={accountsScrollViewHeight}
-      mb="$spacing16"
       px="$spacing12"
       width="100%">
       <ScrollView bounces={false} contentContainerStyle={styles.accounts}>
@@ -78,7 +77,7 @@ function AssociatedAccountRow({
   totalCount: number
   loading: boolean
 }): JSX.Element {
-  const { convertFiatAmountFormatted } = useFiatConverter()
+  const { convertFiatAmountFormatted } = useLocalizationContext()
   const balanceFormatted = convertFiatAmountFormatted(balance, NumberType.PortfolioBalance)
 
   return (

@@ -6,7 +6,11 @@ import { TransactionPending } from 'src/features/transactions/TransactionPending
 import { DerivedTransferInfo } from 'src/features/transactions/transfer/hooks'
 import { AppTFunction } from 'ui/src/i18n/types'
 import { NumberType } from 'utilities/src/format/types'
-import { LocalizedFormatter, useLocalizedFormatter } from 'wallet/src/features/language/formatter'
+import { FiatCurrencyInfo, useAppFiatCurrencyInfo } from 'wallet/src/features/fiatCurrency/hooks'
+import {
+  LocalizationContextState,
+  useLocalizationContext,
+} from 'wallet/src/features/language/LocalizationContext'
 import { CurrencyField } from 'wallet/src/features/transactions/transactionState/types'
 import {
   TransactionDetails,
@@ -23,7 +27,8 @@ type TransferStatusProps = {
 
 const getTextFromTransferStatus = (
   t: AppTFunction,
-  formatter: LocalizedFormatter,
+  formatter: LocalizationContextState,
+  fiatCurrencyInfo: FiatCurrencyInfo,
   derivedTransferInfo: DerivedTransferInfo,
   recipient: string | undefined,
   transactionDetails?: TransactionDetails
@@ -48,6 +53,11 @@ const getTextFromTransferStatus = (
   }
   const status = transactionDetails.status
   if (status === TransactionStatus.Success) {
+    const formattedFiatValue = formatter.addFiatSymbolToNumber({
+      value: exactAmountFiat,
+      currencyCode: fiatCurrencyInfo.code,
+      currencySymbol: fiatCurrencyInfo.symbol,
+    })
     return {
       title: t('Send successful!'),
       description: t(
@@ -59,7 +69,7 @@ const getTextFromTransferStatus = (
                 value: currencyAmounts[CurrencyField.INPUT],
                 type: NumberType.TokenTx,
               }),
-          fiatValue: isFiatInput ? ` ($${exactAmountFiat})` : '',
+          fiatValue: isFiatInput ? ` (${formattedFiatValue})` : '',
           tokenName: nftIn?.name ?? ` ${currencyInInfo?.currency.symbol}` ?? ' tokens',
           recipient,
         }
@@ -87,7 +97,8 @@ export function TransferStatus({
   onTryAgain,
 }: TransferStatusProps): JSX.Element | null {
   const { t } = useTranslation()
-  const formatter = useLocalizedFormatter()
+  const formatter = useLocalizationContext()
+  const appFiatCurrencyInfo = useAppFiatCurrencyInfo()
   const activeAddress = useActiveAccountAddressWithThrow()
 
   const { recipient, chainId, txId } = derivedTransferInfo
@@ -96,8 +107,15 @@ export function TransferStatus({
 
   const recipientName = useDisplayName(recipient)?.name ?? recipient
   const { title, description } = useMemo(() => {
-    return getTextFromTransferStatus(t, formatter, derivedTransferInfo, recipientName, transaction)
-  }, [t, formatter, derivedTransferInfo, recipientName, transaction])
+    return getTextFromTransferStatus(
+      t,
+      formatter,
+      appFiatCurrencyInfo,
+      derivedTransferInfo,
+      recipientName,
+      transaction
+    )
+  }, [t, formatter, appFiatCurrencyInfo, derivedTransferInfo, recipientName, transaction])
 
   const onClose = useCallback(() => {
     onNext()

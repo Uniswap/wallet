@@ -15,7 +15,6 @@ import { FeeOnTransferInfoModal } from 'src/features/transactions/swap/modals/Fe
 import { NetworkFeeInfoModal } from 'src/features/transactions/swap/modals/NetworkFeeInfoModal'
 import { SlippageInfoModal } from 'src/features/transactions/swap/modals/SlippageInfoModal'
 import { SwapFeeInfoModal } from 'src/features/transactions/swap/modals/SwapFeeInfoModal'
-import { SwapProtectionInfoModal } from 'src/features/transactions/swap/modals/SwapProtectionModal'
 import { SwapDetails } from 'src/features/transactions/swap/SwapDetails'
 import {
   getActionElementName,
@@ -26,7 +25,7 @@ import { TransactionDetails } from 'src/features/transactions/TransactionDetails
 import { TransactionReview } from 'src/features/transactions/TransactionReview'
 import { NumberType } from 'utilities/src/format/types'
 import { GasFeeResult } from 'wallet/src/features/gas/types'
-import { useLocalizedFormatter } from 'wallet/src/features/language/formatter'
+import { useLocalizationContext } from 'wallet/src/features/language/LocalizationContext'
 import { CurrencyField } from 'wallet/src/features/transactions/transactionState/types'
 import { AccountType } from 'wallet/src/features/wallet/accounts/types'
 import { useActiveAccountWithThrow } from 'wallet/src/features/wallet/hooks'
@@ -54,7 +53,7 @@ export function SwapReview({
   exactValue,
 }: SwapFormProps): JSX.Element | null {
   const { t } = useTranslation()
-  const { formatNumberOrString, formatCurrencyAmount } = useLocalizedFormatter()
+  const { formatNumberOrString, formatCurrencyAmount } = useLocalizationContext()
   const account = useActiveAccountWithThrow()
   const [showWarningModal, setShowWarningModal] = useState(false)
   const [showNetworkFeeInfoModal, setShowNetworkFeeInfoModal] = useState(false)
@@ -64,7 +63,6 @@ export function SwapReview({
   const [showFOTInfoModal, setShowFOTInfoModal] = useState(false)
   const [warningAcknowledged, setWarningAcknowledged] = useState(false)
   const [shouldSubmitTx, setShouldSubmitTx] = useState(false)
-  const [showSwapProtectionModal, setShowSwapProtectionModal] = useState(false)
 
   const {
     chainId,
@@ -162,14 +160,6 @@ export function SwapReview({
     setShowSlippageModal(false)
   }, [])
 
-  const onShowSwapProtectionModal = useCallback(() => {
-    setShowSwapProtectionModal(true)
-  }, [])
-
-  const onCloseSwapProtectionModal = useCallback(() => {
-    setShowSwapProtectionModal(false)
-  }, [])
-
   const onShowFOTInfo = useCallback(() => {
     setShowFOTInfoModal(true)
   }, [])
@@ -242,7 +232,6 @@ export function SwapReview({
         onShowNetworkFeeInfo={onShowNetworkFeeInfo}
         onShowSlippageModal={onShowSlippageModal}
         onShowSwapFeeInfo={onShowSwapFeeInfo}
-        onShowSwapProtectionModal={onShowSwapProtectionModal}
         onShowWarning={onShowWarning}
       />
     )
@@ -298,7 +287,6 @@ export function SwapReview({
           onClose={onCloseSlippageModal}
         />
       )}
-      {showSwapProtectionModal && <SwapProtectionInfoModal onClose={onCloseSwapProtectionModal} />}
       {showFOTInfoModal && <FeeOnTransferInfoModal onClose={onCloseFOTInfo} />}
       {showNetworkFeeInfoModal && <NetworkFeeInfoModal onClose={onCloseNetworkFeeInfo} />}
       {showSwapFeeInfoModal && <SwapFeeInfoModal noFee={noSwapFee} onClose={onCloseSwapFeeInfo} />}

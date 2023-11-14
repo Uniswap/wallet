@@ -9,6 +9,7 @@ exports[`SeedPhraseInputScreen seed phrase initial screen rendering 1`] = `
       "backgroundColor": "#FFFFFF",
       "flex": 1,
       "flexDirection": "column",
+      "paddingBottom": undefined,
       "paddingLeft": undefined,
       "paddingRight": undefined,
     }
@@ -18,15 +19,10 @@ exports[`SeedPhraseInputScreen seed phrase initial screen rendering 1`] = `
     onLayout={[Function]}
     style={
       [
-        [
-          {
-            "flex": 1,
-            "justifyContent": "flex-end",
-          },
-          {
-            "marginBottom": undefined,
-          },
-        ],
+        {
+          "flex": 1,
+          "justifyContent": "flex-end",
+        },
         {
           "paddingBottom": 0,
         },
@@ -53,7 +49,7 @@ exports[`SeedPhraseInputScreen seed phrase initial screen rendering 1`] = `
               "flexGrow": 1,
               "gap": 16,
               "minHeight": 0,
-              "paddingBottom": 16,
+              "paddingBottom": 12,
               "paddingLeft": 16,
               "paddingRight": 16,
               "paddingTop": 200,
@@ -127,6 +123,7 @@ exports[`SeedPhraseInputScreen seed phrase initial screen rendering 1`] = `
               }
             >
               <View
+                onStartShouldSetResponder={[Function]}
                 onTouchEnd={[Function]}
                 style={
                   {
@@ -179,7 +176,7 @@ exports[`SeedPhraseInputScreen seed phrase initial screen rendering 1`] = `
                     <TextInput
                       autoCapitalize="none"
                       autoComplete="off"
-                      autoCorrect={true}
+                      autoCorrect={false}
                       autoFocus={true}
                       blurOnSubmit={true}
                       editable={true}
@@ -261,7 +258,7 @@ exports[`SeedPhraseInputScreen seed phrase initial screen rendering 1`] = `
                       }
                       suppressHighlighting={true}
                     >
-                      Type or
+                      Enter recovery phrase
                     </Text>
                     <View
                       cancelable={true}
@@ -413,24 +410,6 @@ exports[`SeedPhraseInputScreen seed phrase initial screen rendering 1`] = `
                         Paste
                       </Text>
                     </View>
-                    <Text
-                      adjustsFontSizeToFit={true}
-                      allowFontScaling={true}
-                      maxFontSizeMultiplier={1.4}
-                      numberOfLines={1}
-                      style={
-                        {
-                          "color": "#7D7D7D",
-                          "flexShrink": 1,
-                          "fontFamily": "Basel-Book",
-                          "fontSize": 19,
-                          "lineHeight": 24,
-                        }
-                      }
-                      suppressHighlighting={true}
-                    >
-                      recovery phrase
-                    </Text>
                   </View>
                 </View>
                 <View

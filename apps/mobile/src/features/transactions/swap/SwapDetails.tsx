@@ -11,16 +11,14 @@ import { FeeOnTransferInfo } from 'src/features/transactions/swap/FeeOnTransferI
 import { DerivedSwapInfo } from 'src/features/transactions/swap/types'
 import { getRateToDisplay } from 'src/features/transactions/swap/utils'
 import { TransactionDetails } from 'src/features/transactions/TransactionDetails'
-import { Flex, Icons, Text, TouchableArea } from 'ui/src'
+import { Flex, Text, TouchableArea } from 'ui/src'
 import { InfoCircleFilled } from 'ui/src/components/icons'
 import { NumberType } from 'utilities/src/format/types'
 import { FEATURE_FLAGS } from 'wallet/src/features/experiments/constants'
 import { useFeatureFlag } from 'wallet/src/features/experiments/hooks'
-import { useFiatConverter } from 'wallet/src/features/fiatCurrency/conversion'
 import { GasFeeResult } from 'wallet/src/features/gas/types'
-import { useLocalizedFormatter } from 'wallet/src/features/language/formatter'
+import { useLocalizationContext } from 'wallet/src/features/language/LocalizationContext'
 import { useUSDCPrice } from 'wallet/src/features/routing/useUSDCPrice'
-import { useShouldUseMEVBlocker } from 'wallet/src/features/transactions/swap/customRpc'
 import { Trade } from 'wallet/src/features/transactions/swap/useTrade'
 import { CurrencyField } from 'wallet/src/features/transactions/transactionState/types'
 import { getFormattedCurrencyAmount, getSymbolDisplayText } from 'wallet/src/utils/currency'
@@ -59,7 +57,6 @@ interface SwapDetailsProps {
   onShowSwapFeeInfo: OnShowSwapFeeInfo
   onShowWarning?: () => void
   onShowSlippageModal: () => void
-  onShowSwapProtectionModal: () => void
   onShowFOTInfo: () => void
 }
 
@@ -77,13 +74,13 @@ export function SwapDetails({
   onShowSwapFeeInfo,
   onShowWarning,
   onShowSlippageModal,
-  onShowSwapProtectionModal,
   onShowFOTInfo,
 }: SwapDetailsProps): JSX.Element {
   const { t } = useTranslation()
   const [showInverseRate, setShowInverseRate] = useState(false)
-  const { convertFiatAmountFormatted } = useFiatConverter()
-  const formatter = useLocalizedFormatter()
+
+  const formatter = useLocalizationContext()
+  const { convertFiatAmountFormatted } = useLocalizationContext()
 
   const shouldShowSwapRewrite = useFeatureFlag(FEATURE_FLAGS.SwapRewrite)
 
@@ -112,7 +109,7 @@ export function SwapDetails({
   const latestUSDPrice = useUSDCPrice(
     showInverseRate ? latestPrice.quoteCurrency : latestPrice.baseCurrency
   )
-  const latesetFiatPriceFormatted = convertFiatAmountFormatted(
+  const latestFiatPriceFormatted = convertFiatAmountFormatted(
     latestUSDPrice?.toSignificant(),
     NumberType.FiatTokenPrice
   )
@@ -136,8 +133,6 @@ export function SwapDetails({
   const showSlippageWarning = autoSlippageTolerance
     ? acceptedTrade.slippageTolerance > autoSlippageTolerance
     : false
-
-  const shouldUseMevBlocker = useShouldUseMEVBlocker(trade?.inputAmount.currency.chainId)
 
   const feeOnTransferInfo: FeeOnTransferInfo = useMemo(
     () => ({
@@ -195,7 +190,7 @@ export function SwapDetails({
               {shouldShowSwapRewrite ? latestRate : acceptedRate}
               <Text color="$neutral2" variant="body3">
                 {/* {usdcPrice && ` (${priceFormatted})`} */}
-                {shouldShowSwapRewrite && latestUSDPrice && ` (${latesetFiatPriceFormatted})`}
+                {shouldShowSwapRewrite && latestUSDPrice && ` (${latestFiatPriceFormatted})`}
 
                 {!shouldShowSwapRewrite && acceptedUSDPrice && ` (${acceptedFiatPriceFormatted})`}
               </Text>
@@ -203,37 +198,20 @@ export function SwapDetails({
           </TouchableOpacity>
         </Flex>
       </Flex>
-      {shouldUseMevBlocker && (
-        <Flex row alignItems="center" justifyContent="space-between">
-          <TouchableArea onPress={onShowSwapProtectionModal}>
-            <Flex centered row gap="$spacing4">
-              <Text color="$neutral2" variant="body3">
-                {t('Swap protection')}
-              </Text>
-              <InfoCircleFilled color="$neutral3" size="$icon.16" />
-            </Flex>
-          </TouchableArea>
-          <Flex centered row gap="$spacing8">
-            <Icons.ShieldCheck color="$neutral3" size="$icon.16" />
-            <Text color="$neutral1" variant="body3">
-              {t('On')}
-            </Text>
-          </Flex>
-        </Flex>
-      )}
-      <Flex row alignItems="center" justifyContent="space-between">
-        <TouchableArea onPress={onShowSlippageModal}>
-          <Flex centered row gap="$spacing4">
-            <Text color="$neutral2" variant="body3">
+      <Flex row alignItems="center" gap="$spacing12" justifyContent="space-between">
+        <TouchableArea flexShrink={1} onPress={onShowSlippageModal}>
+          <Flex row alignItems="center" gap="$spacing4">
+            <Text color="$neutral2" numberOfLines={3} variant="body3">
               {t('Max slippage')}
+              &nbsp;
+              <InfoCircleFilled color="$neutral3" size="$icon.16" />
             </Text>
-            <InfoCircleFilled color="$neutral3" size="$icon.16" />
           </Flex>
         </TouchableArea>
-        <Flex row gap="$spacing8">
+        <Flex centered row gap="$spacing8">
           {!customSlippageTolerance ? (
-            <Flex centered bg="$accent2" borderRadius="$roundedFull" px="$spacing8">
-              <Text color="$accent1" variant="buttonLabel4">
+            <Flex centered bg="$surface3" borderRadius="$roundedFull" px="$spacing4" py="$spacing2">
+              <Text color="$neutral2" variant="buttonLabel4">
                 {t('Auto')}
               </Text>
             </Flex>
@@ -261,7 +239,7 @@ function AcceptNewQuoteRow({
   setShowInverseRate: React.Dispatch<React.SetStateAction<boolean>>
 }): JSX.Element {
   const { t } = useTranslation()
-  const { formatCurrencyAmount } = useLocalizedFormatter()
+  const { formatCurrencyAmount } = useLocalizationContext()
 
   const shouldShowSwapRewrite = useFeatureFlag(FEATURE_FLAGS.SwapRewrite)
 

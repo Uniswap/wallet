@@ -10,13 +10,13 @@ import { BlockedAddressWarning } from 'src/features/trm/BlockedAddressWarning'
 import { AnimatedFlex, Flex, Icons, Text, TouchableArea, useSporeColors } from 'ui/src'
 import { iconSizes } from 'ui/src/theme'
 import { NumberType } from 'utilities/src/format/types'
-import { useFiatConverter } from 'wallet/src/features/fiatCurrency/conversion'
 import { useUSDValue } from 'wallet/src/features/gas/hooks'
+import { useLocalizationContext } from 'wallet/src/features/language/LocalizationContext'
 import { useIsBlockedActiveAddress } from 'wallet/src/features/trm/hooks'
 
-export function GasAndWarningRows(): JSX.Element {
+export function GasAndWarningRows({ renderEmptyRows }: { renderEmptyRows: boolean }): JSX.Element {
   const colors = useSporeColors()
-  const { convertFiatAmountFormatted } = useFiatConverter()
+  const { convertFiatAmountFormatted } = useLocalizationContext()
 
   const { gasFee } = useSwapTxContext()
   const { derivedSwapInfo } = useSwapFormContext()
@@ -54,7 +54,11 @@ export function GasAndWarningRows(): JSX.Element {
         />
       )}
 
-      <Flex gap="$spacing16" mt="$spacing16">
+      {/*
+        Do not add any margins directly to this container, as this component is used in 2 different places.
+        Adjust the margin in the parent component instead.
+      */}
+      <Flex $short={{ gap: '$spacing8' }} gap="$spacing16">
         {isBlocked && (
           // TODO: review design of this warning.
           <BlockedAddressWarning
@@ -71,7 +75,7 @@ export function GasAndWarningRows(): JSX.Element {
         )}
 
         {gasFeeUSD && (
-          <TouchableArea onPress={(): void => setShowGasInfoModal(true)}>
+          <TouchableArea hapticFeedback onPress={(): void => setShowGasInfoModal(true)}>
             <AnimatedFlex centered row entering={FadeIn} exiting={FadeOut} gap="$spacing4">
               <Icons.Gas color={colors.neutral2.val} size="$icon.16" />
               <Text color="$neutral2" variant="body3">
@@ -112,8 +116,8 @@ export function GasAndWarningRows(): JSX.Element {
         This is used when calculating the size of the `DecimalPad`.
         */}
 
-        {!gasFeeUSD && <EmptyRow />}
-        {!formScreenWarning && <EmptyRow />}
+        {!gasFeeUSD && renderEmptyRows && <EmptyRow />}
+        {!formScreenWarning && renderEmptyRows && <EmptyRow />}
       </Flex>
     </>
   )

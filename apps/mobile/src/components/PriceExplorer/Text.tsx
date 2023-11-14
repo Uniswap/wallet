@@ -4,17 +4,36 @@ import { useLineChartDatetime } from 'react-native-wagmi-charts'
 import { AnimatedText } from 'src/components/text/AnimatedText'
 import { IS_ANDROID } from 'src/constants/globals'
 import { Flex, Icons, useSporeColors } from 'ui/src'
+import { FiatCurrency } from 'wallet/src/features/fiatCurrency/constants'
+import { useAppFiatCurrency, useAppFiatCurrencyInfo } from 'wallet/src/features/fiatCurrency/hooks'
+import { useCurrentLocale } from 'wallet/src/features/language/hooks'
 import { AnimatedDecimalNumber } from './AnimatedDecimalNumber'
 import { useLineChartPrice, useLineChartRelativeChange } from './usePrice'
 
 export function PriceText({ loading }: { loading: boolean }): JSX.Element {
   const price = useLineChartPrice()
+  const colors = useSporeColors()
+  const currency = useAppFiatCurrency()
+  const { decimalSeparator, symbolAtFront } = useAppFiatCurrencyInfo()
+
+  // TODO gary re-enabling this for USD/Euros only, replace with more scalable approach
+  const shouldFadePortfolioDecimals =
+    (currency === FiatCurrency.UnitedStatesDollar || currency === FiatCurrency.Euro) &&
+    symbolAtFront
 
   if (loading) {
     return <AnimatedText loading loadingPlaceholderText="$10,000" variant="heading1" />
   }
 
-  return <AnimatedDecimalNumber number={price} testID="price-text" variant="heading1" />
+  return (
+    <AnimatedDecimalNumber
+      decimalPartColor={shouldFadePortfolioDecimals ? colors.neutral3.val : colors.neutral1.val}
+      number={price}
+      separator={decimalSeparator}
+      testID="price-text"
+      variant="heading1"
+    />
+  )
 }
 
 export function RelativeChangeText({
@@ -71,8 +90,9 @@ export function RelativeChangeText({
 }
 
 export function DatetimeText({ loading }: { loading: boolean }): JSX.Element | null {
+  const locale = useCurrentLocale()
   // `datetime` when scrubbing the chart
-  const datetime = useLineChartDatetime()
+  const datetime = useLineChartDatetime({ locale })
 
   if (loading) return null
 

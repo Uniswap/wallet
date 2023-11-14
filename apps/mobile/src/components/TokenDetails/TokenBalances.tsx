@@ -9,8 +9,7 @@ import { iconSizes } from 'ui/src/theme'
 import { NumberType } from 'utilities/src/format/types'
 import { TokenLogo } from 'wallet/src/components/CurrencyLogo/TokenLogo'
 import { PortfolioBalance } from 'wallet/src/features/dataApi/types'
-import { useFiatConverter } from 'wallet/src/features/fiatCurrency/conversion'
-import { useLocalizedFormatter } from 'wallet/src/features/language/formatter'
+import { useLocalizationContext } from 'wallet/src/features/language/LocalizationContext'
 import { AccountType } from 'wallet/src/features/wallet/accounts/types'
 import { useActiveAccount, useDisplayName } from 'wallet/src/features/wallet/hooks'
 import { getSymbolDisplayText } from 'wallet/src/utils/currency'
@@ -65,7 +64,7 @@ export function TokenBalances({
         </Flex>
       )}
       {hasOtherChainBalances && otherChainBalances ? (
-        <Flex>
+        <Flex gap="$spacing8">
           <Text color="$neutral2" variant="subheading2">
             {t('Balances on other networks')}
           </Text>
@@ -99,22 +98,23 @@ export function CurrentChainBalance({
 }): JSX.Element {
   const { t } = useTranslation()
   const colors = useSporeColors()
-  const { convertFiatAmountFormatted } = useFiatConverter()
-  const { formatNumberOrString } = useLocalizedFormatter()
+  const { convertFiatAmountFormatted, formatNumberOrString } = useLocalizationContext()
 
   return (
     <Flex row>
-      <Flex fill gap="$spacing4">
+      <Flex fill gap="$spacing8">
         <Text color="$neutral2" variant="subheading2">
           {isReadonly ? t('{{owner}}’s balance', { owner: displayName }) : t('Your balance')}
         </Text>
-        <Text variant="subheading1">
-          {convertFiatAmountFormatted(balance.balanceUSD, NumberType.FiatTokenDetails)}
-        </Text>
-        <Text color="$neutral2" variant="body2">
-          {formatNumberOrString({ value: balance.quantity, type: NumberType.TokenNonTx })}{' '}
-          {getSymbolDisplayText(balance.currencyInfo.currency.symbol)}
-        </Text>
+        <Flex fill gap="$spacing4">
+          <Text variant="heading3">
+            {convertFiatAmountFormatted(balance.balanceUSD, NumberType.FiatTokenDetails)}
+          </Text>
+          <Text color="$neutral2" variant="body2">
+            {formatNumberOrString({ value: balance.quantity, type: NumberType.TokenNonTx })}{' '}
+            {getSymbolDisplayText(balance.currencyInfo.currency.symbol)}
+          </Text>
+        </Flex>
       </Flex>
       <Flex alignItems="flex-end" justifyContent="center">
         <SendButton color={colors.neutral1.get()} size={iconSizes.icon28} onPress={onPressSend} />
@@ -130,8 +130,7 @@ function OtherChainBalance({
   balance: PortfolioBalance
   navigate: (currencyId: CurrencyId) => void
 }): JSX.Element {
-  const { convertFiatAmountFormatted } = useFiatConverter()
-  const { formatNumberOrString } = useLocalizedFormatter()
+  const { convertFiatAmountFormatted, formatNumberOrString } = useLocalizationContext()
 
   return (
     <Trace logPress pressEvent={MobileEventName.TokenDetailsOtherChainButtonPressed}>

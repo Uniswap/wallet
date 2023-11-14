@@ -36,7 +36,7 @@ export function RestoreWalletModal(): JSX.Element | null {
       backgroundColor={colors.surface2.get()}
       isDismissible={false}
       name={ModalName.RestoreWallet}>
-      <Flex centered gap="$spacing16" height="100%" mb="$spacing24" p="$spacing24" pt="$none">
+      <Flex centered gap="$spacing16" px="$spacing24" py="$spacing12">
         <Flex
           centered
           borderRadius="$roundedFull"

@@ -1,18 +1,17 @@
 import React, { ReactElement } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ImageStyle } from 'react-native-fast-image'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { BackButton } from 'src/components/buttons/BackButton'
 import { Loader } from 'src/components/loading'
 import { LongText } from 'src/components/text/LongText'
 import { NFTCollectionContextMenu } from 'src/features/nfts/collection/NFTCollectionContextMenu'
-import { Flex, FlexProps, Logos, Text, TouchableArea, useSporeColors } from 'ui/src'
+import { Flex, FlexProps, Logos, Text, useDeviceInsets, useSporeColors } from 'ui/src'
 import VerifiedIcon from 'ui/src/assets/icons/verified.svg'
 import { iconSizes, spacing } from 'ui/src/theme'
 import { NumberType } from 'utilities/src/format/types'
 import { ImageUri } from 'wallet/src/features/images/ImageUri'
 import { NFTViewer } from 'wallet/src/features/images/NFTViewer'
-import { useLocalizedFormatter } from 'wallet/src/features/language/formatter'
+import { useLocalizationContext } from 'wallet/src/features/language/LocalizationContext'
 import { useExtractedColors } from 'wallet/src/utils/colors'
 import { NFTCollectionData } from './types'
 
@@ -31,10 +30,10 @@ export function NFTCollectionHeader({
 }): ReactElement {
   const colors = useSporeColors()
   const { t } = useTranslation()
-  const { formatNumberOrString } = useLocalizedFormatter()
+  const { formatNumberOrString } = useLocalizationContext()
 
   // Style based on device sizing
-  const { top: deviceTopPadding } = useSafeAreaInsets()
+  const { top: deviceTopPadding } = useDeviceInsets()
   const adjustedBannerHeight = deviceTopPadding + NFT_BANNER_HEIGHT
 
   const bannerImageStyle: ImageStyle = {
@@ -93,15 +92,9 @@ export function NFTCollectionHeader({
           justifyContent="space-between"
           mx="$spacing24"
           pt="$spacing48">
-          <TouchableArea
-            hapticFeedback
-            backgroundColor="$sporeBlack"
-            borderRadius="$roundedFull"
-            p="$spacing12">
-            <Flex centered grow height={iconSizes.icon8} width={iconSizes.icon8}>
-              <BackButton color="$sporeWhite" size={iconSizes.icon24} />
-            </Flex>
-          </TouchableArea>
+          <Flex backgroundColor="$scrim" borderRadius="$roundedFull" p="$spacing4">
+            <BackButton color="$sporeWhite" mr="$spacing1" size={iconSizes.icon24} />
+          </Flex>
           <NFTCollectionContextMenu
             collectionAddress={collectionAddress}
             data={data}
@@ -161,9 +154,9 @@ export function NFTCollectionHeader({
             ) : null}
           </Flex>
 
-          <Flex row gap="$spacing24" justifyContent="space-between">
+          <Flex row gap="$spacing8" justifyContent="space-between">
             <Flex fill alignItems="flex-start" gap="$spacing4">
-              <Text color="$neutral2" variant="subheading2">
+              <Text color="$neutral2" numberOfLines={1} variant="subheading2">
                 {t('Items')}
               </Text>
               <Text loading={loading} variant="body1">
@@ -174,7 +167,7 @@ export function NFTCollectionHeader({
               </Text>
             </Flex>
             <Flex fill alignItems="flex-start" gap="$spacing4">
-              <Text color="$neutral2" variant="subheading2">
+              <Text color="$neutral2" numberOfLines={1} variant="subheading2">
                 {t('Owners')}
               </Text>
               <Text loading={loading} variant="body1">
@@ -185,7 +178,7 @@ export function NFTCollectionHeader({
               </Text>
             </Flex>
             <Flex fill alignItems="flex-start" gap="$spacing4">
-              <Text color="$neutral2" variant="subheading2">
+              <Text color="$neutral2" numberOfLines={1} variant="subheading2">
                 {t('Floor')}
               </Text>
               <Flex row alignItems="center">
@@ -201,7 +194,7 @@ export function NFTCollectionHeader({
               </Flex>
             </Flex>
             <Flex fill alignItems="flex-start" gap="$spacing4">
-              <Text color="$neutral2" variant="subheading2">
+              <Text color="$neutral2" numberOfLines={1} variant="subheading2">
                 {t('Volume')}
               </Text>
               <Flex row alignItems="center" gap="$spacing4">

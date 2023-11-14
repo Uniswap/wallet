@@ -11,7 +11,7 @@ import { useAppSelector } from 'wallet/src/state'
  */
 export function useCurrentLanguage(): Language {
   const featureEnabled = useFeatureFlag(FEATURE_FLAGS.LanguageSelection)
-  const { currentLanguage } = useAppSelector((state) => state.languageSettings)
+  const currentLanguage = useAppSelector((state) => state.languageSettings.currentLanguage)
   return featureEnabled ? currentLanguage : Language.English
 }
 
@@ -34,7 +34,7 @@ export function getLocale(language: Language): Locale {
 
 /**
  * Returns all relevant info for the target language, including the translated name of
- * that langauge in that language (not a typo).
+ * that language in that language (not a typo).
  * @param language target language
  * @returns all relevant language info
  */
@@ -98,10 +98,20 @@ export function useLanguageInfo(language: Language): LanguageInfo {
         originName: t('Russian', { lng: getLocale(Language.Russian) }),
         locale: getLocale(Language.Russian),
       },
-      [Language.Spanish]: {
-        name: t('Spanish'),
-        originName: t('Spanish', { lng: getLocale(Language.Spanish) }),
-        locale: getLocale(Language.Spanish),
+      [Language.SpanishSpain]: {
+        name: t('Spanish (Spain)'),
+        originName: t('Spanish (Spain)', { lng: getLocale(Language.SpanishSpain) }),
+        locale: getLocale(Language.SpanishSpain),
+      },
+      [Language.SpanishLatam]: {
+        name: t('Spanish (Latin America)'),
+        originName: t('Spanish (Latin America)', { lng: getLocale(Language.SpanishLatam) }),
+        locale: getLocale(Language.SpanishLatam),
+      },
+      [Language.SpanishUnitedStates]: {
+        name: t('Spanish (US)'),
+        originName: t('Spanish (US)', { lng: getLocale(Language.SpanishUnitedStates) }),
+        locale: getLocale(Language.SpanishUnitedStates),
       },
       [Language.Thai]: {
         name: t('Thai'),

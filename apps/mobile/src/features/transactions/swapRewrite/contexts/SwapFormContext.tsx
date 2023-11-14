@@ -25,14 +25,16 @@ export type SwapFormState = {
   output?: TradeableAsset
   selectingCurrencyField?: CurrencyField
   txId?: string
+  isFiatMode: boolean
+  isSubmitting: boolean
 }
 
 type DerivedSwapFormState = {
-  isFiatInput: boolean
   derivedSwapInfo: ReturnType<typeof useDerivedSwapInfo>
 }
 
 type SwapFormContextState = {
+  amountUpdatedTimeRef: React.MutableRefObject<number>
   exactAmountFiatRef: React.MutableRefObject<string>
   exactAmountTokenRef: React.MutableRefObject<string>
   onClose: () => void
@@ -54,6 +56,8 @@ const DEFAULT_STATE: Readonly<SwapFormState> = {
   focusOnCurrencyField: CurrencyField.INPUT,
   input: ETH_TRADEABLE_ASSET,
   output: undefined,
+  isFiatMode: false,
+  isSubmitting: false,
 }
 
 export const SwapFormContext = createContext<SwapFormContextState | undefined>(undefined)
@@ -67,12 +71,17 @@ export function SwapFormContextProvider({
   prefilledState?: SwapFormState
   onClose: () => void
 }): JSX.Element {
+  const amountUpdatedTimeRef = useRef<number>(0)
   const exactAmountFiatRef = useRef<string>('')
   const exactAmountTokenRef = useRef<string>('')
   const [swapForm, setSwapForm] = useState<SwapFormState>(prefilledState ?? DEFAULT_STATE)
 
   const updateSwapForm = useCallback(
     (newState: Parameters<SwapFormContextState['updateSwapForm']>[0]): void => {
+      if ('exactAmountFiat' in newState || 'exactAmountToken' in newState) {
+        amountUpdatedTimeRef.current = Date.now()
+      }
+
       if ('exactAmountFiat' in newState) {
         exactAmountFiatRef.current = newState.exactAmountFiat ?? ''
       }
@@ -80,14 +89,10 @@ export function SwapFormContextProvider({
       if ('exactAmountToken' in newState) {
         exactAmountTokenRef.current = newState.exactAmountToken ?? ''
       }
+
       setSwapForm((prevState) => ({ ...prevState, ...newState }))
     },
     [setSwapForm]
-  )
-
-  const isFiatInput = useMemo<boolean>(
-    () => swapForm.exactAmountFiat !== undefined,
-    [swapForm.exactAmountFiat]
   )
 
   const derivedSwapInfo = useDerivedSwapInfo({
@@ -98,14 +103,15 @@ export function SwapFormContextProvider({
     exactAmountToken: swapForm.exactAmountToken ?? '',
     exactAmountFiat: swapForm.exactAmountFiat,
     focusOnCurrencyField: swapForm.focusOnCurrencyField,
-    isFiatInput,
     selectingCurrencyField: swapForm.selectingCurrencyField,
     customSlippageTolerance: swapForm.customSlippageTolerance,
   })
 
   const state = useMemo<SwapFormContextState>(
     (): SwapFormContextState => ({
+      amountUpdatedTimeRef,
       customSlippageTolerance: swapForm.customSlippageTolerance,
+      derivedSwapInfo,
       exactAmountFiat: swapForm.exactAmountFiat,
       exactAmountFiatRef,
       exactAmountToken: swapForm.exactAmountToken,
@@ -113,29 +119,30 @@ export function SwapFormContextProvider({
       exactCurrencyField: swapForm.exactCurrencyField,
       focusOnCurrencyField: swapForm.focusOnCurrencyField,
       input: swapForm.input,
-      isFiatInput,
+      isFiatMode: swapForm.isFiatMode,
+      isSubmitting: swapForm.isSubmitting,
       onClose,
       output: swapForm.output,
       selectingCurrencyField: swapForm.selectingCurrencyField,
       setSwapForm,
       txId: swapForm.txId,
       updateSwapForm,
-      derivedSwapInfo,
     }),
     [
-      derivedSwapInfo,
-      isFiatInput,
-      onClose,
       swapForm.customSlippageTolerance,
       swapForm.exactAmountFiat,
       swapForm.exactAmountToken,
       swapForm.exactCurrencyField,
       swapForm.focusOnCurrencyField,
       swapForm.input,
+      swapForm.isFiatMode,
+      swapForm.isSubmitting,
       swapForm.output,
       swapForm.selectingCurrencyField,
       swapForm.txId,
+      onClose,
       updateSwapForm,
+      derivedSwapInfo,
     ]
   )
 
