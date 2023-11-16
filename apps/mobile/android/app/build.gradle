@@ -130,12 +130,12 @@ android {
       }
       beta {
         applicationIdSuffix ".beta"
-        versionName "1.16"
+        versionName "1.16.2"
         dimension "variant"
       }
       prod {
         dimension "variant"
-        versionName "1.16"
+        versionName "1.16.2"
       }
     }
 

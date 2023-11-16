@@ -14,6 +14,7 @@ export enum AppNotificationType {
   Success,
   SwapNetwork,
   AssetVisibility, // could be token or NFT
+  SwapPending,
 }
 
 interface AppNotificationBase {
@@ -149,9 +150,14 @@ export interface ChangeAssetVisibilityNotification extends AppNotificationBase {
   assetName: string
 }
 
+export interface SwapPendingNotification extends AppNotificationBase {
+  type: AppNotificationType.SwapPending
+}
+
 export type AppNotification =
   | AppNotificationDefault
   | AppErrorNotification
+  | SwapPendingNotification
   | CopyNotification
   | WalletConnectNotification
   | TransactionNotification
