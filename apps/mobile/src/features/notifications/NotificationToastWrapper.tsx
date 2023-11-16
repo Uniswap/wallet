@@ -9,6 +9,7 @@ import {
   SuccessNotification,
   SwapNetworkNotification,
   SwapNotification,
+  SwapPendingNotification,
   TransferCurrencyNotification,
   TransferNFTNotification,
   UnknownTxNotification,
@@ -49,6 +50,8 @@ export function NotificationToastRouter({
       return <SwapNetworkNotification notification={notification} />
     case AppNotificationType.AssetVisibility:
       return <ChangeAssetVisibilityNotification notification={notification} />
+    case AppNotificationType.SwapPending:
+      return <SwapPendingNotification />
     case AppNotificationType.Transaction:
       switch (notification.txType) {
         case TransactionType.Approve:
