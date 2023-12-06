@@ -20,12 +20,12 @@ If you have suggestions on how we can improve the app, or would like to report a
     - [Run the app](#run-the-app)
   - [Important Libraries and Tools](#important-libraries-and-tools)
   - [Migrations](#migrations)
-  - [Internationalisation (i18n)](#internationalisation-i18n)
+  - [Internationalisation (i18n)](#internationalization-i18n)
   - [Testing](#testing)
 - [Troubleshooting](#troubleshooting)
   - [Common issues](#common-issues)
   - [Common fixes](#common-fixes)
-  - [.zprofile setup](#zprofile-setup)
+  - [Shell profile setup](#shell-profile-setup)
 
 ---
 
